@@ -27,7 +27,7 @@ func TestRunRepositoryPersistsFingerprintsAndTerminalOutcome(t *testing.T) {
 	repository := NewRunRepository(database)
 	run := domain.RunRecord{
 		ID: "run-1", ProjectID: "project-run", ServiceID: "api", RuntimeDriver: domain.KindProcess,
-		Origin: domain.OriginSwitchyard, StartedAt: now, IdentityFingerprint: "fingerprint-1",
+		Origin: domain.OriginSwitchyard, StartedAt: now, IdentityFingerprint: "fingerprint-1", OperationID: "op-1",
 	}
 	if err := repository.CreateRun(ctx, run); err != nil {
 		t.Fatal(err)
@@ -52,7 +52,7 @@ func TestRunRepositoryPersistsFingerprintsAndTerminalOutcome(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(runs) != 1 || runs[0].EndedAt == nil || runs[0].ExitCode == nil || *runs[0].ExitCode != 17 ||
-		runs[0].RestartCount != 1 || len(runs[0].Processes) != 1 || runs[0].Processes[0].Fingerprint != "fingerprint-1" {
+		runs[0].RestartCount != 1 || runs[0].OperationID != "op-1" || len(runs[0].Processes) != 1 || runs[0].Processes[0].Fingerprint != "fingerprint-1" {
 		t.Fatalf("runs = %#v", runs)
 	}
 }

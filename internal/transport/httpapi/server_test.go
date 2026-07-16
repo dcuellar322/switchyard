@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
@@ -113,6 +114,64 @@ func TestRuntimePlanDoesNotRequireMutationCredentials(t *testing.T) {
 	}
 }
 
+type runningRuntimeStub struct{}
+
+func (runningRuntimeStub) Inspect(context.Context, string) (runtimeDomain.Observation, error) {
+	return runtimeDomain.Observation{ProjectID: "project-1", Driver: runtimeDomain.KindProcess, State: runtimeDomain.StateRunning,
+		Origin: runtimeDomain.OriginSwitchyard, Services: []runtimeDomain.ServiceObservation{}}, nil
+}
+func (runningRuntimeStub) Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{}, nil
+}
+func (runningRuntimeStub) Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error) {
+	return nil, nil
+}
+
+type unhealthyStub struct{}
+
+func (unhealthyStub) Get(context.Context, string) (observabilityDomain.ProjectHealth, error) {
+	return observabilityDomain.ProjectHealth{ProjectID: "project-1", Status: observabilityDomain.StatusUnhealthy,
+		ObserverState: observabilityDomain.ObserverConnected}, nil
+}
+
+func TestRuntimeObservationBecomesDegradedWithoutClaimingStopped(t *testing.T) {
+	t.Parallel()
+	handler := &handler{runtime: runningRuntimeStub{}, health: unhealthyStub{}}
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/projects/project-1/runtime", nil)
+	response := httptest.NewRecorder()
+	handler.GetProjectRuntime(response, request, "project-1")
+	body := response.Body.Bytes()
+	var observation runtimeDomain.Observation
+	if err := json.Unmarshal(body, &observation); err != nil {
+		t.Fatal(err)
+	}
+	if observation.State != runtimeDomain.StateDegraded {
+		t.Fatalf("state = %q", observation.State)
+	}
+	var payload map[string]json.RawMessage
+	if err := json.Unmarshal(body, &payload); err != nil {
+		t.Fatal(err)
+	}
+	if string(payload["services"]) != "[]" {
+		t.Fatalf("services = %s, want []", payload["services"])
+	}
+}
+
+func TestHealthResponseUsesEmptyArrayForNoResults(t *testing.T) {
+	t.Parallel()
+	handler := &handler{health: unhealthyStub{}}
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/projects/project-1/health", nil)
+	response := httptest.NewRecorder()
+	handler.GetProjectHealth(response, request, "project-1")
+	var payload map[string]json.RawMessage
+	if err := json.NewDecoder(response.Body).Decode(&payload); err != nil {
+		t.Fatal(err)
+	}
+	if string(payload["results"]) != "[]" {
+		t.Fatalf("results = %s, want []", payload["results"])
+	}
+}
+
 func (operationStub) Get(context.Context, string) (domain.Operation, error) {
 	return domain.Operation{}, operations.ErrNotFound
 }
@@ -179,14 +238,16 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 		t.Fatalf("missing CSRF status = %d", missingCSRFResponse.Code)
 	}
 
-	wrongOrigin := httptest.NewRequest(http.MethodGet, "/ws/v1/events", nil)
-	wrongOrigin.Host = "127.0.0.1:19616"
-	wrongOrigin.Header.Set("Origin", "http://attacker.invalid")
-	wrongOrigin.AddCookie(cookies[0])
-	wrongOriginResponse := httptest.NewRecorder()
-	browser.ServeHTTP(wrongOriginResponse, wrongOrigin)
-	if wrongOriginResponse.Code != http.StatusForbidden {
-		t.Fatalf("wrong origin status = %d", wrongOriginResponse.Code)
+	for _, path := range []string{"/ws/v1/events", "/ws/v1/logs?projectId=project-1"} {
+		wrongOrigin := httptest.NewRequest(http.MethodGet, path, nil)
+		wrongOrigin.Host = "127.0.0.1:19616"
+		wrongOrigin.Header.Set("Origin", "http://attacker.invalid")
+		wrongOrigin.AddCookie(cookies[0])
+		wrongOriginResponse := httptest.NewRecorder()
+		browser.ServeHTTP(wrongOriginResponse, wrongOrigin)
+		if wrongOriginResponse.Code != http.StatusForbidden {
+			t.Fatalf("wrong origin status for %s = %d", path, wrongOriginResponse.Code)
+		}
 	}
 
 	missingIdempotency := httptest.NewRequest(http.MethodPost, "/api/v1/operations/missing/cancel", nil)

@@ -88,6 +88,12 @@ fingerprints, crash outcomes, bounded opt-in restart, stdout/stderr capture,
 metrics, and honest external-listener recognition. See the
 [native process runtime architecture](docs/architecture/native-process-runtime.md).
 
+Both runtimes feed the same redaction-first persistent log archive and health
+evaluator. Project diagnostics include required-readiness gates, stale and
+disconnected observer states, rotating bounded log history, cursor-resumable
+live logs, and operation-correlated export. See the
+[observability architecture](docs/architecture/observability.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

@@ -41,6 +41,36 @@ func TestNativeProcessLifecycleCapturesTreeLogsMetricsAndStops(t *testing.T) {
 	}
 }
 
+func TestNativeProcessCorrelatesRunAndLogsToOperation(t *testing.T) {
+	port := freePort(t)
+	driver, store, project, cancel := nativeTestDriver(t, "tree", port, domain.RestartPolicy{})
+	defer cancel()
+	plan, err := driver.Plan(context.Background(), domain.PlanRequest{Project: project, Action: domain.ActionStart})
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan.OperationID = "op-1"
+	if err := driver.Execute(context.Background(), plan, progressSinkFake{}); err != nil {
+		t.Fatal(err)
+	}
+	waitForTCP(t, port)
+	waitForCapturedStreams(t, driver, project)
+	runs, err := store.ListProjectRuns(context.Background(), project.ProjectID)
+	if err != nil || len(runs) != 1 || runs[0].OperationID != "op-1" {
+		t.Fatalf("runs = %#v, error = %v", runs, err)
+	}
+	sink := &logSinkFake{}
+	if err := driver.StreamLogs(context.Background(), domain.LogRequest{Project: project, Tail: 100}, sink); err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range sink.entries {
+		if entry.OperationID != "op-1" {
+			t.Fatalf("entry = %#v", entry)
+		}
+	}
+	executeProcessAction(t, driver, project, domain.ActionStop)
+}
+
 func TestNativeProcessKeepsOrphanedChildManaged(t *testing.T) {
 	port := freePort(t)
 	driver, store, project, cancel := nativeTestDriver(t, "orphan", port, domain.RestartPolicy{})

@@ -31,6 +31,8 @@ func TestEnvironmentOverlayResolvesOnlyWinningKeychainReferences(t *testing.T) {
 	t.Parallel()
 	resolver := &secretResolverFake{values: map[string]string{"service-token": "secret-value"}}
 	driver := newDriver(context.Background(), newMemoryRunStore(), inspectorFake{}, resolver)
+	observer := &secretObserverFake{}
+	driver.secretObserver = observer
 	values, err := driver.resolveEnvironment(context.Background(), &domain.ProcessRuntime{
 		Environment: map[string]string{"PLAIN": "project"},
 		Secrets: map[string]domain.SecretReference{
@@ -53,6 +55,9 @@ func TestEnvironmentOverlayResolvesOnlyWinningKeychainReferences(t *testing.T) {
 	}
 	if len(resolver.keys) != 1 || resolver.keys[0] != "service-token" {
 		t.Fatalf("resolved keys = %v", resolver.keys)
+	}
+	if len(observer.values) != 1 || observer.values[0] != "secret-value" {
+		t.Fatalf("observed secret values = %v", observer.values)
 	}
 }
 

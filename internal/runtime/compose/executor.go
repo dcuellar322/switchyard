@@ -32,7 +32,7 @@ func (e executor) Execute(ctx context.Context, plan domain.Plan, sink domain.Pro
 	if err := streamCommandProgress(ctx, bytes.NewReader(output.Bytes()), sink); err != nil {
 		return err
 	}
-	e.managed.RecordAction(validated.config.ProjectName, plan.Action)
+	e.managed.RecordAction(validated.config.ProjectName, plan.Action, plan.OperationID)
 	return sink.Step(ctx, "compose.execute", "succeeded", "Docker Compose lifecycle command completed")
 }
 

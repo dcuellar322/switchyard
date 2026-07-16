@@ -14,16 +14,20 @@ func TestExecutorUsesDurableProgressStates(t *testing.T) {
 	project := domain.ProjectRuntime{ProjectID: "project-1"}
 	command := domain.Command{Executable: "docker"}
 	plan := domain.Plan{
-		ProjectID: "project-1", Driver: domain.KindCompose, Action: domain.ActionStart,
+		ProjectID: "project-1", OperationID: "op-1", Driver: domain.KindCompose, Action: domain.ActionStart,
 		Summary: "start", Commands: []domain.Command{command},
 		DriverData: executionPlan{project: project, config: normalizedConfig{ProjectName: "fixture"}, invocation: command},
 	}
 	sink := &progressRecorder{}
-	if err := (executor{runner: runner, managed: newManagedContainers()}).Execute(context.Background(), plan, sink); err != nil {
+	managed := newManagedContainers()
+	if err := (executor{runner: runner, managed: managed}).Execute(context.Background(), plan, sink); err != nil {
 		t.Fatal(err)
 	}
 	if len(sink.states) != 2 || sink.states[0] != "succeeded" || sink.states[1] != "succeeded" {
 		t.Fatalf("states = %#v", sink.states)
+	}
+	if managed.Operation("fixture") != "op-1" {
+		t.Fatalf("operation = %q", managed.Operation("fixture"))
 	}
 }
 

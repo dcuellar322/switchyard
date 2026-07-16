@@ -1,9 +1,11 @@
 package httpapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
+	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/runtime/domain"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
@@ -15,7 +17,41 @@ func (h *handler) GetProjectRuntime(w http.ResponseWriter, r *http.Request, proj
 		writeApplicationError(w, r, err)
 		return
 	}
+	if h.health != nil {
+		health, healthErr := h.health.Get(r.Context(), projectID)
+		if healthErr == nil && health.Status == "unhealthy" &&
+			(observation.State == domain.StateRunning || observation.State == domain.StateRunningExternal || observation.State == domain.StatePartiallyRunning) {
+			observation.State = domain.StateDegraded
+		} else if healthErr == nil && health.Status == "unknown" && health.ObserverState == "connected" && len(health.Results) > 0 &&
+			(observation.State == domain.StateRunning || observation.State == domain.StateRunningExternal) {
+			observation.State = domain.StateStarting
+		}
+	}
+	if observation.Services == nil {
+		observation.Services = []domain.ServiceObservation{}
+	}
+	for index := range observation.Services {
+		if observation.Services[index].Ports == nil {
+			observation.Services[index].Ports = []domain.PublishedPort{}
+		}
+	}
 	writeJSON(w, http.StatusOK, observation)
+}
+
+func (h *handler) GetProjectHealth(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	if h.health == nil {
+		writeProblem(w, r, http.StatusServiceUnavailable, "HEALTH_UNAVAILABLE", "Health unavailable", "The health observer is not configured.")
+		return
+	}
+	health, err := h.health.Get(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	if health.Results == nil {
+		health.Results = []observabilityDomain.HealthResult{}
+	}
+	writeJSON(w, http.StatusOK, health)
 }
 
 func (h *handler) PlanProjectRuntime(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
@@ -70,22 +106,60 @@ func (h *handler) GetProjectLogs(
 	projectID generated.ProjectId,
 	params generated.GetProjectLogsParams,
 ) {
-	service, since, tail := "", "", 200
+	service, since, runID, operationID, tail := "", "", "", "", 200
 	if params.Service != nil {
 		service = *params.Service
 	}
 	if params.Since != nil {
 		since = *params.Since
 	}
+	if params.RunId != nil {
+		runID = *params.RunId
+	}
+	if params.OperationId != nil {
+		operationID = *params.OperationId
+	}
 	if params.Tail != nil {
 		tail = *params.Tail
 	}
-	entries, err := h.runtime.Logs(r.Context(), projectID, service, since, tail)
+	entries, err := h.logs.Logs(r.Context(), projectID, service, since, runID, operationID, tail)
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
 	}
 	writeJSON(w, http.StatusOK, entries)
+}
+
+func (h *handler) ExportProjectLogs(
+	w http.ResponseWriter,
+	r *http.Request,
+	projectID generated.ProjectId,
+	params generated.ExportProjectLogsParams,
+) {
+	service, runID, operationID := "", "", ""
+	if params.Service != nil {
+		service = *params.Service
+	}
+	if params.RunId != nil {
+		runID = *params.RunId
+	}
+	if params.OperationId != nil {
+		operationID = *params.OperationId
+	}
+	format := string(params.Format)
+	var output bytes.Buffer
+	if err := h.logs.Export(r.Context(), projectID, service, runID, operationID, format, &output); err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	if format == "ndjson" {
+		w.Header().Set("Content-Type", "application/x-ndjson")
+	} else {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	}
+	w.Header().Set("Content-Disposition", `attachment; filename="switchyard-logs.`+format+`"`)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(output.Bytes())
 }
 
 func (h *handler) GetProjectMetrics(

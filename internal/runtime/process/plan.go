@@ -11,8 +11,9 @@ import (
 )
 
 type servicePlan struct {
-	service    domain.ServiceDeclaration
-	definition domain.ProcessDefinition
+	service     domain.ServiceDeclaration
+	definition  domain.ProcessDefinition
+	operationID string
 }
 
 type executionPlan struct {

@@ -291,13 +291,19 @@ func (c *Client) CreateRuntimeOperation(
 }
 
 // RuntimeLogs reads a bounded Docker log snapshot.
-func (c *Client) RuntimeLogs(ctx context.Context, projectID, service, since string, tail int) ([]generated.RuntimeLogEntry, error) {
+func (c *Client) RuntimeLogs(ctx context.Context, projectID, service, since, runID, operationID string, tail int) ([]generated.RuntimeLogEntry, error) {
 	params := &generated.GetProjectLogsParams{Tail: &tail}
 	if service != "" {
 		params.Service = &service
 	}
 	if since != "" {
 		params.Since = &since
+	}
+	if runID != "" {
+		params.RunId = &runID
+	}
+	if operationID != "" {
+		params.OperationId = &operationID
 	}
 	response, err := c.generated.GetProjectLogsWithResponse(ctx, projectID, params)
 	if err != nil {
@@ -307,6 +313,28 @@ func (c *Client) RuntimeLogs(ctx context.Context, projectID, service, since stri
 		return nil, apiError("read project logs", response.StatusCode(), response.ApplicationproblemJSONDefault)
 	}
 	return *response.JSON200, nil
+}
+
+// ExportRuntimeLogs returns a bounded redacted plain-text or NDJSON export.
+func (c *Client) ExportRuntimeLogs(ctx context.Context, projectID, service, runID, operationID string, format generated.ExportProjectLogsParamsFormat) ([]byte, error) {
+	params := &generated.ExportProjectLogsParams{Format: format}
+	if service != "" {
+		params.Service = &service
+	}
+	if runID != "" {
+		params.RunId = &runID
+	}
+	if operationID != "" {
+		params.OperationId = &operationID
+	}
+	response, err := c.generated.ExportProjectLogsWithResponse(ctx, projectID, params)
+	if err != nil {
+		return nil, fmt.Errorf("export project logs: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK {
+		return nil, apiError("export project logs", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return response.Body, nil
 }
 
 // RuntimeMetrics reads current Compose resource samples.

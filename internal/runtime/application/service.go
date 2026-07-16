@@ -83,6 +83,20 @@ func (s *Service) Logs(ctx context.Context, projectID, service, since string, ta
 	return sink.entries, err
 }
 
+// FollowLogs streams a raw driver feed into a caller-owned redaction and persistence sink.
+func (s *Service) FollowLogs(ctx context.Context, projectID, service, since string, tail int, sink domain.LogSink) error {
+	project, driver, err := s.resolve(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	return driver.StreamLogs(ctx, domain.LogRequest{Project: project, Service: service, Since: since, Tail: tail, Follow: true}, sink)
+}
+
+// ListProjectIDs returns trusted projects eligible for runtime observation.
+func (s *Service) ListProjectIDs(ctx context.Context) ([]string, error) {
+	return s.projects.ListRuntimeProjectIDs(ctx)
+}
+
 // Metrics returns one current sample per selected service.
 func (s *Service) Metrics(ctx context.Context, projectID, service string) ([]domain.MetricSample, error) {
 	project, driver, err := s.resolve(ctx, projectID)

@@ -5,16 +5,22 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const defaultHTTPAddress = "127.0.0.1:19616"
 
 // Config controls process-level daemon composition.
 type Config struct {
-	DataDir  string
-	HTTPAddr string
-	IPCAddr  string
-	Logger   *slog.Logger
+	DataDir           string
+	HTTPAddr          string
+	IPCAddr           string
+	Logger            *slog.Logger
+	LogRingCapacity   int
+	LogSegmentBytes   int64
+	LogRetentionAge   time.Duration
+	LogRetentionBytes int64
+	RedactionPatterns []string
 }
 
 // DefaultConfig uses a per-user data directory and loopback-only HTTP.
@@ -24,8 +30,12 @@ func DefaultConfig() (Config, error) {
 		return Config{}, fmt.Errorf("resolve user config directory: %w", err)
 	}
 	return Config{
-		DataDir:  filepath.Join(base, "Switchyard"),
-		HTTPAddr: defaultHTTPAddress,
-		Logger:   slog.Default(),
+		DataDir:           filepath.Join(base, "Switchyard"),
+		HTTPAddr:          defaultHTTPAddress,
+		Logger:            slog.Default(),
+		LogRingCapacity:   2_000,
+		LogSegmentBytes:   1 << 20,
+		LogRetentionAge:   7 * 24 * time.Hour,
+		LogRetentionBytes: 256 << 20,
 	}, nil
 }

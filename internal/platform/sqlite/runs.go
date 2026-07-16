@@ -21,10 +21,10 @@ func NewRunRepository(database *Database) *RunRepository {
 func (r *RunRepository) CreateRun(ctx context.Context, run domain.RunRecord) error {
 	_, err := r.database.connection.ExecContext(ctx, `INSERT INTO runs
         (id, project_id, service_id, runtime_driver, origin, started_at, ended_at, exit_code,
-         termination_reason, identity_fingerprint, restart_count)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         termination_reason, identity_fingerprint, restart_count, operation_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		run.ID, run.ProjectID, run.ServiceID, run.RuntimeDriver, run.Origin, formatTime(run.StartedAt),
-		nullTime(run.EndedAt), nullInt(run.ExitCode), run.TerminationReason, run.IdentityFingerprint, run.RestartCount)
+		nullTime(run.EndedAt), nullInt(run.ExitCode), run.TerminationReason, run.IdentityFingerprint, run.RestartCount, nullString(run.OperationID))
 	if err != nil {
 		return fmt.Errorf("create runtime run: %w", err)
 	}
@@ -73,7 +73,7 @@ func (r *RunRepository) SetRestartCount(ctx context.Context, runID string, count
 // ListProjectRuns returns newest runs first with every recorded process fingerprint.
 func (r *RunRepository) ListProjectRuns(ctx context.Context, projectID string) ([]domain.RunRecord, error) {
 	rows, err := r.database.connection.QueryContext(ctx, `SELECT id, project_id, service_id, runtime_driver,
-        origin, started_at, ended_at, exit_code, termination_reason, identity_fingerprint, restart_count
+        origin, started_at, ended_at, exit_code, termination_reason, identity_fingerprint, restart_count, operation_id
         FROM runs WHERE project_id = ? ORDER BY started_at DESC, id DESC LIMIT 200`, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list runtime runs: %w", err)
@@ -127,8 +127,9 @@ func scanRun(row rowScanner) (domain.RunRecord, error) {
 	var started string
 	var ended sql.NullString
 	var exitCode sql.NullInt64
+	var operationID sql.NullString
 	if err := row.Scan(&run.ID, &run.ProjectID, &run.ServiceID, &run.RuntimeDriver, &run.Origin,
-		&started, &ended, &exitCode, &run.TerminationReason, &run.IdentityFingerprint, &run.RestartCount); err != nil {
+		&started, &ended, &exitCode, &run.TerminationReason, &run.IdentityFingerprint, &run.RestartCount, &operationID); err != nil {
 		return domain.RunRecord{}, err
 	}
 	run.StartedAt, _ = parseTime(started)
@@ -143,6 +144,7 @@ func scanRun(row rowScanner) (domain.RunRecord, error) {
 		value := int(exitCode.Int64)
 		run.ExitCode = &value
 	}
+	run.OperationID = operationID.String
 	return run, nil
 }
 
@@ -158,4 +160,11 @@ func nullInt(value *int) any {
 		return nil
 	}
 	return *value
+}
+
+func nullString(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
 }

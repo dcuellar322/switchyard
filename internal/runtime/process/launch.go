@@ -54,7 +54,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	managed := &managedRun{
 		run: domain.RunRecord{
 			ID: runID, ProjectID: project.ProjectID, ServiceID: service.service.ID,
-			RuntimeDriver: domain.KindProcess, Origin: domain.OriginSwitchyard,
+			RuntimeDriver: domain.KindProcess, Origin: domain.OriginSwitchyard, OperationID: service.operationID,
 		},
 		project: project, service: service, logs: buffer,
 	}
@@ -165,7 +165,7 @@ func (d *Driver) captureLogs(reader io.ReadCloser, managed *managedRun, stream s
 		managed.logs.add(domain.LogEntry{
 			Timestamp: d.now().UTC(), ProjectID: managed.project.ProjectID, ServiceID: managed.service.service.ID,
 			RunID: managed.run.ID, Source: "process", Stream: stream, Level: processLogLevel(message),
-			Message: message, Attributes: map[string]string{"process": managed.service.definition.ID},
+			Message: message, OperationID: managed.run.OperationID, Attributes: map[string]string{"process": managed.service.definition.ID},
 		})
 	}
 }
@@ -196,6 +196,9 @@ func (d *Driver) resolveEnvironment(ctx context.Context, config *domain.ProcessR
 			return nil, fmt.Errorf("resolve environment reference %s: %w", key, err)
 		}
 		values[key] = value
+		if d.secretObserver != nil {
+			d.secretObserver.AddSecret(value)
+		}
 	}
 	keys = keys[:0]
 	for key := range values {

@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -17,15 +18,20 @@ import (
 )
 
 type rootOptions struct {
-	address        string
-	dataDir        string
-	ipcAddr        string
-	json           bool
-	jsonl          bool
-	nonInteractive bool
-	noColor        bool
-	stdout         io.Writer
-	stderr         io.Writer
+	address           string
+	dataDir           string
+	ipcAddr           string
+	json              bool
+	jsonl             bool
+	nonInteractive    bool
+	noColor           bool
+	stdout            io.Writer
+	stderr            io.Writer
+	logRingCapacity   int
+	logSegmentBytes   int64
+	logRetentionAge   time.Duration
+	logRetentionBytes int64
+	redactionPatterns []string
 }
 
 // Execute runs the CLI with explicit process dependencies.
@@ -34,7 +40,10 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	if err != nil {
 		return err
 	}
-	options := &rootOptions{address: config.HTTPAddr, dataDir: config.DataDir, stdout: stdout, stderr: stderr}
+	options := &rootOptions{address: config.HTTPAddr, dataDir: config.DataDir, stdout: stdout, stderr: stderr,
+		logRingCapacity: config.LogRingCapacity, logSegmentBytes: config.LogSegmentBytes,
+		logRetentionAge: config.LogRetentionAge, logRetentionBytes: config.LogRetentionBytes,
+	}
 	command := newRootCommand(options)
 	command.SetArgs(args)
 	command.SetOut(stdout)
@@ -83,10 +92,21 @@ func newVersionCommand(options *rootOptions) *cobra.Command {
 }
 
 func newDaemonCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{Use: "daemon", Short: "Run the local Switchyard control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+	command := &cobra.Command{Use: "daemon", Short: "Run the local Switchyard control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
 		logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
-		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger})
+		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
+			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger,
+			LogRingCapacity: options.logRingCapacity, LogSegmentBytes: options.logSegmentBytes,
+			LogRetentionAge: options.logRetentionAge, LogRetentionBytes: options.logRetentionBytes,
+			RedactionPatterns: options.redactionPatterns,
+		})
 	}}
+	command.Flags().IntVar(&options.logRingCapacity, "log-ring-entries", options.logRingCapacity, "redacted in-memory log entries per service")
+	command.Flags().Int64Var(&options.logSegmentBytes, "log-segment-bytes", options.logSegmentBytes, "maximum bytes per NDJSON log segment")
+	command.Flags().DurationVar(&options.logRetentionAge, "log-retention-age", options.logRetentionAge, "maximum retained log age")
+	command.Flags().Int64Var(&options.logRetentionBytes, "log-retention-bytes", options.logRetentionBytes, "maximum retained log bytes")
+	command.Flags().StringSliceVar(&options.redactionPatterns, "redact-pattern", nil, "additional regular expression to redact (repeatable)")
+	return command
 }
 
 func newUICommand(options *rootOptions) *cobra.Command {

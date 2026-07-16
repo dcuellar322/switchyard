@@ -3,11 +3,13 @@ package httpapi
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
+	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
@@ -26,6 +28,8 @@ type handler struct {
 	sessions   sessionService
 	catalog    catalogService
 	runtime    runtimeService
+	health     healthService
+	logs       logService
 }
 
 type catalogService interface {
@@ -52,8 +56,16 @@ type operationService interface {
 type runtimeService interface {
 	Inspect(context.Context, string) (runtimeDomain.Observation, error)
 	Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error)
-	Logs(context.Context, string, string, string, int) ([]runtimeDomain.LogEntry, error)
 	Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error)
+}
+
+type healthService interface {
+	Get(context.Context, string) (observabilityDomain.ProjectHealth, error)
+}
+
+type logService interface {
+	Logs(context.Context, string, string, string, string, string, int) ([]runtimeDomain.LogEntry, error)
+	Export(context.Context, string, string, string, string, string, io.Writer) error
 }
 
 type sessionService interface {

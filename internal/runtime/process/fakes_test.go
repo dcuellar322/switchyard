@@ -140,6 +140,10 @@ type secretResolverFake struct {
 	keys   []string
 }
 
+type secretObserverFake struct{ values []string }
+
+func (f *secretObserverFake) AddSecret(value string) { f.values = append(f.values, value) }
+
 func (f *secretResolverFake) Resolve(_ context.Context, reference domain.SecretReference) (string, error) {
 	f.keys = append(f.keys, reference.Key)
 	value, ok := f.values[reference.Key]

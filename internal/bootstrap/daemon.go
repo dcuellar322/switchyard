@@ -9,11 +9,14 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
+	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
@@ -61,29 +64,66 @@ func RunDaemon(ctx context.Context, config Config) error {
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
+	redactor, err := observabilityAdapters.NewRedactor(config.RedactionPatterns)
+	if err != nil {
+		return fmt.Errorf("compile log redaction patterns: %w", err)
+	}
+	runtimeSource := runtimeApplication.NewCatalogSource(catalogService)
 	runtimeService := runtimeApplication.NewService(
-		runtimeApplication.NewCatalogSource(catalogService),
+		runtimeSource,
 		compose.NewDriver(),
-		processRuntime.NewDriver(ctx, sqlite.NewRunRepository(database)),
+		processRuntime.NewDriver(ctx, sqlite.NewRunRepository(database), redactor),
 	)
+	logStore, err := sqlite.NewLogStore(database, sqlite.LogStoreConfig{
+		Directory: filepath.Join(config.DataDir, "logs"), RingCapacity: config.LogRingCapacity,
+		SegmentBytes: config.LogSegmentBytes, RetentionAge: config.LogRetentionAge, RetentionBytes: config.LogRetentionBytes,
+	}, redactor)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := logStore.Close(context.Background()); err != nil {
+			config.Logger.Error("close log store", "component", "observability", "error", err)
+		}
+	}()
+	logService := observabilityApplication.NewLogService(runtimeService, logStore)
+	healthService := observabilityApplication.NewHealthService(runtimeSource, runtimeService, sqlite.NewHealthRepository(database), observabilityAdapters.NewHealthEvaluator())
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
-			return executeRuntimeOperation(operationCtx, runtimeService, operation, progress)
+			return executeRuntimeOperation(operationCtx, runtimeService, healthService, operation, progress)
 		},
 	))
 	if err := coordinator.Recover(ctx); err != nil {
 		return err
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
-	go runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
-		config.Logger.Warn("runtime event watcher unavailable", "component", "runtime", "project_id", projectID, "error", watchErr)
-	})
+	var background sync.WaitGroup
+	background.Add(3)
+	go func() {
+		defer background.Done()
+		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
+			config.Logger.Warn("runtime event watcher unavailable", "component", "runtime", "project_id", projectID, "error", watchErr)
+		})
+	}()
+	go func() {
+		defer background.Done()
+		healthService.Run(ctx, func(projectID string, healthErr error) {
+			config.Logger.Warn("health observer unavailable", "component", "observability", "project_id", projectID, "error", healthErr)
+		})
+	}()
+	go func() {
+		defer background.Done()
+		logService.Run(ctx, func(projectID string, logErr error) {
+			config.Logger.Warn("log collector unavailable", "component", "observability", "project_id", projectID, "error", logErr)
+		})
+	}()
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	dependencies := httpapi.Dependencies{
 		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
-		Events: eventtransport.NewEvents(journal), Web: web.Handler(), Logger: config.Logger,
+		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
+		Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)
 	if err != nil {
@@ -96,12 +136,15 @@ func RunDaemon(ctx context.Context, config Config) error {
 		"ipc_address", servers.ipcAddress,
 		"data_dir", config.DataDir,
 	)
-	return servers.run(ctx, coordinator.Shutdown)
+	runErr := servers.run(ctx, coordinator.Shutdown)
+	background.Wait()
+	return runErr
 }
 
 func executeRuntimeOperation(
 	ctx context.Context,
 	service *runtimeApplication.Service,
+	health requiredHealthWaiter,
 	operation domain.Operation,
 	progress operations.Progress,
 ) error {
@@ -120,7 +163,18 @@ func executeRuntimeOperation(
 	if err != nil {
 		return err
 	}
-	return service.Execute(ctx, plan, progress)
+	plan.OperationID = operation.ID
+	if err := service.Execute(ctx, plan, progress); err != nil {
+		return err
+	}
+	if action == runtimeDomain.ActionStart || action == runtimeDomain.ActionRestart || action == runtimeDomain.ActionRebuild {
+		return health.WaitRequired(ctx, operation.ProjectID)
+	}
+	return nil
+}
+
+type requiredHealthWaiter interface {
+	WaitRequired(context.Context, string) error
 }
 
 func validateLoopbackAddress(address string) error {

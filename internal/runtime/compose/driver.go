@@ -59,7 +59,19 @@ func (d *Driver) StreamLogs(ctx context.Context, request domain.LogRequest, sink
 	if err != nil {
 		return err
 	}
-	return d.streamLogs(ctx, request, config, sink)
+	return d.streamLogs(ctx, request, config, operationLogSink{operationID: d.managed.Operation(config.ProjectName), sink: sink})
+}
+
+type operationLogSink struct {
+	operationID string
+	sink        domain.LogSink
+}
+
+func (s operationLogSink) WriteLog(ctx context.Context, entry domain.LogEntry) error {
+	if entry.OperationID == "" {
+		entry.OperationID = s.operationID
+	}
+	return s.sink.WriteLog(ctx, entry)
 }
 
 // StreamMetrics reads current container stats through the Engine SDK.

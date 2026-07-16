@@ -28,7 +28,7 @@ const activeView = ref<'projects' | 'system'>('system')
           <span>System</span>
         </button>
       </nav>
-      <p class="phase-note">Local-first · Phase 3</p>
+      <p class="phase-note">Local-first · diagnostics ready</p>
     </aside>
     <main>
       <header class="topbar">

@@ -43,7 +43,8 @@ switchyard status <project>
 switchyard plan <start|stop|restart|pause|unpause|rebuild|teardown> <project>
 switchyard start|stop|restart|pause|unpause|rebuild <project>
 switchyard teardown <project> [--volumes] --yes
-switchyard logs <project> [--service name] [--since 10m] [--tail 200]
+switchyard logs <project> [--service name] [--since 10m] [--run id] [--operation id] [--tail 200]
+switchyard logs <project> [--service name] [--run id] [--operation id] --export plain|ndjson
 switchyard metrics <project> [--service name]
 ```
 
@@ -64,6 +65,21 @@ versions. Process observations include verified PID/run fingerprints, restart
 count, exit code, and last-known process identity. Logs support JSON Lines and
 retain stdout/stderr plus project, service, source, and run identity. Metrics
 return current CPU and memory samples; Docker also reports network counters.
+Log reads come from the redacted persistent archive, not a daemon-lifetime
+buffer. `--since` accepts a positive Go duration or RFC 3339 timestamp. Run and
+operation filters retain lifecycle correlation in both queries and exports.
+
+Daemon log bounds and extra redaction rules are configurable without changing
+project manifests:
+
+```text
+switchyard daemon \
+  --log-ring-entries 2000 \
+  --log-segment-bytes 1048576 \
+  --log-retention-age 168h \
+  --log-retention-bytes 268435456 \
+  --redact-pattern 'company-secret-[A-Za-z0-9]+'
+```
 
 ## Automation modes
 

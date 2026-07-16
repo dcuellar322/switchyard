@@ -58,7 +58,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			next.ServeHTTP(w, r)
 			return
 		}
-		if !strings.HasPrefix(r.URL.Path, "/api/v1/") && r.URL.Path != "/ws/v1/events" {
+		if !strings.HasPrefix(r.URL.Path, "/api/v1/") && r.URL.Path != "/ws/v1/events" && r.URL.Path != "/ws/v1/logs" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -72,7 +72,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			writeProblem(w, r, http.StatusUnauthorized, "SESSION_INVALID", "Browser session invalid", "Launch the UI again to create a fresh session.")
 			return
 		}
-		if r.URL.Path == "/ws/v1/events" && !sameOrigin(r) {
+		if (r.URL.Path == "/ws/v1/events" || r.URL.Path == "/ws/v1/logs") && !sameOrigin(r) {
 			writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "WebSocket origin rejected", "The event stream is same-origin only.")
 			return
 		}

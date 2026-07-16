@@ -291,6 +291,20 @@ paths:
               schema: { $ref: "#/components/schemas/RuntimeObservation" }
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/health:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectHealth
+      summary: Read current persisted health diagnostics
+      responses:
+        "200":
+          description: Current aggregate health with observer freshness
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectHealth" }
+        default:
+          $ref: "#/components/responses/Problem"
   /projects/{projectId}/runtime/plan:
     parameters:
       - $ref: "#/components/parameters/ProjectId"
@@ -344,6 +358,12 @@ paths:
         - name: since
           in: query
           schema: { type: string }
+        - name: runId
+          in: query
+          schema: { type: string }
+        - name: operationId
+          in: query
+          schema: { type: string }
         - name: tail
           in: query
           schema: { type: integer, minimum: 1, maximum: 10000, default: 200 }
@@ -355,6 +375,36 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/RuntimeLogEntry" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/logs/export:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: exportProjectLogs
+      summary: Export a bounded redacted project log stream
+      parameters:
+        - name: service
+          in: query
+          schema: { type: string }
+        - name: runId
+          in: query
+          schema: { type: string }
+        - name: operationId
+          in: query
+          schema: { type: string }
+        - name: format
+          in: query
+          required: true
+          schema: { type: string, enum: [plain, ndjson] }
+      responses:
+        "200":
+          description: Redacted log export
+          content:
+            text/plain:
+              schema: { type: string }
+            application/x-ndjson:
+              schema: { type: string }
         default:
           $ref: "#/components/responses/Problem"
   /projects/{projectId}/metrics:
@@ -691,8 +741,9 @@ components:
     RuntimeLogEntry:
       type: object
       additionalProperties: false
-      required: [timestamp, projectId, serviceId, runId, source, stream, level, message, attributes]
+      required: [sequence, timestamp, projectId, serviceId, runId, source, stream, level, message, redacted, attributes]
       properties:
+        sequence: { type: integer, format: int64, minimum: 1 }
         timestamp: { type: string, format: date-time }
         projectId: { type: string }
         serviceId: { type: string }
@@ -701,9 +752,38 @@ components:
         stream: { type: string, enum: [stdout, stderr] }
         level: { type: string }
         message: { type: string }
+        operationId: { type: string }
+        redacted: { type: boolean }
         attributes:
           type: object
           additionalProperties: { type: string }
+    HealthResult:
+      type: object
+      additionalProperties: false
+      required: [projectId, serviceId, checkId, type, status, severity, required, latencyMs, message, observedAt]
+      properties:
+        projectId: { type: string }
+        serviceId: { type: string }
+        checkId: { type: string }
+        type: { type: string, enum: [http, tcp, process, docker, command, composite] }
+        status: { type: string, enum: [healthy, unhealthy, unknown] }
+        severity: { type: string, enum: [info, warning, critical] }
+        required: { type: boolean }
+        latencyMs: { type: integer, format: int64, minimum: 0 }
+        message: { type: string }
+        observedAt: { type: string, format: date-time }
+    ProjectHealth:
+      type: object
+      additionalProperties: false
+      required: [projectId, status, observerState, results, observedAt]
+      properties:
+        projectId: { type: string }
+        status: { type: string, enum: [healthy, unhealthy, unknown] }
+        observerState: { type: string, enum: [connected, stale, disconnected] }
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/HealthResult" }
+        observedAt: { type: string, format: date-time }
     RuntimeMetricSample:
       type: object
       additionalProperties: false

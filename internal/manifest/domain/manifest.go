@@ -129,10 +129,22 @@ type ServiceSource struct {
 
 // HealthCheck declares bounded readiness validation.
 type HealthCheck struct {
-	Type           string   `json:"type" yaml:"type" jsonschema:"required,enum=http,enum=tcp,enum=command"`
-	URL            string   `json:"url,omitempty" yaml:"url,omitempty"`
-	ExpectedStatus int      `json:"expectedStatus,omitempty" yaml:"expectedStatus,omitempty"`
-	Command        []string `json:"command,omitempty" yaml:"command,omitempty"`
+	ID                  string   `json:"id,omitempty" yaml:"id,omitempty"`
+	Type                string   `json:"type" yaml:"type" jsonschema:"required,enum=http,enum=tcp,enum=process,enum=docker,enum=command,enum=composite"`
+	URL                 string   `json:"url,omitempty" yaml:"url,omitempty"`
+	Address             string   `json:"address,omitempty" yaml:"address,omitempty"`
+	ExpectedStatus      int      `json:"expectedStatus,omitempty" yaml:"expectedStatus,omitempty" jsonschema:"minimum=0,maximum=599"`
+	JSONPath            string   `json:"jsonPath,omitempty" yaml:"jsonPath,omitempty"`
+	ExpectedValue       string   `json:"expectedValue,omitempty" yaml:"expectedValue,omitempty"`
+	Command             []string `json:"command,omitempty" yaml:"command,omitempty"`
+	Members             []string `json:"members,omitempty" yaml:"members,omitempty"`
+	Mode                string   `json:"mode,omitempty" yaml:"mode,omitempty" jsonschema:"enum=all,enum=any"`
+	InitialDelaySeconds int      `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty" jsonschema:"minimum=0,maximum=3600"`
+	IntervalSeconds     int      `json:"intervalSeconds,omitempty" yaml:"intervalSeconds,omitempty" jsonschema:"minimum=0,maximum=3600"`
+	TimeoutSeconds      int      `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" jsonschema:"minimum=0,maximum=300"`
+	Retries             int      `json:"retries,omitempty" yaml:"retries,omitempty" jsonschema:"minimum=0,maximum=20"`
+	Severity            string   `json:"severity,omitempty" yaml:"severity,omitempty" jsonschema:"enum=info,enum=warning,enum=critical"`
+	Required            bool     `json:"required,omitempty" yaml:"required,omitempty"`
 }
 
 // Port is a portable port declaration, not an observed binding.
@@ -229,21 +241,107 @@ func validateServices(services []Service) []error {
 				problems = append(problems, fmt.Errorf("service %q references unknown dependency %q", service.ID, dependency))
 			}
 		}
-		for _, check := range service.HealthChecks {
-			switch check.Type {
-			case "http":
-				if check.URL == "" {
-					problems = append(problems, fmt.Errorf("service %q HTTP health check requires a URL", service.ID))
-				}
-			case "tcp":
-			case "command":
-				if len(check.Command) == 0 {
-					problems = append(problems, fmt.Errorf("service %q command health check requires an argument array", service.ID))
-				}
-			default:
-				problems = append(problems, fmt.Errorf("service %q has unknown health check type %q", service.ID, check.Type))
+		problems = append(problems, validateServiceHealth(service)...)
+	}
+	return problems
+}
+
+func validateServiceHealth(service Service) []error {
+	var problems []error
+	checkIDs := make(map[string]struct{}, len(service.HealthChecks))
+	for index, check := range service.HealthChecks {
+		checkID := healthCheckID(check, index)
+		if _, exists := checkIDs[checkID]; exists {
+			problems = append(problems, fmt.Errorf("service %q has duplicate health check ID %q", service.ID, checkID))
+		}
+		checkIDs[checkID] = struct{}{}
+		problems = append(problems, validateHealthCheck(service.ID, checkID, check)...)
+	}
+	for index, check := range service.HealthChecks {
+		if check.Type != "composite" {
+			continue
+		}
+		checkID := healthCheckID(check, index)
+		for _, member := range check.Members {
+			if member == checkID {
+				problems = append(problems, fmt.Errorf("service %q composite health check %q cannot reference itself", service.ID, checkID))
+			} else if _, exists := checkIDs[member]; !exists {
+				problems = append(problems, fmt.Errorf("service %q composite health check %q references unknown member %q", service.ID, checkID, member))
 			}
 		}
+	}
+	return append(problems, validateCompositeCycles(service)...)
+}
+
+func validateHealthCheck(serviceID, checkID string, check HealthCheck) []error {
+	var problems []error
+	if check.Severity != "" && check.Severity != "info" && check.Severity != "warning" && check.Severity != "critical" {
+		problems = append(problems, fmt.Errorf("service %q health check %q has invalid severity %q", serviceID, checkID, check.Severity))
+	}
+	switch check.Type {
+	case "http":
+		if check.URL == "" {
+			problems = append(problems, fmt.Errorf("service %q HTTP health check requires a URL", serviceID))
+		}
+	case "tcp":
+		if check.Address == "" {
+			problems = append(problems, fmt.Errorf("service %q TCP health check requires an address", serviceID))
+		}
+	case "process", "docker":
+	case "command":
+		if len(check.Command) == 0 {
+			problems = append(problems, fmt.Errorf("service %q command health check requires an argument array", serviceID))
+		}
+	case "composite":
+		if len(check.Members) == 0 {
+			problems = append(problems, fmt.Errorf("service %q composite health check requires members", serviceID))
+		}
+		if check.Mode != "" && check.Mode != "all" && check.Mode != "any" {
+			problems = append(problems, fmt.Errorf("service %q composite health check mode must be all or any", serviceID))
+		}
+	default:
+		problems = append(problems, fmt.Errorf("service %q has unknown health check type %q", serviceID, check.Type))
+	}
+	return problems
+}
+
+func healthCheckID(check HealthCheck, index int) string {
+	if check.ID != "" {
+		return check.ID
+	}
+	return fmt.Sprintf("%s-%d", check.Type, index+1)
+}
+
+func validateCompositeCycles(service Service) []error {
+	graph := make(map[string][]string)
+	for index, check := range service.HealthChecks {
+		if check.Type != "composite" {
+			continue
+		}
+		id := healthCheckID(check, index)
+		graph[id] = append([]string(nil), check.Members...)
+	}
+	state := make(map[string]uint8, len(graph))
+	var problems []error
+	var visit func(string)
+	visit = func(id string) {
+		if state[id] == 1 {
+			problems = append(problems, fmt.Errorf("service %q composite health checks contain a cycle at %q", service.ID, id))
+			return
+		}
+		if state[id] == 2 {
+			return
+		}
+		state[id] = 1
+		for _, member := range graph[id] {
+			if _, composite := graph[member]; composite {
+				visit(member)
+			}
+		}
+		state[id] = 2
+	}
+	for id := range graph {
+		visit(id)
 	}
 	return problems
 }

@@ -43,6 +43,50 @@ type EventJournal struct {
 	PayloadJson string         `json:"payload_json"`
 }
 
+type HealthSample struct {
+	ID         int64  `json:"id"`
+	ProjectID  string `json:"project_id"`
+	ServiceID  string `json:"service_id"`
+	CheckID    string `json:"check_id"`
+	CheckType  string `json:"check_type"`
+	Status     string `json:"status"`
+	Severity   string `json:"severity"`
+	Required   int64  `json:"required"`
+	LatencyMs  int64  `json:"latency_ms"`
+	Message    string `json:"message"`
+	ObservedAt string `json:"observed_at"`
+}
+
+type LogEntry struct {
+	Sequence    int64          `json:"sequence"`
+	Digest      string         `json:"digest"`
+	SegmentID   string         `json:"segment_id"`
+	LineNumber  int64          `json:"line_number"`
+	ProjectID   string         `json:"project_id"`
+	ServiceID   string         `json:"service_id"`
+	RunID       string         `json:"run_id"`
+	OperationID sql.NullString `json:"operation_id"`
+	OccurredAt  string         `json:"occurred_at"`
+}
+
+type LogSegment struct {
+	ID             string         `json:"id"`
+	ProjectID      string         `json:"project_id"`
+	ServiceID      string         `json:"service_id"`
+	RunID          string         `json:"run_id"`
+	OperationID    sql.NullString `json:"operation_id"`
+	Path           string         `json:"path"`
+	CreatedAt      string         `json:"created_at"`
+	ClosedAt       sql.NullString `json:"closed_at"`
+	FirstTimestamp sql.NullString `json:"first_timestamp"`
+	LastTimestamp  sql.NullString `json:"last_timestamp"`
+	FirstSequence  sql.NullInt64  `json:"first_sequence"`
+	LastSequence   sql.NullInt64  `json:"last_sequence"`
+	EntryCount     int64          `json:"entry_count"`
+	SizeBytes      int64          `json:"size_bytes"`
+	Sha256         sql.NullString `json:"sha256"`
+}
+
 type ManifestProposal struct {
 	ID             string `json:"id"`
 	ProjectID      string `json:"project_id"`
@@ -124,6 +168,7 @@ type Run struct {
 	TerminationReason   string         `json:"termination_reason"`
 	IdentityFingerprint string         `json:"identity_fingerprint"`
 	RestartCount        int64          `json:"restart_count"`
+	OperationID         sql.NullString `json:"operation_id"`
 }
 
 type RunProcess struct {

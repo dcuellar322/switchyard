@@ -59,25 +59,38 @@ func projectFilters(projectName string) client.Filters {
 }
 
 type managedContainers struct {
-	mu      sync.RWMutex
-	owned   map[string]map[string]struct{}
-	pending map[string]domain.Action
+	mu         sync.RWMutex
+	owned      map[string]map[string]struct{}
+	pending    map[string]domain.Action
+	operations map[string]string
 }
 
 func newManagedContainers() *managedContainers {
-	return &managedContainers{owned: make(map[string]map[string]struct{}), pending: make(map[string]domain.Action)}
+	return &managedContainers{
+		owned: make(map[string]map[string]struct{}), pending: make(map[string]domain.Action), operations: make(map[string]string),
+	}
 }
 
-func (m *managedContainers) RecordAction(project string, action domain.Action) {
+func (m *managedContainers) RecordAction(project string, action domain.Action, operationID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	switch action {
 	case domain.ActionStop, domain.ActionTeardown:
 		delete(m.owned, project)
 		delete(m.pending, project)
+		delete(m.operations, project)
 	case domain.ActionStart, domain.ActionRestart, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
 		m.pending[project] = action
+		if operationID != "" {
+			m.operations[project] = operationID
+		}
 	}
+}
+
+func (m *managedContainers) Operation(project string) string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.operations[project]
 }
 
 func (m *managedContainers) Reconcile(project string, containerIDs []string) {

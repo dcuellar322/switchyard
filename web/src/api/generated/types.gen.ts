@@ -196,6 +196,7 @@ export type RuntimeObservation = {
 };
 
 export type RuntimeLogEntry = {
+    sequence: number;
     timestamp: string;
     projectId: string;
     serviceId: string;
@@ -204,9 +205,32 @@ export type RuntimeLogEntry = {
     stream: 'stdout' | 'stderr';
     level: string;
     message: string;
+    operationId?: string;
+    redacted: boolean;
     attributes: {
         [key: string]: string;
     };
+};
+
+export type HealthResult = {
+    projectId: string;
+    serviceId: string;
+    checkId: string;
+    type: 'http' | 'tcp' | 'process' | 'docker' | 'command' | 'composite';
+    status: 'healthy' | 'unhealthy' | 'unknown';
+    severity: 'info' | 'warning' | 'critical';
+    required: boolean;
+    latencyMs: number;
+    message: string;
+    observedAt: string;
+};
+
+export type ProjectHealth = {
+    projectId: string;
+    status: 'healthy' | 'unhealthy' | 'unknown';
+    observerState: 'connected' | 'stale' | 'disconnected';
+    results: Array<HealthResult>;
+    observedAt: string;
 };
 
 export type RuntimeMetricSample = {
@@ -758,6 +782,33 @@ export type GetProjectRuntimeResponses = {
 
 export type GetProjectRuntimeResponse = GetProjectRuntimeResponses[keyof GetProjectRuntimeResponses];
 
+export type GetProjectHealthData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/health';
+};
+
+export type GetProjectHealthErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectHealthError = GetProjectHealthErrors[keyof GetProjectHealthErrors];
+
+export type GetProjectHealthResponses = {
+    /**
+     * Current aggregate health with observer freshness
+     */
+    200: ProjectHealth;
+};
+
+export type GetProjectHealthResponse = GetProjectHealthResponses[keyof GetProjectHealthResponses];
+
 export type PlanProjectRuntimeData = {
     body: RuntimeActionRequest;
     path: {
@@ -823,6 +874,8 @@ export type GetProjectLogsData = {
     query?: {
         service?: string;
         since?: string;
+        runId?: string;
+        operationId?: string;
         tail?: number;
     };
     url: '/projects/{projectId}/logs';
@@ -845,6 +898,38 @@ export type GetProjectLogsResponses = {
 };
 
 export type GetProjectLogsResponse = GetProjectLogsResponses[keyof GetProjectLogsResponses];
+
+export type ExportProjectLogsData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query: {
+        service?: string;
+        runId?: string;
+        operationId?: string;
+        format: 'plain' | 'ndjson';
+    };
+    url: '/projects/{projectId}/logs/export';
+};
+
+export type ExportProjectLogsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ExportProjectLogsError = ExportProjectLogsErrors[keyof ExportProjectLogsErrors];
+
+export type ExportProjectLogsResponses = {
+    /**
+     * Redacted log export
+     */
+    200: string;
+};
+
+export type ExportProjectLogsResponse = ExportProjectLogsResponses[keyof ExportProjectLogsResponses];
 
 export type GetProjectMetricsData = {
     body?: never;

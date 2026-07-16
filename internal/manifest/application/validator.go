@@ -3,6 +3,8 @@ package application
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"net/url"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -45,12 +47,46 @@ func Validate(root string, manifest domain.Manifest) ValidationResult {
 		}
 	}
 	for _, check := range healthChecks(manifest.Services) {
-		if check.Type == "http" && !strings.HasPrefix(check.URL, "http://127.0.0.1") && !strings.HasPrefix(check.URL, "http://localhost") {
+		if check.Type == "http" && !loopbackURL(check.URL) {
 			result.Errors = append(result.Errors, "HTTP health checks must target loopback by default")
+		}
+		if check.Type == "tcp" && !loopbackAddress(check.Address) {
+			result.Errors = append(result.Errors, "TCP health checks must target loopback by default")
+		}
+		if check.Type == "command" && len(check.Command) > 0 {
+			if _, err := exec.LookPath(check.Command[0]); err != nil {
+				result.Warnings = append(result.Warnings, fmt.Sprintf("health check executable %q is unavailable", check.Command[0]))
+			}
 		}
 	}
 	result.Valid = len(result.Errors) == 0
 	return result
+}
+
+func loopbackAddress(address string) bool {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return false
+	}
+	host = strings.Trim(host, "[]")
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func loopbackURL(value string) bool {
+	parsed, err := url.Parse(value)
+	return err == nil && (parsed.Scheme == "http" || parsed.Scheme == "https") && loopbackHost(parsed.Hostname())
+}
+
+func loopbackHost(host string) bool {
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 func validateSchema(manifest domain.Manifest) error {

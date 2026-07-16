@@ -58,6 +58,7 @@ type ProjectRuntime struct {
 	Compose      *ComposeRuntime
 	Process      *ProcessRuntime
 	Services     []ServiceDeclaration
+	Ports        map[string]PortDeclaration
 	ManifestHash string
 }
 
@@ -107,6 +108,37 @@ type ServiceDeclaration struct {
 	RuntimeName  string
 	Dependencies []string
 	HostPorts    []int
+	HealthChecks []HealthCheckDefinition
+}
+
+// PortDeclaration is a trusted manifest port available to diagnostics.
+type PortDeclaration struct {
+	ID       string
+	Service  string
+	Host     int
+	Target   int
+	Protocol string
+}
+
+// HealthCheckDefinition is the driver-neutral readiness input resolved from a trusted manifest.
+type HealthCheckDefinition struct {
+	ID                  string
+	ServiceID           string
+	Type                string
+	URL                 string
+	Address             string
+	ExpectedStatus      int
+	JSONPath            string
+	ExpectedValue       string
+	Command             []string
+	Members             []string
+	Mode                string
+	InitialDelaySeconds int
+	IntervalSeconds     int
+	TimeoutSeconds      int
+	Retries             int
+	Severity            string
+	Required            bool
 }
 
 // PlanRequest asks a driver to preview an action.
@@ -118,6 +150,7 @@ type PlanRequest struct {
 
 // Plan is an immutable, reviewable description of a lifecycle mutation.
 type Plan struct {
+	OperationID   string    `json:"-"`
 	ProjectID     string    `json:"projectId"`
 	Driver        Kind      `json:"driver"`
 	Action        Action    `json:"action"`
@@ -251,15 +284,18 @@ type LogRequest struct {
 
 // LogEntry is an immutable line retaining driver, stream, service, and run identity.
 type LogEntry struct {
-	Timestamp  time.Time         `json:"timestamp"`
-	ProjectID  string            `json:"projectId"`
-	ServiceID  string            `json:"serviceId"`
-	RunID      string            `json:"runId"`
-	Source     string            `json:"source"`
-	Stream     string            `json:"stream"`
-	Level      string            `json:"level"`
-	Message    string            `json:"message"`
-	Attributes map[string]string `json:"attributes"`
+	Sequence    int64             `json:"sequence,omitempty"`
+	Timestamp   time.Time         `json:"timestamp"`
+	ProjectID   string            `json:"projectId"`
+	ServiceID   string            `json:"serviceId"`
+	RunID       string            `json:"runId"`
+	Source      string            `json:"source"`
+	Stream      string            `json:"stream"`
+	Level       string            `json:"level"`
+	Message     string            `json:"message"`
+	OperationID string            `json:"operationId,omitempty"`
+	Redacted    bool              `json:"redacted,omitempty"`
+	Attributes  map[string]string `json:"attributes"`
 }
 
 // MetricRequest selects live container measurements.
@@ -297,6 +333,7 @@ type RunRecord struct {
 	ID                  string
 	ProjectID           string
 	ServiceID           string
+	OperationID         string
 	RuntimeDriver       Kind
 	Origin              Origin
 	StartedAt           time.Time

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -123,6 +123,11 @@ export const validateProjectManifest = <ThrowOnError extends boolean = false>(op
 export const getProjectRuntime = <ThrowOnError extends boolean = false>(options: Options<GetProjectRuntimeData, ThrowOnError>): RequestResult<GetProjectRuntimeResponses, GetProjectRuntimeErrors, ThrowOnError> => (options.client ?? client).get<GetProjectRuntimeResponses, GetProjectRuntimeErrors, ThrowOnError>({ url: '/projects/{projectId}/runtime', ...options });
 
 /**
+ * Read current persisted health diagnostics
+ */
+export const getProjectHealth = <ThrowOnError extends boolean = false>(options: Options<GetProjectHealthData, ThrowOnError>): RequestResult<GetProjectHealthResponses, GetProjectHealthErrors, ThrowOnError> => (options.client ?? client).get<GetProjectHealthResponses, GetProjectHealthErrors, ThrowOnError>({ url: '/projects/{projectId}/health', ...options });
+
+/**
  * Preview a project lifecycle action without executing it
  */
 export const planProjectRuntime = <ThrowOnError extends boolean = false>(options: Options<PlanProjectRuntimeData, ThrowOnError>): RequestResult<PlanProjectRuntimeResponses, PlanProjectRuntimeErrors, ThrowOnError> => (options.client ?? client).post<PlanProjectRuntimeResponses, PlanProjectRuntimeErrors, ThrowOnError>({
@@ -150,6 +155,11 @@ export const createProjectOperation = <ThrowOnError extends boolean = false>(opt
  * Read a bounded snapshot of runtime logs
  */
 export const getProjectLogs = <ThrowOnError extends boolean = false>(options: Options<GetProjectLogsData, ThrowOnError>): RequestResult<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError>({ url: '/projects/{projectId}/logs', ...options });
+
+/**
+ * Export a bounded redacted project log stream
+ */
+export const exportProjectLogs = <ThrowOnError extends boolean = false>(options: Options<ExportProjectLogsData, ThrowOnError>): RequestResult<ExportProjectLogsResponses, ExportProjectLogsErrors, ThrowOnError> => (options.client ?? client).get<ExportProjectLogsResponses, ExportProjectLogsErrors, ThrowOnError>({ url: '/projects/{projectId}/logs/export', ...options });
 
 /**
  * Read one current resource sample per runtime service

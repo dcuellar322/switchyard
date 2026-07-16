@@ -37,13 +37,19 @@ type SecretResolver interface {
 	Resolve(context.Context, domain.SecretReference) (string, error)
 }
 
+// SecretObserver receives resolved values only in memory so downstream redaction can recognize them.
+type SecretObserver interface {
+	AddSecret(string)
+}
+
 // Driver supervises native process groups and reconciles them against durable fingerprints.
 type Driver struct {
-	ctx       context.Context
-	store     RunStore
-	inspector processInspector
-	secrets   SecretResolver
-	now       func() time.Time
+	ctx            context.Context
+	store          RunStore
+	inspector      processInspector
+	secrets        SecretResolver
+	secretObserver SecretObserver
+	now            func() time.Time
 
 	mu          sync.RWMutex
 	managed     map[string]*managedRun
@@ -52,8 +58,12 @@ type Driver struct {
 }
 
 // NewDriver creates a production native-process driver scoped to the daemon lifecycle.
-func NewDriver(ctx context.Context, store RunStore) *Driver {
-	return newDriver(ctx, store, gopsutilInspector{}, keychainResolver{})
+func NewDriver(ctx context.Context, store RunStore, observers ...SecretObserver) *Driver {
+	driver := newDriver(ctx, store, gopsutilInspector{}, keychainResolver{})
+	if len(observers) > 0 {
+		driver.secretObserver = observers[0]
+	}
+	return driver
 }
 
 func newDriver(ctx context.Context, store RunStore, inspector processInspector, secrets SecretResolver) *Driver {
@@ -77,6 +87,9 @@ func (d *Driver) Execute(ctx context.Context, plan domain.Plan, sink domain.Prog
 	data, ok := plan.DriverData.(executionPlan)
 	if !ok || plan.Driver != domain.KindProcess || data.project.ProjectID != plan.ProjectID || data.action != plan.Action {
 		return ErrInvalidProcessPlan
+	}
+	for index := range data.services {
+		data.services[index].operationID = plan.OperationID
 	}
 	if err := sink.Step(ctx, "process.preview", "succeeded", plan.Summary); err != nil {
 		return err

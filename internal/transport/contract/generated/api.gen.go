@@ -19,6 +19,78 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for HealthResultSeverity.
+const (
+	Critical HealthResultSeverity = "critical"
+	Info     HealthResultSeverity = "info"
+	Warning  HealthResultSeverity = "warning"
+)
+
+// Valid indicates whether the value is a known member of the HealthResultSeverity enum.
+func (e HealthResultSeverity) Valid() bool {
+	switch e {
+	case Critical:
+		return true
+	case Info:
+		return true
+	case Warning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HealthResultStatus.
+const (
+	HealthResultStatusHealthy   HealthResultStatus = "healthy"
+	HealthResultStatusUnhealthy HealthResultStatus = "unhealthy"
+	HealthResultStatusUnknown   HealthResultStatus = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the HealthResultStatus enum.
+func (e HealthResultStatus) Valid() bool {
+	switch e {
+	case HealthResultStatusHealthy:
+		return true
+	case HealthResultStatusUnhealthy:
+		return true
+	case HealthResultStatusUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HealthResultType.
+const (
+	HealthResultTypeCommand   HealthResultType = "command"
+	HealthResultTypeComposite HealthResultType = "composite"
+	HealthResultTypeDocker    HealthResultType = "docker"
+	HealthResultTypeHttp      HealthResultType = "http"
+	HealthResultTypeProcess   HealthResultType = "process"
+	HealthResultTypeTcp       HealthResultType = "tcp"
+)
+
+// Valid indicates whether the value is a known member of the HealthResultType enum.
+func (e HealthResultType) Valid() bool {
+	switch e {
+	case HealthResultTypeCommand:
+		return true
+	case HealthResultTypeComposite:
+		return true
+	case HealthResultTypeDocker:
+		return true
+	case HealthResultTypeHttp:
+		return true
+	case HealthResultTypeProcess:
+		return true
+	case HealthResultTypeTcp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ManifestProposalStatus.
 const (
 	ManifestProposalStatusAccepted   ManifestProposalStatus = "accepted"
@@ -94,21 +166,63 @@ func (e ProjectTrustState) Valid() bool {
 	}
 }
 
+// Defines values for ProjectHealthObserverState.
+const (
+	Connected    ProjectHealthObserverState = "connected"
+	Disconnected ProjectHealthObserverState = "disconnected"
+	Stale        ProjectHealthObserverState = "stale"
+)
+
+// Valid indicates whether the value is a known member of the ProjectHealthObserverState enum.
+func (e ProjectHealthObserverState) Valid() bool {
+	switch e {
+	case Connected:
+		return true
+	case Disconnected:
+		return true
+	case Stale:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProjectHealthStatus.
+const (
+	ProjectHealthStatusHealthy   ProjectHealthStatus = "healthy"
+	ProjectHealthStatusUnhealthy ProjectHealthStatus = "unhealthy"
+	ProjectHealthStatusUnknown   ProjectHealthStatus = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the ProjectHealthStatus enum.
+func (e ProjectHealthStatus) Valid() bool {
+	switch e {
+	case ProjectHealthStatusHealthy:
+		return true
+	case ProjectHealthStatusUnhealthy:
+		return true
+	case ProjectHealthStatusUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PublishedPortProtocol.
 const (
-	Sctp PublishedPortProtocol = "sctp"
-	Tcp  PublishedPortProtocol = "tcp"
-	Udp  PublishedPortProtocol = "udp"
+	PublishedPortProtocolSctp PublishedPortProtocol = "sctp"
+	PublishedPortProtocolTcp  PublishedPortProtocol = "tcp"
+	PublishedPortProtocolUdp  PublishedPortProtocol = "udp"
 )
 
 // Valid indicates whether the value is a known member of the PublishedPortProtocol enum.
 func (e PublishedPortProtocol) Valid() bool {
 	switch e {
-	case Sctp:
+	case PublishedPortProtocolSctp:
 		return true
-	case Tcp:
+	case PublishedPortProtocolTcp:
 		return true
-	case Udp:
+	case PublishedPortProtocolUdp:
 		return true
 	default:
 		return false
@@ -316,6 +430,24 @@ func (e SystemInfoStatus) Valid() bool {
 	}
 }
 
+// Defines values for ExportProjectLogsParamsFormat.
+const (
+	Ndjson ExportProjectLogsParamsFormat = "ndjson"
+	Plain  ExportProjectLogsParamsFormat = "plain"
+)
+
+// Valid indicates whether the value is a known member of the ExportProjectLogsParamsFormat enum.
+func (e ExportProjectLogsParamsFormat) Valid() bool {
+	switch e {
+	case Ndjson:
+		return true
+	case Plain:
+		return true
+	default:
+		return false
+	}
+}
+
 // AcceptedManifestProposal defines model for AcceptedManifestProposal.
 type AcceptedManifestProposal struct {
 	Project  Project          `json:"project"`
@@ -374,6 +506,29 @@ type EffectiveManifest struct {
 	Provenance map[string]string      `json:"provenance"`
 	Sources    []ManifestSource       `json:"sources"`
 }
+
+// HealthResult defines model for HealthResult.
+type HealthResult struct {
+	CheckId    string               `json:"checkId"`
+	LatencyMs  int64                `json:"latencyMs"`
+	Message    string               `json:"message"`
+	ObservedAt time.Time            `json:"observedAt"`
+	ProjectId  string               `json:"projectId"`
+	Required   bool                 `json:"required"`
+	ServiceId  string               `json:"serviceId"`
+	Severity   HealthResultSeverity `json:"severity"`
+	Status     HealthResultStatus   `json:"status"`
+	Type       HealthResultType     `json:"type"`
+}
+
+// HealthResultSeverity defines model for HealthResult.Severity.
+type HealthResultSeverity string
+
+// HealthResultStatus defines model for HealthResult.Status.
+type HealthResultStatus string
+
+// HealthResultType defines model for HealthResult.Type.
+type HealthResultType string
 
 // ManifestDiff defines model for ManifestDiff.
 type ManifestDiff struct {
@@ -472,6 +627,21 @@ type Project struct {
 // ProjectTrustState defines model for Project.TrustState.
 type ProjectTrustState string
 
+// ProjectHealth defines model for ProjectHealth.
+type ProjectHealth struct {
+	ObservedAt    time.Time                  `json:"observedAt"`
+	ObserverState ProjectHealthObserverState `json:"observerState"`
+	ProjectId     string                     `json:"projectId"`
+	Results       []HealthResult             `json:"results"`
+	Status        ProjectHealthStatus        `json:"status"`
+}
+
+// ProjectHealthObserverState defines model for ProjectHealth.ObserverState.
+type ProjectHealthObserverState string
+
+// ProjectHealthStatus defines model for ProjectHealth.Status.
+type ProjectHealthStatus string
+
 // PublishedPort defines model for PublishedPort.
 type PublishedPort struct {
 	ContainerPort int                   `json:"containerPort"`
@@ -511,15 +681,18 @@ type RuntimeEngineObservation struct {
 
 // RuntimeLogEntry defines model for RuntimeLogEntry.
 type RuntimeLogEntry struct {
-	Attributes map[string]string     `json:"attributes"`
-	Level      string                `json:"level"`
-	Message    string                `json:"message"`
-	ProjectId  string                `json:"projectId"`
-	RunId      string                `json:"runId"`
-	ServiceId  string                `json:"serviceId"`
-	Source     RuntimeLogEntrySource `json:"source"`
-	Stream     RuntimeLogEntryStream `json:"stream"`
-	Timestamp  time.Time             `json:"timestamp"`
+	Attributes  map[string]string     `json:"attributes"`
+	Level       string                `json:"level"`
+	Message     string                `json:"message"`
+	OperationId *string               `json:"operationId,omitempty"`
+	ProjectId   string                `json:"projectId"`
+	Redacted    bool                  `json:"redacted"`
+	RunId       string                `json:"runId"`
+	Sequence    int64                 `json:"sequence"`
+	ServiceId   string                `json:"serviceId"`
+	Source      RuntimeLogEntrySource `json:"source"`
+	Stream      RuntimeLogEntryStream `json:"stream"`
+	Timestamp   time.Time             `json:"timestamp"`
 }
 
 // RuntimeLogEntrySource defines model for RuntimeLogEntry.Source.
@@ -659,10 +832,23 @@ type RemoveProjectParams struct {
 
 // GetProjectLogsParams defines parameters for GetProjectLogs.
 type GetProjectLogsParams struct {
-	Service *string `form:"service,omitempty" json:"service,omitempty"`
-	Since   *string `form:"since,omitempty" json:"since,omitempty"`
-	Tail    *int    `form:"tail,omitempty" json:"tail,omitempty"`
+	Service     *string `form:"service,omitempty" json:"service,omitempty"`
+	Since       *string `form:"since,omitempty" json:"since,omitempty"`
+	RunId       *string `form:"runId,omitempty" json:"runId,omitempty"`
+	OperationId *string `form:"operationId,omitempty" json:"operationId,omitempty"`
+	Tail        *int    `form:"tail,omitempty" json:"tail,omitempty"`
 }
+
+// ExportProjectLogsParams defines parameters for ExportProjectLogs.
+type ExportProjectLogsParams struct {
+	Service     *string                       `form:"service,omitempty" json:"service,omitempty"`
+	RunId       *string                       `form:"runId,omitempty" json:"runId,omitempty"`
+	OperationId *string                       `form:"operationId,omitempty" json:"operationId,omitempty"`
+	Format      ExportProjectLogsParamsFormat `form:"format" json:"format"`
+}
+
+// ExportProjectLogsParamsFormat defines parameters for ExportProjectLogs.
+type ExportProjectLogsParamsFormat string
 
 // GetProjectMetricsParams defines parameters for GetProjectMetrics.
 type GetProjectMetricsParams struct {
@@ -804,8 +990,14 @@ type ClientInterface interface {
 	// GetProject request
 	GetProject(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetProjectHealth request
+	GetProjectHealth(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetProjectLogs request
 	GetProjectLogs(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ExportProjectLogs request
+	ExportProjectLogs(ctx context.Context, projectId ProjectId, params *ExportProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DiffProjectManifest request
 	DiffProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1007,8 +1199,32 @@ func (c *Client) GetProject(ctx context.Context, projectId ProjectId, reqEditors
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetProjectHealth(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectHealthRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetProjectLogs(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProjectLogsRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ExportProjectLogs(ctx context.Context, projectId ProjectId, params *ExportProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExportProjectLogsRequest(c.Server, projectId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1654,6 +1870,40 @@ func NewGetProjectRequest(server string, projectId ProjectId) (*http.Request, er
 	return req, nil
 }
 
+// NewGetProjectHealthRequest generates requests for GetProjectHealth
+func NewGetProjectHealthRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/health", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetProjectLogsRequest generates requests for GetProjectLogs
 func NewGetProjectLogsRequest(server string, projectId ProjectId, params *GetProjectLogsParams) (*http.Request, error) {
 	var err error
@@ -1713,6 +1963,30 @@ func NewGetProjectLogsRequest(server string, projectId ProjectId, params *GetPro
 
 		}
 
+		if params.RunId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "runId", *params.RunId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.OperationId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "operationId", *params.OperationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Tail != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "tail", *params.Tail, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
@@ -1723,6 +1997,99 @@ func NewGetProjectLogsRequest(server string, projectId ProjectId, params *GetPro
 				}
 			}
 
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewExportProjectLogsRequest generates requests for ExportProjectLogs
+func NewExportProjectLogsRequest(server string, projectId ProjectId, params *ExportProjectLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/logs/export", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Service != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service", *params.Service, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.RunId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "runId", *params.RunId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.OperationId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "operationId", *params.OperationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "format", params.Format, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
 		}
 
 		if encoded := queryValues.Encode(); encoded != "" {
@@ -2200,8 +2567,14 @@ type ClientWithResponsesInterface interface {
 	// GetProjectWithResponse request
 	GetProjectWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectResponse, error)
 
+	// GetProjectHealthWithResponse request
+	GetProjectHealthWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectHealthResponse, error)
+
 	// GetProjectLogsWithResponse request
 	GetProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*GetProjectLogsResponse, error)
+
+	// ExportProjectLogsWithResponse request
+	ExportProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *ExportProjectLogsParams, reqEditors ...RequestEditorFn) (*ExportProjectLogsResponse, error)
 
 	// DiffProjectManifestWithResponse request
 	DiffProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*DiffProjectManifestResponse, error)
@@ -2606,6 +2979,37 @@ func (r GetProjectResponse) ContentType() string {
 	return ""
 }
 
+type GetProjectHealthResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ProjectHealth
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectHealthResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectHealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectHealthResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetProjectLogsResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -2631,6 +3035,36 @@ func (r GetProjectLogsResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetProjectLogsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ExportProjectLogsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ExportProjectLogsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExportProjectLogsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ExportProjectLogsResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -3040,6 +3474,15 @@ func (c *ClientWithResponses) GetProjectWithResponse(ctx context.Context, projec
 	return ParseGetProjectResponse(rsp)
 }
 
+// GetProjectHealthWithResponse request returning *GetProjectHealthResponse
+func (c *ClientWithResponses) GetProjectHealthWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectHealthResponse, error) {
+	rsp, err := c.GetProjectHealth(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectHealthResponse(rsp)
+}
+
 // GetProjectLogsWithResponse request returning *GetProjectLogsResponse
 func (c *ClientWithResponses) GetProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*GetProjectLogsResponse, error) {
 	rsp, err := c.GetProjectLogs(ctx, projectId, params, reqEditors...)
@@ -3047,6 +3490,15 @@ func (c *ClientWithResponses) GetProjectLogsWithResponse(ctx context.Context, pr
 		return nil, err
 	}
 	return ParseGetProjectLogsResponse(rsp)
+}
+
+// ExportProjectLogsWithResponse request returning *ExportProjectLogsResponse
+func (c *ClientWithResponses) ExportProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *ExportProjectLogsParams, reqEditors ...RequestEditorFn) (*ExportProjectLogsResponse, error) {
+	rsp, err := c.ExportProjectLogs(ctx, projectId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExportProjectLogsResponse(rsp)
 }
 
 // DiffProjectManifestWithResponse request returning *DiffProjectManifestResponse
@@ -3535,6 +3987,39 @@ func ParseGetProjectResponse(rsp *http.Response) (*GetProjectResponse, error) {
 	return response, nil
 }
 
+// ParseGetProjectHealthResponse parses an HTTP response from a GetProjectHealthWithResponse call
+func ParseGetProjectHealthResponse(rsp *http.Response) (*GetProjectHealthResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectHealthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProjectHealth
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetProjectLogsResponse parses an HTTP response from a GetProjectLogsWithResponse call
 func ParseGetProjectLogsResponse(rsp *http.Response) (*GetProjectLogsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3556,6 +4041,32 @@ func ParseGetProjectLogsResponse(rsp *http.Response) (*GetProjectLogsResponse, e
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseExportProjectLogsResponse parses an HTTP response from a ExportProjectLogsWithResponse call
+func ParseExportProjectLogsResponse(rsp *http.Response) (*ExportProjectLogsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExportProjectLogsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -3903,9 +4414,15 @@ type ServerInterface interface {
 	// Read one registered project
 	// (GET /projects/{projectId})
 	GetProject(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Read current persisted health diagnostics
+	// (GET /projects/{projectId}/health)
+	GetProjectHealth(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// Read a bounded snapshot of runtime logs
 	// (GET /projects/{projectId}/logs)
 	GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams)
+	// Export a bounded redacted project log stream
+	// (GET /projects/{projectId}/logs/export)
+	ExportProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params ExportProjectLogsParams)
 	// Compare the accepted and effective manifests
 	// (GET /projects/{projectId}/manifest/diff)
 	DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -4011,9 +4528,21 @@ func (_ Unimplemented) GetProject(w http.ResponseWriter, r *http.Request, projec
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// Read current persisted health diagnostics
+// (GET /projects/{projectId}/health)
+func (_ Unimplemented) GetProjectHealth(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Read a bounded snapshot of runtime logs
 // (GET /projects/{projectId}/logs)
 func (_ Unimplemented) GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Export a bounded redacted project log stream
+// (GET /projects/{projectId}/logs/export)
+func (_ Unimplemented) ExportProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params ExportProjectLogsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -4507,6 +5036,32 @@ func (siw *ServerInterfaceWrapper) GetProject(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
+// GetProjectHealth operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectHealth(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectHealth(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetProjectLogs operation middleware
 func (siw *ServerInterfaceWrapper) GetProjectLogs(w http.ResponseWriter, r *http.Request) {
 
@@ -4551,6 +5106,32 @@ func (siw *ServerInterfaceWrapper) GetProjectLogs(w http.ResponseWriter, r *http
 		return
 	}
 
+	// ------------- Optional query parameter "runId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "runId", r.URL.Query(), &params.RunId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "runId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "runId", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "operationId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "operationId", r.URL.Query(), &params.OperationId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "operationId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "operationId", Err: err})
+		}
+		return
+	}
+
 	// ------------- Optional query parameter "tail" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", true, false, "tail", r.URL.Query(), &params.Tail, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
@@ -4566,6 +5147,87 @@ func (siw *ServerInterfaceWrapper) GetProjectLogs(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetProjectLogs(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ExportProjectLogs operation middleware
+func (siw *ServerInterfaceWrapper) ExportProjectLogs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ExportProjectLogsParams
+
+	// ------------- Optional query parameter "service" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "service", r.URL.Query(), &params.Service, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "service"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "service", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "runId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "runId", r.URL.Query(), &params.RunId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "runId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "runId", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "operationId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "operationId", r.URL.Query(), &params.OperationId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "operationId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "operationId", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "format" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "format", r.URL.Query(), &params.Format, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "format"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "format", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ExportProjectLogs(w, r, projectId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -5019,7 +5681,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/projects/{projectId}", wrapper.GetProject)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/health", wrapper.GetProjectHealth)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/logs", wrapper.GetProjectLogs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/logs/export", wrapper.ExportProjectLogs)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/manifest/diff", wrapper.DiffProjectManifest)

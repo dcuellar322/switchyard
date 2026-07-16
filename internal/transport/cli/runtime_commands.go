@@ -110,7 +110,7 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 }
 
 func newLogsCommand(options *rootOptions) *cobra.Command {
-	service, since, tail := "", "", 200
+	service, since, runID, operationID, export, tail := "", "", "", "", "", 200
 	command := &cobra.Command{Use: "logs <project>", Short: "Read a bounded runtime log snapshot", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
@@ -120,7 +120,21 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		entries, err := client.RuntimeLogs(command.Context(), project.Id, service, since, tail)
+		if export != "" {
+			format := generated.ExportProjectLogsParamsFormat(export)
+			if !format.Valid() {
+				return usageError("LOG_EXPORT_FORMAT_INVALID", "--export must be plain or ndjson")
+			}
+			contents, err := client.ExportRuntimeLogs(command.Context(), project.Id, service, runID, operationID, format)
+			if err != nil {
+				return err
+			}
+			return writeResult(options, "runtime.logs.export", map[string]any{"format": format, "content": string(contents)}, func(w io.Writer) error {
+				_, err := w.Write(contents)
+				return err
+			})
+		}
+		entries, err := client.RuntimeLogs(command.Context(), project.Id, service, since, runID, operationID, tail)
 		if err != nil {
 			return err
 		}
@@ -135,6 +149,9 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 	}}
 	command.Flags().StringVar(&service, "service", "", "limit to a runtime service")
 	command.Flags().StringVar(&since, "since", "", "runtime timestamp or duration boundary")
+	command.Flags().StringVar(&runID, "run", "", "limit to one runtime run")
+	command.Flags().StringVar(&operationID, "operation", "", "limit to one lifecycle operation")
+	command.Flags().StringVar(&export, "export", "", "export persisted redacted logs as plain or ndjson")
 	command.Flags().IntVar(&tail, "tail", 200, "maximum lines across selected runtimes")
 	return command
 }

@@ -16,6 +16,9 @@ transaction, generated schema, and configuration precedence.
 The [Docker Compose runtime](docker-compose-runtime.md) and
 [native process runtime](native-process-runtime.md) notes describe the two
 initial lifecycle drivers, their evidence models, and their ownership limits.
+The [health and log observability](observability.md) note defines the redaction
+boundary, rotating storage, cursor replay, health scheduling, and degraded-state
+derivation introduced by Phase 7.
 
 ## Process topology
 

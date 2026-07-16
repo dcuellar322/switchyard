@@ -46,7 +46,7 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 	digest := sha256.Sum256(document)
 	result := domain.ProjectRuntime{
 		ProjectID: project.ID, ProjectSlug: project.Slug, Root: project.PrimaryLocation,
-		Kind: domain.Kind(effective.Manifest.Runtime.Driver), ManifestHash: hex.EncodeToString(digest[:]),
+		Kind: domain.Kind(effective.Manifest.Runtime.Driver), ManifestHash: hex.EncodeToString(digest[:]), Ports: map[string]domain.PortDeclaration{},
 	}
 	if compose := effective.Manifest.Runtime.Compose; compose != nil {
 		result.Compose = &domain.ComposeRuntime{
@@ -83,7 +83,21 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 		declaration := domain.ServiceDeclaration{
 			ID: service.ID, RuntimeName: runtimeName, Dependencies: append([]string(nil), service.Dependencies...),
 		}
+		for index, check := range service.HealthChecks {
+			id := check.ID
+			if id == "" {
+				id = fmt.Sprintf("%s-%d", check.Type, index+1)
+			}
+			declaration.HealthChecks = append(declaration.HealthChecks, domain.HealthCheckDefinition{
+				ID: id, ServiceID: service.ID, Type: check.Type, URL: check.URL, Address: check.Address,
+				ExpectedStatus: check.ExpectedStatus, JSONPath: check.JSONPath, ExpectedValue: check.ExpectedValue,
+				Command: append([]string(nil), check.Command...), Members: append([]string(nil), check.Members...), Mode: check.Mode,
+				InitialDelaySeconds: check.InitialDelaySeconds, IntervalSeconds: check.IntervalSeconds,
+				TimeoutSeconds: check.TimeoutSeconds, Retries: check.Retries, Severity: check.Severity, Required: check.Required,
+			})
+		}
 		for _, port := range effective.Manifest.Ports {
+			result.Ports[port.ID] = domain.PortDeclaration{ID: port.ID, Service: port.Service, Host: port.Host, Target: port.Target, Protocol: port.Protocol}
 			if port.Service == service.ID && port.Protocol == "tcp" {
 				declaration.HostPorts = append(declaration.HostPorts, port.Host)
 			}

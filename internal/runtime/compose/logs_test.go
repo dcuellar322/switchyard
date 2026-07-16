@@ -51,6 +51,17 @@ func TestDetectLevelAfterApplicationTimestamp(t *testing.T) {
 	}
 }
 
+func TestOperationLogSinkAddsLifecycleCorrelation(t *testing.T) {
+	t.Parallel()
+	sink := &recordingLogSink{}
+	if err := (operationLogSink{operationID: "op-1", sink: sink}).WriteLog(context.Background(), domain.LogEntry{Message: "ready"}); err != nil {
+		t.Fatal(err)
+	}
+	if sink.entries[0].OperationID != "op-1" {
+		t.Fatalf("entry = %#v", sink.entries[0])
+	}
+}
+
 func writeMultiplexed(buffer *bytes.Buffer, stream stdcopy.StdType, value []byte) {
 	header := make([]byte, 8)
 	header[0] = byte(stream)
