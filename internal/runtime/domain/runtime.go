@@ -146,6 +146,7 @@ type PlanRequest struct {
 	Project       ProjectRuntime
 	Action        Action
 	RemoveVolumes bool
+	Services      []string
 }
 
 // Plan is an immutable, reviewable description of a lifecycle mutation.
@@ -158,6 +159,7 @@ type Plan struct {
 	Summary       string    `json:"summary"`
 	Commands      []Command `json:"commands"`
 	Effects       []string  `json:"effects"`
+	Services      []string  `json:"services"`
 	RemoveVolumes bool      `json:"removeVolumes"`
 	DriverData    any       `json:"-"`
 }

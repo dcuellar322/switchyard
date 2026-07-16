@@ -13,11 +13,14 @@ import (
 )
 
 func ipcClient(options *rootOptions) (*httpclient.Client, error) {
-	address := options.ipcAddr
-	if address == "" {
-		address = localipc.DefaultAddress(options.dataDir)
+	return httpclient.NewIPC(ipcAddress(options))
+}
+
+func ipcAddress(options *rootOptions) string {
+	if options.ipcAddr != "" {
+		return options.ipcAddr
 	}
-	return httpclient.NewIPC(address)
+	return localipc.DefaultAddress(options.dataDir)
 }
 
 func daemonClient(ctx context.Context, options *rootOptions) (*httpclient.Client, error) {

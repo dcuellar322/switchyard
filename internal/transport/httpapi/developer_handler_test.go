@@ -3,6 +3,8 @@ package httpapi
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,6 +15,7 @@ import (
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
 	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
+	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 )
 
@@ -83,5 +86,37 @@ func TestConfirmedActionQueuesActorBoundOperation(t *testing.T) {
 	handler.CreateActionOperation(response, request, "project", "tests", generated.CreateActionOperationParams{IdempotencyKey: "request-key"})
 	if response.Code != http.StatusAccepted || operations.request.Kind != "action.run" || !strings.Contains(string(operations.request.Input), `"actionId":"tests"`) {
 		t.Fatalf("status=%d request=%#v", response.Code, operations.request)
+	}
+}
+
+func TestAgentIdentityHeadersBindOperationAuditActor(t *testing.T) {
+	t.Parallel()
+	operations := &recordingOperations{}
+	ipc := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operations, Runtime: runtimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project/operations", strings.NewReader(`{"action":"start"}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set(idempotencyHeader, "agent-request-key")
+	request.Header.Set(actorTypeHeader, "agent")
+	request.Header.Set(actorIDHeader, "codex/reviewer")
+	response := httptest.NewRecorder()
+	ipc.ServeHTTP(response, request)
+	if response.Code != http.StatusAccepted || operations.request.ActorType != "agent" || operations.request.ActorID != "codex/reviewer" {
+		t.Fatalf("status=%d request=%#v body=%s", response.Code, operations.request, response.Body.String())
+	}
+}
+
+func TestInvalidAgentIdentityIsRejectedAtIPCBoundary(t *testing.T) {
+	t.Parallel()
+	ipc := NewIPC(Dependencies{System: systemStub{}, Sessions: session.NewManager(), Logger: slog.New(slog.NewTextHandler(io.Discard, nil))})
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/system", nil)
+	request.Header.Set(actorTypeHeader, "agent")
+	request.Header.Set(actorIDHeader, "contains spaces")
+	response := httptest.NewRecorder()
+	ipc.ServeHTTP(response, request)
+	if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), "ACTOR_IDENTITY_INVALID") {
+		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
 	}
 }

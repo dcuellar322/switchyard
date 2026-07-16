@@ -235,6 +235,7 @@ export type RuntimeAction = 'start' | 'stop' | 'restart' | 'pause' | 'unpause' |
 export type RuntimeActionRequest = {
     action: RuntimeAction;
     removeVolumes?: boolean;
+    services?: Array<string>;
 };
 
 export type RuntimeCommand = {
@@ -251,6 +252,7 @@ export type RuntimePlan = {
     summary: string;
     commands: Array<RuntimeCommand>;
     effects: Array<string>;
+    services: Array<string>;
     removeVolumes: boolean;
 };
 

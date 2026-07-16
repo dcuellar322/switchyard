@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
+	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
@@ -63,13 +64,17 @@ func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
 
 type catalogService interface {
 	Scan(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	ScanAs(context.Context, string, catalogApplication.MutationActor) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
 	Validate(context.Context, string) (discoveryDomain.Proposal, error)
 	Accept(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	AcceptAs(context.Context, string, catalogApplication.MutationActor) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	ListProjects(context.Context) ([]catalogDomain.Project, error)
 	GetProject(context.Context, string) (catalogDomain.Project, error)
 	TrustProject(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	TrustProjectAs(context.Context, string, catalogApplication.MutationActor) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	RemoveProject(context.Context, string) error
+	RemoveProjectAs(context.Context, string, catalogApplication.MutationActor) error
 	EffectiveManifest(context.Context, string, []byte) (manifestApplication.EffectiveManifest, error)
 	Diff(context.Context, string) (map[string]json.RawMessage, error)
 	ValidateProject(context.Context, string) (manifestApplication.ValidationResult, error)
@@ -85,6 +90,7 @@ type operationService interface {
 type runtimeService interface {
 	Inspect(context.Context, string) (runtimeDomain.Observation, error)
 	Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error)
+	PlanServices(context.Context, string, runtimeDomain.Action, bool, []string) (runtimeDomain.Plan, error)
 	Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error)
 }
 

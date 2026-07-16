@@ -107,6 +107,14 @@ partial or Docker-disconnected states. It remains a generated-contract adapter
 and never constructs runtime commands. See the
 [dashboard alpha architecture](docs/architecture/dashboard-alpha.md).
 
+Coding agents use a permission-scoped MCP stdio adapter over the same daemon
+use cases. The default observe profile cannot mutate, destructive tools require
+an explicit admin profile, responses are bounded and redacted, and no generic
+shell tool exists. Install project-local Codex or Claude Code configuration
+with `switchyard agent install codex` or `switchyard agent install claude`.
+See the [MCP reference](docs/mcp.md) and
+[agent integration architecture](docs/architecture/agent-integration.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

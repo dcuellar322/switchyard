@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 )
 
@@ -15,7 +16,7 @@ func (h *handler) CreateManifestProposal(w http.ResponseWriter, r *http.Request,
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide exactly one non-empty repository path.")
 		return
 	}
-	_, proposal, err := h.catalog.Scan(r.Context(), request.Path)
+	_, proposal, err := h.catalog.ScanAs(r.Context(), request.Path, catalogMutationActor(r))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -42,7 +43,7 @@ func (h *handler) ValidateManifestProposal(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *handler) AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalID generated.ProposalId, _ generated.AcceptManifestProposalParams) {
-	project, proposal, err := h.catalog.Accept(r.Context(), proposalID)
+	project, proposal, err := h.catalog.AcceptAs(r.Context(), proposalID, catalogMutationActor(r))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -69,7 +70,7 @@ func (h *handler) GetProject(w http.ResponseWriter, r *http.Request, projectID g
 }
 
 func (h *handler) TrustProject(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId, _ generated.TrustProjectParams) {
-	project, proposal, err := h.catalog.TrustProject(r.Context(), projectID)
+	project, proposal, err := h.catalog.TrustProjectAs(r.Context(), projectID, catalogMutationActor(r))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -78,11 +79,16 @@ func (h *handler) TrustProject(w http.ResponseWriter, r *http.Request, projectID
 }
 
 func (h *handler) RemoveProject(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId, _ generated.RemoveProjectParams) {
-	if err := h.catalog.RemoveProject(r.Context(), projectID); err != nil {
+	if err := h.catalog.RemoveProjectAs(r.Context(), projectID, catalogMutationActor(r)); err != nil {
 		writeApplicationError(w, r, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func catalogMutationActor(r *http.Request) catalogApplication.MutationActor {
+	identity := identityFrom(r.Context())
+	return catalogApplication.MutationActor{Type: string(identity.Access), ID: identity.ActorID}
 }
 
 func (h *handler) ExplainProjectManifest(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {

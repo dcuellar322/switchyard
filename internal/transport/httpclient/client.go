@@ -16,6 +16,11 @@ type Client struct {
 	generated *generated.ClientWithResponses
 }
 
+const (
+	actorTypeHeader = "X-Switchyard-Actor-Type"
+	actorIDHeader   = "X-Switchyard-Actor-ID"
+)
+
 // APIError preserves a stable problem code and HTTP status for CLI exit mapping.
 type APIError struct {
 	Operation string
@@ -46,14 +51,46 @@ func New(address string) (*Client, error) {
 
 // NewIPC creates a typed client over privileged local IPC.
 func NewIPC(address string) (*Client, error) {
+	return newIPC(address, "", "")
+}
+
+// NewIPCForAgent creates a privileged local client whose mutations retain agent identity in durable audits.
+func NewIPCForAgent(address, actorID string) (*Client, error) {
+	if actorID == "" {
+		return nil, fmt.Errorf("create agent IPC client: actor identity is required")
+	}
+	return newIPC(address, "agent", actorID)
+}
+
+func newIPC(address, actorType, actorID string) (*Client, error) {
+	options := []generated.ClientOption{generated.WithHTTPClient(localipc.HTTPClient(address))}
+	if actorType != "" {
+		options = append(options, generated.WithRequestEditorFn(func(_ context.Context, request *http.Request) error {
+			request.Header.Set(actorTypeHeader, actorType)
+			request.Header.Set(actorIDHeader, actorID)
+			return nil
+		}))
+	}
 	client, err := generated.NewClientWithResponses(
 		"http://switchyard.local/api/v1",
-		generated.WithHTTPClient(localipc.HTTPClient(address)),
+		options...,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("create local IPC client: %w", err)
 	}
 	return &Client{generated: client}, nil
+}
+
+// Health returns the latest persisted and currently evaluated project health.
+func (c *Client) Health(ctx context.Context, projectID string) (generated.ProjectHealth, error) {
+	response, err := c.generated.GetProjectHealthWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.ProjectHealth{}, fmt.Errorf("read project health: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.ProjectHealth{}, apiError("read project health", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
 }
 
 // System returns the generated system contract.
@@ -93,6 +130,18 @@ func (c *Client) CreateManifestProposal(ctx context.Context, path, idempotencyKe
 		return generated.ManifestProposal{}, unexpected("create manifest proposal", response.StatusCode())
 	}
 	return *response.JSON201, nil
+}
+
+// ManifestProposal reads one deterministic proposal and its owning project ID.
+func (c *Client) ManifestProposal(ctx context.Context, proposalID string) (generated.ManifestProposal, error) {
+	response, err := c.generated.GetManifestProposalWithResponse(ctx, proposalID)
+	if err != nil {
+		return generated.ManifestProposal{}, fmt.Errorf("read manifest proposal: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.ManifestProposal{}, apiError("read manifest proposal", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
 }
 
 // ValidateManifestProposal reruns proposal validation through the local API.
@@ -257,8 +306,17 @@ func (c *Client) Runtime(ctx context.Context, projectID string) (generated.Runti
 
 // PlanRuntime previews one lifecycle action without executing it.
 func (c *Client) PlanRuntime(ctx context.Context, projectID string, action generated.RuntimeAction, removeVolumes bool) (generated.RuntimePlan, error) {
+	return c.PlanRuntimeServices(ctx, projectID, action, removeVolumes, nil)
+}
+
+// PlanRuntimeServices previews one lifecycle action for selected declared services.
+func (c *Client) PlanRuntimeServices(ctx context.Context, projectID string, action generated.RuntimeAction, removeVolumes bool, services []string) (generated.RuntimePlan, error) {
+	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes}
+	if len(services) > 0 {
+		request.Services = &services
+	}
 	response, err := c.generated.PlanProjectRuntimeWithResponse(ctx, projectID, generated.RuntimeActionRequest{
-		Action: action, RemoveVolumes: &removeVolumes,
+		Action: request.Action, RemoveVolumes: request.RemoveVolumes, Services: request.Services,
 	})
 	if err != nil {
 		return generated.RuntimePlan{}, fmt.Errorf("plan project runtime: %w", err)
@@ -277,9 +335,25 @@ func (c *Client) CreateRuntimeOperation(
 	removeVolumes bool,
 	idempotencyKey string,
 ) (generated.Operation, error) {
+	return c.CreateRuntimeOperationForServices(ctx, projectID, action, removeVolumes, nil, idempotencyKey)
+}
+
+// CreateRuntimeOperationForServices queues a lifecycle mutation for selected declared services.
+func (c *Client) CreateRuntimeOperationForServices(
+	ctx context.Context,
+	projectID string,
+	action generated.RuntimeAction,
+	removeVolumes bool,
+	services []string,
+	idempotencyKey string,
+) (generated.Operation, error) {
+	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes}
+	if len(services) > 0 {
+		request.Services = &services
+	}
 	response, err := c.generated.CreateProjectOperationWithResponse(
 		ctx, projectID, &generated.CreateProjectOperationParams{IdempotencyKey: idempotencyKey},
-		generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes},
+		request,
 	)
 	if err != nil {
 		return generated.Operation{}, fmt.Errorf("create runtime operation: %w", err)

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	session "switchyard.dev/switchyard/internal/session/application"
@@ -14,7 +15,11 @@ const (
 	sessionCookieName = "switchyard_session"
 	csrfHeader        = "X-CSRF-Token"
 	idempotencyHeader = "Idempotency-Key"
+	actorTypeHeader   = "X-Switchyard-Actor-Type"
+	actorIDHeader     = "X-Switchyard-Actor-ID"
 )
+
+var agentActorPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,127}$`)
 
 type accessKind string
 
@@ -33,6 +38,14 @@ type requestIdentity struct {
 func withAccess(access accessKind, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		identity := requestIdentity{Access: access, ActorID: string(access)}
+		if access == accessIPC && r.Header.Get(actorTypeHeader) != "" {
+			if r.Header.Get(actorTypeHeader) != "agent" || !agentActorPattern.MatchString(r.Header.Get(actorIDHeader)) {
+				writeProblem(w, r, http.StatusBadRequest, "ACTOR_IDENTITY_INVALID", "Actor identity invalid", "Agent identity headers must contain one bounded agent identifier.")
+				return
+			}
+			identity.Access = accessKind("agent")
+			identity.ActorID = r.Header.Get(actorIDHeader)
+		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), securityContextKey{}, identity)))
 	})
 }

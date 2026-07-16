@@ -205,8 +205,9 @@ func executeRuntimeOperation(
 	progress operations.Progress,
 ) error {
 	var input struct {
-		Action        string `json:"action"`
-		RemoveVolumes bool   `json:"removeVolumes"`
+		Action        string   `json:"action"`
+		RemoveVolumes bool     `json:"removeVolumes"`
+		Services      []string `json:"services"`
 	}
 	if err := json.Unmarshal(operation.Input, &input); err != nil {
 		return fmt.Errorf("decode runtime operation: %w", err)
@@ -215,7 +216,7 @@ func executeRuntimeOperation(
 	if err != nil || operation.Kind != "runtime."+input.Action {
 		return fmt.Errorf("invalid runtime operation kind %q", operation.Kind)
 	}
-	plan, err := service.Plan(ctx, operation.ProjectID, action, input.RemoveVolumes)
+	plan, err := service.PlanServices(ctx, operation.ProjectID, action, input.RemoveVolumes, input.Services)
 	if err != nil {
 		return err
 	}

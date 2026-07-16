@@ -43,7 +43,7 @@ func (r *CatalogRepository) FindProposalByLocation(ctx context.Context, location
 }
 
 // CreateProposal atomically stores a project, proposal, evidence, and audit event.
-func (r *CatalogRepository) CreateProposal(ctx context.Context, project catalog.Project, proposal discovery.Proposal) error {
+func (r *CatalogRepository) CreateProposal(ctx context.Context, project catalog.Project, proposal discovery.Proposal, actor application.MutationActor) error {
 	tx, err := r.database.connection.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin catalog transaction: %w", err)
@@ -87,7 +87,7 @@ func (r *CatalogRepository) CreateProposal(ctx context.Context, project catalog.
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
         (event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
-        VALUES ('manifest.proposal.created', 'system', 'catalog-service', ?, ?, '{}', ?)`, project.ID, proposal.ID, formatTime(proposal.CreatedAt)); err != nil {
+		VALUES ('manifest.proposal.created', ?, ?, ?, ?, '{}', ?)`, actor.Type, actor.ID, project.ID, proposal.ID, formatTime(proposal.CreatedAt)); err != nil {
 		return fmt.Errorf("audit manifest proposal: %w", err)
 	}
 	if err = tx.Commit(); err != nil {
@@ -160,7 +160,7 @@ func (r *CatalogRepository) LatestProposal(ctx context.Context, projectID string
 }
 
 // AcceptProposal atomically trusts a proposal and appends a manifest revision.
-func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at time.Time) (catalog.Project, discovery.Proposal, error) {
+func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at time.Time, actor application.MutationActor) (catalog.Project, discovery.Proposal, error) {
 	proposal, err := r.GetProposal(ctx, id)
 	if err != nil {
 		return catalog.Project{}, discovery.Proposal{}, err
@@ -197,7 +197,7 @@ func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at ti
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
         (event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
-        VALUES ('manifest.proposal.accepted', 'system', 'catalog-service', ?, ?, '{}', ?)`, proposal.ProjectID, proposal.ID, formatTime(at)); err != nil {
+		VALUES ('manifest.proposal.accepted', ?, ?, ?, ?, '{}', ?)`, actor.Type, actor.ID, proposal.ProjectID, proposal.ID, formatTime(at)); err != nil {
 		return catalog.Project{}, discovery.Proposal{}, fmt.Errorf("audit accepted manifest: %w", err)
 	}
 	if err = tx.Commit(); err != nil {
@@ -283,7 +283,7 @@ func (r *CatalogRepository) AcceptedManifest(ctx context.Context, projectID stri
 }
 
 // RemoveProject deletes catalog records while preserving a standalone audit event.
-func (r *CatalogRepository) RemoveProject(ctx context.Context, projectID string, at time.Time) error {
+func (r *CatalogRepository) RemoveProject(ctx context.Context, projectID string, at time.Time, actor application.MutationActor) error {
 	tx, err := r.database.connection.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin project removal: %w", err)
@@ -302,7 +302,7 @@ func (r *CatalogRepository) RemoveProject(ctx context.Context, projectID string,
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
         (event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
-        VALUES ('project.removed', 'system', 'catalog-service', ?, ?, '{}', ?)`, projectID, projectID, formatTime(at)); err != nil {
+		VALUES ('project.removed', ?, ?, ?, ?, '{}', ?)`, actor.Type, actor.ID, projectID, projectID, formatTime(at)); err != nil {
 		return fmt.Errorf("audit project removal: %w", err)
 	}
 	if err := tx.Commit(); err != nil {

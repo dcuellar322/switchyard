@@ -900,6 +900,12 @@ components:
       properties:
         action: { $ref: "#/components/schemas/RuntimeAction" }
         removeVolumes: { type: boolean, default: false }
+        services:
+          type: array
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+          items: { type: string, minLength: 1, maxLength: 128 }
     RuntimeCommand:
       type: object
       additionalProperties: false
@@ -913,7 +919,7 @@ components:
     RuntimePlan:
       type: object
       additionalProperties: false
-      required: [projectId, driver, action, risk, summary, commands, effects, removeVolumes]
+      required: [projectId, driver, action, risk, summary, commands, effects, services, removeVolumes]
       properties:
         projectId: { type: string }
         driver: { type: string, enum: [compose, process] }
@@ -924,6 +930,9 @@ components:
           type: array
           items: { $ref: "#/components/schemas/RuntimeCommand" }
         effects:
+          type: array
+          items: { type: string }
+        services:
           type: array
           items: { type: string }
         removeVolumes: { type: boolean }

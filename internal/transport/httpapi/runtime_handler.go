@@ -59,7 +59,7 @@ func (h *handler) PlanProjectRuntime(w http.ResponseWriter, r *http.Request, pro
 	if !ok {
 		return
 	}
-	plan, err := h.runtime.Plan(r.Context(), projectID, domain.Action(request.Action), request.RemoveVolumes != nil && *request.RemoveVolumes)
+	plan, err := h.runtime.PlanServices(r.Context(), projectID, domain.Action(request.Action), request.RemoveVolumes != nil && *request.RemoveVolumes, runtimeServices(request))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -83,11 +83,12 @@ func (h *handler) CreateProjectOperation(
 		return
 	}
 	removeVolumes := request.RemoveVolumes != nil && *request.RemoveVolumes
-	if _, err := h.runtime.Plan(r.Context(), projectID, action, removeVolumes); err != nil {
+	services := runtimeServices(request)
+	if _, err := h.runtime.PlanServices(r.Context(), projectID, action, removeVolumes, services); err != nil {
 		writeApplicationError(w, r, err)
 		return
 	}
-	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes})
+	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services})
 	identity := identityFrom(r.Context())
 	operation, err := h.operations.Submit(r.Context(), operations.SubmitRequest{
 		ProjectID: projectID, Kind: "runtime." + string(action), Input: input,
@@ -98,6 +99,13 @@ func (h *handler) CreateProjectOperation(
 		return
 	}
 	writeJSON(w, http.StatusAccepted, operationResponse(operation))
+}
+
+func runtimeServices(request generated.RuntimeActionRequest) []string {
+	if request.Services == nil {
+		return nil
+	}
+	return *request.Services
 }
 
 func (h *handler) GetProjectLogs(

@@ -3,6 +3,7 @@ package compose
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"switchyard.dev/switchyard/internal/runtime/domain"
 )
@@ -25,13 +26,53 @@ func (commandBuilder) Build(request domain.PlanRequest, config normalizedConfig)
 		return domain.Plan{}, err
 	}
 	arguments = append(arguments, actionArguments...)
+	serviceIDs, runtimeNames, err := selectedComposeServices(request, config)
+	if err != nil {
+		return domain.Plan{}, err
+	}
+	arguments = append(arguments, runtimeNames...)
+	if len(runtimeNames) > 0 {
+		summary = fmt.Sprintf("%s (%d selected)", summary, len(runtimeNames))
+		effects = append(effects, "limit lifecycle action to selected services")
+	}
 	command := domain.Command{Executable: "docker", Arguments: arguments, WorkingDirectory: request.Project.Root}
 	return domain.Plan{
 		ProjectID: request.Project.ProjectID, Driver: domain.KindCompose, Action: request.Action,
-		Risk: risk, Summary: summary, Effects: effects, Commands: []domain.Command{command},
+		Risk: risk, Summary: summary, Effects: effects, Services: serviceIDs, Commands: []domain.Command{command},
 		RemoveVolumes: request.RemoveVolumes,
 		DriverData:    executionPlan{project: request.Project, config: config, invocation: command},
 	}, nil
+}
+
+func selectedComposeServices(request domain.PlanRequest, config normalizedConfig) ([]string, []string, error) {
+	allIDs := make([]string, 0, len(request.Project.Services))
+	declared := make(map[string]string, len(request.Project.Services))
+	for _, service := range request.Project.Services {
+		allIDs = append(allIDs, service.ID)
+		declared[service.ID] = service.RuntimeName
+	}
+	if len(request.Services) == 0 {
+		return allIDs, nil, nil
+	}
+	if request.Action == domain.ActionTeardown {
+		return nil, nil, errors.New("compose teardown cannot target individual services")
+	}
+	selectedIDs := make([]string, 0, len(request.Services))
+	runtimeNames := make([]string, 0, len(request.Services))
+	seen := make(map[string]struct{}, len(request.Services))
+	for _, id := range request.Services {
+		if _, duplicate := seen[id]; duplicate {
+			return nil, nil, fmt.Errorf("duplicate selected service %q", id)
+		}
+		seen[id] = struct{}{}
+		runtimeName, ok := declared[id]
+		if !ok || runtimeName == "" || !slices.Contains(config.Services, runtimeName) {
+			return nil, nil, fmt.Errorf("selected service %q is not declared by this Compose project", id)
+		}
+		selectedIDs = append(selectedIDs, id)
+		runtimeNames = append(runtimeNames, runtimeName)
+	}
+	return selectedIDs, runtimeNames, nil
 }
 
 func lifecycleArguments(action domain.Action, removeVolumes bool) (domain.Risk, string, []string, []string, error) {

@@ -49,6 +49,32 @@ func TestComposeArgumentsRejectFileOutsideTrustedRoot(t *testing.T) {
 	}
 }
 
+func TestCommandBuilderTargetsDeclaredServiceWithoutShell(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	project := domain.ProjectRuntime{
+		ProjectID: "project-1", Root: root, Compose: &domain.ComposeRuntime{Files: []string{"compose.yaml"}},
+		Services: []domain.ServiceDeclaration{{ID: "api", RuntimeName: "backend"}, {ID: "worker", RuntimeName: "worker"}},
+	}
+	plan, err := (commandBuilder{}).Build(domain.PlanRequest{
+		Project: project, Action: domain.ActionRestart, Services: []string{"api"},
+	}, normalizedConfig{ProjectName: "fixture", Services: []string{"backend", "worker"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(lastArguments(plan.Commands[0], 2), []string{"restart", "backend"}) {
+		t.Fatalf("arguments = %#v", plan.Commands[0].Arguments)
+	}
+	if !reflect.DeepEqual(plan.Services, []string{"api"}) {
+		t.Fatalf("services = %#v", plan.Services)
+	}
+	if _, err := (commandBuilder{}).Build(domain.PlanRequest{
+		Project: project, Action: domain.ActionRestart, Services: []string{"missing"},
+	}, normalizedConfig{ProjectName: "fixture", Services: []string{"backend", "worker"}}); err == nil {
+		t.Fatal("unknown service target accepted")
+	}
+}
+
 func TestConfigReaderNormalizesNameAndServices(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()

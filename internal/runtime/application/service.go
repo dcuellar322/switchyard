@@ -53,11 +53,16 @@ func (s *Service) Inspect(ctx context.Context, projectID string) (domain.Observa
 
 // Plan returns a side-effect-free lifecycle preview.
 func (s *Service) Plan(ctx context.Context, projectID string, action domain.Action, removeVolumes bool) (domain.Plan, error) {
+	return s.PlanServices(ctx, projectID, action, removeVolumes, nil)
+}
+
+// PlanServices returns a side-effect-free preview scoped to declared service IDs.
+func (s *Service) PlanServices(ctx context.Context, projectID string, action domain.Action, removeVolumes bool, services []string) (domain.Plan, error) {
 	project, driver, err := s.resolve(ctx, projectID)
 	if err != nil {
 		return domain.Plan{}, err
 	}
-	return driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes})
+	return driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes, Services: services})
 }
 
 // Execute applies a previously produced plan through its owning driver.

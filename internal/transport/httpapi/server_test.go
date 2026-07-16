@@ -101,6 +101,9 @@ func (runtimeStub) Inspect(context.Context, string) (runtimeDomain.Observation, 
 func (runtimeStub) Plan(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool) (runtimeDomain.Plan, error) {
 	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskSafe, Commands: []runtimeDomain.Command{}, Effects: []string{}, RemoveVolumes: removeVolumes}, nil
 }
+func (runtimeStub) PlanServices(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool, services []string) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskSafe, Commands: []runtimeDomain.Command{}, Effects: []string{}, Services: services, RemoveVolumes: removeVolumes}, nil
+}
 func (runtimeStub) Logs(context.Context, string, string, string, int) ([]runtimeDomain.LogEntry, error) {
 	return []runtimeDomain.LogEntry{}, nil
 }
@@ -131,6 +134,23 @@ func TestRuntimeOperationUsesDurableCoordinatorBoundary(t *testing.T) {
 	}
 }
 
+func TestRuntimeOperationPersistsSelectedServices(t *testing.T) {
+	t.Parallel()
+	operations := &recordingOperations{}
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operations, Runtime: runtimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"restart","services":["api"]}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set(idempotencyHeader, "runtime-service-key")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusAccepted || !strings.Contains(string(operations.request.Input), `"services":["api"]`) {
+		t.Fatalf("status=%d input=%s body=%s", response.Code, operations.request.Input, response.Body.String())
+	}
+}
+
 func TestRuntimePlanDoesNotRequireMutationCredentials(t *testing.T) {
 	t.Parallel()
 	handler := NewIPC(Dependencies{
@@ -153,6 +173,9 @@ func (runningRuntimeStub) Inspect(context.Context, string) (runtimeDomain.Observ
 		Origin: runtimeDomain.OriginSwitchyard, Services: []runtimeDomain.ServiceObservation{}}, nil
 }
 func (runningRuntimeStub) Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{}, nil
+}
+func (runningRuntimeStub) PlanServices(context.Context, string, runtimeDomain.Action, bool, []string) (runtimeDomain.Plan, error) {
 	return runtimeDomain.Plan{}, nil
 }
 func (runningRuntimeStub) Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error) {

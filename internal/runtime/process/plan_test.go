@@ -2,6 +2,7 @@ package process
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -24,6 +25,28 @@ func TestPlanOrdersDependenciesAndRejectsImplicitShell(t *testing.T) {
 	project.Process.Processes[0].Command = []string{"sh", "-c", "echo unsafe"}
 	if _, err := buildPlan(domain.PlanRequest{Project: project, Action: domain.ActionStart}); err == nil || !strings.Contains(err.Error(), "shell opt-in") {
 		t.Fatalf("implicit shell error = %v", err)
+	}
+}
+
+func TestPlanTargetsOneServiceAndIncludesStartDependencies(t *testing.T) {
+	t.Parallel()
+	project := processProject(t.TempDir(), []servicePlan{
+		{service: domain.ServiceDeclaration{ID: "database", RuntimeName: "database"}, definition: domain.ProcessDefinition{ID: "database", Command: []string{"db"}}},
+		{service: domain.ServiceDeclaration{ID: "api", RuntimeName: "api", Dependencies: []string{"database"}}, definition: domain.ProcessDefinition{ID: "api", Command: []string{"api"}}},
+	})
+	start, err := buildPlan(domain.PlanRequest{Project: project, Action: domain.ActionStart, Services: []string{"api"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(start.Services, []string{"database", "api"}) {
+		t.Fatalf("start services = %#v", start.Services)
+	}
+	restart, err := buildPlan(domain.PlanRequest{Project: project, Action: domain.ActionRestart, Services: []string{"api"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(restart.Services, []string{"api"}) {
+		t.Fatalf("restart services = %#v", restart.Services)
 	}
 }
 

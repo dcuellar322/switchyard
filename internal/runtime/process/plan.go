@@ -36,6 +36,10 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 	if err != nil {
 		return domain.Plan{}, err
 	}
+	services, err = selectProcessServices(request, services)
+	if err != nil {
+		return domain.Plan{}, err
+	}
 	for _, service := range services {
 		if len(service.definition.Command) == 0 {
 			return domain.Plan{}, fmt.Errorf("process %q has no command", service.definition.ID)
@@ -58,6 +62,7 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 		DriverData: executionPlan{project: request.Project, action: request.Action, services: services},
 	}
 	for _, service := range services {
+		plan.Services = append(plan.Services, service.service.ID)
 		command := previewCommand(request.Project.Root, service.definition)
 		plan.Commands = append(plan.Commands, command)
 		environmentCount := len(request.Project.Process.Environment) + len(service.definition.Environment)
@@ -68,6 +73,53 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 		))
 	}
 	return plan, nil
+}
+
+func selectProcessServices(request domain.PlanRequest, ordered []servicePlan) ([]servicePlan, error) {
+	if len(request.Services) == 0 {
+		return ordered, nil
+	}
+	declarations := make(map[string]domain.ServiceDeclaration, len(request.Project.Services))
+	for _, service := range request.Project.Services {
+		declarations[service.ID] = service
+	}
+	selected := make(map[string]struct{}, len(request.Services))
+	var include func(string) error
+	include = func(id string) error {
+		service, ok := declarations[id]
+		if !ok {
+			return fmt.Errorf("selected service %q is not declared", id)
+		}
+		if _, exists := selected[id]; exists {
+			return nil
+		}
+		selected[id] = struct{}{}
+		if request.Action == domain.ActionStart {
+			for _, dependency := range service.Dependencies {
+				if err := include(dependency); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+	seenRequest := make(map[string]struct{}, len(request.Services))
+	for _, id := range request.Services {
+		if _, duplicate := seenRequest[id]; duplicate {
+			return nil, fmt.Errorf("duplicate selected service %q", id)
+		}
+		seenRequest[id] = struct{}{}
+		if err := include(id); err != nil {
+			return nil, err
+		}
+	}
+	result := make([]servicePlan, 0, len(selected))
+	for _, service := range ordered {
+		if _, ok := selected[service.service.ID]; ok {
+			result = append(result, service)
+		}
+	}
+	return result, nil
 }
 
 func orderedServices(project domain.ProjectRuntime) ([]servicePlan, error) {

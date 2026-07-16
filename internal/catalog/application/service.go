@@ -28,16 +28,24 @@ var (
 
 // Repository persists projects, proposals, evidence, and accepted snapshots.
 type Repository interface {
-	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal) error
+	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal, MutationActor) error
 	FindProposalByLocation(context.Context, string) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
 	LatestProposal(context.Context, string) (discoveryDomain.Proposal, error)
-	AcceptProposal(context.Context, string, time.Time) (catalog.Project, discoveryDomain.Proposal, error)
+	AcceptProposal(context.Context, string, time.Time, MutationActor) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProject(context.Context, string) (catalog.Project, error)
 	ListProjects(context.Context) ([]catalog.Project, error)
 	AcceptedManifest(context.Context, string) (manifestDomain.Manifest, error)
-	RemoveProject(context.Context, string, time.Time) error
+	RemoveProject(context.Context, string, time.Time, MutationActor) error
 }
+
+// MutationActor is the non-secret principal recorded with catalog trust changes.
+type MutationActor struct {
+	Type string
+	ID   string
+}
+
+var systemActor = MutationActor{Type: "system", ID: "catalog-service"}
 
 // Service is the project onboarding use-case boundary.
 type Service struct {
@@ -53,6 +61,11 @@ func NewService(repository Repository, scanners []discovery.Scanner) *Service {
 
 // Scan creates a pending project and reviewable proposal without executing repository code.
 func (s *Service) Scan(ctx context.Context, path string) (catalog.Project, discoveryDomain.Proposal, error) {
+	return s.ScanAs(ctx, path, systemActor)
+}
+
+// ScanAs creates a proposal and records the initiating principal.
+func (s *Service) ScanAs(ctx context.Context, path string, actor MutationActor) (catalog.Project, discoveryDomain.Proposal, error) {
 	root, err := discovery.SelectRoot(path)
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
@@ -84,7 +97,7 @@ func (s *Service) Scan(ctx context.Context, path string) (catalog.Project, disco
 		PrimaryLocation: root.Path, Tags: proposal.Candidate.Metadata.Tags,
 		CreatedAt: proposal.CreatedAt, UpdatedAt: proposal.CreatedAt,
 	}
-	if err := s.repository.CreateProposal(ctx, project, proposal); err != nil {
+	if err := s.repository.CreateProposal(ctx, project, proposal, normalizedActor(actor)); err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
 	return project, proposal, nil
@@ -112,6 +125,11 @@ func (s *Service) Validate(ctx context.Context, id string) (discoveryDomain.Prop
 
 // Accept records a human trust decision and immutable manifest snapshot.
 func (s *Service) Accept(ctx context.Context, id string) (catalog.Project, discoveryDomain.Proposal, error) {
+	return s.AcceptAs(ctx, id, systemActor)
+}
+
+// AcceptAs records an explicit trust decision and its principal.
+func (s *Service) AcceptAs(ctx context.Context, id string, actor MutationActor) (catalog.Project, discoveryDomain.Proposal, error) {
 	proposal, err := s.Validate(ctx, id)
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
@@ -122,7 +140,7 @@ func (s *Service) Accept(ctx context.Context, id string) (catalog.Project, disco
 	if !proposal.Validation.Valid || len(proposal.Unresolved) > 0 {
 		return catalog.Project{}, discoveryDomain.Proposal{}, fmt.Errorf("%w: %v", ErrInvalidProposal, proposal.Validation.Errors)
 	}
-	return s.repository.AcceptProposal(ctx, id, s.now().UTC())
+	return s.repository.AcceptProposal(ctx, id, s.now().UTC(), normalizedActor(actor))
 }
 
 // ListProjects returns registered projects in stable display order.
@@ -137,16 +155,33 @@ func (s *Service) GetProject(ctx context.Context, id string) (catalog.Project, e
 
 // TrustProject validates and accepts the latest proposal for a project.
 func (s *Service) TrustProject(ctx context.Context, projectID string) (catalog.Project, discoveryDomain.Proposal, error) {
+	return s.TrustProjectAs(ctx, projectID, systemActor)
+}
+
+// TrustProjectAs accepts the latest valid proposal for a principal.
+func (s *Service) TrustProjectAs(ctx context.Context, projectID string, actor MutationActor) (catalog.Project, discoveryDomain.Proposal, error) {
 	proposal, err := s.repository.LatestProposal(ctx, projectID)
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
-	return s.Accept(ctx, proposal.ID)
+	return s.AcceptAs(ctx, proposal.ID, actor)
 }
 
 // RemoveProject removes catalog state without touching repository files.
 func (s *Service) RemoveProject(ctx context.Context, projectID string) error {
-	return s.repository.RemoveProject(ctx, projectID, s.now().UTC())
+	return s.RemoveProjectAs(ctx, projectID, systemActor)
+}
+
+// RemoveProjectAs removes catalog state and records the initiating principal.
+func (s *Service) RemoveProjectAs(ctx context.Context, projectID string, actor MutationActor) error {
+	return s.repository.RemoveProject(ctx, projectID, s.now().UTC(), normalizedActor(actor))
+}
+
+func normalizedActor(actor MutationActor) MutationActor {
+	if actor.Type == "" || actor.ID == "" {
+		return systemActor
+	}
+	return actor
 }
 
 // EffectiveManifest resolves the accepted snapshot with portable and local files.

@@ -24,6 +24,9 @@ defines Phase 8 port provenance and reservations, read-only Git observation,
 action authorization, working-directory containment, and audit recovery.
 The [dashboard alpha](dashboard-alpha.md) note defines Phase 9 routes, server
 state ownership, command boundaries, degraded behavior, and browser evidence.
+The [agent integration](agent-integration.md) note defines Phase 10 MCP
+topology, least-privilege discovery, audit identity, provider installers, and
+failure isolation.
 
 ## Process topology
 

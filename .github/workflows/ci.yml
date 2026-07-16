@@ -110,4 +110,5 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: make build
+      - run: ./scripts/test-mcp-inspector.sh
       - run: ./bin/switchyard version

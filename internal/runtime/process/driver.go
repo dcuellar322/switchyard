@@ -100,7 +100,10 @@ func (d *Driver) Execute(ctx context.Context, plan domain.Plan, sink domain.Prog
 	case domain.ActionStop:
 		return d.stopAll(ctx, data, sink, "stopped")
 	case domain.ActionRestart:
-		if err := d.stopAll(ctx, data, sink, "restarted"); err != nil {
+		stopPlan := data
+		stopPlan.services = append([]servicePlan(nil), data.services...)
+		reverseServices(stopPlan.services)
+		if err := d.stopAll(ctx, stopPlan, sink, "restarted"); err != nil {
 			return err
 		}
 		return d.startAll(ctx, data, sink)

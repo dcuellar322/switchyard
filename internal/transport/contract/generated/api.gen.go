@@ -1070,6 +1070,7 @@ type RuntimeAction string
 type RuntimeActionRequest struct {
 	Action        RuntimeAction `json:"action"`
 	RemoveVolumes *bool         `json:"removeVolumes,omitempty"`
+	Services      *[]string     `json:"services,omitempty"`
 }
 
 // RuntimeCommand defines model for RuntimeCommand.
@@ -1153,6 +1154,7 @@ type RuntimePlan struct {
 	ProjectId     string            `json:"projectId"`
 	RemoveVolumes bool              `json:"removeVolumes"`
 	Risk          RuntimePlanRisk   `json:"risk"`
+	Services      []string          `json:"services"`
 	Summary       string            `json:"summary"`
 }
 
