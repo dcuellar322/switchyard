@@ -11,9 +11,14 @@ previewed, bounded, redacted evidence bundle to the provider the user selected;
 provider use is not required for any deterministic workflow. Provider terms
 and retention apply after that explicit request.
 
-Support bundles exclude source, secrets, arbitrary environment values, and
-application logs by default. Logs and diagnostic evidence share the same
-redaction pipeline before display, persistence, export, or provider use.
+Support bundles always exclude source, database contents, resolved secrets,
+arbitrary environment values, terminal output, and project application logs.
+The exact manifest is previewable before a private archive is written, and the
+archive contains only allowlisted system/configuration facts plus recent
+redacted internal daemon warnings and errors. Logs and diagnostic evidence
+share the same redaction pipeline before display, persistence, export, or
+provider use. Novel secret formats remain a residual risk, so bundles should
+still be reviewed and shared privately.
 Plugins are external programs with separately reviewed fingerprints and scopes;
 their own network or data behavior remains the plugin publisher's
 responsibility within permissions granted by the user.

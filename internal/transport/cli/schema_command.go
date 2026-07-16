@@ -8,7 +8,7 @@ import (
 )
 
 var cliCommands = []string{
-	"doctor", "manifest.diff", "manifest.explain", "manifest.validate", "open", "operation.cancel",
+	"debug.logs", "doctor", "doctor.bundle", "doctor.bundle.preview", "manifest.diff", "manifest.explain", "manifest.validate", "open", "operation.cancel",
 	"operation.get", "operation.list", "project.add", "project.get", "project.list", "project.remove", "project.trust",
 	"runtime.logs", "runtime.metrics", "runtime.plan", "runtime.status", "runtime.operation", "ui", "version",
 }
@@ -49,9 +49,10 @@ func commandDataSchema(command string) map[string]any {
 	openAPIRef := func(name string) map[string]any {
 		return map[string]any{"$ref": "https://switchyard.dev/schema/openapi.v1.json#/components/schemas/" + name}
 	}
+	if schema, ok := supportCommandDataSchema(command); ok {
+		return schema
+	}
 	switch command {
-	case "doctor":
-		return openAPIRef("SystemInfo")
 	case "project.get":
 		return openAPIRef("Project")
 	case "project.list":
@@ -90,5 +91,18 @@ func commandDataSchema(command string) map[string]any {
 		return map[string]any{"type": "object"}
 	default:
 		return map[string]any{}
+	}
+}
+
+func supportCommandDataSchema(command string) (map[string]any, bool) {
+	switch command {
+	case "doctor":
+		return map[string]any{"$ref": "https://switchyard.dev/schema/openapi.v1.json#/components/schemas/SystemInfo"}, true
+	case "doctor.bundle", "doctor.bundle.preview":
+		return map[string]any{"type": "object"}, true
+	case "debug.logs":
+		return map[string]any{"type": "array", "items": map[string]any{"type": "object"}}, true
+	default:
+		return nil, false
 	}
 }

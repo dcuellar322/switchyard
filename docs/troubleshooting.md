@@ -1,8 +1,9 @@
 # Troubleshooting
 
-Start with `switchyard doctor`, then `switchyard version` and
-`switchyard data inspect`. Keep diagnostic output private until it has been
-previewed and redacted.
+Start with `switchyard doctor`, then `switchyard debug logs --level warn` and
+`switchyard data inspect`. Preview `switchyard doctor --bundle --preview`
+before writing or sharing an archive. Keep diagnostic output private even
+after automated redaction.
 
 - **Daemon will not start:** another matching daemon may own `daemon.lock` or
   the Unix socket/named pipe. Do not delete a live lock. Stop the process shown
@@ -27,4 +28,6 @@ previewed and redacted.
 Issue reports should include platform, Switchyard version, expected/actual
 behavior, minimal reproduction, and only redacted diagnostic facts. Never
 attach credentials, private source, browser bootstrap URLs, raw environment
-files, or unreviewed application logs.
+files, or unreviewed application logs. The
+[support-bundle contract](support-bundles.md) documents the exact archive
+contents and residual privacy risk.

@@ -98,6 +98,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 	root.PersistentFlags().BoolVar(&options.noColor, "no-color", false, "disable ANSI color output")
 	root.AddCommand(
 		newVersionCommand(options), newDaemonCommand(options), newUICommand(options), newDoctorCommand(options),
+		newDebugCommand(options),
 		newDesktopCommand(options),
 		newAddCommand(options), newListAliasCommand(options), newProjectCommand(options), newOperationCommand(options),
 		newManifestCommand(options), newOpenCommand(options), newCompletionCommand(root), newSchemaCommand(options),
@@ -196,23 +197,6 @@ func newUICommand(options *rootOptions) *cobra.Command {
 	}}
 	command.Flags().StringVar(&uiPath, "path", uiPath, "relative application route to open")
 	return command
-}
-
-func newDoctorCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{Use: "doctor", Short: "Check daemon and durable storage health", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
-		client, err := daemonClient(command.Context(), options)
-		if err != nil {
-			return err
-		}
-		info, err := client.System(command.Context())
-		if err != nil {
-			return err
-		}
-		return writeResult(options, "doctor", info, func(w io.Writer) error {
-			_, err := fmt.Fprintf(w, "daemon=%s version=%s api=%s schema=%d\n", info.Status, info.Version, info.ApiVersion, info.DatabaseSchemaVersion)
-			return err
-		})
-	}}
 }
 
 func newCompletionCommand(root *cobra.Command) *cobra.Command {

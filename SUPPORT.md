@@ -11,6 +11,10 @@ source, browser bootstrap URLs, and personal data from every diagnostic before
 sharing it. See [troubleshooting](docs/troubleshooting.md) for the minimum safe
 evidence.
 
+Run `switchyard doctor --bundle --preview` before creating an archive and
+review the [support-bundle contract](docs/support-bundles.md). Switchyard never
+uploads a bundle; sharing remains a separate user action.
+
 The project does not promise private support, response-time SLAs, or support
 for unlisted platforms. Maintainers may ask for a minimal public fixture when a
 problem cannot be reproduced without private repository content.

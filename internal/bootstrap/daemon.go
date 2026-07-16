@@ -32,6 +32,7 @@ import (
 	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
+	"switchyard.dev/switchyard/internal/platform/daemonlog"
 	hostPlatform "switchyard.dev/switchyard/internal/platform/host"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
 	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
@@ -70,6 +71,13 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
+	redactor, internalLog, logger, err := prepareDaemonSupport(config)
+	if err != nil {
+		_ = lock.release()
+		return err
+	}
+	config.Logger = logger
+	defer closeInternalLog(config.Logger, internalLog)
 	defer releaseDaemonLock(config.Logger, lock)
 
 	database, err := sqlite.Open(ctx, filepath.Join(config.DataDir, "switchyard.db"))
@@ -85,10 +93,6 @@ func RunDaemon(ctx context.Context, config Config) error {
 		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(gitService),
 		sqlite.NewEnvironmentRepository(database),
 	)
-	redactor, err := observabilityAdapters.NewRedactor(config.RedactionPatterns)
-	if err != nil {
-		return fmt.Errorf("compile log redaction patterns: %w", err)
-	}
 	runtimeSource := runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService))
 	runtimeService := runtimeApplication.NewService(
 		runtimeSource,
@@ -309,6 +313,12 @@ func daemonLogger(logger *slog.Logger) *slog.Logger {
 func releaseDaemonLock(logger *slog.Logger, lock *lockFile) {
 	if err := lock.release(); err != nil {
 		logger.Error("release daemon lock", "component", "bootstrap", "error", err)
+	}
+}
+
+func closeInternalLog(logger *slog.Logger, handler *daemonlog.FileHandler) {
+	if err := handler.Close(); err != nil {
+		logger.Error("close internal daemon log", "component", "bootstrap", "error", err)
 	}
 }
 

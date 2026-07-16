@@ -62,69 +62,91 @@ func forbiddenPackageName(module, importPath string) []violation {
 
 func checkImport(module, importer, imported string) []violation {
 	var violations []violation
+	violations = append(violations, checkSDKBoundary(module, importer, imported)...)
+	violations = append(violations, checkLayerDirection(module, importer, imported)...)
+	violations = append(violations, checkCrossDomainAdapter(module, importer, imported)...)
+	violations = append(violations, checkHTTPBoundary(importer, imported)...)
+	violations = append(violations, checkMCPBoundary(module, importer, imported)...)
+	return violations
+}
+
+func checkSDKBoundary(module, importer, imported string) []violation {
 	if strings.HasPrefix(importer, module+"/sdk/") && strings.HasPrefix(imported, module+"/internal/") {
-		violations = append(violations, violation{
+		return []violation{{
 			Importer: importer,
 			Imported: imported,
 			Rule:     "public SDK packages cannot depend on internal implementation packages",
-		})
+		}}
 	}
+	return nil
+}
+
+func checkLayerDirection(module, importer, imported string) []violation {
+	var violations []violation
 	if isLayer(importer, "domain") {
-		for _, forbidden := range []string{"/application", "/adapters", "/transport"} {
-			if strings.HasPrefix(imported, module+"/") && strings.Contains(imported, forbidden) {
-				violations = append(violations, violation{
-					Importer: importer,
-					Imported: imported,
-					Rule:     "domain packages cannot depend on application or adapter layers",
-				})
-			}
+		if strings.HasPrefix(imported, module+"/") &&
+			(isLayer(imported, "application") || isLayer(imported, "adapters") || strings.Contains(imported, "/transport/")) {
+			violations = append(violations, violation{
+				Importer: importer, Imported: imported,
+				Rule: "domain packages cannot depend on application or adapter layers",
+			})
 		}
 		if forbiddenDomainInfrastructure(module, imported) {
 			violations = append(violations, violation{
-				Importer: importer,
-				Imported: imported,
-				Rule:     "domain packages cannot depend on infrastructure or third-party packages",
+				Importer: importer, Imported: imported,
+				Rule: "domain packages cannot depend on infrastructure or third-party packages",
 			})
 		}
 	}
 	if isLayer(importer, "application") && strings.HasPrefix(imported, module+"/") &&
 		(isLayer(imported, "adapters") || strings.Contains(imported, "/transport/")) {
 		violations = append(violations, violation{
-			Importer: importer,
-			Imported: imported,
-			Rule:     "application packages cannot depend on adapter or transport layers",
+			Importer: importer, Imported: imported,
+			Rule: "application packages cannot depend on adapter or transport layers",
 		})
 	}
+	return violations
+}
+
+func checkCrossDomainAdapter(module, importer, imported string) []violation {
 	importerDomain := domainName(module, importer)
 	importedDomain := domainName(module, imported)
 	if importerDomain != "" && importedDomain != "" && importerDomain != importedDomain && strings.Contains(imported, "/adapters") {
-		violations = append(violations, violation{
+		return []violation{{
 			Importer: importer,
 			Imported: imported,
 			Rule:     "a domain cannot import another domain's adapter",
-		})
+		}}
 	}
+	return nil
+}
+
+func checkHTTPBoundary(importer, imported string) []violation {
 	if strings.Contains(importer, "/transport/httpapi") {
 		if imported == "database/sql" || strings.Contains(imported, "/runtime/compose") || strings.Contains(imported, "/runtime/process") || strings.Contains(imported, "docker") {
-			violations = append(violations, violation{
+			return []violation{{
 				Importer: importer,
 				Imported: imported,
 				Rule:     "HTTP adapters cannot access persistence or runtime infrastructure directly",
-			})
+			}}
 		}
 	}
+	return nil
+}
+
+func checkMCPBoundary(module, importer, imported string) []violation {
 	if strings.Contains(importer, "/transport/mcpserver") {
 		if imported == "database/sql" || imported == "os/exec" || strings.Contains(imported, "docker") ||
 			(strings.HasPrefix(imported, module+"/internal/") &&
 				(strings.Contains(imported, "/adapters") || strings.Contains(imported, "/platform/") || strings.Contains(imported, "/runtime/"))) {
-			violations = append(violations, violation{
+			return []violation{{
 				Importer: importer,
 				Imported: imported,
 				Rule:     "MCP adapters must call application use cases",
-			})
+			}}
 		}
 	}
-	return violations
+	return nil
 }
 
 func forbiddenDomainInfrastructure(module, imported string) bool {

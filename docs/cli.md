@@ -32,6 +32,9 @@ switchyard machine show <machine>
 switchyard machine probe <machine>
 switchyard machine snapshot <machine>
 switchyard doctor
+switchyard doctor --bundle --preview
+switchyard doctor --bundle [--output <new-file.zip>]
+switchyard debug logs [--level debug|info|warn|error] [--limit 200]
 ```
 
 Selection checks opaque ID first, then an exact unique slug, then a canonical
@@ -39,6 +42,17 @@ repository path. Missing and ambiguous selections fail instead of guessing.
 Catalog removal never changes repository files. Trust and removal require
 `--yes`; Switchyard does not hide an interactive confirmation inside automation
 mode.
+
+`doctor --bundle --preview` prints the exact support evidence allowlist and
+denylist without writing a file. Removing `--preview` writes a new mode-`0600`
+ZIP atomically and refuses to overwrite an existing path. The archive contains
+only `manifest.json` and `internal-errors.ndjson`: build/API/schema identity,
+adapter availability, sanitized daemon configuration, and at most 100 recent
+redacted internal warnings or errors. It excludes repository source, database
+contents, resolved credentials, environment values, terminal output, and
+project application logs. `debug logs` reads the same dedicated two-segment
+redacted control-plane log and never falls back to application output. See the
+[support-bundle contract](support-bundles.md).
 
 `ui` starts or attaches to the local daemon and prints a short-lived,
 authenticated loopback URL. `--path` accepts only a local application route;
