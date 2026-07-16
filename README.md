@@ -66,10 +66,12 @@ versions are pinned in `.go-version`, `.node-version`, `go.mod`, and the root
 make bootstrap
 make build
 ./bin/switchyard daemon --data-dir .switchyard-data/dev
+./bin/switchyard --data-dir .switchyard-data/dev ui
 ```
 
-Then open `http://127.0.0.1:19616`. Run `make quality` for the complete local
-quality gate or the focused Make targets documented by `make -n quality`.
+Open the one-time URL printed by `switchyard ui`; direct unauthenticated API
+requests are rejected. Run `make quality` for the complete local quality gate
+or the focused Make targets documented by `make -n quality`.
 
 ## Security
 

@@ -17,7 +17,7 @@ func withCorrelation(logger *slog.Logger, next http.Handler) http.Handler {
 		if id == "" {
 			generated, err := correlation.NewID()
 			if err != nil {
-				writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error")
+				writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error", "A correlation identifier could not be created.")
 				return
 			}
 			id = generated

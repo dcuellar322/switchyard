@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetSystemData, GetSystemErrors, GetSystemResponses } from './types.gen';
+import type { CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetSystemData, GetSystemErrors, GetSystemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -22,3 +22,30 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Read daemon and storage status
  */
 export const getSystem = <ThrowOnError extends boolean = false>(options?: Options<GetSystemData, ThrowOnError>): RequestResult<GetSystemResponses, GetSystemErrors, ThrowOnError> => (options?.client ?? client).get<GetSystemResponses, GetSystemErrors, ThrowOnError>({ url: '/system', ...options });
+
+/**
+ * Create a one-time browser bootstrap token over privileged local IPC
+ */
+export const createBrowserBootstrapToken = <ThrowOnError extends boolean = false>(options?: Options<CreateBrowserBootstrapTokenData, ThrowOnError>): RequestResult<CreateBrowserBootstrapTokenResponses, CreateBrowserBootstrapTokenErrors, ThrowOnError> => (options?.client ?? client).post<CreateBrowserBootstrapTokenResponses, CreateBrowserBootstrapTokenErrors, ThrowOnError>({ url: '/auth/bootstrap-tokens', ...options });
+
+/**
+ * Exchange a one-time bootstrap token for a same-origin session
+ */
+export const createBrowserSession = <ThrowOnError extends boolean = false>(options: Options<CreateBrowserSessionData, ThrowOnError>): RequestResult<CreateBrowserSessionResponses, CreateBrowserSessionErrors, ThrowOnError> => (options.client ?? client).post<CreateBrowserSessionResponses, CreateBrowserSessionErrors, ThrowOnError>({
+    url: '/auth/sessions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read a durable operation
+ */
+export const getOperation = <ThrowOnError extends boolean = false>(options: Options<GetOperationData, ThrowOnError>): RequestResult<GetOperationResponses, GetOperationErrors, ThrowOnError> => (options.client ?? client).get<GetOperationResponses, GetOperationErrors, ThrowOnError>({ url: '/operations/{operationId}', ...options });
+
+/**
+ * Request idempotent operation cancellation
+ */
+export const cancelOperation = <ThrowOnError extends boolean = false>(options: Options<CancelOperationData, ThrowOnError>): RequestResult<CancelOperationResponses, CancelOperationErrors, ThrowOnError> => (options.client ?? client).post<CancelOperationResponses, CancelOperationErrors, ThrowOnError>({ url: '/operations/{operationId}/cancel', ...options });

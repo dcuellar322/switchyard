@@ -24,7 +24,7 @@ const events = useEventConnection()
     <div v-if="system.isPending.value" class="state-panel" aria-live="polite">Connecting to the local daemon…</div>
     <div v-else-if="system.isError.value" class="state-panel state-panel--error" role="alert">
       <strong>Daemon unavailable</strong>
-      <span>Start it with <code>switchyard daemon</code>, then retry.</span>
+      <span>Start the daemon and launch this page with <code>switchyard ui</code>, then retry.</span>
       <button type="button" @click="system.refetch()">Retry connection</button>
     </div>
     <div v-else-if="system.data.value" class="status-grid">

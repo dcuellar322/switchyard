@@ -6,10 +6,23 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
+	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
+	CreateJournalEvent(ctx context.Context, arg CreateJournalEventParams) (int64, error)
+	CreateOperation(ctx context.Context, arg CreateOperationParams) (int64, error)
+	CreateOperationStep(ctx context.Context, arg CreateOperationStepParams) error
+	GetOperation(ctx context.Context, id string) (Operation, error)
+	GetOperationByIdempotency(ctx context.Context, arg GetOperationByIdempotencyParams) (Operation, error)
 	GetSystemHealth(ctx context.Context) (SystemHealth, error)
+	ListAuditEventsForOperation(ctx context.Context, operationID sql.NullString) ([]AuditEvent, error)
+	ListJournalEventsAfter(ctx context.Context, arg ListJournalEventsAfterParams) ([]EventJournal, error)
+	ListOperationSteps(ctx context.Context, operationID string) ([]OperationStep, error)
+	ListRecoverableOperations(ctx context.Context) ([]Operation, error)
+	RequestOperationCancellation(ctx context.Context, arg RequestOperationCancellationParams) (int64, error)
+	UpdateOperationState(ctx context.Context, arg UpdateOperationStateParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

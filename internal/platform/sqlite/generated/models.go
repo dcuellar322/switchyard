@@ -4,6 +4,57 @@
 
 package generated
 
+import (
+	"database/sql"
+)
+
+type AuditEvent struct {
+	ID             int64          `json:"id"`
+	EventType      string         `json:"event_type"`
+	ActorType      string         `json:"actor_type"`
+	ActorID        string         `json:"actor_id"`
+	ProjectID      sql.NullString `json:"project_id"`
+	OperationID    sql.NullString `json:"operation_id"`
+	IdempotencyKey sql.NullString `json:"idempotency_key"`
+	DetailJson     string         `json:"detail_json"`
+	OccurredAt     string         `json:"occurred_at"`
+}
+
+type EventJournal struct {
+	Sequence    int64          `json:"sequence"`
+	ID          string         `json:"id"`
+	Type        string         `json:"type"`
+	OccurredAt  string         `json:"occurred_at"`
+	ProjectID   sql.NullString `json:"project_id"`
+	OperationID sql.NullString `json:"operation_id"`
+	PayloadJson string         `json:"payload_json"`
+}
+
+type Operation struct {
+	ID                    string         `json:"id"`
+	ProjectID             string         `json:"project_id"`
+	Kind                  string         `json:"kind"`
+	State                 string         `json:"state"`
+	IdempotencyKey        string         `json:"idempotency_key"`
+	InputJson             string         `json:"input_json"`
+	ErrorCode             sql.NullString `json:"error_code"`
+	ErrorMessage          sql.NullString `json:"error_message"`
+	CancellationRequested int64          `json:"cancellation_requested"`
+	RequestedAt           string         `json:"requested_at"`
+	StartedAt             sql.NullString `json:"started_at"`
+	FinishedAt            sql.NullString `json:"finished_at"`
+	UpdatedAt             string         `json:"updated_at"`
+}
+
+type OperationStep struct {
+	ID          int64  `json:"id"`
+	OperationID string `json:"operation_id"`
+	Name        string `json:"name"`
+	State       string `json:"state"`
+	Message     string `json:"message"`
+	OccurredAt  string `json:"occurred_at"`
+}
+
 type SystemHealth struct {
 	Singleton     int64  `json:"singleton"`
 	SchemaVersion int64  `json:"schema_version"`

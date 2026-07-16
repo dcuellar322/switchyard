@@ -13,6 +13,7 @@ const defaultHTTPAddress = "127.0.0.1:19616"
 type Config struct {
 	DataDir  string
 	HTTPAddr string
+	IPCAddr  string
 	Logger   *slog.Logger
 }
 

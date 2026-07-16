@@ -3,17 +3,18 @@ package bootstrap
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net"
-	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	operations "switchyard.dev/switchyard/internal/operations/application"
+	"switchyard.dev/switchyard/internal/operations/domain"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
+	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
 	eventtransport "switchyard.dev/switchyard/internal/transport/websocket"
@@ -51,46 +52,34 @@ func RunDaemon(ctx context.Context, config Config) error {
 		}
 	}()
 
+	journal := sqlite.NewJournal(database)
+	operationRepository := sqlite.NewOperationRepository(database)
+	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
+		func(_ context.Context, operation domain.Operation, _ operations.Progress) error {
+			return fmt.Errorf("no executor registered for operation kind %q", operation.Kind)
+		},
+	))
+	if err := coordinator.Recover(ctx); err != nil {
+		return err
+	}
+	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
-	handler := httpapi.New(system, eventtransport.NewEvents(), web.Handler(), config.Logger)
-	listener, err := net.Listen("tcp", config.HTTPAddr)
+	dependencies := httpapi.Dependencies{
+		System: system, Operations: coordinator, Sessions: sessions,
+		Events: eventtransport.NewEvents(journal), Web: web.Handler(), Logger: config.Logger,
+	}
+	servers, err := newLocalServers(config, dependencies)
 	if err != nil {
-		return fmt.Errorf("listen on loopback API: %w", err)
+		return err
 	}
-	server := &http.Server{
-		Handler:           handler,
-		ReadHeaderTimeout: 5 * time.Second,
-		IdleTimeout:       2 * time.Minute,
-	}
-	serveErrors := make(chan error, 1)
-	go func() {
-		serveErrors <- server.Serve(listener)
-	}()
 	config.Logger.Info(
 		"switchyard daemon ready",
 		"component", "bootstrap",
-		"address", listener.Addr().String(),
+		"address", servers.browserAddress(),
+		"ipc_address", servers.ipcAddress,
 		"data_dir", config.DataDir,
 	)
-
-	select {
-	case <-ctx.Done():
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := server.Shutdown(shutdownCtx); err != nil {
-			return fmt.Errorf("shutdown HTTP server: %w", err)
-		}
-		serveErr := <-serveErrors
-		if serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
-			return fmt.Errorf("serve HTTP: %w", serveErr)
-		}
-		return nil
-	case err := <-serveErrors:
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return fmt.Errorf("serve HTTP: %w", err)
-		}
-		return nil
-	}
+	return servers.run(ctx, coordinator.Shutdown)
 }
 
 func validateLoopbackAddress(address string) error {

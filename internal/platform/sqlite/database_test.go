@@ -25,8 +25,8 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SchemaVersion() error = %v", err)
 	}
-	if version != 1 {
-		t.Fatalf("SchemaVersion() = %d, want 1", version)
+	if version != 2 {
+		t.Fatalf("SchemaVersion() = %d, want 2", version)
 	}
 	info, err := os.Stat(path)
 	if err != nil {

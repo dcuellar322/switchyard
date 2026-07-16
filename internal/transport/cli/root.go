@@ -6,18 +6,21 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"switchyard.dev/switchyard/internal/bootstrap"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	"switchyard.dev/switchyard/internal/platform/localipc"
 	"switchyard.dev/switchyard/internal/transport/httpclient"
 )
 
 type rootOptions struct {
 	address string
 	dataDir string
+	ipcAddr string
 	stdout  io.Writer
 	stderr  io.Writer
 }
@@ -50,6 +53,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 	}
 	root.PersistentFlags().StringVar(&options.address, "address", options.address, "loopback daemon address")
 	root.PersistentFlags().StringVar(&options.dataDir, "data-dir", options.dataDir, "local Switchyard data directory")
+	root.PersistentFlags().StringVar(&options.ipcAddr, "ipc-address", "", "privileged local IPC address")
 	root.AddCommand(
 		newVersionCommand(options),
 		newDaemonCommand(options),
@@ -78,7 +82,7 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 		RunE: func(command *cobra.Command, _ []string) error {
 			logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 			return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
-				DataDir: options.dataDir, HTTPAddr: options.address, Logger: logger,
+				DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger,
 			})
 		},
 	}
@@ -88,8 +92,21 @@ func newUICommand(options *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "ui",
 		Short: "Print the local browser UI address",
-		RunE: func(*cobra.Command, []string) error {
-			_, err := fmt.Fprintf(options.stdout, "http://%s/\n", options.address)
+		RunE: func(command *cobra.Command, _ []string) error {
+			client, err := ipcClient(options)
+			if err != nil {
+				return err
+			}
+			bootstrap, err := client.BrowserBootstrap(command.Context())
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintf(
+				options.stdout,
+				"http://%s/?bootstrap=%s\n",
+				options.address,
+				url.QueryEscape(bootstrap.Token),
+			)
 			return err
 		},
 	}
@@ -100,7 +117,7 @@ func newDoctorCommand(options *rootOptions) *cobra.Command {
 		Use:   "doctor",
 		Short: "Check daemon and durable storage health",
 		RunE: func(command *cobra.Command, _ []string) error {
-			client, err := httpclient.New(options.address)
+			client, err := ipcClient(options)
 			if err != nil {
 				return err
 			}
@@ -119,6 +136,14 @@ func newDoctorCommand(options *rootOptions) *cobra.Command {
 			return err
 		},
 	}
+}
+
+func ipcClient(options *rootOptions) (*httpclient.Client, error) {
+	address := options.ipcAddr
+	if address == "" {
+		address = localipc.DefaultAddress(options.dataDir)
+	}
+	return httpclient.NewIPC(address)
 }
 
 // Main executes the process CLI and returns a semantic process status.

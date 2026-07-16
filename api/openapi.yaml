@@ -19,7 +19,92 @@ paths:
                 $ref: "#/components/schemas/SystemInfo"
         default:
           $ref: "#/components/responses/Problem"
+  /auth/bootstrap-tokens:
+    post:
+      operationId: createBrowserBootstrapToken
+      summary: Create a one-time browser bootstrap token over privileged local IPC
+      responses:
+        "201":
+          description: One-time bootstrap token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrowserBootstrap"
+        default:
+          $ref: "#/components/responses/Problem"
+  /auth/sessions:
+    post:
+      operationId: createBrowserSession
+      summary: Exchange a one-time bootstrap token for a same-origin session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrowserSessionRequest"
+      responses:
+        "201":
+          description: Browser session created
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrowserSession"
+        default:
+          $ref: "#/components/responses/Problem"
+  /operations/{operationId}:
+    parameters:
+      - $ref: "#/components/parameters/OperationId"
+    get:
+      operationId: getOperation
+      summary: Read a durable operation
+      responses:
+        "200":
+          description: Durable operation state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+        default:
+          $ref: "#/components/responses/Problem"
+  /operations/{operationId}/cancel:
+    parameters:
+      - $ref: "#/components/parameters/OperationId"
+    post:
+      operationId: cancelOperation
+      summary: Request idempotent operation cancellation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Current operation after the cancellation request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+        default:
+          $ref: "#/components/responses/Problem"
 components:
+  parameters:
+    OperationId:
+      name: operationId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
   responses:
     Problem:
       description: RFC 9457-style problem details
@@ -28,6 +113,75 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    BrowserBootstrap:
+      type: object
+      additionalProperties: false
+      required: [token, expiresAt]
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    CreateBrowserSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [bootstrapToken]
+      properties:
+        bootstrapToken:
+          type: string
+          minLength: 1
+    BrowserSession:
+      type: object
+      additionalProperties: false
+      required: [csrfToken, expiresAt]
+      properties:
+        csrfToken:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    Operation:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - projectId
+        - kind
+        - state
+        - requestedAt
+        - updatedAt
+        - cancellationRequested
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        kind:
+          type: string
+        state:
+          $ref: "#/components/schemas/OperationState"
+        errorCode:
+          type: string
+        errorMessage:
+          type: string
+        cancellationRequested:
+          type: boolean
+        requestedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    OperationState:
+      type: string
+      enum: [queued, running, succeeded, failed, cancelled, partially_succeeded]
     SystemInfo:
       type: object
       additionalProperties: false

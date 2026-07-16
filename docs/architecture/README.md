@@ -5,6 +5,10 @@ binary. The process hosts a daemon, CLI commands, local HTTP/WebSocket and IPC
 transports, and an MCP façade. A Vue application and thin Tauri desktop shell
 consume the same application behavior.
 
+The [durable operations and local transport](operations-kernel.md) note defines
+the command state machine, restart behavior, event replay, Unix IPC, and browser
+session handshake introduced by Phase 2.
+
 ## Process topology
 
 ```text

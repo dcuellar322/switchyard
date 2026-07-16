@@ -4,6 +4,36 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type BrowserBootstrap = {
+    token: string;
+    expiresAt: string;
+};
+
+export type CreateBrowserSessionRequest = {
+    bootstrapToken: string;
+};
+
+export type BrowserSession = {
+    csrfToken: string;
+    expiresAt: string;
+};
+
+export type Operation = {
+    id: string;
+    projectId: string;
+    kind: string;
+    state: OperationState;
+    errorCode?: string;
+    errorMessage?: string;
+    cancellationRequested: boolean;
+    requestedAt: string;
+    startedAt?: string;
+    finishedAt?: string;
+    updatedAt: string;
+};
+
+export type OperationState = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'partially_succeeded';
+
 export type SystemInfo = {
     status: 'ready';
     version: string;
@@ -22,6 +52,10 @@ export type ProblemDetails = {
     code: string;
     correlationId: string;
 };
+
+export type OperationId = string;
+
+export type IdempotencyKey = string;
 
 export type GetSystemData = {
     body?: never;
@@ -47,3 +81,110 @@ export type GetSystemResponses = {
 };
 
 export type GetSystemResponse = GetSystemResponses[keyof GetSystemResponses];
+
+export type CreateBrowserBootstrapTokenData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/bootstrap-tokens';
+};
+
+export type CreateBrowserBootstrapTokenErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateBrowserBootstrapTokenError = CreateBrowserBootstrapTokenErrors[keyof CreateBrowserBootstrapTokenErrors];
+
+export type CreateBrowserBootstrapTokenResponses = {
+    /**
+     * One-time bootstrap token
+     */
+    201: BrowserBootstrap;
+};
+
+export type CreateBrowserBootstrapTokenResponse = CreateBrowserBootstrapTokenResponses[keyof CreateBrowserBootstrapTokenResponses];
+
+export type CreateBrowserSessionData = {
+    body: CreateBrowserSessionRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/sessions';
+};
+
+export type CreateBrowserSessionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateBrowserSessionError = CreateBrowserSessionErrors[keyof CreateBrowserSessionErrors];
+
+export type CreateBrowserSessionResponses = {
+    /**
+     * Browser session created
+     */
+    201: BrowserSession;
+};
+
+export type CreateBrowserSessionResponse = CreateBrowserSessionResponses[keyof CreateBrowserSessionResponses];
+
+export type GetOperationData = {
+    body?: never;
+    path: {
+        operationId: string;
+    };
+    query?: never;
+    url: '/operations/{operationId}';
+};
+
+export type GetOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetOperationError = GetOperationErrors[keyof GetOperationErrors];
+
+export type GetOperationResponses = {
+    /**
+     * Durable operation state
+     */
+    200: Operation;
+};
+
+export type GetOperationResponse = GetOperationResponses[keyof GetOperationResponses];
+
+export type CancelOperationData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        operationId: string;
+    };
+    query?: never;
+    url: '/operations/{operationId}/cancel';
+};
+
+export type CancelOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CancelOperationError = CancelOperationErrors[keyof CancelOperationErrors];
+
+export type CancelOperationResponses = {
+    /**
+     * Current operation after the cancellation request
+     */
+    200: Operation;
+};
+
+export type CancelOperationResponse = CancelOperationResponses[keyof CancelOperationResponses];
