@@ -56,6 +56,21 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) before making
 changes. Feature work follows one roadmap phase or one approved vertical slice
 at a time and includes tests and progress evidence.
 
+## Development
+
+Prerequisites are Go 1.26.5, Node 22.13 or newer, and pnpm 11.13.1. Toolchain
+versions are pinned in `.go-version`, `.node-version`, `go.mod`, and the root
+`package.json`.
+
+```bash
+make bootstrap
+make build
+./bin/switchyard daemon --data-dir .switchyard-data/dev
+```
+
+Then open `http://127.0.0.1:19616`. Run `make quality` for the complete local
+quality gate or the focused Make targets documented by `make -n quality`.
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

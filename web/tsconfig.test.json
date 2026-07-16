@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"]
+  },
+  "include": ["src/**/*.test.ts", "tests/**/*.ts", "src/**/*.vue", "src/**/*.ts"],
+  "exclude": []
+}

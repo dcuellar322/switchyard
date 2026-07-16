@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION_FILE: .go-version
+  NODE_VERSION_FILE: .node-version
+
+jobs:
+  go:
+    name: Go quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+      - run: go mod download
+      - run: make generate-go
+      - run: git diff --exit-code -- internal/platform/sqlite/generated internal/transport/contract/generated
+      - run: make fmt-check
+      - run: go vet ./...
+      - run: make archcheck
+      - run: go test ./...
+      - run: go test -race ./...
+      - run: make migrate-check
+      - run: make vuln
+
+  go-lint:
+    name: Go lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.11
+
+  frontend:
+    name: Frontend quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir web generate
+      - run: git diff --exit-code -- web/src/api/generated
+      - run: pnpm --dir web lint
+      - run: pnpm --dir web typecheck
+      - run: pnpm --dir web test
+      - run: pnpm --dir web build
+
+  browser:
+    name: Browser and visual
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir web exec playwright install --with-deps chromium
+      - run: pnpm --dir web test:e2e
+      - run: pnpm --dir web test:visual
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7
+
+  release-build:
+    name: Embedded release build
+    runs-on: ubuntu-latest
+    needs: [go, go-lint, frontend]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: make build
+      - run: ./bin/switchyard version

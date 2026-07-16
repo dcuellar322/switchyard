@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: Switchyard Local API
+  version: 1.0.0
+  description: Local control-plane contract shared by browser, desktop, and CLI clients.
+servers:
+  - url: /api/v1
+paths:
+  /system:
+    get:
+      operationId: getSystem
+      summary: Read daemon and storage status
+      responses:
+        "200":
+          description: Current daemon status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemInfo"
+        default:
+          $ref: "#/components/responses/Problem"
+components:
+  responses:
+    Problem:
+      description: RFC 9457-style problem details
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+  schemas:
+    SystemInfo:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - version
+        - commit
+        - apiVersion
+        - databaseSchemaVersion
+        - startedAt
+      properties:
+        status:
+          type: string
+          enum: [ready]
+        version:
+          type: string
+        commit:
+          type: string
+        builtAt:
+          type: string
+          format: date-time
+          nullable: true
+        apiVersion:
+          type: string
+        databaseSchemaVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        startedAt:
+          type: string
+          format: date-time
+    ProblemDetails:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        code:
+          type: string
+        correlationId:
+          type: string

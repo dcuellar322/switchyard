@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts", "playwright.config.ts", "openapi-ts.config.ts", "eslint.config.js"]
+}

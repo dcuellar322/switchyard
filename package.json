@@ -1,8 +1,20 @@
 {
-  "name": "switchyard-implementation-package",
-  "generated_at": "2026-07-16",
-  "primary_document": "SWITCHYARD_IMPLEMENTATION_PLAN.md",
-  "design_reference": "design/switchyard-interactive-mockup.html",
-  "agent_policy": "AGENTS.md",
-  "codex_bootstrap": "CODEX_START_HERE.md"
+  "name": "switchyard",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "A local, project-oriented development command center",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "pnpm --filter @switchyard/web build",
+    "generate": "pnpm --filter @switchyard/web generate",
+    "lint": "pnpm --filter @switchyard/web lint",
+    "typecheck": "pnpm --filter @switchyard/web typecheck",
+    "test": "pnpm --filter @switchyard/web test",
+    "test:e2e": "pnpm --filter @switchyard/web test:e2e",
+    "test:visual": "pnpm --filter @switchyard/web test:visual"
+  }
 }

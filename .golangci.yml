@@ -1,0 +1,50 @@
+version: "2"
+
+run:
+  timeout: 5m
+  relative-path-mode: gomod
+  modules-download-mode: readonly
+
+linters:
+  default: none
+  enable:
+    - bodyclose
+    - depguard
+    - errcheck
+    - exhaustive
+    - gocritic
+    - gocyclo
+    - govet
+    - ineffassign
+    - nilerr
+    - revive
+    - staticcheck
+    - unused
+  settings:
+    gocyclo:
+      min-complexity: 20
+    depguard:
+      rules:
+        project-dependencies:
+          files: [$all]
+          deny:
+            - pkg: github.com/mattn/go-sqlite3
+              desc: Switchyard requires a pure-Go SQLite driver for portable builds.
+            - pkg: github.com/sirupsen/logrus
+              desc: Use the standard library log/slog package.
+            - pkg: go.uber.org/zap
+              desc: Use the standard library log/slog package in production code.
+  exclusions:
+    generated: strict
+    warn-unused: true
+    rules:
+      - path: _test\.go
+        linters: [gocyclo]
+
+formatters:
+  enable:
+    - gofmt
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

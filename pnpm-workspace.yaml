@@ -1,0 +1,9 @@
+packages:
+  - web
+
+allowBuilds:
+  vue-demi: set this to true or false
+
+onlyBuiltDependencies:
+  - esbuild
+  - vue-demi
