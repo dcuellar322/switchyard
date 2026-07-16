@@ -76,7 +76,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "WebSocket origin rejected", "The event stream is same-origin only.")
 			return
 		}
-		if isMutation(r.Method) {
+		if isMutationRequest(r) {
 			if _, err := sessions.ValidateMutation(cookie.Value, r.Header.Get(csrfHeader)); err != nil {
 				code := "CSRF_INVALID"
 				if !errors.Is(err, session.ErrInvalidCSRF) {
@@ -94,7 +94,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 
 func withIdempotencyKey(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isMutation(r.Method) && !strings.HasPrefix(r.URL.Path, "/api/v1/auth/") {
+		if isMutationRequest(r) && !strings.HasPrefix(r.URL.Path, "/api/v1/auth/") {
 			key := r.Header.Get(idempotencyHeader)
 			if len(key) < 8 || len(key) > 128 {
 				writeProblem(w, r, http.StatusBadRequest, "IDEMPOTENCY_KEY_INVALID", "Idempotency key invalid", "Use an opaque key between 8 and 128 characters.")
@@ -107,6 +107,13 @@ func withIdempotencyKey(next http.Handler) http.Handler {
 
 func isMutation(method string) bool {
 	return method != http.MethodGet && method != http.MethodHead && method != http.MethodOptions
+}
+
+func isMutationRequest(request *http.Request) bool {
+	if request.Method == http.MethodPost && strings.HasSuffix(request.URL.Path, "/runtime/plan") {
+		return false
+	}
+	return isMutation(request.Method)
 }
 
 func sameOrigin(r *http.Request) bool {

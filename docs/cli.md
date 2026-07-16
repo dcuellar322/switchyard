@@ -33,6 +33,31 @@ Catalog removal never changes repository files. Trust and removal require
 `--yes`; Switchyard does not hide an interactive confirmation inside automation
 mode.
 
+## Runtime commands
+
+Trusted Compose projects expose live runtime queries and durable lifecycle
+operations:
+
+```text
+switchyard status <project>
+switchyard plan <start|stop|restart|pause|unpause|rebuild|teardown> <project>
+switchyard start|stop|restart|pause|unpause|rebuild <project>
+switchyard teardown <project> [--volumes] --yes
+switchyard logs <project> [--service name] [--since 10m] [--tail 200]
+switchyard metrics <project> [--service name]
+```
+
+Lifecycle commands return a durable operation immediately. Read it with
+`switchyard operation get <id>` or list recent project operations. `stop`
+preserves containers and volumes. `teardown` is destructive, requires `--yes`,
+and removes volumes only when the reviewed plan and operation include
+`--volumes`.
+
+`status` includes the resolved Docker context, negotiated Engine versions,
+project ownership, health, container metadata, and published ports. Logs support
+JSON Lines and retain stdout/stderr plus project, service, and container-run
+identity. Metrics return current CPU, memory, and network samples.
+
 ## Automation modes
 
 All query and mutation commands accept global flags after or before the command:

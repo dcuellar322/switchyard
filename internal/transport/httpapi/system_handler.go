@@ -8,7 +8,9 @@ import (
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
+	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
+	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
@@ -23,6 +25,7 @@ type handler struct {
 	operations operationService
 	sessions   sessionService
 	catalog    catalogService
+	runtime    runtimeService
 }
 
 type catalogService interface {
@@ -40,9 +43,17 @@ type catalogService interface {
 }
 
 type operationService interface {
+	Submit(context.Context, operationsApplication.SubmitRequest) (operationsDomain.Operation, error)
 	Get(ctx context.Context, id string) (operationsDomain.Operation, error)
 	List(ctx context.Context, projectID string, limit int64) ([]operationsDomain.Operation, error)
 	Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (operationsDomain.Operation, error)
+}
+
+type runtimeService interface {
+	Inspect(context.Context, string) (runtimeDomain.Observation, error)
+	Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error)
+	Logs(context.Context, string, string, string, int) ([]runtimeDomain.LogEntry, error)
+	Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error)
 }
 
 type sessionService interface {

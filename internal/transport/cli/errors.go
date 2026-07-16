@@ -51,6 +51,12 @@ func classifyError(err error) *Error {
 		if apiErr.Status == 409 || apiErr.Status == 422 {
 			exitCode = exitConflict
 		}
+		if apiErr.Status == 403 {
+			exitCode = exitConflict
+		}
+		if apiErr.Status == 503 {
+			exitCode = exitUnavailable
+		}
 		code := apiErr.Code
 		if code == "" {
 			code = "API_ERROR"

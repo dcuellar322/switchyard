@@ -9,7 +9,8 @@ import (
 
 var cliCommands = []string{
 	"doctor", "manifest.diff", "manifest.explain", "manifest.validate", "open", "operation.cancel",
-	"operation.get", "operation.list", "project.add", "project.get", "project.list", "project.remove", "project.trust", "ui", "version",
+	"operation.get", "operation.list", "project.add", "project.get", "project.list", "project.remove", "project.trust",
+	"runtime.logs", "runtime.metrics", "runtime.plan", "runtime.status", "runtime.operation", "ui", "version",
 }
 
 func newSchemaCommand(options *rootOptions) *cobra.Command {
@@ -61,8 +62,18 @@ func commandDataSchema(command string) map[string]any {
 		return openAPIRef("AcceptedManifestProposal")
 	case "operation.get", "operation.cancel":
 		return openAPIRef("Operation")
+	case "runtime.operation":
+		return openAPIRef("Operation")
 	case "operation.list":
 		return map[string]any{"type": "array", "items": openAPIRef("Operation")}
+	case "runtime.status":
+		return openAPIRef("RuntimeObservation")
+	case "runtime.plan":
+		return openAPIRef("RuntimePlan")
+	case "runtime.logs":
+		return map[string]any{"type": "array", "items": openAPIRef("RuntimeLogEntry")}
+	case "runtime.metrics":
+		return map[string]any{"type": "array", "items": openAPIRef("RuntimeMetricSample")}
 	case "manifest.explain":
 		return openAPIRef("EffectiveManifest")
 	case "manifest.diff":

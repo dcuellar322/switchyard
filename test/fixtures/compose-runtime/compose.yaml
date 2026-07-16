@@ -1,0 +1,20 @@
+name: switchyard-phase5-fixture
+
+services:
+  web:
+    build:
+      context: .
+    image: switchyard/compose-runtime-fixture:phase5
+    pull_policy: build
+    healthcheck:
+      test: ["CMD", "/server", "healthcheck"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+    ports:
+      - "127.0.0.1::8080"
+    volumes:
+      - fixture-state:/state
+
+volumes:
+  fixture-state:

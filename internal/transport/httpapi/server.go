@@ -16,6 +16,7 @@ type Dependencies struct {
 	Operations operationService
 	Sessions   sessionService
 	Catalog    catalogService
+	Runtime    runtimeService
 	Events     http.Handler
 	Web        http.Handler
 	Logger     *slog.Logger
@@ -44,6 +45,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 	api := chi.NewRouter()
 	generated.HandlerFromMux(&handler{
 		system: dependencies.System, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
+		runtime: dependencies.Runtime,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {

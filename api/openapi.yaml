@@ -277,6 +277,106 @@ paths:
                 $ref: "#/components/schemas/ManifestValidation"
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/runtime:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectRuntime
+      summary: Observe current project runtime state
+      responses:
+        "200":
+          description: Current driver observation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RuntimeObservation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/runtime/plan:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: planProjectRuntime
+      summary: Preview a project lifecycle action without executing it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RuntimeActionRequest" }
+      responses:
+        "200":
+          description: Side-effect-free lifecycle preview
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RuntimePlan" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/operations:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: createProjectOperation
+      summary: Queue a durable project lifecycle operation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RuntimeActionRequest" }
+      responses:
+        "202":
+          description: Durable operation accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/logs:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectLogs
+      summary: Read a bounded snapshot of Docker logs
+      parameters:
+        - name: service
+          in: query
+          schema: { type: string }
+        - name: since
+          in: query
+          schema: { type: string }
+        - name: tail
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 10000, default: 200 }
+      responses:
+        "200":
+          description: Bounded runtime log lines
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RuntimeLogEntry" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/metrics:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectMetrics
+      summary: Read one current resource sample per Compose service
+      parameters:
+        - name: service
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Current runtime resource samples
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RuntimeMetricSample" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -471,6 +571,136 @@ components:
         expiresAt:
           type: string
           format: date-time
+    RuntimeAction:
+      type: string
+      enum: [start, stop, restart, pause, unpause, rebuild, teardown]
+    RuntimeActionRequest:
+      type: object
+      additionalProperties: false
+      required: [action]
+      properties:
+        action: { $ref: "#/components/schemas/RuntimeAction" }
+        removeVolumes: { type: boolean, default: false }
+    RuntimeCommand:
+      type: object
+      additionalProperties: false
+      required: [executable, arguments, workingDirectory]
+      properties:
+        executable: { type: string }
+        arguments:
+          type: array
+          items: { type: string }
+        workingDirectory: { type: string }
+    RuntimePlan:
+      type: object
+      additionalProperties: false
+      required: [projectId, driver, action, risk, summary, commands, effects, removeVolumes]
+      properties:
+        projectId: { type: string }
+        driver: { type: string, enum: [compose] }
+        action: { $ref: "#/components/schemas/RuntimeAction" }
+        risk: { type: string, enum: [safe, caution, destructive] }
+        summary: { type: string }
+        commands:
+          type: array
+          items: { $ref: "#/components/schemas/RuntimeCommand" }
+        effects:
+          type: array
+          items: { type: string }
+        removeVolumes: { type: boolean }
+    PublishedPort:
+      type: object
+      additionalProperties: false
+      required: [containerPort, protocol]
+      properties:
+        hostIp: { type: string }
+        hostPort: { type: integer, minimum: 0, maximum: 65535 }
+        containerPort: { type: integer, minimum: 1, maximum: 65535 }
+        protocol: { type: string, enum: [tcp, udp, sctp] }
+    ContainerMetadata:
+      type: object
+      additionalProperties: false
+      required: [id, name, image, restartCount]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        image: { type: string }
+        createdAt: { type: string, format: date-time }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
+        exitCode: { type: integer }
+        restartCount: { type: integer, minimum: 0 }
+    RuntimeServiceObservation:
+      type: object
+      additionalProperties: false
+      required: [id, runtimeName, state, health, container, ports, observedAt]
+      properties:
+        id: { type: string }
+        runtimeName: { type: string }
+        state: { type: string }
+        health: { type: string }
+        container: { $ref: "#/components/schemas/ContainerMetadata" }
+        ports:
+          type: array
+          items: { $ref: "#/components/schemas/PublishedPort" }
+        observedAt: { type: string, format: date-time }
+    RuntimeEngineObservation:
+      type: object
+      additionalProperties: false
+      required: [connected]
+      properties:
+        connected: { type: boolean }
+        context: { type: string }
+        serverVersion: { type: string }
+        apiVersion: { type: string }
+        errorCode: { type: string }
+        errorMessage: { type: string }
+    RuntimeObservation:
+      type: object
+      additionalProperties: false
+      required: [projectId, driver, projectIdentity, state, origin, engine, services, observedAt]
+      properties:
+        projectId: { type: string }
+        driver: { type: string, enum: [compose] }
+        projectIdentity: { type: string }
+        state:
+          type: string
+          enum: [unknown, stopped, starting, running, running_external, partially_running, degraded, paused, stopping, failed]
+        origin: { type: string, enum: [switchyard, external] }
+        engine: { $ref: "#/components/schemas/RuntimeEngineObservation" }
+        services:
+          type: array
+          items: { $ref: "#/components/schemas/RuntimeServiceObservation" }
+        observedAt: { type: string, format: date-time }
+    RuntimeLogEntry:
+      type: object
+      additionalProperties: false
+      required: [timestamp, projectId, serviceId, runId, source, stream, level, message, attributes]
+      properties:
+        timestamp: { type: string, format: date-time }
+        projectId: { type: string }
+        serviceId: { type: string }
+        runId: { type: string }
+        source: { type: string, enum: [docker] }
+        stream: { type: string, enum: [stdout, stderr] }
+        level: { type: string }
+        message: { type: string }
+        attributes:
+          type: object
+          additionalProperties: { type: string }
+    RuntimeMetricSample:
+      type: object
+      additionalProperties: false
+      required: [timestamp, projectId, serviceId, cpuPercent, memoryBytes, memoryLimit, networkRxBytes, networkTxBytes]
+      properties:
+        timestamp: { type: string, format: date-time }
+        projectId: { type: string }
+        serviceId: { type: string }
+        cpuPercent: { type: number, format: double, minimum: 0 }
+        memoryBytes: { type: integer, format: int64, minimum: 0 }
+        memoryLimit: { type: integer, format: int64, minimum: 0 }
+        networkRxBytes: { type: integer, format: int64, minimum: 0 }
+        networkTxBytes: { type: integer, format: int64, minimum: 0 }
     Operation:
       type: object
       additionalProperties: false

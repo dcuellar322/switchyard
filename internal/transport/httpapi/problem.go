@@ -8,6 +8,8 @@ import (
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	operations "switchyard.dev/switchyard/internal/operations/application"
+	runtime "switchyard.dev/switchyard/internal/runtime/application"
+	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 )
 
@@ -45,6 +47,12 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request invalid", "One or more request parameters are outside their supported range.")
 	case errors.Is(err, operations.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "OPERATION_NOT_FOUND", "Operation not found", "No durable operation exists for this identifier.")
+	case errors.Is(err, runtime.ErrProjectUntrusted):
+		writeProblem(w, r, http.StatusForbidden, "PROJECT_UNTRUSTED", "Project is not trusted", "Approve the project manifest before using runtime capabilities.")
+	case errors.Is(err, runtimeDomain.ErrUnsupportedDriver):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "RUNTIME_UNSUPPORTED", "Runtime driver unsupported", err.Error())
+	case errors.Is(err, runtimeDomain.ErrRuntimeUnavailable):
+		writeProblem(w, r, http.StatusServiceUnavailable, "DOCKER_ENGINE_UNAVAILABLE", "Docker Engine unavailable", err.Error())
 	case errors.Is(err, session.ErrInvalidBootstrap):
 		writeProblem(w, r, http.StatusUnauthorized, "BOOTSTRAP_INVALID", "Bootstrap token invalid", "The token is unknown, expired, or already used.")
 	case errors.Is(err, session.ErrInvalidSession):

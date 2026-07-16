@@ -52,6 +52,9 @@
         },
         "projectName": {
           "type": "string"
+        },
+        "context": {
+          "type": "string"
         }
       },
       "additionalProperties": false,

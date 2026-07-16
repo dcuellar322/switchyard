@@ -77,6 +77,11 @@ codes, shell completions, and automation rules. Run `make quality` for the
 complete local quality gate or the focused Make targets documented by
 `make -n quality`.
 
+Trusted Docker Compose projects support reviewable lifecycle plans, durable
+start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,
+and current resource metrics. See the
+[Compose runtime architecture](docs/architecture/docker-compose-runtime.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

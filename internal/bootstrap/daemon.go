@@ -3,6 +3,7 @@ package bootstrap
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net"
@@ -16,6 +17,9 @@ import (
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
+	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
+	"switchyard.dev/switchyard/internal/runtime/compose"
+	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
@@ -56,19 +60,24 @@ func RunDaemon(ctx context.Context, config Config) error {
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
+	runtimeService := runtimeApplication.NewService(runtimeApplication.NewCatalogSource(catalogService), compose.NewDriver())
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
-		func(_ context.Context, operation domain.Operation, _ operations.Progress) error {
-			return fmt.Errorf("no executor registered for operation kind %q", operation.Kind)
+		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
+			return executeRuntimeOperation(operationCtx, runtimeService, operation, progress)
 		},
 	))
 	if err := coordinator.Recover(ctx); err != nil {
 		return err
 	}
+	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
+	go runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
+		config.Logger.Warn("Docker event watcher unavailable", "component", "runtime.compose", "project_id", projectID, "error", watchErr)
+	})
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	dependencies := httpapi.Dependencies{
-		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService,
+		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Events: eventtransport.NewEvents(journal), Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)
@@ -83,6 +92,30 @@ func RunDaemon(ctx context.Context, config Config) error {
 		"data_dir", config.DataDir,
 	)
 	return servers.run(ctx, coordinator.Shutdown)
+}
+
+func executeRuntimeOperation(
+	ctx context.Context,
+	service *runtimeApplication.Service,
+	operation domain.Operation,
+	progress operations.Progress,
+) error {
+	var input struct {
+		Action        string `json:"action"`
+		RemoveVolumes bool   `json:"removeVolumes"`
+	}
+	if err := json.Unmarshal(operation.Input, &input); err != nil {
+		return fmt.Errorf("decode runtime operation: %w", err)
+	}
+	action, err := runtimeDomain.ParseAction(input.Action)
+	if err != nil || operation.Kind != "runtime."+input.Action {
+		return fmt.Errorf("invalid runtime operation kind %q", operation.Kind)
+	}
+	plan, err := service.Plan(ctx, operation.ProjectID, action, input.RemoveVolumes)
+	if err != nil {
+		return err
+	}
+	return service.Execute(ctx, plan, progress)
 }
 
 func validateLoopbackAddress(address string) error {

@@ -13,6 +13,7 @@ import (
 
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
+	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
@@ -54,6 +55,63 @@ func TestGetSystemReturnsGeneratedContract(t *testing.T) {
 }
 
 type operationStub struct{}
+
+func (operationStub) Submit(context.Context, operations.SubmitRequest) (domain.Operation, error) {
+	return domain.Operation{ID: "op-1", ProjectID: "project-1", Kind: "runtime.start", State: domain.StateQueued, RequestedAt: time.Now(), UpdatedAt: time.Now()}, nil
+}
+
+type runtimeStub struct{}
+
+func (runtimeStub) Inspect(context.Context, string) (runtimeDomain.Observation, error) {
+	return runtimeDomain.Observation{ProjectID: "project-1", Driver: runtimeDomain.KindCompose, State: runtimeDomain.StateStopped, Origin: runtimeDomain.OriginExternal, Services: []runtimeDomain.ServiceObservation{}}, nil
+}
+func (runtimeStub) Plan(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskSafe, Commands: []runtimeDomain.Command{}, Effects: []string{}, RemoveVolumes: removeVolumes}, nil
+}
+func (runtimeStub) Logs(context.Context, string, string, string, int) ([]runtimeDomain.LogEntry, error) {
+	return []runtimeDomain.LogEntry{}, nil
+}
+func (runtimeStub) Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error) {
+	return []runtimeDomain.MetricSample{}, nil
+}
+
+func TestRuntimeOperationUsesDurableCoordinatorBoundary(t *testing.T) {
+	t.Parallel()
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operationStub{}, Runtime: runtimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"start"}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set(idempotencyHeader, "runtime-start-key")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	var operation generated.Operation
+	if err := json.NewDecoder(response.Body).Decode(&operation); err != nil {
+		t.Fatal(err)
+	}
+	if operation.Id != "op-1" || operation.Kind != "runtime.start" {
+		t.Fatalf("operation = %#v", operation)
+	}
+}
+
+func TestRuntimePlanDoesNotRequireMutationCredentials(t *testing.T) {
+	t.Parallel()
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operationStub{}, Runtime: runtimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/runtime/plan", strings.NewReader(`{"action":"stop"}`))
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+}
 
 func (operationStub) Get(context.Context, string) (domain.Operation, error) {
 	return domain.Operation{}, operations.ErrNotFound

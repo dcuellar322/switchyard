@@ -243,6 +243,88 @@ func (c *Client) ValidateProjectManifest(ctx context.Context, projectID string) 
 	return *response.JSON200, nil
 }
 
+// Runtime observes current project services through the configured driver.
+func (c *Client) Runtime(ctx context.Context, projectID string) (generated.RuntimeObservation, error) {
+	response, err := c.generated.GetProjectRuntimeWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.RuntimeObservation{}, fmt.Errorf("observe project runtime: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.RuntimeObservation{}, apiError("observe project runtime", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// PlanRuntime previews one lifecycle action without executing it.
+func (c *Client) PlanRuntime(ctx context.Context, projectID string, action generated.RuntimeAction, removeVolumes bool) (generated.RuntimePlan, error) {
+	response, err := c.generated.PlanProjectRuntimeWithResponse(ctx, projectID, generated.RuntimeActionRequest{
+		Action: action, RemoveVolumes: &removeVolumes,
+	})
+	if err != nil {
+		return generated.RuntimePlan{}, fmt.Errorf("plan project runtime: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.RuntimePlan{}, apiError("plan project runtime", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// CreateRuntimeOperation queues a durable lifecycle mutation.
+func (c *Client) CreateRuntimeOperation(
+	ctx context.Context,
+	projectID string,
+	action generated.RuntimeAction,
+	removeVolumes bool,
+	idempotencyKey string,
+) (generated.Operation, error) {
+	response, err := c.generated.CreateProjectOperationWithResponse(
+		ctx, projectID, &generated.CreateProjectOperationParams{IdempotencyKey: idempotencyKey},
+		generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes},
+	)
+	if err != nil {
+		return generated.Operation{}, fmt.Errorf("create runtime operation: %w", err)
+	}
+	if response.StatusCode() != http.StatusAccepted || response.JSON202 == nil {
+		return generated.Operation{}, apiError("create runtime operation", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON202, nil
+}
+
+// RuntimeLogs reads a bounded Docker log snapshot.
+func (c *Client) RuntimeLogs(ctx context.Context, projectID, service, since string, tail int) ([]generated.RuntimeLogEntry, error) {
+	params := &generated.GetProjectLogsParams{Tail: &tail}
+	if service != "" {
+		params.Service = &service
+	}
+	if since != "" {
+		params.Since = &since
+	}
+	response, err := c.generated.GetProjectLogsWithResponse(ctx, projectID, params)
+	if err != nil {
+		return nil, fmt.Errorf("read project logs: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return nil, apiError("read project logs", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// RuntimeMetrics reads current Compose resource samples.
+func (c *Client) RuntimeMetrics(ctx context.Context, projectID, service string) ([]generated.RuntimeMetricSample, error) {
+	params := &generated.GetProjectMetricsParams{}
+	if service != "" {
+		params.Service = &service
+	}
+	response, err := c.generated.GetProjectMetricsWithResponse(ctx, projectID, params)
+	if err != nil {
+		return nil, fmt.Errorf("read project metrics: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return nil, apiError("read project metrics", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
 func unexpected(operation string, status int) error {
 	return fmt.Errorf("%s: unexpected HTTP %d", operation, status)
 }

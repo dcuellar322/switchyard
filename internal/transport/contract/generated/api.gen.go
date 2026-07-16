@@ -45,28 +45,28 @@ func (e ManifestProposalStatus) Valid() bool {
 
 // Defines values for OperationState.
 const (
-	Cancelled          OperationState = "cancelled"
-	Failed             OperationState = "failed"
-	PartiallySucceeded OperationState = "partially_succeeded"
-	Queued             OperationState = "queued"
-	Running            OperationState = "running"
-	Succeeded          OperationState = "succeeded"
+	OperationStateCancelled          OperationState = "cancelled"
+	OperationStateFailed             OperationState = "failed"
+	OperationStatePartiallySucceeded OperationState = "partially_succeeded"
+	OperationStateQueued             OperationState = "queued"
+	OperationStateRunning            OperationState = "running"
+	OperationStateSucceeded          OperationState = "succeeded"
 )
 
 // Valid indicates whether the value is a known member of the OperationState enum.
 func (e OperationState) Valid() bool {
 	switch e {
-	case Cancelled:
+	case OperationStateCancelled:
 		return true
-	case Failed:
+	case OperationStateFailed:
 		return true
-	case PartiallySucceeded:
+	case OperationStatePartiallySucceeded:
 		return true
-	case Queued:
+	case OperationStateQueued:
 		return true
-	case Running:
+	case OperationStateRunning:
 		return true
-	case Succeeded:
+	case OperationStateSucceeded:
 		return true
 	default:
 		return false
@@ -88,6 +88,204 @@ func (e ProjectTrustState) Valid() bool {
 	case ProjectTrustStateRejected:
 		return true
 	case ProjectTrustStateTrusted:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PublishedPortProtocol.
+const (
+	Sctp PublishedPortProtocol = "sctp"
+	Tcp  PublishedPortProtocol = "tcp"
+	Udp  PublishedPortProtocol = "udp"
+)
+
+// Valid indicates whether the value is a known member of the PublishedPortProtocol enum.
+func (e PublishedPortProtocol) Valid() bool {
+	switch e {
+	case Sctp:
+		return true
+	case Tcp:
+		return true
+	case Udp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeAction.
+const (
+	Pause    RuntimeAction = "pause"
+	Rebuild  RuntimeAction = "rebuild"
+	Restart  RuntimeAction = "restart"
+	Start    RuntimeAction = "start"
+	Stop     RuntimeAction = "stop"
+	Teardown RuntimeAction = "teardown"
+	Unpause  RuntimeAction = "unpause"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeAction enum.
+func (e RuntimeAction) Valid() bool {
+	switch e {
+	case Pause:
+		return true
+	case Rebuild:
+		return true
+	case Restart:
+		return true
+	case Start:
+		return true
+	case Stop:
+		return true
+	case Teardown:
+		return true
+	case Unpause:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeLogEntrySource.
+const (
+	Docker RuntimeLogEntrySource = "docker"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeLogEntrySource enum.
+func (e RuntimeLogEntrySource) Valid() bool {
+	switch e {
+	case Docker:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeLogEntryStream.
+const (
+	Stderr RuntimeLogEntryStream = "stderr"
+	Stdout RuntimeLogEntryStream = "stdout"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeLogEntryStream enum.
+func (e RuntimeLogEntryStream) Valid() bool {
+	switch e {
+	case Stderr:
+		return true
+	case Stdout:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeObservationDriver.
+const (
+	RuntimeObservationDriverCompose RuntimeObservationDriver = "compose"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeObservationDriver enum.
+func (e RuntimeObservationDriver) Valid() bool {
+	switch e {
+	case RuntimeObservationDriverCompose:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeObservationOrigin.
+const (
+	External   RuntimeObservationOrigin = "external"
+	Switchyard RuntimeObservationOrigin = "switchyard"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeObservationOrigin enum.
+func (e RuntimeObservationOrigin) Valid() bool {
+	switch e {
+	case External:
+		return true
+	case Switchyard:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimeObservationState.
+const (
+	RuntimeObservationStateDegraded         RuntimeObservationState = "degraded"
+	RuntimeObservationStateFailed           RuntimeObservationState = "failed"
+	RuntimeObservationStatePartiallyRunning RuntimeObservationState = "partially_running"
+	RuntimeObservationStatePaused           RuntimeObservationState = "paused"
+	RuntimeObservationStateRunning          RuntimeObservationState = "running"
+	RuntimeObservationStateRunningExternal  RuntimeObservationState = "running_external"
+	RuntimeObservationStateStarting         RuntimeObservationState = "starting"
+	RuntimeObservationStateStopped          RuntimeObservationState = "stopped"
+	RuntimeObservationStateStopping         RuntimeObservationState = "stopping"
+	RuntimeObservationStateUnknown          RuntimeObservationState = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the RuntimeObservationState enum.
+func (e RuntimeObservationState) Valid() bool {
+	switch e {
+	case RuntimeObservationStateDegraded:
+		return true
+	case RuntimeObservationStateFailed:
+		return true
+	case RuntimeObservationStatePartiallyRunning:
+		return true
+	case RuntimeObservationStatePaused:
+		return true
+	case RuntimeObservationStateRunning:
+		return true
+	case RuntimeObservationStateRunningExternal:
+		return true
+	case RuntimeObservationStateStarting:
+		return true
+	case RuntimeObservationStateStopped:
+		return true
+	case RuntimeObservationStateStopping:
+		return true
+	case RuntimeObservationStateUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimePlanDriver.
+const (
+	RuntimePlanDriverCompose RuntimePlanDriver = "compose"
+)
+
+// Valid indicates whether the value is a known member of the RuntimePlanDriver enum.
+func (e RuntimePlanDriver) Valid() bool {
+	switch e {
+	case RuntimePlanDriverCompose:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuntimePlanRisk.
+const (
+	Caution     RuntimePlanRisk = "caution"
+	Destructive RuntimePlanRisk = "destructive"
+	Safe        RuntimePlanRisk = "safe"
+)
+
+// Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
+func (e RuntimePlanRisk) Valid() bool {
+	switch e {
+	case Caution:
+		return true
+	case Destructive:
+		return true
+	case Safe:
 		return true
 	default:
 		return false
@@ -125,6 +323,18 @@ type BrowserBootstrap struct {
 type BrowserSession struct {
 	CsrfToken string    `json:"csrfToken"`
 	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+// ContainerMetadata defines model for ContainerMetadata.
+type ContainerMetadata struct {
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	ExitCode     *int       `json:"exitCode,omitempty"`
+	FinishedAt   *time.Time `json:"finishedAt,omitempty"`
+	Id           string     `json:"id"`
+	Image        string     `json:"image"`
+	Name         string     `json:"name"`
+	RestartCount int        `json:"restartCount"`
+	StartedAt    *time.Time `json:"startedAt,omitempty"`
 }
 
 // CreateBrowserSessionRequest defines model for CreateBrowserSessionRequest.
@@ -239,6 +449,124 @@ type Project struct {
 // ProjectTrustState defines model for Project.TrustState.
 type ProjectTrustState string
 
+// PublishedPort defines model for PublishedPort.
+type PublishedPort struct {
+	ContainerPort int                   `json:"containerPort"`
+	HostIp        *string               `json:"hostIp,omitempty"`
+	HostPort      *int                  `json:"hostPort,omitempty"`
+	Protocol      PublishedPortProtocol `json:"protocol"`
+}
+
+// PublishedPortProtocol defines model for PublishedPort.Protocol.
+type PublishedPortProtocol string
+
+// RuntimeAction defines model for RuntimeAction.
+type RuntimeAction string
+
+// RuntimeActionRequest defines model for RuntimeActionRequest.
+type RuntimeActionRequest struct {
+	Action        RuntimeAction `json:"action"`
+	RemoveVolumes *bool         `json:"removeVolumes,omitempty"`
+}
+
+// RuntimeCommand defines model for RuntimeCommand.
+type RuntimeCommand struct {
+	Arguments        []string `json:"arguments"`
+	Executable       string   `json:"executable"`
+	WorkingDirectory string   `json:"workingDirectory"`
+}
+
+// RuntimeEngineObservation defines model for RuntimeEngineObservation.
+type RuntimeEngineObservation struct {
+	ApiVersion    *string `json:"apiVersion,omitempty"`
+	Connected     bool    `json:"connected"`
+	Context       *string `json:"context,omitempty"`
+	ErrorCode     *string `json:"errorCode,omitempty"`
+	ErrorMessage  *string `json:"errorMessage,omitempty"`
+	ServerVersion *string `json:"serverVersion,omitempty"`
+}
+
+// RuntimeLogEntry defines model for RuntimeLogEntry.
+type RuntimeLogEntry struct {
+	Attributes map[string]string     `json:"attributes"`
+	Level      string                `json:"level"`
+	Message    string                `json:"message"`
+	ProjectId  string                `json:"projectId"`
+	RunId      string                `json:"runId"`
+	ServiceId  string                `json:"serviceId"`
+	Source     RuntimeLogEntrySource `json:"source"`
+	Stream     RuntimeLogEntryStream `json:"stream"`
+	Timestamp  time.Time             `json:"timestamp"`
+}
+
+// RuntimeLogEntrySource defines model for RuntimeLogEntry.Source.
+type RuntimeLogEntrySource string
+
+// RuntimeLogEntryStream defines model for RuntimeLogEntry.Stream.
+type RuntimeLogEntryStream string
+
+// RuntimeMetricSample defines model for RuntimeMetricSample.
+type RuntimeMetricSample struct {
+	CpuPercent     float64   `json:"cpuPercent"`
+	MemoryBytes    int64     `json:"memoryBytes"`
+	MemoryLimit    int64     `json:"memoryLimit"`
+	NetworkRxBytes int64     `json:"networkRxBytes"`
+	NetworkTxBytes int64     `json:"networkTxBytes"`
+	ProjectId      string    `json:"projectId"`
+	ServiceId      string    `json:"serviceId"`
+	Timestamp      time.Time `json:"timestamp"`
+}
+
+// RuntimeObservation defines model for RuntimeObservation.
+type RuntimeObservation struct {
+	Driver          RuntimeObservationDriver    `json:"driver"`
+	Engine          RuntimeEngineObservation    `json:"engine"`
+	ObservedAt      time.Time                   `json:"observedAt"`
+	Origin          RuntimeObservationOrigin    `json:"origin"`
+	ProjectId       string                      `json:"projectId"`
+	ProjectIdentity string                      `json:"projectIdentity"`
+	Services        []RuntimeServiceObservation `json:"services"`
+	State           RuntimeObservationState     `json:"state"`
+}
+
+// RuntimeObservationDriver defines model for RuntimeObservation.Driver.
+type RuntimeObservationDriver string
+
+// RuntimeObservationOrigin defines model for RuntimeObservation.Origin.
+type RuntimeObservationOrigin string
+
+// RuntimeObservationState defines model for RuntimeObservation.State.
+type RuntimeObservationState string
+
+// RuntimePlan defines model for RuntimePlan.
+type RuntimePlan struct {
+	Action        RuntimeAction     `json:"action"`
+	Commands      []RuntimeCommand  `json:"commands"`
+	Driver        RuntimePlanDriver `json:"driver"`
+	Effects       []string          `json:"effects"`
+	ProjectId     string            `json:"projectId"`
+	RemoveVolumes bool              `json:"removeVolumes"`
+	Risk          RuntimePlanRisk   `json:"risk"`
+	Summary       string            `json:"summary"`
+}
+
+// RuntimePlanDriver defines model for RuntimePlan.Driver.
+type RuntimePlanDriver string
+
+// RuntimePlanRisk defines model for RuntimePlan.Risk.
+type RuntimePlanRisk string
+
+// RuntimeServiceObservation defines model for RuntimeServiceObservation.
+type RuntimeServiceObservation struct {
+	Container   ContainerMetadata `json:"container"`
+	Health      string            `json:"health"`
+	Id          string            `json:"id"`
+	ObservedAt  time.Time         `json:"observedAt"`
+	Ports       []PublishedPort   `json:"ports"`
+	RuntimeName string            `json:"runtimeName"`
+	State       string            `json:"state"`
+}
+
 // SourceRange defines model for SourceRange.
 type SourceRange struct {
 	EndLine   int `json:"endLine"`
@@ -305,6 +633,23 @@ type RemoveProjectParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// GetProjectLogsParams defines parameters for GetProjectLogs.
+type GetProjectLogsParams struct {
+	Service *string `form:"service,omitempty" json:"service,omitempty"`
+	Since   *string `form:"since,omitempty" json:"since,omitempty"`
+	Tail    *int    `form:"tail,omitempty" json:"tail,omitempty"`
+}
+
+// GetProjectMetricsParams defines parameters for GetProjectMetrics.
+type GetProjectMetricsParams struct {
+	Service *string `form:"service,omitempty" json:"service,omitempty"`
+}
+
+// CreateProjectOperationParams defines parameters for CreateProjectOperation.
+type CreateProjectOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // TrustProjectParams defines parameters for TrustProject.
 type TrustProjectParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
@@ -315,6 +660,12 @@ type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
 
 // CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
 type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
+
+// CreateProjectOperationJSONRequestBody defines body for CreateProjectOperation for application/json ContentType.
+type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
+
+// PlanProjectRuntimeJSONRequestBody defines body for PlanProjectRuntime for application/json ContentType.
+type PlanProjectRuntimeJSONRequestBody = RuntimeActionRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -429,6 +780,9 @@ type ClientInterface interface {
 	// GetProject request
 	GetProject(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetProjectLogs request
+	GetProjectLogs(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DiffProjectManifest request
 	DiffProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -437,6 +791,22 @@ type ClientInterface interface {
 
 	// ValidateProjectManifest request
 	ValidateProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProjectMetrics request
+	GetProjectMetrics(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProjectOperationWithBody request with any body
+	CreateProjectOperationWithBody(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateProjectOperation(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProjectRuntime request
+	GetProjectRuntime(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PlanProjectRuntimeWithBody request with any body
+	PlanProjectRuntimeWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PlanProjectRuntime(ctx context.Context, projectId ProjectId, body PlanProjectRuntimeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// TrustProject request
 	TrustProject(ctx context.Context, projectId ProjectId, params *TrustProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -613,6 +983,18 @@ func (c *Client) GetProject(ctx context.Context, projectId ProjectId, reqEditors
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetProjectLogs(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectLogsRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DiffProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDiffProjectManifestRequest(c.Server, projectId)
 	if err != nil {
@@ -639,6 +1021,78 @@ func (c *Client) ExplainProjectManifest(ctx context.Context, projectId ProjectId
 
 func (c *Client) ValidateProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewValidateProjectManifestRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProjectMetrics(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectMetricsRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProjectOperationWithBody(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectOperationRequestWithBody(c.Server, projectId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProjectOperation(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectOperationRequest(c.Server, projectId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProjectRuntime(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectRuntimeRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PlanProjectRuntimeWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlanProjectRuntimeRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PlanProjectRuntime(ctx context.Context, projectId ProjectId, body PlanProjectRuntimeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlanProjectRuntimeRequest(c.Server, projectId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1176,6 +1630,91 @@ func NewGetProjectRequest(server string, projectId ProjectId) (*http.Request, er
 	return req, nil
 }
 
+// NewGetProjectLogsRequest generates requests for GetProjectLogs
+func NewGetProjectLogsRequest(server string, projectId ProjectId, params *GetProjectLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/logs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Service != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service", *params.Service, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Since != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "since", *params.Since, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Tail != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "tail", *params.Tail, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDiffProjectManifestRequest generates requests for DiffProjectManifest
 func NewDiffProjectManifestRequest(server string, projectId ProjectId) (*http.Request, error) {
 	var err error
@@ -1274,6 +1813,208 @@ func NewValidateProjectManifestRequest(server string, projectId ProjectId) (*htt
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetProjectMetricsRequest generates requests for GetProjectMetrics
+func NewGetProjectMetricsRequest(server string, projectId ProjectId, params *GetProjectMetricsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/metrics", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Service != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service", *params.Service, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateProjectOperationRequest calls the generic CreateProjectOperation builder with application/json body
+func NewCreateProjectOperationRequest(server string, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateProjectOperationRequestWithBody(server, projectId, params, "application/json", bodyReader)
+}
+
+// NewCreateProjectOperationRequestWithBody generates requests for CreateProjectOperation with any type of body
+func NewCreateProjectOperationRequestWithBody(server string, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/operations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetProjectRuntimeRequest generates requests for GetProjectRuntime
+func NewGetProjectRuntimeRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/runtime", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPlanProjectRuntimeRequest calls the generic PlanProjectRuntime builder with application/json body
+func NewPlanProjectRuntimeRequest(server string, projectId ProjectId, body PlanProjectRuntimeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPlanProjectRuntimeRequestWithBody(server, projectId, "application/json", bodyReader)
+}
+
+// NewPlanProjectRuntimeRequestWithBody generates requests for PlanProjectRuntime with any type of body
+func NewPlanProjectRuntimeRequestWithBody(server string, projectId ProjectId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/runtime/plan", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1435,6 +2176,9 @@ type ClientWithResponsesInterface interface {
 	// GetProjectWithResponse request
 	GetProjectWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectResponse, error)
 
+	// GetProjectLogsWithResponse request
+	GetProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*GetProjectLogsResponse, error)
+
 	// DiffProjectManifestWithResponse request
 	DiffProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*DiffProjectManifestResponse, error)
 
@@ -1443,6 +2187,22 @@ type ClientWithResponsesInterface interface {
 
 	// ValidateProjectManifestWithResponse request
 	ValidateProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ValidateProjectManifestResponse, error)
+
+	// GetProjectMetricsWithResponse request
+	GetProjectMetricsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*GetProjectMetricsResponse, error)
+
+	// CreateProjectOperationWithBodyWithResponse request with any body
+	CreateProjectOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error)
+
+	CreateProjectOperationWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error)
+
+	// GetProjectRuntimeWithResponse request
+	GetProjectRuntimeWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectRuntimeResponse, error)
+
+	// PlanProjectRuntimeWithBodyWithResponse request with any body
+	PlanProjectRuntimeWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlanProjectRuntimeResponse, error)
+
+	PlanProjectRuntimeWithResponse(ctx context.Context, projectId ProjectId, body PlanProjectRuntimeJSONRequestBody, reqEditors ...RequestEditorFn) (*PlanProjectRuntimeResponse, error)
 
 	// TrustProjectWithResponse request
 	TrustProjectWithResponse(ctx context.Context, projectId ProjectId, params *TrustProjectParams, reqEditors ...RequestEditorFn) (*TrustProjectResponse, error)
@@ -1822,6 +2582,37 @@ func (r GetProjectResponse) ContentType() string {
 	return ""
 }
 
+type GetProjectLogsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]RuntimeLogEntry
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectLogsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectLogsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectLogsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DiffProjectManifestResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -1909,6 +2700,130 @@ func (r ValidateProjectManifestResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ValidateProjectManifestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetProjectMetricsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]RuntimeMetricSample
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectMetricsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectMetricsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectMetricsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateProjectOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateProjectOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateProjectOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateProjectOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetProjectRuntimeResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *RuntimeObservation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectRuntimeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectRuntimeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectRuntimeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PlanProjectRuntimeResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *RuntimePlan
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r PlanProjectRuntimeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PlanProjectRuntimeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PlanProjectRuntimeResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -2101,6 +3016,15 @@ func (c *ClientWithResponses) GetProjectWithResponse(ctx context.Context, projec
 	return ParseGetProjectResponse(rsp)
 }
 
+// GetProjectLogsWithResponse request returning *GetProjectLogsResponse
+func (c *ClientWithResponses) GetProjectLogsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectLogsParams, reqEditors ...RequestEditorFn) (*GetProjectLogsResponse, error) {
+	rsp, err := c.GetProjectLogs(ctx, projectId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectLogsResponse(rsp)
+}
+
 // DiffProjectManifestWithResponse request returning *DiffProjectManifestResponse
 func (c *ClientWithResponses) DiffProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*DiffProjectManifestResponse, error) {
 	rsp, err := c.DiffProjectManifest(ctx, projectId, reqEditors...)
@@ -2126,6 +3050,58 @@ func (c *ClientWithResponses) ValidateProjectManifestWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseValidateProjectManifestResponse(rsp)
+}
+
+// GetProjectMetricsWithResponse request returning *GetProjectMetricsResponse
+func (c *ClientWithResponses) GetProjectMetricsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*GetProjectMetricsResponse, error) {
+	rsp, err := c.GetProjectMetrics(ctx, projectId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectMetricsResponse(rsp)
+}
+
+// CreateProjectOperationWithBodyWithResponse request with arbitrary body returning *CreateProjectOperationResponse
+func (c *ClientWithResponses) CreateProjectOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error) {
+	rsp, err := c.CreateProjectOperationWithBody(ctx, projectId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateProjectOperationWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error) {
+	rsp, err := c.CreateProjectOperation(ctx, projectId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectOperationResponse(rsp)
+}
+
+// GetProjectRuntimeWithResponse request returning *GetProjectRuntimeResponse
+func (c *ClientWithResponses) GetProjectRuntimeWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectRuntimeResponse, error) {
+	rsp, err := c.GetProjectRuntime(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectRuntimeResponse(rsp)
+}
+
+// PlanProjectRuntimeWithBodyWithResponse request with arbitrary body returning *PlanProjectRuntimeResponse
+func (c *ClientWithResponses) PlanProjectRuntimeWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlanProjectRuntimeResponse, error) {
+	rsp, err := c.PlanProjectRuntimeWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlanProjectRuntimeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PlanProjectRuntimeWithResponse(ctx context.Context, projectId ProjectId, body PlanProjectRuntimeJSONRequestBody, reqEditors ...RequestEditorFn) (*PlanProjectRuntimeResponse, error) {
+	rsp, err := c.PlanProjectRuntime(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlanProjectRuntimeResponse(rsp)
 }
 
 // TrustProjectWithResponse request returning *TrustProjectResponse
@@ -2535,6 +3511,39 @@ func ParseGetProjectResponse(rsp *http.Response) (*GetProjectResponse, error) {
 	return response, nil
 }
 
+// ParseGetProjectLogsResponse parses an HTTP response from a GetProjectLogsWithResponse call
+func ParseGetProjectLogsResponse(rsp *http.Response) (*GetProjectLogsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectLogsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RuntimeLogEntry
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDiffProjectManifestResponse parses an HTTP response from a DiffProjectManifestWithResponse call
 func ParseDiffProjectManifestResponse(rsp *http.Response) (*DiffProjectManifestResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -2617,6 +3626,138 @@ func ParseValidateProjectManifestResponse(rsp *http.Response) (*ValidateProjectM
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ManifestValidation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProjectMetricsResponse parses an HTTP response from a GetProjectMetricsWithResponse call
+func ParseGetProjectMetricsResponse(rsp *http.Response) (*GetProjectMetricsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectMetricsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RuntimeMetricSample
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateProjectOperationResponse parses an HTTP response from a CreateProjectOperationWithResponse call
+func ParseCreateProjectOperationResponse(rsp *http.Response) (*CreateProjectOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateProjectOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProjectRuntimeResponse parses an HTTP response from a GetProjectRuntimeWithResponse call
+func ParseGetProjectRuntimeResponse(rsp *http.Response) (*GetProjectRuntimeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectRuntimeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RuntimeObservation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePlanProjectRuntimeResponse parses an HTTP response from a PlanProjectRuntimeWithResponse call
+func ParsePlanProjectRuntimeResponse(rsp *http.Response) (*PlanProjectRuntimeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PlanProjectRuntimeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RuntimePlan
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2738,6 +3879,9 @@ type ServerInterface interface {
 	// Read one registered project
 	// (GET /projects/{projectId})
 	GetProject(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Read a bounded snapshot of Docker logs
+	// (GET /projects/{projectId}/logs)
+	GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams)
 	// Compare the accepted and effective manifests
 	// (GET /projects/{projectId}/manifest/diff)
 	DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -2747,6 +3891,18 @@ type ServerInterface interface {
 	// Validate the fully resolved manifest
 	// (GET /projects/{projectId}/manifest/validate)
 	ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Read one current resource sample per Compose service
+	// (GET /projects/{projectId}/metrics)
+	GetProjectMetrics(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectMetricsParams)
+	// Queue a durable project lifecycle operation
+	// (POST /projects/{projectId}/operations)
+	CreateProjectOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateProjectOperationParams)
+	// Observe current project runtime state
+	// (GET /projects/{projectId}/runtime)
+	GetProjectRuntime(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Preview a project lifecycle action without executing it
+	// (POST /projects/{projectId}/runtime/plan)
+	PlanProjectRuntime(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// Validate and accept the latest project proposal
 	// (POST /projects/{projectId}/trust)
 	TrustProject(w http.ResponseWriter, r *http.Request, projectId ProjectId, params TrustProjectParams)
@@ -2831,6 +3987,12 @@ func (_ Unimplemented) GetProject(w http.ResponseWriter, r *http.Request, projec
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// Read a bounded snapshot of Docker logs
+// (GET /projects/{projectId}/logs)
+func (_ Unimplemented) GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Compare the accepted and effective manifests
 // (GET /projects/{projectId}/manifest/diff)
 func (_ Unimplemented) DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
@@ -2846,6 +4008,30 @@ func (_ Unimplemented) ExplainProjectManifest(w http.ResponseWriter, r *http.Req
 // Validate the fully resolved manifest
 // (GET /projects/{projectId}/manifest/validate)
 func (_ Unimplemented) ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read one current resource sample per Compose service
+// (GET /projects/{projectId}/metrics)
+func (_ Unimplemented) GetProjectMetrics(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectMetricsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue a durable project lifecycle operation
+// (POST /projects/{projectId}/operations)
+func (_ Unimplemented) CreateProjectOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateProjectOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Observe current project runtime state
+// (GET /projects/{projectId}/runtime)
+func (_ Unimplemented) GetProjectRuntime(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Preview a project lifecycle action without executing it
+// (POST /projects/{projectId}/runtime/plan)
+func (_ Unimplemented) PlanProjectRuntime(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -3297,6 +4483,74 @@ func (siw *ServerInterfaceWrapper) GetProject(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
+// GetProjectLogs operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectLogs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProjectLogsParams
+
+	// ------------- Optional query parameter "service" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "service", r.URL.Query(), &params.Service, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "service"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "service", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "since" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "since", r.URL.Query(), &params.Since, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "since"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "since", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "tail" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "tail", r.URL.Query(), &params.Tail, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "tail"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "tail", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectLogs(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // DiffProjectManifest operation middleware
 func (siw *ServerInterfaceWrapper) DiffProjectManifest(w http.ResponseWriter, r *http.Request) {
 
@@ -3366,6 +4620,154 @@ func (siw *ServerInterfaceWrapper) ValidateProjectManifest(w http.ResponseWriter
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ValidateProjectManifest(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectMetrics operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectMetrics(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProjectMetricsParams
+
+	// ------------- Optional query parameter "service" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "service", r.URL.Query(), &params.Service, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "service"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "service", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectMetrics(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateProjectOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreateProjectOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateProjectOperationParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateProjectOperation(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectRuntime operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectRuntime(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectRuntime(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PlanProjectRuntime operation middleware
+func (siw *ServerInterfaceWrapper) PlanProjectRuntime(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PlanProjectRuntime(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3593,6 +4995,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/projects/{projectId}", wrapper.GetProject)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/logs", wrapper.GetProjectLogs)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/manifest/diff", wrapper.DiffProjectManifest)
 	})
 	r.Group(func(r chi.Router) {
@@ -3600,6 +5005,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/manifest/validate", wrapper.ValidateProjectManifest)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/metrics", wrapper.GetProjectMetrics)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/operations", wrapper.CreateProjectOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/runtime", wrapper.GetProjectRuntime)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/runtime/plan", wrapper.PlanProjectRuntime)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/projects/{projectId}/trust", wrapper.TrustProject)

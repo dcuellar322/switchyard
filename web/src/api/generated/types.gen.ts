@@ -109,6 +109,103 @@ export type BrowserSession = {
     expiresAt: string;
 };
 
+export type RuntimeAction = 'start' | 'stop' | 'restart' | 'pause' | 'unpause' | 'rebuild' | 'teardown';
+
+export type RuntimeActionRequest = {
+    action: RuntimeAction;
+    removeVolumes?: boolean;
+};
+
+export type RuntimeCommand = {
+    executable: string;
+    arguments: Array<string>;
+    workingDirectory: string;
+};
+
+export type RuntimePlan = {
+    projectId: string;
+    driver: 'compose';
+    action: RuntimeAction;
+    risk: 'safe' | 'caution' | 'destructive';
+    summary: string;
+    commands: Array<RuntimeCommand>;
+    effects: Array<string>;
+    removeVolumes: boolean;
+};
+
+export type PublishedPort = {
+    hostIp?: string;
+    hostPort?: number;
+    containerPort: number;
+    protocol: 'tcp' | 'udp' | 'sctp';
+};
+
+export type ContainerMetadata = {
+    id: string;
+    name: string;
+    image: string;
+    createdAt?: string;
+    startedAt?: string;
+    finishedAt?: string;
+    exitCode?: number;
+    restartCount: number;
+};
+
+export type RuntimeServiceObservation = {
+    id: string;
+    runtimeName: string;
+    state: string;
+    health: string;
+    container: ContainerMetadata;
+    ports: Array<PublishedPort>;
+    observedAt: string;
+};
+
+export type RuntimeEngineObservation = {
+    connected: boolean;
+    context?: string;
+    serverVersion?: string;
+    apiVersion?: string;
+    errorCode?: string;
+    errorMessage?: string;
+};
+
+export type RuntimeObservation = {
+    projectId: string;
+    driver: 'compose';
+    projectIdentity: string;
+    state: 'unknown' | 'stopped' | 'starting' | 'running' | 'running_external' | 'partially_running' | 'degraded' | 'paused' | 'stopping' | 'failed';
+    origin: 'switchyard' | 'external';
+    engine: RuntimeEngineObservation;
+    services: Array<RuntimeServiceObservation>;
+    observedAt: string;
+};
+
+export type RuntimeLogEntry = {
+    timestamp: string;
+    projectId: string;
+    serviceId: string;
+    runId: string;
+    source: 'docker';
+    stream: 'stdout' | 'stderr';
+    level: string;
+    message: string;
+    attributes: {
+        [key: string]: string;
+    };
+};
+
+export type RuntimeMetricSample = {
+    timestamp: string;
+    projectId: string;
+    serviceId: string;
+    cpuPercent: number;
+    memoryBytes: number;
+    memoryLimit: number;
+    networkRxBytes: number;
+    networkTxBytes: number;
+};
+
 export type Operation = {
     id: string;
     projectId: string;
@@ -619,3 +716,147 @@ export type ValidateProjectManifestResponses = {
 };
 
 export type ValidateProjectManifestResponse = ValidateProjectManifestResponses[keyof ValidateProjectManifestResponses];
+
+export type GetProjectRuntimeData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/runtime';
+};
+
+export type GetProjectRuntimeErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectRuntimeError = GetProjectRuntimeErrors[keyof GetProjectRuntimeErrors];
+
+export type GetProjectRuntimeResponses = {
+    /**
+     * Current driver observation
+     */
+    200: RuntimeObservation;
+};
+
+export type GetProjectRuntimeResponse = GetProjectRuntimeResponses[keyof GetProjectRuntimeResponses];
+
+export type PlanProjectRuntimeData = {
+    body: RuntimeActionRequest;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/runtime/plan';
+};
+
+export type PlanProjectRuntimeErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type PlanProjectRuntimeError = PlanProjectRuntimeErrors[keyof PlanProjectRuntimeErrors];
+
+export type PlanProjectRuntimeResponses = {
+    /**
+     * Side-effect-free lifecycle preview
+     */
+    200: RuntimePlan;
+};
+
+export type PlanProjectRuntimeResponse = PlanProjectRuntimeResponses[keyof PlanProjectRuntimeResponses];
+
+export type CreateProjectOperationData = {
+    body: RuntimeActionRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/operations';
+};
+
+export type CreateProjectOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateProjectOperationError = CreateProjectOperationErrors[keyof CreateProjectOperationErrors];
+
+export type CreateProjectOperationResponses = {
+    /**
+     * Durable operation accepted
+     */
+    202: Operation;
+};
+
+export type CreateProjectOperationResponse = CreateProjectOperationResponses[keyof CreateProjectOperationResponses];
+
+export type GetProjectLogsData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: {
+        service?: string;
+        since?: string;
+        tail?: number;
+    };
+    url: '/projects/{projectId}/logs';
+};
+
+export type GetProjectLogsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectLogsError = GetProjectLogsErrors[keyof GetProjectLogsErrors];
+
+export type GetProjectLogsResponses = {
+    /**
+     * Bounded runtime log lines
+     */
+    200: Array<RuntimeLogEntry>;
+};
+
+export type GetProjectLogsResponse = GetProjectLogsResponses[keyof GetProjectLogsResponses];
+
+export type GetProjectMetricsData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: {
+        service?: string;
+    };
+    url: '/projects/{projectId}/metrics';
+};
+
+export type GetProjectMetricsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectMetricsError = GetProjectMetricsErrors[keyof GetProjectMetricsErrors];
+
+export type GetProjectMetricsResponses = {
+    /**
+     * Current runtime resource samples
+     */
+    200: Array<RuntimeMetricSample>;
+};
+
+export type GetProjectMetricsResponse = GetProjectMetricsResponses[keyof GetProjectMetricsResponses];

@@ -58,6 +58,7 @@ type Runtime struct {
 type ComposeConfig struct {
 	Files       []string `json:"files" yaml:"files" jsonschema:"required,minItems=1"`
 	ProjectName string   `json:"projectName,omitempty" yaml:"projectName,omitempty"`
+	Context     string   `json:"context,omitempty" yaml:"context,omitempty"`
 }
 
 // Lifecycle declares the standard project mutations.

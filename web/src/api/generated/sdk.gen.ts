@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -116,3 +116,42 @@ export const diffProjectManifest = <ThrowOnError extends boolean = false>(option
  * Validate the fully resolved manifest
  */
 export const validateProjectManifest = <ThrowOnError extends boolean = false>(options: Options<ValidateProjectManifestData, ThrowOnError>): RequestResult<ValidateProjectManifestResponses, ValidateProjectManifestErrors, ThrowOnError> => (options.client ?? client).get<ValidateProjectManifestResponses, ValidateProjectManifestErrors, ThrowOnError>({ url: '/projects/{projectId}/manifest/validate', ...options });
+
+/**
+ * Observe current project runtime state
+ */
+export const getProjectRuntime = <ThrowOnError extends boolean = false>(options: Options<GetProjectRuntimeData, ThrowOnError>): RequestResult<GetProjectRuntimeResponses, GetProjectRuntimeErrors, ThrowOnError> => (options.client ?? client).get<GetProjectRuntimeResponses, GetProjectRuntimeErrors, ThrowOnError>({ url: '/projects/{projectId}/runtime', ...options });
+
+/**
+ * Preview a project lifecycle action without executing it
+ */
+export const planProjectRuntime = <ThrowOnError extends boolean = false>(options: Options<PlanProjectRuntimeData, ThrowOnError>): RequestResult<PlanProjectRuntimeResponses, PlanProjectRuntimeErrors, ThrowOnError> => (options.client ?? client).post<PlanProjectRuntimeResponses, PlanProjectRuntimeErrors, ThrowOnError>({
+    url: '/projects/{projectId}/runtime/plan',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Queue a durable project lifecycle operation
+ */
+export const createProjectOperation = <ThrowOnError extends boolean = false>(options: Options<CreateProjectOperationData, ThrowOnError>): RequestResult<CreateProjectOperationResponses, CreateProjectOperationErrors, ThrowOnError> => (options.client ?? client).post<CreateProjectOperationResponses, CreateProjectOperationErrors, ThrowOnError>({
+    url: '/projects/{projectId}/operations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read a bounded snapshot of Docker logs
+ */
+export const getProjectLogs = <ThrowOnError extends boolean = false>(options: Options<GetProjectLogsData, ThrowOnError>): RequestResult<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError>({ url: '/projects/{projectId}/logs', ...options });
+
+/**
+ * Read one current resource sample per Compose service
+ */
+export const getProjectMetrics = <ThrowOnError extends boolean = false>(options: Options<GetProjectMetricsData, ThrowOnError>): RequestResult<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError>({ url: '/projects/{projectId}/metrics', ...options });
