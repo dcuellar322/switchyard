@@ -419,6 +419,59 @@ type SystemHealth struct {
 	InitializedAt string `json:"initialized_at"`
 }
 
+type TeamAuditEvent struct {
+	ID         int64  `json:"id"`
+	EventType  string `json:"event_type"`
+	ActorType  string `json:"actor_type"`
+	ActorID    string `json:"actor_id"`
+	SubjectID  string `json:"subject_id"`
+	Detail     string `json:"detail"`
+	OccurredAt string `json:"occurred_at"`
+}
+
+type TeamBundle struct {
+	ID            string `json:"id"`
+	SchemaVersion string `json:"schema_version"`
+	Kind          string `json:"kind"`
+	MetadataJson  string `json:"metadata_json"`
+	PayloadJson   string `json:"payload_json"`
+	SignatureJson string `json:"signature_json"`
+	PublisherID   string `json:"publisher_id"`
+	InstalledAt   string `json:"installed_at"`
+}
+
+type TeamPublisher struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	PublicKey string `json:"public_key"`
+	TrustedAt string `json:"trusted_at"`
+}
+
+type TelemetryAuditEvent struct {
+	ID         int64  `json:"id"`
+	EventType  string `json:"event_type"`
+	ActorType  string `json:"actor_type"`
+	ActorID    string `json:"actor_id"`
+	Detail     string `json:"detail"`
+	OccurredAt string `json:"occurred_at"`
+}
+
+type TelemetryCounter struct {
+	Name      string `json:"name"`
+	Value     int64  `json:"value"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type TelemetrySetting struct {
+	Singleton      int64          `json:"singleton"`
+	Enabled        int64          `json:"enabled"`
+	Endpoint       string         `json:"endpoint"`
+	InstallationID string         `json:"installation_id"`
+	LastSentAt     sql.NullString `json:"last_sent_at"`
+	LastError      string         `json:"last_error"`
+	UpdatedAt      string         `json:"updated_at"`
+}
+
 type TerminalSession struct {
 	ID                string         `json:"id"`
 	ProjectID         string         `json:"project_id"`

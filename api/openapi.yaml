@@ -968,6 +968,184 @@ paths:
               schema: { $ref: "#/components/schemas/Machine" }
         default:
           $ref: "#/components/responses/Problem"
+  /team/publishers:
+    get:
+      operationId: listTeamPublishers
+      summary: List explicitly trusted team signing identities
+      responses:
+        "200":
+          description: Trusted public signing identities
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/TeamPublisher" } }
+        default: { $ref: "#/components/responses/Problem" }
+    post:
+      operationId: trustTeamPublisher
+      summary: Trust an exact Ed25519 public signing key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamPublisherTrustRequest" }
+      responses:
+        "201":
+          description: Trusted publisher
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TeamPublisher" }
+        default: { $ref: "#/components/responses/Problem" }
+  /team/bundles:
+    get:
+      operationId: listTeamBundles
+      summary: List installed verified team configuration bundles
+      parameters:
+        - name: kind
+          in: query
+          schema: { $ref: "#/components/schemas/TeamBundleKind" }
+      responses:
+        "200":
+          description: Installed signed bundles
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/TeamBundle" } }
+        default: { $ref: "#/components/responses/Problem" }
+    post:
+      operationId: installTeamBundle
+      summary: Verify and install a bundle from a trusted publisher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamBundleInstallRequest" }
+      responses:
+        "201":
+          description: Verified installed bundle
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TeamBundle" }
+        default: { $ref: "#/components/responses/Problem" }
+  /team/templates/{bundleId}/render:
+    parameters:
+      - $ref: "#/components/parameters/BundleId"
+    post:
+      operationId: renderTeamProjectTemplate
+      summary: Render and validate a signed project template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamTemplateRenderRequest" }
+      responses:
+        "200":
+          description: Valid portable project manifest
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default: { $ref: "#/components/responses/Problem" }
+  /team/policy:
+    get:
+      operationId: getEffectiveTeamPolicy
+      summary: Read the restrictive merge of installed signed policy bundles
+      responses:
+        "200":
+          description: Effective optional-feature policy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EffectiveTeamPolicy" }
+        default: { $ref: "#/components/responses/Problem" }
+  /plugin-registry:
+    get:
+      operationId: listCuratedPlugins
+      summary: List metadata from installed signed plugin registry bundles
+      responses:
+        "200":
+          description: Curated metadata only; packages are never automatically installed
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/CuratedPlugin" } }
+        default: { $ref: "#/components/responses/Problem" }
+  /team/sync:
+    get:
+      operationId: exportTeamSync
+      summary: Export configuration-only data for client-side age encryption
+      responses:
+        "200":
+          description: Portable configuration without credentials or runtime state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TeamSyncDocument" }
+        default: { $ref: "#/components/responses/Problem" }
+  /team/sync/preview:
+    post:
+      operationId: previewTeamSync
+      summary: Verify publishers, signatures, limits, and changes before import
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamSyncDocument" }
+      responses:
+        "200":
+          description: Verified import preview
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TeamSyncPreview" }
+        default: { $ref: "#/components/responses/Problem" }
+  /team/sync/import:
+    post:
+      operationId: importTeamSync
+      summary: Apply an already previewed configuration-only sync document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamSyncImportRequest" }
+      responses:
+        "200":
+          description: Applied sync summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TeamSyncPreview" }
+        default: { $ref: "#/components/responses/Problem" }
+  /telemetry:
+    get:
+      operationId: getTelemetryStatus
+      summary: Read local anonymous-metrics consent, counters, and delivery state
+      responses:
+        "200":
+          description: Local telemetry status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TelemetryStatus" }
+        default: { $ref: "#/components/responses/Problem" }
+    put:
+      operationId: updateTelemetrySettings
+      summary: Explicitly enable or disable and clear anonymous metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TelemetrySettingsRequest" }
+      responses:
+        "200":
+          description: Updated telemetry status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TelemetryStatus" }
+        default: { $ref: "#/components/responses/Problem" }
+  /telemetry/send:
+    post:
+      operationId: sendTelemetryNow
+      summary: Send the current bounded anonymous counters after opt-in
+      responses:
+        "200":
+          description: Delivery status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TelemetryStatus" }
+        default: { $ref: "#/components/responses/Problem" }
   /machines/{machineId}:
     parameters:
       - $ref: "#/components/parameters/MachineId"
@@ -1463,6 +1641,11 @@ components:
       in: path
       required: true
       schema: { type: string, minLength: 1, maxLength: 128 }
+    BundleId:
+      name: bundleId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128 }
     DiagnosisId:
       name: diagnosisId
       in: path
@@ -1639,6 +1822,168 @@ components:
         firstSeenAt: { type: string, format: date-time }
         lastSeenAt: { type: string, format: date-time }
         acknowledgedAt: { type: string, format: date-time }
+    TeamBundleKind:
+      type: string
+      enum: [project-template, policy-pack, plugin-registry, enterprise-config]
+    TeamPublisher:
+      type: object
+      additionalProperties: false
+      required: [id, name, publicKey, trustedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        publicKey: { type: string }
+        trustedAt: { type: string, format: date-time }
+    TeamPublisherTrustRequest:
+      type: object
+      additionalProperties: false
+      required: [name, publicKey, confirmRisk]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 128 }
+        publicKey: { type: string, minLength: 40, maxLength: 128 }
+        confirmRisk: { type: boolean }
+    TeamBundleMetadata:
+      type: object
+      additionalProperties: false
+      required: [id, name, version, publisherId, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        version: { type: string }
+        publisherId: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+    TeamBundleSignature:
+      type: object
+      additionalProperties: false
+      required: [keyId, algorithm, value]
+      properties:
+        keyId: { type: string }
+        algorithm: { type: string, enum: [Ed25519] }
+        value: { type: string }
+    TeamBundle:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, kind, metadata, payload, signature]
+      properties:
+        schemaVersion: { type: string, enum: [switchyard.bundle/v1] }
+        kind: { $ref: "#/components/schemas/TeamBundleKind" }
+        metadata: { $ref: "#/components/schemas/TeamBundleMetadata" }
+        payload: { type: object, additionalProperties: true }
+        signature: { $ref: "#/components/schemas/TeamBundleSignature" }
+        installedAt: { type: string, format: date-time }
+    TeamBundleInstallRequest:
+      type: object
+      additionalProperties: false
+      required: [bundle, confirmRisk]
+      properties:
+        bundle: { $ref: "#/components/schemas/TeamBundle" }
+        confirmRisk: { type: boolean }
+    TeamTemplateRenderRequest:
+      type: object
+      additionalProperties: false
+      required: [values]
+      properties:
+        values:
+          type: object
+          additionalProperties: { type: string }
+    EffectiveTeamPolicy:
+      type: object
+      additionalProperties: false
+      required: [sourceBundleIds, allowedRemoteCapabilities, allowedRemoteActions, allowedPluginPublishers, telemetryAllowed, requireSignedConfiguration]
+      properties:
+        sourceBundleIds: { type: array, items: { type: string } }
+        allowedRemoteCapabilities: { type: array, items: { type: string } }
+        allowedRemoteActions: { type: array, items: { type: string } }
+        allowedPluginPublishers: { type: array, items: { type: string } }
+        telemetryAllowed: { type: boolean }
+        requireSignedConfiguration: { type: boolean }
+    CuratedPlugin:
+      type: object
+      additionalProperties: false
+      required: [id, name, version, summary, publisher, downloadUrl, sha256, platforms, capabilities]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        version: { type: string }
+        summary: { type: string }
+        publisher: { type: string }
+        downloadUrl: { type: string, format: uri }
+        sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+        platforms: { type: array, items: { type: string } }
+        capabilities: { type: array, items: { type: string } }
+        documentation: { type: string, format: uri }
+    TeamSyncDocument:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, publishers, bundles, exportedAt]
+      properties:
+        schemaVersion: { type: string, enum: [switchyard.sync/v1] }
+        publishers: { type: array, maxItems: 100, items: { $ref: "#/components/schemas/TeamPublisher" } }
+        bundles: { type: array, maxItems: 1000, items: { $ref: "#/components/schemas/TeamBundle" } }
+        exportedAt: { type: string, format: date-time }
+    TeamSyncPreview:
+      type: object
+      additionalProperties: false
+      required: [publisherCount, bundleCount, bundleIds, warnings]
+      properties:
+        publisherCount: { type: integer, minimum: 0 }
+        bundleCount: { type: integer, minimum: 0 }
+        bundleIds: { type: array, items: { type: string } }
+        warnings: { type: array, items: { type: string } }
+    TeamSyncImportRequest:
+      type: object
+      additionalProperties: false
+      required: [document, confirmRisk]
+      properties:
+        document: { $ref: "#/components/schemas/TeamSyncDocument" }
+        confirmRisk: { type: boolean }
+    TelemetryCounter:
+      type: object
+      additionalProperties: false
+      required: [name, value]
+      properties:
+        name: { type: string }
+        value: { type: integer, format: int64, minimum: 0 }
+    TelemetrySettings:
+      type: object
+      additionalProperties: false
+      required: [enabled, updatedAt]
+      properties:
+        enabled: { type: boolean }
+        endpoint: { type: string, format: uri }
+        installationId: { type: string }
+        updatedAt: { type: string, format: date-time }
+    TelemetryStatus:
+      type: object
+      additionalProperties: false
+      required: [settings, counters]
+      properties:
+        settings: { $ref: "#/components/schemas/TelemetrySettings" }
+        counters: { type: array, items: { $ref: "#/components/schemas/TelemetryCounter" } }
+        preview: { $ref: "#/components/schemas/TelemetryPayload" }
+        lastSentAt: { type: string, format: date-time }
+        lastError: { type: string }
+    TelemetryPayload:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, installationId, version, os, architecture, counters, generatedAt]
+      properties:
+        schemaVersion: { type: string, enum: [switchyard.telemetry/v1] }
+        installationId: { type: string }
+        version: { type: string }
+        os: { type: string }
+        architecture: { type: string }
+        counters: { type: array, items: { $ref: "#/components/schemas/TelemetryCounter" } }
+        generatedAt: { type: string, format: date-time }
+    TelemetrySettingsRequest:
+      type: object
+      additionalProperties: false
+      required: [enabled, confirmRisk]
+      properties:
+        enabled: { type: boolean }
+        endpoint: { type: string, format: uri }
+        confirmRisk: { type: boolean }
     FleetCapability:
       type: string
       enum: [inventory.read, project.operate, environment.manage]

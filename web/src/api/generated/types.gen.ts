@@ -125,6 +125,135 @@ export type DiagnosticNotification = {
     acknowledgedAt?: string;
 };
 
+export type TeamBundleKind = 'project-template' | 'policy-pack' | 'plugin-registry' | 'enterprise-config';
+
+export type TeamPublisher = {
+    id: string;
+    name: string;
+    publicKey: string;
+    trustedAt: string;
+};
+
+export type TeamPublisherTrustRequest = {
+    name: string;
+    publicKey: string;
+    confirmRisk: boolean;
+};
+
+export type TeamBundleMetadata = {
+    id: string;
+    name: string;
+    version: string;
+    publisherId: string;
+    createdAt: string;
+    expiresAt?: string;
+};
+
+export type TeamBundleSignature = {
+    keyId: string;
+    algorithm: 'Ed25519';
+    value: string;
+};
+
+export type TeamBundle = {
+    schemaVersion: 'switchyard.bundle/v1';
+    kind: TeamBundleKind;
+    metadata: TeamBundleMetadata;
+    payload: {
+        [key: string]: unknown;
+    };
+    signature: TeamBundleSignature;
+    installedAt?: string;
+};
+
+export type TeamBundleInstallRequest = {
+    bundle: TeamBundle;
+    confirmRisk: boolean;
+};
+
+export type TeamTemplateRenderRequest = {
+    values: {
+        [key: string]: string;
+    };
+};
+
+export type EffectiveTeamPolicy = {
+    sourceBundleIds: Array<string>;
+    allowedRemoteCapabilities: Array<string>;
+    allowedRemoteActions: Array<string>;
+    allowedPluginPublishers: Array<string>;
+    telemetryAllowed: boolean;
+    requireSignedConfiguration: boolean;
+};
+
+export type CuratedPlugin = {
+    id: string;
+    name: string;
+    version: string;
+    summary: string;
+    publisher: string;
+    downloadUrl: string;
+    sha256: string;
+    platforms: Array<string>;
+    capabilities: Array<string>;
+    documentation?: string;
+};
+
+export type TeamSyncDocument = {
+    schemaVersion: 'switchyard.sync/v1';
+    publishers: Array<TeamPublisher>;
+    bundles: Array<TeamBundle>;
+    exportedAt: string;
+};
+
+export type TeamSyncPreview = {
+    publisherCount: number;
+    bundleCount: number;
+    bundleIds: Array<string>;
+    warnings: Array<string>;
+};
+
+export type TeamSyncImportRequest = {
+    document: TeamSyncDocument;
+    confirmRisk: boolean;
+};
+
+export type TelemetryCounter = {
+    name: string;
+    value: number;
+};
+
+export type TelemetrySettings = {
+    enabled: boolean;
+    endpoint?: string;
+    installationId?: string;
+    updatedAt: string;
+};
+
+export type TelemetryStatus = {
+    settings: TelemetrySettings;
+    counters: Array<TelemetryCounter>;
+    preview?: TelemetryPayload;
+    lastSentAt?: string;
+    lastError?: string;
+};
+
+export type TelemetryPayload = {
+    schemaVersion: 'switchyard.telemetry/v1';
+    installationId: string;
+    version: string;
+    os: string;
+    architecture: string;
+    counters: Array<TelemetryCounter>;
+    generatedAt: string;
+};
+
+export type TelemetrySettingsRequest = {
+    enabled: boolean;
+    endpoint?: string;
+    confirmRisk: boolean;
+};
+
 export type FleetCapability = 'inventory.read' | 'project.operate' | 'environment.manage';
 
 export type Machine = {
@@ -1226,6 +1355,8 @@ export type WorkspaceId = string;
 export type PluginId = string;
 
 export type MachineId = string;
+
+export type BundleId = string;
 
 export type DiagnosisId = string;
 
@@ -2817,6 +2948,337 @@ export type CreateMachineResponses = {
 };
 
 export type CreateMachineResponse = CreateMachineResponses[keyof CreateMachineResponses];
+
+export type ListTeamPublishersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/team/publishers';
+};
+
+export type ListTeamPublishersErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListTeamPublishersError = ListTeamPublishersErrors[keyof ListTeamPublishersErrors];
+
+export type ListTeamPublishersResponses = {
+    /**
+     * Trusted public signing identities
+     */
+    200: Array<TeamPublisher>;
+};
+
+export type ListTeamPublishersResponse = ListTeamPublishersResponses[keyof ListTeamPublishersResponses];
+
+export type TrustTeamPublisherData = {
+    body: TeamPublisherTrustRequest;
+    path?: never;
+    query?: never;
+    url: '/team/publishers';
+};
+
+export type TrustTeamPublisherErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type TrustTeamPublisherError = TrustTeamPublisherErrors[keyof TrustTeamPublisherErrors];
+
+export type TrustTeamPublisherResponses = {
+    /**
+     * Trusted publisher
+     */
+    201: TeamPublisher;
+};
+
+export type TrustTeamPublisherResponse = TrustTeamPublisherResponses[keyof TrustTeamPublisherResponses];
+
+export type ListTeamBundlesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        kind?: TeamBundleKind;
+    };
+    url: '/team/bundles';
+};
+
+export type ListTeamBundlesErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListTeamBundlesError = ListTeamBundlesErrors[keyof ListTeamBundlesErrors];
+
+export type ListTeamBundlesResponses = {
+    /**
+     * Installed signed bundles
+     */
+    200: Array<TeamBundle>;
+};
+
+export type ListTeamBundlesResponse = ListTeamBundlesResponses[keyof ListTeamBundlesResponses];
+
+export type InstallTeamBundleData = {
+    body: TeamBundleInstallRequest;
+    path?: never;
+    query?: never;
+    url: '/team/bundles';
+};
+
+export type InstallTeamBundleErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type InstallTeamBundleError = InstallTeamBundleErrors[keyof InstallTeamBundleErrors];
+
+export type InstallTeamBundleResponses = {
+    /**
+     * Verified installed bundle
+     */
+    201: TeamBundle;
+};
+
+export type InstallTeamBundleResponse = InstallTeamBundleResponses[keyof InstallTeamBundleResponses];
+
+export type RenderTeamProjectTemplateData = {
+    body: TeamTemplateRenderRequest;
+    path: {
+        bundleId: string;
+    };
+    query?: never;
+    url: '/team/templates/{bundleId}/render';
+};
+
+export type RenderTeamProjectTemplateErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type RenderTeamProjectTemplateError = RenderTeamProjectTemplateErrors[keyof RenderTeamProjectTemplateErrors];
+
+export type RenderTeamProjectTemplateResponses = {
+    /**
+     * Valid portable project manifest
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type RenderTeamProjectTemplateResponse = RenderTeamProjectTemplateResponses[keyof RenderTeamProjectTemplateResponses];
+
+export type GetEffectiveTeamPolicyData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/team/policy';
+};
+
+export type GetEffectiveTeamPolicyErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetEffectiveTeamPolicyError = GetEffectiveTeamPolicyErrors[keyof GetEffectiveTeamPolicyErrors];
+
+export type GetEffectiveTeamPolicyResponses = {
+    /**
+     * Effective optional-feature policy
+     */
+    200: EffectiveTeamPolicy;
+};
+
+export type GetEffectiveTeamPolicyResponse = GetEffectiveTeamPolicyResponses[keyof GetEffectiveTeamPolicyResponses];
+
+export type ListCuratedPluginsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/plugin-registry';
+};
+
+export type ListCuratedPluginsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListCuratedPluginsError = ListCuratedPluginsErrors[keyof ListCuratedPluginsErrors];
+
+export type ListCuratedPluginsResponses = {
+    /**
+     * Curated metadata only; packages are never automatically installed
+     */
+    200: Array<CuratedPlugin>;
+};
+
+export type ListCuratedPluginsResponse = ListCuratedPluginsResponses[keyof ListCuratedPluginsResponses];
+
+export type ExportTeamSyncData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/team/sync';
+};
+
+export type ExportTeamSyncErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ExportTeamSyncError = ExportTeamSyncErrors[keyof ExportTeamSyncErrors];
+
+export type ExportTeamSyncResponses = {
+    /**
+     * Portable configuration without credentials or runtime state
+     */
+    200: TeamSyncDocument;
+};
+
+export type ExportTeamSyncResponse = ExportTeamSyncResponses[keyof ExportTeamSyncResponses];
+
+export type PreviewTeamSyncData = {
+    body: TeamSyncDocument;
+    path?: never;
+    query?: never;
+    url: '/team/sync/preview';
+};
+
+export type PreviewTeamSyncErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type PreviewTeamSyncError = PreviewTeamSyncErrors[keyof PreviewTeamSyncErrors];
+
+export type PreviewTeamSyncResponses = {
+    /**
+     * Verified import preview
+     */
+    200: TeamSyncPreview;
+};
+
+export type PreviewTeamSyncResponse = PreviewTeamSyncResponses[keyof PreviewTeamSyncResponses];
+
+export type ImportTeamSyncData = {
+    body: TeamSyncImportRequest;
+    path?: never;
+    query?: never;
+    url: '/team/sync/import';
+};
+
+export type ImportTeamSyncErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ImportTeamSyncError = ImportTeamSyncErrors[keyof ImportTeamSyncErrors];
+
+export type ImportTeamSyncResponses = {
+    /**
+     * Applied sync summary
+     */
+    200: TeamSyncPreview;
+};
+
+export type ImportTeamSyncResponse = ImportTeamSyncResponses[keyof ImportTeamSyncResponses];
+
+export type GetTelemetryStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/telemetry';
+};
+
+export type GetTelemetryStatusErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetTelemetryStatusError = GetTelemetryStatusErrors[keyof GetTelemetryStatusErrors];
+
+export type GetTelemetryStatusResponses = {
+    /**
+     * Local telemetry status
+     */
+    200: TelemetryStatus;
+};
+
+export type GetTelemetryStatusResponse = GetTelemetryStatusResponses[keyof GetTelemetryStatusResponses];
+
+export type UpdateTelemetrySettingsData = {
+    body: TelemetrySettingsRequest;
+    path?: never;
+    query?: never;
+    url: '/telemetry';
+};
+
+export type UpdateTelemetrySettingsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateTelemetrySettingsError = UpdateTelemetrySettingsErrors[keyof UpdateTelemetrySettingsErrors];
+
+export type UpdateTelemetrySettingsResponses = {
+    /**
+     * Updated telemetry status
+     */
+    200: TelemetryStatus;
+};
+
+export type UpdateTelemetrySettingsResponse = UpdateTelemetrySettingsResponses[keyof UpdateTelemetrySettingsResponses];
+
+export type SendTelemetryNowData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/telemetry/send';
+};
+
+export type SendTelemetryNowErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type SendTelemetryNowError = SendTelemetryNowErrors[keyof SendTelemetryNowErrors];
+
+export type SendTelemetryNowResponses = {
+    /**
+     * Delivery status
+     */
+    200: TelemetryStatus;
+};
+
+export type SendTelemetryNowResponse = SendTelemetryNowResponses[keyof SendTelemetryNowResponses];
 
 export type DeleteMachineData = {
     body?: never;

@@ -34,6 +34,8 @@ type Dependencies struct {
 	Routes                  routeService
 	Terminals               terminalService
 	Fleet                   fleetService
+	Team                    teamService
+	Telemetry               telemetryService
 	Events                  http.Handler
 	Logs                    http.Handler
 	Terminal                http.Handler
@@ -69,7 +71,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 		diagnostics: dependencies.Diagnostics, automations: dependencies.Automations,
 		workspaces:   dependencies.Workspaces,
 		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
-		terminals: dependencies.Terminals, fleet: dependencies.Fleet,
+		terminals: dependencies.Terminals, fleet: dependencies.Fleet, team: dependencies.Team, telemetry: dependencies.Telemetry,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {

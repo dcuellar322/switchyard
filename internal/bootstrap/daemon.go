@@ -52,6 +52,10 @@ import (
 	sourcecontrolAdapters "switchyard.dev/switchyard/internal/sourcecontrol/adapters"
 	sourcecontrolApplication "switchyard.dev/switchyard/internal/sourcecontrol/application"
 	"switchyard.dev/switchyard/internal/system/application"
+	teamAdapters "switchyard.dev/switchyard/internal/team/adapters"
+	teamApplication "switchyard.dev/switchyard/internal/team/application"
+	telemetryAdapters "switchyard.dev/switchyard/internal/telemetry/adapters"
+	telemetryApplication "switchyard.dev/switchyard/internal/telemetry/application"
 	terminalAdapters "switchyard.dev/switchyard/internal/terminal/adapters"
 	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
 	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
@@ -181,6 +185,16 @@ func RunDaemon(ctx context.Context, config Config) error {
 		return err
 	}
 	build := buildinfo.Current()
+	teamService, err := teamApplication.NewService(sqlite.NewTeamRepository(database), teamAdapters.ManifestValidator{})
+	if err != nil {
+		return err
+	}
+	telemetryService, err := telemetryApplication.NewService(
+		sqlite.NewTelemetryRepository(database), telemetryAdapters.NewHTTPSender(), telemetryApplication.Build{Version: build.Version}, teamService,
+	)
+	if err != nil {
+		return err
+	}
 	pluginService, err := newPluginService(ctx, database, catalogService, redactor, config.DataDir, build.Version, config.Logger)
 	if err != nil {
 		return err
@@ -205,8 +219,8 @@ func RunDaemon(ctx context.Context, config Config) error {
 				workspaceRecipeRunner{projects: runtimeSource, launcher: launcher}, environmentRuntime, operation, progress,
 			)
 		},
-	))
-	fleetService, err := fleetApplication.NewService(sqlite.NewFleetRepository(database), fleetAdapters.NewHTTPSPeerClient())
+	), telemetryService)
+	fleetService, err := fleetApplication.NewService(sqlite.NewFleetRepository(database), fleetAdapters.NewHTTPSPeerClient(), teamService)
 	if err != nil {
 		return err
 	}
@@ -220,7 +234,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 			ProtocolVersion: fleetDomain.ProtocolVersion, MachineID: config.RemoteMachineID, Name: config.RemoteMachineName,
 			Version: build.Version, OS: goruntime.GOOS, Architecture: goruntime.GOARCH,
 			Capabilities: append([]fleetDomain.Capability(nil), fleetDomain.KnownCapabilities...),
-		}, fleetAdapters.NewLocalInventory(catalogService, runtimeService, environmentService), fleetAdapters.NewLocalOperator(coordinator), controllers)
+		}, fleetAdapters.NewLocalInventory(catalogService, runtimeService, environmentService), fleetAdapters.NewLocalOperator(coordinator), controllers, teamService)
 		if agentErr != nil {
 			return agentErr
 		}
@@ -244,12 +258,17 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	var background sync.WaitGroup
-	background.Add(6)
+	background.Add(7)
 	go func() {
 		defer background.Done()
 		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
 			config.Logger.Warn("runtime event watcher unavailable", "component", "runtime", "project_id", projectID, "error", watchErr)
 		})
+	}()
+	telemetryService.Record(ctx, "daemon.started")
+	go func() {
+		defer background.Done()
+		telemetryService.Run(ctx, 24*time.Hour)
 	}()
 	go func() {
 		defer background.Done()
@@ -288,7 +307,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		Ports: portService, Git: gitService, Actions: actionService,
 		AI: aiService, Resources: resourceService, Plugins: pluginService, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
-		Fleet:     fleetService,
+		Fleet: fleetService, Team: teamService, Telemetry: telemetryService,
 		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
 			actorType, actorID := httpapi.RequestActor(actorContext)
 			return terminalDomain.Owner{Type: actorType, ID: actorID}

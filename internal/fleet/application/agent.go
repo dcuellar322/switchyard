@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
 	"slices"
 	"strings"
 	"time"
@@ -30,10 +31,11 @@ type AgentService struct {
 	inventory   LocalInventory
 	operator    LocalOperator
 	controllers map[string][]domain.Capability
+	policy      Policy
 	now         func() time.Time
 }
 
-func NewAgentService(identity domain.Identity, inventory LocalInventory, operator LocalOperator, controllers []ControllerGrant) (*AgentService, error) {
+func NewAgentService(identity domain.Identity, inventory LocalInventory, operator LocalOperator, controllers []ControllerGrant, policies ...Policy) (*AgentService, error) {
 	if err := identity.Validate(); err != nil || inventory == nil || operator == nil || len(controllers) == 0 {
 		return nil, errors.New("remote agent dependencies and identity are required")
 	}
@@ -49,7 +51,11 @@ func NewAgentService(identity domain.Identity, inventory LocalInventory, operato
 		}
 		grants[fingerprint] = capabilities
 	}
-	return &AgentService{identity: identity, inventory: inventory, operator: operator, controllers: grants, now: time.Now}, nil
+	service := &AgentService{identity: identity, inventory: inventory, operator: operator, controllers: grants, now: time.Now}
+	if len(policies) > 0 {
+		service.policy = policies[0]
+	}
+	return service, nil
 }
 
 func (s *AgentService) Identity(controller string) (domain.Identity, error) {
@@ -77,6 +83,11 @@ func (s *AgentService) Operate(ctx context.Context, controller string, request d
 	}
 	if !s.authorized(controller, capability) {
 		return domain.OperationReceipt{}, ErrPermissionDenied
+	}
+	if s.policy != nil {
+		if err := s.policy.AuthorizeRemote(ctx, string(capability), string(request.Action)); err != nil {
+			return domain.OperationReceipt{}, fmt.Errorf("%w: %v", ErrPermissionDenied, err)
+		}
 	}
 	if !request.ConfirmRisk {
 		return domain.OperationReceipt{}, ErrConfirmationNeeded

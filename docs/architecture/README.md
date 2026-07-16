@@ -49,6 +49,11 @@ The [intelligent diagnostics and safe automation](intelligent-diagnostics.md)
 note defines Phase 17 bounded evidence, deterministic-first evaluation,
 provider validation, prompt-injection resistance, action authorization,
 rate-limited recipes, local feedback, and notification retention.
+The [optional federation guide](../federation.md),
+[signed team configuration guide](../team-configuration.md), and ADR-0016 define
+Phase 19's separate peer identity, mutual-TLS authorization, bounded inventory,
+signed portable policy, encrypted sync, curated metadata, and explicit
+anonymous-counter consent boundaries.
 
 ## Process topology
 
@@ -101,6 +106,10 @@ application interface or a typed event.
 | `agents` | MCP, provider adapters, proposals, sessions, and agent audit |
 | `diagnostics` | Bounded evidence, deterministic findings, reviewed suggestions, local feedback, alerts, and automation policy |
 | `terminal` | Owned PTYs, bounded streams, typed interactive launches, and session audit |
+| `plugins` | External package discovery, executable trust, scopes, supervision, and typed actions |
+| `fleet` | Authenticated peer identities, bounded inventory, grants, remote operations, and audit |
+| `team` | Publisher trust, signed portable bundles, restrictive policy, registry metadata, and encrypted sync |
+| `telemetry` | Explicit consent, fixed anonymous counters, payload preview, delivery, and opt-out deletion |
 | `platform` | OS capabilities without product policy |
 
 `foundation` is limited to stable primitives such as clocks, IDs, event

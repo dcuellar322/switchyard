@@ -23,3 +23,17 @@ registered-environment fields documented in the federation guide. It excludes
 repository locations, source, Git changes, logs, terminal output, secrets,
 environment values, and runtime-native identifiers. Switchyard does not supply
 the tunnel or relay remote traffic through a hosted service.
+
+Encrypted team sync contains only explicitly trusted public publisher records
+and verified portable configuration bundles. The standard age file excludes
+projects, repository paths and contents, machine credentials, fleet records,
+operations, logs, terminals, environment values, and runtime state. Decryption
+occurs in the CLI process and import is previewed before confirmation.
+
+Anonymous usage metrics are off by default and have no vendor-controlled
+destination. Opt-in requires an explicit HTTPS endpoint and displays the full
+payload: a random anonymous installation ID, Switchyard version, operating
+system, architecture, fixed operation-category counters, and generation time.
+It contains no project, machine, action, plugin, provider, path, command, log,
+diagnostic, or error detail. Disabling metrics clears the installation ID and
+all pending counters. A signed team policy may prohibit opt-in.

@@ -24,24 +24,31 @@ type SubmitRequest struct {
 	ActorID        string
 }
 
+// Observer receives a non-authoritative notification after a new durable
+// operation is accepted. Implementations must discard identifying input.
+type Observer interface {
+	ObserveOperation(context.Context, string)
+}
+
 // Coordinator serializes operation execution by project and persists progress.
 type Coordinator struct {
-	ctx      context.Context
-	repo     Repository
-	journal  events.Journal
-	executor Executor
-	now      func() time.Time
-	gates    *keyedGate
-	mu       sync.Mutex
-	active   map[string]context.CancelFunc
-	wg       sync.WaitGroup
+	ctx       context.Context
+	repo      Repository
+	journal   events.Journal
+	executor  Executor
+	now       func() time.Time
+	gates     *keyedGate
+	mu        sync.Mutex
+	active    map[string]context.CancelFunc
+	wg        sync.WaitGroup
+	observers []Observer
 }
 
 // NewCoordinator constructs the durable operation coordinator.
-func NewCoordinator(ctx context.Context, repo Repository, journal events.Journal, executor Executor) *Coordinator {
+func NewCoordinator(ctx context.Context, repo Repository, journal events.Journal, executor Executor, observers ...Observer) *Coordinator {
 	return &Coordinator{
 		ctx: ctx, repo: repo, journal: journal, executor: executor,
-		now: time.Now, gates: newKeyedGate(), active: make(map[string]context.CancelFunc),
+		now: time.Now, gates: newKeyedGate(), active: make(map[string]context.CancelFunc), observers: append([]Observer(nil), observers...),
 	}
 }
 
@@ -75,6 +82,9 @@ func (c *Coordinator) Submit(ctx context.Context, request SubmitRequest) (domain
 		Detail: []byte(`{}`), OccurredAt: now,
 	})
 	emitErr := c.emit(ctx, operation, "operation.queued", map[string]any{"kind": operation.Kind})
+	for _, observer := range c.observers {
+		observer.ObserveOperation(ctx, operation.Kind)
+	}
 	c.schedule(operation)
 	if auditErr != nil || emitErr != nil {
 		return operation, errors.Join(

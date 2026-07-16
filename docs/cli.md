@@ -83,6 +83,36 @@ replacement and lifecycle operation requires `--yes`. See the
 [federation guide](federation.md) for the separate agent-listener flags and
 trust model.
 
+Signed shared configuration is optional and remains independent of federation:
+
+```text
+switchyard team publisher list
+switchyard team publisher trust --name <name> --public-key <base64> --yes
+switchyard team key generate --output <new-private-key-file>
+switchyard team bundle sign <kind> <bundle-id> --name <name> --version <version>
+  --payload <json> --key <private-key-file> --output <new-bundle-file>
+switchyard team bundle install <bundle-file> --yes
+switchyard team template render <bundle> --set name=value
+switchyard team policy
+switchyard team registry
+switchyard team sync key-generate --output <new-age-identity>
+switchyard team sync export --recipient <age-recipient> --output <new-age-file>
+switchyard team sync preview <age-file> --identity <age-identity>
+switchyard team sync import <age-file> --identity <age-identity> --yes
+
+switchyard telemetry status
+switchyard telemetry enable --endpoint <https-url> --yes
+switchyard telemetry send
+switchyard telemetry disable
+```
+
+Private signing keys and age identities are written only as new owner-only
+files and never enter the daemon. Sync decrypts in memory and the preview lists
+signature-verified bundle IDs and replacements before import. `telemetry
+status` shows the complete current payload; telemetry is disabled and records
+nothing until explicit opt-in. See the
+[team configuration guide](team-configuration.md) and [privacy statement](privacy.md).
+
 ## Diagnosis and safe automation
 
 ```text

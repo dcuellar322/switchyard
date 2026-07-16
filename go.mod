@@ -5,6 +5,7 @@ go 1.26.0
 toolchain go1.26.5
 
 require (
+	filippo.io/age v1.3.1
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/coder/websocket v1.8.15
 	github.com/creack/pty v1.1.24
@@ -26,6 +27,7 @@ require (
 )
 
 require (
+	filippo.io/hpke v0.4.0 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.2 // indirect
@@ -72,6 +74,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect

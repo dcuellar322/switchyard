@@ -176,6 +176,18 @@ capability grants, bounded inventory, typed lifecycle operations, and durable
 audit. It remains disabled by default and local projects require no account or
 cloud service. See the [federation guide](docs/federation.md).
 
+Team configuration remains portable and account-free. Ed25519-signed project
+templates, restrictive policy packs, enterprise configuration, and curated
+plugin metadata install only from explicitly trusted public keys. Configuration
+sync uses standard age encryption, previews all signature and replacement
+effects, and excludes projects, credentials, logs, and secrets. See the
+[team configuration guide](docs/team-configuration.md).
+
+Anonymous usage counters are disabled by default and have no built-in
+destination. A user must review the exact bounded payload, supply an HTTPS
+endpoint, and opt in; opting out clears pending counters and the anonymous
+installation ID. Team policy may disable opt-in entirely.
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

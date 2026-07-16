@@ -20,6 +20,8 @@ import (
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrol "switchyard.dev/switchyard/internal/sourcecontrol/application"
+	team "switchyard.dev/switchyard/internal/team/application"
+	telemetry "switchyard.dev/switchyard/internal/telemetry/application"
 	terminalAdapters "switchyard.dev/switchyard/internal/terminal/adapters"
 	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
 	workspace "switchyard.dev/switchyard/internal/workspace/application"
@@ -95,7 +97,45 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeFleetError(w, r, err) || writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeTeamError(w, r, err) || writeTelemetryError(w, r, err) || writeFleetError(w, r, err) || writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeTeamError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, team.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "TEAM_CONFIGURATION_NOT_FOUND", "Team configuration not found", "No trusted publisher or installed bundle exists for this identifier.")
+	case errors.Is(err, team.ErrConfirmation):
+		writeProblem(w, r, http.StatusConflict, "TEAM_CONFIRMATION_REQUIRED", "Explicit confirmation required", "Trust and signed configuration changes require explicit review and confirmation.")
+	case errors.Is(err, team.ErrInvalidPublisher):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "PUBLISHER_INVALID", "Publisher identity invalid", "Provide an exact base64-encoded Ed25519 public key.")
+	case errors.Is(err, team.ErrPublisherUntrusted):
+		writeProblem(w, r, http.StatusForbidden, "PUBLISHER_UNTRUSTED", "Publisher is not trusted", "Trust the exact public signing key before installing its bundles.")
+	case errors.Is(err, team.ErrSignature):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "BUNDLE_SIGNATURE_INVALID", "Bundle signature invalid", "The canonical bundle does not match the trusted publisher signature.")
+	case errors.Is(err, team.ErrInvalidBundle):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "BUNDLE_INVALID", "Configuration bundle invalid", err.Error())
+	case errors.Is(err, team.ErrPolicyDenied):
+		writeProblem(w, r, http.StatusForbidden, "ENTERPRISE_POLICY_DENIED", "Enterprise policy denied capability", err.Error())
+	default:
+		return false
+	}
+	return true
+}
+
+func writeTelemetryError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, telemetry.ErrInvalidSettings):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "TELEMETRY_SETTINGS_INVALID", "Telemetry settings invalid", "Anonymous metrics require an explicit HTTPS endpoint.")
+	case errors.Is(err, telemetry.ErrConfirmation):
+		writeProblem(w, r, http.StatusConflict, "TELEMETRY_CONFIRMATION_REQUIRED", "Telemetry consent required", "Enabling anonymous metrics requires explicit confirmation.")
+	case errors.Is(err, telemetry.ErrDisabled):
+		writeProblem(w, r, http.StatusConflict, "TELEMETRY_DISABLED", "Anonymous metrics disabled", "Opt in before requesting delivery.")
+	case errors.Is(err, telemetry.ErrPolicyDenied):
+		writeProblem(w, r, http.StatusForbidden, "TELEMETRY_POLICY_DENIED", "Enterprise policy disables telemetry", "An installed signed policy pack disallows anonymous metrics.")
+	default:
+		return false
+	}
+	return true
 }
 
 func writeFleetError(w http.ResponseWriter, r *http.Request, err error) bool {

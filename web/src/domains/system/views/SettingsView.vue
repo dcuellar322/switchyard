@@ -4,6 +4,7 @@ import { computed, ref, watch } from "vue";
 import { formatBytes } from "../../../lib/format";
 import { useHostObservation } from "../composables/useHostObservation";
 import { useSystemInfo } from "../composables/useSystemInfo";
+import TelemetryPanel from "../../telemetry/components/TelemetryPanel.vue";
 
 const system = useSystemInfo();
 const host = useHostObservation();
@@ -52,7 +53,7 @@ watch(
       <p>Local control plane</p>
       <h1 id="settings-title">Settings</h1>
       <span
-        >Daemon identity, host capabilities, and browser-only preferences.</span
+        >Daemon identity, host capabilities, privacy, and browser preferences.</span
       >
     </header>
     <p v-if="system.isError.value" class="error" role="alert">
@@ -202,6 +203,7 @@ watch(
           provenance keep the interface aligned with the daemon contract.
         </p>
       </article>
+      <TelemetryPanel />
     </div>
   </section>
 </template>

@@ -40,6 +40,12 @@ type PeerClient interface {
 	Operate(context.Context, domain.Machine, domain.OperationRequest) (domain.OperationReceipt, error)
 }
 
+// Policy is an optional restrictive enterprise boundary. Local reviewed grants
+// still apply when no policy bundles are installed.
+type Policy interface {
+	AuthorizeRemote(context.Context, string, string) error
+}
+
 type Actor struct{ Type, ID string }
 
 type RegisterRequest struct {
@@ -52,14 +58,19 @@ type RegisterRequest struct {
 type Service struct {
 	repository Repository
 	peers      PeerClient
+	policy     Policy
 	now        func() time.Time
 }
 
-func NewService(repository Repository, peers PeerClient) (*Service, error) {
+func NewService(repository Repository, peers PeerClient, policies ...Policy) (*Service, error) {
 	if repository == nil || peers == nil {
 		return nil, errors.New("fleet service dependencies are required")
 	}
-	return &Service{repository: repository, peers: peers, now: time.Now}, nil
+	service := &Service{repository: repository, peers: peers, now: time.Now}
+	if len(policies) > 0 {
+		service.policy = policies[0]
+	}
+	return service, nil
 }
 
 func (s *Service) Register(ctx context.Context, request RegisterRequest, actor Actor) (domain.Machine, error) {
@@ -123,6 +134,11 @@ func (s *Service) ConfigureAccess(ctx context.Context, id string, enabled bool, 
 		return domain.Machine{}, err
 	}
 	for _, grant := range normalized {
+		if s.policy != nil {
+			if err := s.policy.AuthorizeRemote(ctx, string(grant), ""); err != nil {
+				return domain.Machine{}, fmt.Errorf("%w: %v", ErrPermissionDenied, err)
+			}
+		}
 		if len(machine.Capabilities) > 0 && !slices.Contains(machine.Capabilities, grant) {
 			return domain.Machine{}, fmt.Errorf("%w: peer does not declare %s", ErrPermissionDenied, grant)
 		}
@@ -184,6 +200,12 @@ func (s *Service) Operate(ctx context.Context, machineID string, request domain.
 	if !machine.HasGrant(capability) {
 		s.recordAudit(ctx, domain.AuditEvent{MachineID: machineID, Type: "remote.operation.denied", ActorType: actorType(actor), ActorID: actorID(actor), RequestID: request.RequestID, Detail: string(capability), OccurredAt: s.now().UTC()})
 		return domain.OperationReceipt{}, ErrPermissionDenied
+	}
+	if s.policy != nil {
+		if err := s.policy.AuthorizeRemote(ctx, string(capability), string(request.Action)); err != nil {
+			s.recordAudit(ctx, domain.AuditEvent{MachineID: machineID, Type: "remote.operation.denied", ActorType: actorType(actor), ActorID: actorID(actor), RequestID: request.RequestID, Detail: "enterprise policy", OccurredAt: s.now().UTC()})
+			return domain.OperationReceipt{}, fmt.Errorf("%w: %v", ErrPermissionDenied, err)
+		}
 	}
 	if !request.ConfirmRisk {
 		return domain.OperationReceipt{}, ErrConfirmationNeeded

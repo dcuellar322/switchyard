@@ -28,6 +28,10 @@ import (
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
 	"switchyard.dev/switchyard/internal/system/application"
+	teamApplication "switchyard.dev/switchyard/internal/team/application"
+	teamDomain "switchyard.dev/switchyard/internal/team/domain"
+	telemetryApplication "switchyard.dev/switchyard/internal/telemetry/application"
+	telemetryDomain "switchyard.dev/switchyard/internal/telemetry/domain"
 	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
 	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
@@ -67,6 +71,8 @@ type handler struct {
 	routes                  routeService
 	terminals               terminalService
 	fleet                   fleetService
+	team                    teamService
+	telemetry               telemetryService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +127,25 @@ type fleetService interface {
 	Snapshot(context.Context, string) (fleetDomain.Snapshot, error)
 	Operate(context.Context, string, fleetDomain.OperationRequest, fleetApplication.Actor) (fleetDomain.OperationReceipt, error)
 	Remove(context.Context, string, bool, fleetApplication.Actor) error
+}
+
+type teamService interface {
+	TrustPublisher(context.Context, string, string, bool, teamApplication.Actor) (teamDomain.Publisher, error)
+	Publishers(context.Context) ([]teamDomain.Publisher, error)
+	Install(context.Context, teamDomain.Bundle, bool, teamApplication.Actor) (teamDomain.Bundle, error)
+	Bundles(context.Context, teamDomain.BundleKind) ([]teamDomain.Bundle, error)
+	RenderTemplate(context.Context, string, map[string]string) (json.RawMessage, error)
+	Registry(context.Context) ([]teamDomain.RegistryEntry, error)
+	EffectivePolicy(context.Context) (teamDomain.EffectivePolicy, error)
+	ExportSync(context.Context) (teamDomain.SyncDocument, error)
+	PreviewSync(context.Context, teamDomain.SyncDocument) (teamDomain.SyncPreview, error)
+	ImportSync(context.Context, teamDomain.SyncDocument, bool, teamApplication.Actor) (teamDomain.SyncPreview, error)
+}
+
+type telemetryService interface {
+	Status(context.Context) (telemetryDomain.Status, error)
+	Configure(context.Context, bool, string, bool, telemetryApplication.Actor) (telemetryDomain.Status, error)
+	Send(context.Context) (telemetryDomain.Status, error)
 }
 
 type runtimeService interface {

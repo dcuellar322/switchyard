@@ -1363,6 +1363,90 @@ func (e SystemInfoStatus) Valid() bool {
 	}
 }
 
+// Defines values for TeamBundleSchemaVersion.
+const (
+	SwitchyardBundlev1 TeamBundleSchemaVersion = "switchyard.bundle/v1"
+)
+
+// Valid indicates whether the value is a known member of the TeamBundleSchemaVersion enum.
+func (e TeamBundleSchemaVersion) Valid() bool {
+	switch e {
+	case SwitchyardBundlev1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TeamBundleKind.
+const (
+	EnterpriseConfig TeamBundleKind = "enterprise-config"
+	PluginRegistry   TeamBundleKind = "plugin-registry"
+	PolicyPack       TeamBundleKind = "policy-pack"
+	ProjectTemplate  TeamBundleKind = "project-template"
+)
+
+// Valid indicates whether the value is a known member of the TeamBundleKind enum.
+func (e TeamBundleKind) Valid() bool {
+	switch e {
+	case EnterpriseConfig:
+		return true
+	case PluginRegistry:
+		return true
+	case PolicyPack:
+		return true
+	case ProjectTemplate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TeamBundleSignatureAlgorithm.
+const (
+	Ed25519 TeamBundleSignatureAlgorithm = "Ed25519"
+)
+
+// Valid indicates whether the value is a known member of the TeamBundleSignatureAlgorithm enum.
+func (e TeamBundleSignatureAlgorithm) Valid() bool {
+	switch e {
+	case Ed25519:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TeamSyncDocumentSchemaVersion.
+const (
+	SwitchyardSyncv1 TeamSyncDocumentSchemaVersion = "switchyard.sync/v1"
+)
+
+// Valid indicates whether the value is a known member of the TeamSyncDocumentSchemaVersion enum.
+func (e TeamSyncDocumentSchemaVersion) Valid() bool {
+	switch e {
+	case SwitchyardSyncv1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TelemetryPayloadSchemaVersion.
+const (
+	SwitchyardTelemetryv1 TelemetryPayloadSchemaVersion = "switchyard.telemetry/v1"
+)
+
+// Valid indicates whether the value is a known member of the TelemetryPayloadSchemaVersion enum.
+func (e TelemetryPayloadSchemaVersion) Valid() bool {
+	switch e {
+	case SwitchyardTelemetryv1:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TerminalSessionCapturePolicy.
 const (
 	UserVisibleTerminalOutputOnly TerminalSessionCapturePolicy = "user_visible_terminal_output_only"
@@ -2019,6 +2103,20 @@ type CreateManifestProposalRequest struct {
 	Path string `json:"path"`
 }
 
+// CuratedPlugin defines model for CuratedPlugin.
+type CuratedPlugin struct {
+	Capabilities  []string `json:"capabilities"`
+	Documentation *string  `json:"documentation,omitempty"`
+	DownloadUrl   string   `json:"downloadUrl"`
+	Id            string   `json:"id"`
+	Name          string   `json:"name"`
+	Platforms     []string `json:"platforms"`
+	Publisher     string   `json:"publisher"`
+	Sha256        string   `json:"sha256"`
+	Summary       string   `json:"summary"`
+	Version       string   `json:"version"`
+}
+
 // Diagnosis defines model for Diagnosis.
 type Diagnosis struct {
 	BundleBytes    int                      `json:"bundleBytes"`
@@ -2155,6 +2253,16 @@ type EffectiveManifest struct {
 	Manifest   map[string]interface{} `json:"manifest"`
 	Provenance map[string]string      `json:"provenance"`
 	Sources    []ManifestSource       `json:"sources"`
+}
+
+// EffectiveTeamPolicy defines model for EffectiveTeamPolicy.
+type EffectiveTeamPolicy struct {
+	AllowedPluginPublishers    []string `json:"allowedPluginPublishers"`
+	AllowedRemoteActions       []string `json:"allowedRemoteActions"`
+	AllowedRemoteCapabilities  []string `json:"allowedRemoteCapabilities"`
+	RequireSignedConfiguration bool     `json:"requireSignedConfiguration"`
+	SourceBundleIds            []string `json:"sourceBundleIds"`
+	TelemetryAllowed           bool     `json:"telemetryAllowed"`
 }
 
 // EnvironmentPortLease defines model for EnvironmentPortLease.
@@ -3023,6 +3131,137 @@ type SystemInfo struct {
 // SystemInfoStatus defines model for SystemInfo.Status.
 type SystemInfoStatus string
 
+// TeamBundle defines model for TeamBundle.
+type TeamBundle struct {
+	InstalledAt   *time.Time              `json:"installedAt,omitempty"`
+	Kind          TeamBundleKind          `json:"kind"`
+	Metadata      TeamBundleMetadata      `json:"metadata"`
+	Payload       map[string]interface{}  `json:"payload"`
+	SchemaVersion TeamBundleSchemaVersion `json:"schemaVersion"`
+	Signature     TeamBundleSignature     `json:"signature"`
+}
+
+// TeamBundleSchemaVersion defines model for TeamBundle.SchemaVersion.
+type TeamBundleSchemaVersion string
+
+// TeamBundleInstallRequest defines model for TeamBundleInstallRequest.
+type TeamBundleInstallRequest struct {
+	Bundle      TeamBundle `json:"bundle"`
+	ConfirmRisk bool       `json:"confirmRisk"`
+}
+
+// TeamBundleKind defines model for TeamBundleKind.
+type TeamBundleKind string
+
+// TeamBundleMetadata defines model for TeamBundleMetadata.
+type TeamBundleMetadata struct {
+	CreatedAt   time.Time  `json:"createdAt"`
+	ExpiresAt   *time.Time `json:"expiresAt,omitempty"`
+	Id          string     `json:"id"`
+	Name        string     `json:"name"`
+	PublisherId string     `json:"publisherId"`
+	Version     string     `json:"version"`
+}
+
+// TeamBundleSignature defines model for TeamBundleSignature.
+type TeamBundleSignature struct {
+	Algorithm TeamBundleSignatureAlgorithm `json:"algorithm"`
+	KeyId     string                       `json:"keyId"`
+	Value     string                       `json:"value"`
+}
+
+// TeamBundleSignatureAlgorithm defines model for TeamBundleSignature.Algorithm.
+type TeamBundleSignatureAlgorithm string
+
+// TeamPublisher defines model for TeamPublisher.
+type TeamPublisher struct {
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	PublicKey string    `json:"publicKey"`
+	TrustedAt time.Time `json:"trustedAt"`
+}
+
+// TeamPublisherTrustRequest defines model for TeamPublisherTrustRequest.
+type TeamPublisherTrustRequest struct {
+	ConfirmRisk bool   `json:"confirmRisk"`
+	Name        string `json:"name"`
+	PublicKey   string `json:"publicKey"`
+}
+
+// TeamSyncDocument defines model for TeamSyncDocument.
+type TeamSyncDocument struct {
+	Bundles       []TeamBundle                  `json:"bundles"`
+	ExportedAt    time.Time                     `json:"exportedAt"`
+	Publishers    []TeamPublisher               `json:"publishers"`
+	SchemaVersion TeamSyncDocumentSchemaVersion `json:"schemaVersion"`
+}
+
+// TeamSyncDocumentSchemaVersion defines model for TeamSyncDocument.SchemaVersion.
+type TeamSyncDocumentSchemaVersion string
+
+// TeamSyncImportRequest defines model for TeamSyncImportRequest.
+type TeamSyncImportRequest struct {
+	ConfirmRisk bool             `json:"confirmRisk"`
+	Document    TeamSyncDocument `json:"document"`
+}
+
+// TeamSyncPreview defines model for TeamSyncPreview.
+type TeamSyncPreview struct {
+	BundleCount    int      `json:"bundleCount"`
+	BundleIds      []string `json:"bundleIds"`
+	PublisherCount int      `json:"publisherCount"`
+	Warnings       []string `json:"warnings"`
+}
+
+// TeamTemplateRenderRequest defines model for TeamTemplateRenderRequest.
+type TeamTemplateRenderRequest struct {
+	Values map[string]string `json:"values"`
+}
+
+// TelemetryCounter defines model for TelemetryCounter.
+type TelemetryCounter struct {
+	Name  string `json:"name"`
+	Value int64  `json:"value"`
+}
+
+// TelemetryPayload defines model for TelemetryPayload.
+type TelemetryPayload struct {
+	Architecture   string                        `json:"architecture"`
+	Counters       []TelemetryCounter            `json:"counters"`
+	GeneratedAt    time.Time                     `json:"generatedAt"`
+	InstallationId string                        `json:"installationId"`
+	Os             string                        `json:"os"`
+	SchemaVersion  TelemetryPayloadSchemaVersion `json:"schemaVersion"`
+	Version        string                        `json:"version"`
+}
+
+// TelemetryPayloadSchemaVersion defines model for TelemetryPayload.SchemaVersion.
+type TelemetryPayloadSchemaVersion string
+
+// TelemetrySettings defines model for TelemetrySettings.
+type TelemetrySettings struct {
+	Enabled        bool      `json:"enabled"`
+	Endpoint       *string   `json:"endpoint,omitempty"`
+	InstallationId *string   `json:"installationId,omitempty"`
+	UpdatedAt      time.Time `json:"updatedAt"`
+}
+
+// TelemetrySettingsRequest defines model for TelemetrySettingsRequest.
+type TelemetrySettingsRequest struct {
+	ConfirmRisk bool    `json:"confirmRisk"`
+	Enabled     bool    `json:"enabled"`
+	Endpoint    *string `json:"endpoint,omitempty"`
+}
+
+// TelemetryStatus defines model for TelemetryStatus.
+type TelemetryStatus struct {
+	Counters   []TelemetryCounter `json:"counters"`
+	LastError  *string            `json:"lastError,omitempty"`
+	LastSentAt *time.Time         `json:"lastSentAt,omitempty"`
+	Preview    *TelemetryPayload  `json:"preview,omitempty"`
+	Settings   TelemetrySettings  `json:"settings"`
+}
+
 // TerminalSession defines model for TerminalSession.
 type TerminalSession struct {
 	ActionId          *string                          `json:"actionId,omitempty"`
@@ -3245,6 +3484,9 @@ type WorkspaceUpdate struct {
 // ActionId defines model for ActionId.
 type ActionId = string
 
+// BundleId defines model for BundleId.
+type BundleId = string
+
 // DiagnosisId defines model for DiagnosisId.
 type DiagnosisId = string
 
@@ -3436,6 +3678,11 @@ type GetCleanupPreviewParams struct {
 	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
 }
 
+// ListTeamBundlesParams defines parameters for ListTeamBundles.
+type ListTeamBundlesParams struct {
+	Kind *TeamBundleKind `form:"kind,omitempty" json:"kind,omitempty"`
+}
+
 // ListTerminalSessionsParams defines parameters for ListTerminalSessions.
 type ListTerminalSessionsParams struct {
 	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
@@ -3530,6 +3777,24 @@ type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
 
 // PlanProjectRuntimeJSONRequestBody defines body for PlanProjectRuntime for application/json ContentType.
 type PlanProjectRuntimeJSONRequestBody = RuntimeActionRequest
+
+// InstallTeamBundleJSONRequestBody defines body for InstallTeamBundle for application/json ContentType.
+type InstallTeamBundleJSONRequestBody = TeamBundleInstallRequest
+
+// TrustTeamPublisherJSONRequestBody defines body for TrustTeamPublisher for application/json ContentType.
+type TrustTeamPublisherJSONRequestBody = TeamPublisherTrustRequest
+
+// ImportTeamSyncJSONRequestBody defines body for ImportTeamSync for application/json ContentType.
+type ImportTeamSyncJSONRequestBody = TeamSyncImportRequest
+
+// PreviewTeamSyncJSONRequestBody defines body for PreviewTeamSync for application/json ContentType.
+type PreviewTeamSyncJSONRequestBody = TeamSyncDocument
+
+// RenderTeamProjectTemplateJSONRequestBody defines body for RenderTeamProjectTemplate for application/json ContentType.
+type RenderTeamProjectTemplateJSONRequestBody = TeamTemplateRenderRequest
+
+// UpdateTelemetrySettingsJSONRequestBody defines body for UpdateTelemetrySettings for application/json ContentType.
+type UpdateTelemetrySettingsJSONRequestBody = TelemetrySettingsRequest
 
 // CreateTerminalSessionJSONRequestBody defines body for CreateTerminalSession for application/json ContentType.
 type CreateTerminalSessionJSONRequestBody = TerminalSessionCreate
@@ -3742,6 +4007,9 @@ type ClientInterface interface {
 	// CancelOperation request
 	CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListCuratedPlugins request
+	ListCuratedPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPlugins request
 	ListPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3874,6 +4142,54 @@ type ClientInterface interface {
 
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTeamBundles request
+	ListTeamBundles(ctx context.Context, params *ListTeamBundlesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// InstallTeamBundleWithBody request with any body
+	InstallTeamBundleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	InstallTeamBundle(ctx context.Context, body InstallTeamBundleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetEffectiveTeamPolicy request
+	GetEffectiveTeamPolicy(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTeamPublishers request
+	ListTeamPublishers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TrustTeamPublisherWithBody request with any body
+	TrustTeamPublisherWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TrustTeamPublisher(ctx context.Context, body TrustTeamPublisherJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ExportTeamSync request
+	ExportTeamSync(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ImportTeamSyncWithBody request with any body
+	ImportTeamSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ImportTeamSync(ctx context.Context, body ImportTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PreviewTeamSyncWithBody request with any body
+	PreviewTeamSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PreviewTeamSync(ctx context.Context, body PreviewTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RenderTeamProjectTemplateWithBody request with any body
+	RenderTeamProjectTemplateWithBody(ctx context.Context, bundleId BundleId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenderTeamProjectTemplate(ctx context.Context, bundleId BundleId, body RenderTeamProjectTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetTelemetryStatus request
+	GetTelemetryStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateTelemetrySettingsWithBody request with any body
+	UpdateTelemetrySettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateTelemetrySettings(ctx context.Context, body UpdateTelemetrySettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendTelemetryNow request
+	SendTelemetryNow(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListTerminalSessions request
 	ListTerminalSessions(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4466,6 +4782,18 @@ func (c *Client) CancelOperation(ctx context.Context, operationId OperationId, p
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListCuratedPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListCuratedPluginsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPluginsRequest(c.Server)
 	if err != nil {
@@ -5020,6 +5348,222 @@ func (c *Client) ListLocalRoutes(ctx context.Context, reqEditors ...RequestEdito
 
 func (c *Client) GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSystemRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListTeamBundles(ctx context.Context, params *ListTeamBundlesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTeamBundlesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) InstallTeamBundleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallTeamBundleRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) InstallTeamBundle(ctx context.Context, body InstallTeamBundleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallTeamBundleRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetEffectiveTeamPolicy(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEffectiveTeamPolicyRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListTeamPublishers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTeamPublishersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TrustTeamPublisherWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustTeamPublisherRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TrustTeamPublisher(ctx context.Context, body TrustTeamPublisherJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustTeamPublisherRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ExportTeamSync(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExportTeamSyncRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ImportTeamSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewImportTeamSyncRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ImportTeamSync(ctx context.Context, body ImportTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewImportTeamSyncRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PreviewTeamSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPreviewTeamSyncRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PreviewTeamSync(ctx context.Context, body PreviewTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPreviewTeamSyncRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenderTeamProjectTemplateWithBody(ctx context.Context, bundleId BundleId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenderTeamProjectTemplateRequestWithBody(c.Server, bundleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenderTeamProjectTemplate(ctx context.Context, bundleId BundleId, body RenderTeamProjectTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenderTeamProjectTemplateRequest(c.Server, bundleId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetTelemetryStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetTelemetryStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateTelemetrySettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTelemetrySettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateTelemetrySettings(ctx context.Context, body UpdateTelemetrySettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTelemetrySettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendTelemetryNow(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendTelemetryNowRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -6712,6 +7256,33 @@ func NewCancelOperationRequest(server string, operationId OperationId, params *C
 
 		req.Header.Set("Idempotency-Key", headerParam0)
 
+	}
+
+	return req, nil
+}
+
+// NewListCuratedPluginsRequest generates requests for ListCuratedPlugins
+func NewListCuratedPluginsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugin-registry")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -8471,6 +9042,442 @@ func NewGetSystemRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewListTeamBundlesRequest generates requests for ListTeamBundles
+func NewListTeamBundlesRequest(server string, params *ListTeamBundlesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/bundles")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Kind != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "kind", *params.Kind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewInstallTeamBundleRequest calls the generic InstallTeamBundle builder with application/json body
+func NewInstallTeamBundleRequest(server string, body InstallTeamBundleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewInstallTeamBundleRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewInstallTeamBundleRequestWithBody generates requests for InstallTeamBundle with any type of body
+func NewInstallTeamBundleRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/bundles")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEffectiveTeamPolicyRequest generates requests for GetEffectiveTeamPolicy
+func NewGetEffectiveTeamPolicyRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/policy")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListTeamPublishersRequest generates requests for ListTeamPublishers
+func NewListTeamPublishersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/publishers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewTrustTeamPublisherRequest calls the generic TrustTeamPublisher builder with application/json body
+func NewTrustTeamPublisherRequest(server string, body TrustTeamPublisherJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTrustTeamPublisherRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewTrustTeamPublisherRequestWithBody generates requests for TrustTeamPublisher with any type of body
+func NewTrustTeamPublisherRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/publishers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewExportTeamSyncRequest generates requests for ExportTeamSync
+func NewExportTeamSyncRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/sync")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewImportTeamSyncRequest calls the generic ImportTeamSync builder with application/json body
+func NewImportTeamSyncRequest(server string, body ImportTeamSyncJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewImportTeamSyncRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewImportTeamSyncRequestWithBody generates requests for ImportTeamSync with any type of body
+func NewImportTeamSyncRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/sync/import")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPreviewTeamSyncRequest calls the generic PreviewTeamSync builder with application/json body
+func NewPreviewTeamSyncRequest(server string, body PreviewTeamSyncJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPreviewTeamSyncRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPreviewTeamSyncRequestWithBody generates requests for PreviewTeamSync with any type of body
+func NewPreviewTeamSyncRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/sync/preview")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRenderTeamProjectTemplateRequest calls the generic RenderTeamProjectTemplate builder with application/json body
+func NewRenderTeamProjectTemplateRequest(server string, bundleId BundleId, body RenderTeamProjectTemplateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenderTeamProjectTemplateRequestWithBody(server, bundleId, "application/json", bodyReader)
+}
+
+// NewRenderTeamProjectTemplateRequestWithBody generates requests for RenderTeamProjectTemplate with any type of body
+func NewRenderTeamProjectTemplateRequestWithBody(server string, bundleId BundleId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "bundleId", bundleId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/templates/%s/render", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetTelemetryStatusRequest generates requests for GetTelemetryStatus
+func NewGetTelemetryStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/telemetry")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateTelemetrySettingsRequest calls the generic UpdateTelemetrySettings builder with application/json body
+func NewUpdateTelemetrySettingsRequest(server string, body UpdateTelemetrySettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateTelemetrySettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateTelemetrySettingsRequestWithBody generates requests for UpdateTelemetrySettings with any type of body
+func NewUpdateTelemetrySettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/telemetry")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSendTelemetryNowRequest generates requests for SendTelemetryNow
+func NewSendTelemetryNowRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/telemetry/send")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListTerminalSessionsRequest generates requests for ListTerminalSessions
 func NewListTerminalSessionsRequest(server string, params *ListTerminalSessionsParams) (*http.Request, error) {
 	var err error
@@ -9109,6 +10116,9 @@ type ClientWithResponsesInterface interface {
 	// CancelOperationWithResponse request
 	CancelOperationWithResponse(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*CancelOperationResponse, error)
 
+	// ListCuratedPluginsWithResponse request
+	ListCuratedPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCuratedPluginsResponse, error)
+
 	// ListPluginsWithResponse request
 	ListPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPluginsResponse, error)
 
@@ -9241,6 +10251,54 @@ type ClientWithResponsesInterface interface {
 
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
+
+	// ListTeamBundlesWithResponse request
+	ListTeamBundlesWithResponse(ctx context.Context, params *ListTeamBundlesParams, reqEditors ...RequestEditorFn) (*ListTeamBundlesResponse, error)
+
+	// InstallTeamBundleWithBodyWithResponse request with any body
+	InstallTeamBundleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallTeamBundleResponse, error)
+
+	InstallTeamBundleWithResponse(ctx context.Context, body InstallTeamBundleJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallTeamBundleResponse, error)
+
+	// GetEffectiveTeamPolicyWithResponse request
+	GetEffectiveTeamPolicyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetEffectiveTeamPolicyResponse, error)
+
+	// ListTeamPublishersWithResponse request
+	ListTeamPublishersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListTeamPublishersResponse, error)
+
+	// TrustTeamPublisherWithBodyWithResponse request with any body
+	TrustTeamPublisherWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustTeamPublisherResponse, error)
+
+	TrustTeamPublisherWithResponse(ctx context.Context, body TrustTeamPublisherJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustTeamPublisherResponse, error)
+
+	// ExportTeamSyncWithResponse request
+	ExportTeamSyncWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ExportTeamSyncResponse, error)
+
+	// ImportTeamSyncWithBodyWithResponse request with any body
+	ImportTeamSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportTeamSyncResponse, error)
+
+	ImportTeamSyncWithResponse(ctx context.Context, body ImportTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportTeamSyncResponse, error)
+
+	// PreviewTeamSyncWithBodyWithResponse request with any body
+	PreviewTeamSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewTeamSyncResponse, error)
+
+	PreviewTeamSyncWithResponse(ctx context.Context, body PreviewTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*PreviewTeamSyncResponse, error)
+
+	// RenderTeamProjectTemplateWithBodyWithResponse request with any body
+	RenderTeamProjectTemplateWithBodyWithResponse(ctx context.Context, bundleId BundleId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenderTeamProjectTemplateResponse, error)
+
+	RenderTeamProjectTemplateWithResponse(ctx context.Context, bundleId BundleId, body RenderTeamProjectTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*RenderTeamProjectTemplateResponse, error)
+
+	// GetTelemetryStatusWithResponse request
+	GetTelemetryStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetTelemetryStatusResponse, error)
+
+	// UpdateTelemetrySettingsWithBodyWithResponse request with any body
+	UpdateTelemetrySettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTelemetrySettingsResponse, error)
+
+	UpdateTelemetrySettingsWithResponse(ctx context.Context, body UpdateTelemetrySettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTelemetrySettingsResponse, error)
+
+	// SendTelemetryNowWithResponse request
+	SendTelemetryNowWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendTelemetryNowResponse, error)
 
 	// ListTerminalSessionsWithResponse request
 	ListTerminalSessionsWithResponse(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*ListTerminalSessionsResponse, error)
@@ -10328,6 +11386,37 @@ func (r CancelOperationResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CancelOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListCuratedPluginsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]CuratedPlugin
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListCuratedPluginsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListCuratedPluginsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListCuratedPluginsResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -11541,6 +12630,378 @@ func (r GetSystemResponse) ContentType() string {
 	return ""
 }
 
+type ListTeamBundlesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]TeamBundle
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTeamBundlesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTeamBundlesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTeamBundlesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type InstallTeamBundleResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *TeamBundle
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r InstallTeamBundleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InstallTeamBundleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r InstallTeamBundleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetEffectiveTeamPolicyResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *EffectiveTeamPolicy
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEffectiveTeamPolicyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEffectiveTeamPolicyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetEffectiveTeamPolicyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListTeamPublishersResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]TeamPublisher
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTeamPublishersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTeamPublishersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTeamPublishersResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type TrustTeamPublisherResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *TeamPublisher
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r TrustTeamPublisherResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TrustTeamPublisherResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r TrustTeamPublisherResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ExportTeamSyncResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TeamSyncDocument
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ExportTeamSyncResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExportTeamSyncResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ExportTeamSyncResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ImportTeamSyncResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TeamSyncPreview
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ImportTeamSyncResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ImportTeamSyncResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ImportTeamSyncResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PreviewTeamSyncResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TeamSyncPreview
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r PreviewTeamSyncResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PreviewTeamSyncResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PreviewTeamSyncResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RenderTeamProjectTemplateResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *map[string]interface{}
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r RenderTeamProjectTemplateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenderTeamProjectTemplateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RenderTeamProjectTemplateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetTelemetryStatusResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TelemetryStatus
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetTelemetryStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetTelemetryStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetTelemetryStatusResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateTelemetrySettingsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TelemetryStatus
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateTelemetrySettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateTelemetrySettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateTelemetrySettingsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SendTelemetryNowResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TelemetryStatus
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r SendTelemetryNowResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendTelemetryNowResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SendTelemetryNowResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListTerminalSessionsResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -12252,6 +13713,15 @@ func (c *ClientWithResponses) CancelOperationWithResponse(ctx context.Context, o
 	return ParseCancelOperationResponse(rsp)
 }
 
+// ListCuratedPluginsWithResponse request returning *ListCuratedPluginsResponse
+func (c *ClientWithResponses) ListCuratedPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCuratedPluginsResponse, error) {
+	rsp, err := c.ListCuratedPlugins(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListCuratedPluginsResponse(rsp)
+}
+
 // ListPluginsWithResponse request returning *ListPluginsResponse
 func (c *ClientWithResponses) ListPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPluginsResponse, error) {
 	rsp, err := c.ListPlugins(ctx, reqEditors...)
@@ -12665,6 +14135,162 @@ func (c *ClientWithResponses) GetSystemWithResponse(ctx context.Context, reqEdit
 		return nil, err
 	}
 	return ParseGetSystemResponse(rsp)
+}
+
+// ListTeamBundlesWithResponse request returning *ListTeamBundlesResponse
+func (c *ClientWithResponses) ListTeamBundlesWithResponse(ctx context.Context, params *ListTeamBundlesParams, reqEditors ...RequestEditorFn) (*ListTeamBundlesResponse, error) {
+	rsp, err := c.ListTeamBundles(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTeamBundlesResponse(rsp)
+}
+
+// InstallTeamBundleWithBodyWithResponse request with arbitrary body returning *InstallTeamBundleResponse
+func (c *ClientWithResponses) InstallTeamBundleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallTeamBundleResponse, error) {
+	rsp, err := c.InstallTeamBundleWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallTeamBundleResponse(rsp)
+}
+
+func (c *ClientWithResponses) InstallTeamBundleWithResponse(ctx context.Context, body InstallTeamBundleJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallTeamBundleResponse, error) {
+	rsp, err := c.InstallTeamBundle(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallTeamBundleResponse(rsp)
+}
+
+// GetEffectiveTeamPolicyWithResponse request returning *GetEffectiveTeamPolicyResponse
+func (c *ClientWithResponses) GetEffectiveTeamPolicyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetEffectiveTeamPolicyResponse, error) {
+	rsp, err := c.GetEffectiveTeamPolicy(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEffectiveTeamPolicyResponse(rsp)
+}
+
+// ListTeamPublishersWithResponse request returning *ListTeamPublishersResponse
+func (c *ClientWithResponses) ListTeamPublishersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListTeamPublishersResponse, error) {
+	rsp, err := c.ListTeamPublishers(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTeamPublishersResponse(rsp)
+}
+
+// TrustTeamPublisherWithBodyWithResponse request with arbitrary body returning *TrustTeamPublisherResponse
+func (c *ClientWithResponses) TrustTeamPublisherWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustTeamPublisherResponse, error) {
+	rsp, err := c.TrustTeamPublisherWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTrustTeamPublisherResponse(rsp)
+}
+
+func (c *ClientWithResponses) TrustTeamPublisherWithResponse(ctx context.Context, body TrustTeamPublisherJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustTeamPublisherResponse, error) {
+	rsp, err := c.TrustTeamPublisher(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTrustTeamPublisherResponse(rsp)
+}
+
+// ExportTeamSyncWithResponse request returning *ExportTeamSyncResponse
+func (c *ClientWithResponses) ExportTeamSyncWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ExportTeamSyncResponse, error) {
+	rsp, err := c.ExportTeamSync(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExportTeamSyncResponse(rsp)
+}
+
+// ImportTeamSyncWithBodyWithResponse request with arbitrary body returning *ImportTeamSyncResponse
+func (c *ClientWithResponses) ImportTeamSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportTeamSyncResponse, error) {
+	rsp, err := c.ImportTeamSyncWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseImportTeamSyncResponse(rsp)
+}
+
+func (c *ClientWithResponses) ImportTeamSyncWithResponse(ctx context.Context, body ImportTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportTeamSyncResponse, error) {
+	rsp, err := c.ImportTeamSync(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseImportTeamSyncResponse(rsp)
+}
+
+// PreviewTeamSyncWithBodyWithResponse request with arbitrary body returning *PreviewTeamSyncResponse
+func (c *ClientWithResponses) PreviewTeamSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewTeamSyncResponse, error) {
+	rsp, err := c.PreviewTeamSyncWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePreviewTeamSyncResponse(rsp)
+}
+
+func (c *ClientWithResponses) PreviewTeamSyncWithResponse(ctx context.Context, body PreviewTeamSyncJSONRequestBody, reqEditors ...RequestEditorFn) (*PreviewTeamSyncResponse, error) {
+	rsp, err := c.PreviewTeamSync(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePreviewTeamSyncResponse(rsp)
+}
+
+// RenderTeamProjectTemplateWithBodyWithResponse request with arbitrary body returning *RenderTeamProjectTemplateResponse
+func (c *ClientWithResponses) RenderTeamProjectTemplateWithBodyWithResponse(ctx context.Context, bundleId BundleId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenderTeamProjectTemplateResponse, error) {
+	rsp, err := c.RenderTeamProjectTemplateWithBody(ctx, bundleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenderTeamProjectTemplateResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenderTeamProjectTemplateWithResponse(ctx context.Context, bundleId BundleId, body RenderTeamProjectTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*RenderTeamProjectTemplateResponse, error) {
+	rsp, err := c.RenderTeamProjectTemplate(ctx, bundleId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenderTeamProjectTemplateResponse(rsp)
+}
+
+// GetTelemetryStatusWithResponse request returning *GetTelemetryStatusResponse
+func (c *ClientWithResponses) GetTelemetryStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetTelemetryStatusResponse, error) {
+	rsp, err := c.GetTelemetryStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetTelemetryStatusResponse(rsp)
+}
+
+// UpdateTelemetrySettingsWithBodyWithResponse request with arbitrary body returning *UpdateTelemetrySettingsResponse
+func (c *ClientWithResponses) UpdateTelemetrySettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTelemetrySettingsResponse, error) {
+	rsp, err := c.UpdateTelemetrySettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTelemetrySettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateTelemetrySettingsWithResponse(ctx context.Context, body UpdateTelemetrySettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTelemetrySettingsResponse, error) {
+	rsp, err := c.UpdateTelemetrySettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTelemetrySettingsResponse(rsp)
+}
+
+// SendTelemetryNowWithResponse request returning *SendTelemetryNowResponse
+func (c *ClientWithResponses) SendTelemetryNowWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendTelemetryNowResponse, error) {
+	rsp, err := c.SendTelemetryNow(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendTelemetryNowResponse(rsp)
 }
 
 // ListTerminalSessionsWithResponse request returning *ListTerminalSessionsResponse
@@ -13887,6 +15513,39 @@ func ParseCancelOperationResponse(rsp *http.Response) (*CancelOperationResponse,
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListCuratedPluginsResponse parses an HTTP response from a ListCuratedPluginsWithResponse call
+func ParseListCuratedPluginsResponse(rsp *http.Response) (*ListCuratedPluginsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListCuratedPluginsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []CuratedPlugin
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -15177,6 +16836,402 @@ func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	return response, nil
 }
 
+// ParseListTeamBundlesResponse parses an HTTP response from a ListTeamBundlesWithResponse call
+func ParseListTeamBundlesResponse(rsp *http.Response) (*ListTeamBundlesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTeamBundlesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []TeamBundle
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseInstallTeamBundleResponse parses an HTTP response from a InstallTeamBundleWithResponse call
+func ParseInstallTeamBundleResponse(rsp *http.Response) (*InstallTeamBundleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InstallTeamBundleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest TeamBundle
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEffectiveTeamPolicyResponse parses an HTTP response from a GetEffectiveTeamPolicyWithResponse call
+func ParseGetEffectiveTeamPolicyResponse(rsp *http.Response) (*GetEffectiveTeamPolicyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEffectiveTeamPolicyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EffectiveTeamPolicy
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTeamPublishersResponse parses an HTTP response from a ListTeamPublishersWithResponse call
+func ParseListTeamPublishersResponse(rsp *http.Response) (*ListTeamPublishersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTeamPublishersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []TeamPublisher
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTrustTeamPublisherResponse parses an HTTP response from a TrustTeamPublisherWithResponse call
+func ParseTrustTeamPublisherResponse(rsp *http.Response) (*TrustTeamPublisherResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TrustTeamPublisherResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest TeamPublisher
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseExportTeamSyncResponse parses an HTTP response from a ExportTeamSyncWithResponse call
+func ParseExportTeamSyncResponse(rsp *http.Response) (*ExportTeamSyncResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExportTeamSyncResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TeamSyncDocument
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseImportTeamSyncResponse parses an HTTP response from a ImportTeamSyncWithResponse call
+func ParseImportTeamSyncResponse(rsp *http.Response) (*ImportTeamSyncResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ImportTeamSyncResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TeamSyncPreview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePreviewTeamSyncResponse parses an HTTP response from a PreviewTeamSyncWithResponse call
+func ParsePreviewTeamSyncResponse(rsp *http.Response) (*PreviewTeamSyncResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PreviewTeamSyncResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TeamSyncPreview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRenderTeamProjectTemplateResponse parses an HTTP response from a RenderTeamProjectTemplateWithResponse call
+func ParseRenderTeamProjectTemplateResponse(rsp *http.Response) (*RenderTeamProjectTemplateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenderTeamProjectTemplateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetTelemetryStatusResponse parses an HTTP response from a GetTelemetryStatusWithResponse call
+func ParseGetTelemetryStatusResponse(rsp *http.Response) (*GetTelemetryStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetTelemetryStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TelemetryStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateTelemetrySettingsResponse parses an HTTP response from a UpdateTelemetrySettingsWithResponse call
+func ParseUpdateTelemetrySettingsResponse(rsp *http.Response) (*UpdateTelemetrySettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateTelemetrySettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TelemetryStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendTelemetryNowResponse parses an HTTP response from a SendTelemetryNowWithResponse call
+func ParseSendTelemetryNowResponse(rsp *http.Response) (*SendTelemetryNowResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendTelemetryNowResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TelemetryStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListTerminalSessionsResponse parses an HTTP response from a ListTerminalSessionsWithResponse call
 func ParseListTerminalSessionsResponse(rsp *http.Response) (*ListTerminalSessionsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -15604,6 +17659,9 @@ type ServerInterface interface {
 	// Request idempotent operation cancellation
 	// (POST /operations/{operationId}/cancel)
 	CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams)
+	// List metadata from installed signed plugin registry bundles
+	// (GET /plugin-registry)
+	ListCuratedPlugins(w http.ResponseWriter, r *http.Request)
 	// List discovered external plugins and reviewed grants
 	// (GET /plugins)
 	ListPlugins(w http.ResponseWriter, r *http.Request)
@@ -15721,6 +17779,42 @@ type ServerInterface interface {
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
+	// List installed verified team configuration bundles
+	// (GET /team/bundles)
+	ListTeamBundles(w http.ResponseWriter, r *http.Request, params ListTeamBundlesParams)
+	// Verify and install a bundle from a trusted publisher
+	// (POST /team/bundles)
+	InstallTeamBundle(w http.ResponseWriter, r *http.Request)
+	// Read the restrictive merge of installed signed policy bundles
+	// (GET /team/policy)
+	GetEffectiveTeamPolicy(w http.ResponseWriter, r *http.Request)
+	// List explicitly trusted team signing identities
+	// (GET /team/publishers)
+	ListTeamPublishers(w http.ResponseWriter, r *http.Request)
+	// Trust an exact Ed25519 public signing key
+	// (POST /team/publishers)
+	TrustTeamPublisher(w http.ResponseWriter, r *http.Request)
+	// Export configuration-only data for client-side age encryption
+	// (GET /team/sync)
+	ExportTeamSync(w http.ResponseWriter, r *http.Request)
+	// Apply an already previewed configuration-only sync document
+	// (POST /team/sync/import)
+	ImportTeamSync(w http.ResponseWriter, r *http.Request)
+	// Verify publishers, signatures, limits, and changes before import
+	// (POST /team/sync/preview)
+	PreviewTeamSync(w http.ResponseWriter, r *http.Request)
+	// Render and validate a signed project template
+	// (POST /team/templates/{bundleId}/render)
+	RenderTeamProjectTemplate(w http.ResponseWriter, r *http.Request, bundleId BundleId)
+	// Read local anonymous-metrics consent, counters, and delivery state
+	// (GET /telemetry)
+	GetTelemetryStatus(w http.ResponseWriter, r *http.Request)
+	// Explicitly enable or disable and clear anonymous metrics
+	// (PUT /telemetry)
+	UpdateTelemetrySettings(w http.ResponseWriter, r *http.Request)
+	// Send the current bounded anonymous counters after opt-in
+	// (POST /telemetry/send)
+	SendTelemetryNow(w http.ResponseWriter, r *http.Request)
 	// List terminal sessions owned by the current local principal
 	// (GET /terminal-sessions)
 	ListTerminalSessions(w http.ResponseWriter, r *http.Request, params ListTerminalSessionsParams)
@@ -15961,6 +18055,12 @@ func (_ Unimplemented) CancelOperation(w http.ResponseWriter, r *http.Request, o
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// List metadata from installed signed plugin registry bundles
+// (GET /plugin-registry)
+func (_ Unimplemented) ListCuratedPlugins(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // List discovered external plugins and reviewed grants
 // (GET /plugins)
 func (_ Unimplemented) ListPlugins(w http.ResponseWriter, r *http.Request) {
@@ -16192,6 +18292,78 @@ func (_ Unimplemented) ListLocalRoutes(w http.ResponseWriter, r *http.Request) {
 // Read daemon and storage status
 // (GET /system)
 func (_ Unimplemented) GetSystem(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List installed verified team configuration bundles
+// (GET /team/bundles)
+func (_ Unimplemented) ListTeamBundles(w http.ResponseWriter, r *http.Request, params ListTeamBundlesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Verify and install a bundle from a trusted publisher
+// (POST /team/bundles)
+func (_ Unimplemented) InstallTeamBundle(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read the restrictive merge of installed signed policy bundles
+// (GET /team/policy)
+func (_ Unimplemented) GetEffectiveTeamPolicy(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List explicitly trusted team signing identities
+// (GET /team/publishers)
+func (_ Unimplemented) ListTeamPublishers(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Trust an exact Ed25519 public signing key
+// (POST /team/publishers)
+func (_ Unimplemented) TrustTeamPublisher(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Export configuration-only data for client-side age encryption
+// (GET /team/sync)
+func (_ Unimplemented) ExportTeamSync(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Apply an already previewed configuration-only sync document
+// (POST /team/sync/import)
+func (_ Unimplemented) ImportTeamSync(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Verify publishers, signatures, limits, and changes before import
+// (POST /team/sync/preview)
+func (_ Unimplemented) PreviewTeamSync(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Render and validate a signed project template
+// (POST /team/templates/{bundleId}/render)
+func (_ Unimplemented) RenderTeamProjectTemplate(w http.ResponseWriter, r *http.Request, bundleId BundleId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read local anonymous-metrics consent, counters, and delivery state
+// (GET /telemetry)
+func (_ Unimplemented) GetTelemetryStatus(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Explicitly enable or disable and clear anonymous metrics
+// (PUT /telemetry)
+func (_ Unimplemented) UpdateTelemetrySettings(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Send the current bounded anonymous counters after opt-in
+// (POST /telemetry/send)
+func (_ Unimplemented) SendTelemetryNow(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -17390,6 +19562,20 @@ func (siw *ServerInterfaceWrapper) CancelOperation(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CancelOperation(w, r, operationId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListCuratedPlugins operation middleware
+func (siw *ServerInterfaceWrapper) ListCuratedPlugins(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListCuratedPlugins(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -18761,6 +20947,205 @@ func (siw *ServerInterfaceWrapper) GetSystem(w http.ResponseWriter, r *http.Requ
 	handler.ServeHTTP(w, r)
 }
 
+// ListTeamBundles operation middleware
+func (siw *ServerInterfaceWrapper) ListTeamBundles(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListTeamBundlesParams
+
+	// ------------- Optional query parameter "kind" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "kind", r.URL.Query(), &params.Kind, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "kind"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "kind", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTeamBundles(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// InstallTeamBundle operation middleware
+func (siw *ServerInterfaceWrapper) InstallTeamBundle(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.InstallTeamBundle(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetEffectiveTeamPolicy operation middleware
+func (siw *ServerInterfaceWrapper) GetEffectiveTeamPolicy(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEffectiveTeamPolicy(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListTeamPublishers operation middleware
+func (siw *ServerInterfaceWrapper) ListTeamPublishers(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTeamPublishers(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// TrustTeamPublisher operation middleware
+func (siw *ServerInterfaceWrapper) TrustTeamPublisher(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.TrustTeamPublisher(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ExportTeamSync operation middleware
+func (siw *ServerInterfaceWrapper) ExportTeamSync(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ExportTeamSync(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ImportTeamSync operation middleware
+func (siw *ServerInterfaceWrapper) ImportTeamSync(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ImportTeamSync(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PreviewTeamSync operation middleware
+func (siw *ServerInterfaceWrapper) PreviewTeamSync(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PreviewTeamSync(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RenderTeamProjectTemplate operation middleware
+func (siw *ServerInterfaceWrapper) RenderTeamProjectTemplate(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "bundleId" -------------
+	var bundleId BundleId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "bundleId", chi.URLParam(r, "bundleId"), &bundleId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "bundleId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RenderTeamProjectTemplate(w, r, bundleId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetTelemetryStatus operation middleware
+func (siw *ServerInterfaceWrapper) GetTelemetryStatus(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetTelemetryStatus(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateTelemetrySettings operation middleware
+func (siw *ServerInterfaceWrapper) UpdateTelemetrySettings(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateTelemetrySettings(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SendTelemetryNow operation middleware
+func (siw *ServerInterfaceWrapper) SendTelemetryNow(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendTelemetryNow(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListTerminalSessions operation middleware
 func (siw *ServerInterfaceWrapper) ListTerminalSessions(w http.ResponseWriter, r *http.Request) {
 
@@ -19382,6 +21767,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/operations/{operationId}/cancel", wrapper.CancelOperation)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/plugin-registry", wrapper.ListCuratedPlugins)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/plugins", wrapper.ListPlugins)
 	})
 	r.Group(func(r chi.Router) {
@@ -19497,6 +21885,42 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/team/bundles", wrapper.ListTeamBundles)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/team/bundles", wrapper.InstallTeamBundle)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/team/policy", wrapper.GetEffectiveTeamPolicy)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/team/publishers", wrapper.ListTeamPublishers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/team/publishers", wrapper.TrustTeamPublisher)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/team/sync", wrapper.ExportTeamSync)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/team/sync/import", wrapper.ImportTeamSync)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/team/sync/preview", wrapper.PreviewTeamSync)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/team/templates/{bundleId}/render", wrapper.RenderTeamProjectTemplate)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/telemetry", wrapper.GetTelemetryStatus)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/telemetry", wrapper.UpdateTelemetrySettings)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/telemetry/send", wrapper.SendTelemetryNow)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/terminal-sessions", wrapper.ListTerminalSessions)

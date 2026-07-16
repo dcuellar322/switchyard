@@ -11,6 +11,7 @@ import PluginsView from "./domains/plugins/views/PluginsView.vue";
 import DiagnosticsView from "./domains/diagnostics/views/DiagnosticsView.vue";
 import SettingsView from "./domains/system/views/SettingsView.vue";
 import FleetView from "./domains/fleet/views/FleetView.vue";
+import TeamView from "./domains/team/views/TeamView.vue";
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -36,6 +37,7 @@ export const router = createRouter({
     { path: "/workspaces", name: "workspaces", component: WorkspacesView },
     { path: "/plugins", name: "plugins", component: PluginsView },
     { path: "/fleet", name: "fleet", component: FleetView },
+    { path: "/team", name: "team", component: TeamView },
     { path: "/companion", name: "companion", component: FleetView, props: { readOnly: true } },
     { path: "/agents", name: "agents", component: DiagnosticsView },
     { path: "/settings", name: "settings", component: SettingsView },
