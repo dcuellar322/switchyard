@@ -4,6 +4,72 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type PluginRegistration = {
+    id: string;
+    name: string;
+    version: string;
+    protocolVersion: string;
+    manifestPath: string;
+    fingerprint: string;
+    capabilities: Array<'project.inspect' | 'project.operate'>;
+    requestedScopes: Array<'project.metadata.read' | 'project.files.read' | 'project.operate'>;
+    grantedScopes: Array<'project.metadata.read' | 'project.files.read' | 'project.operate'>;
+    available: boolean;
+    enabled: boolean;
+    trust: 'untrusted' | 'trusted' | 'changed';
+    health: 'unknown' | 'healthy' | 'degraded' | 'unhealthy';
+    healthMessage?: string;
+    lastError?: string;
+    discoveredAt: string;
+    updatedAt: string;
+};
+
+export type PluginTrustRequest = {
+    fingerprint: string;
+};
+
+export type PluginEnableRequest = {
+    grantedScopes: Array<'project.metadata.read' | 'project.files.read' | 'project.operate'>;
+};
+
+export type PluginLogEntry = {
+    id: number;
+    pluginId: string;
+    level: 'debug' | 'info' | 'warning' | 'error';
+    message: string;
+    createdAt: string;
+};
+
+export type PluginFact = {
+    id: string;
+    label: string;
+    value: string;
+    source: string;
+    warning?: string;
+};
+
+export type PluginAction = {
+    id: string;
+    name: string;
+    description: string;
+    risk: 'read_only' | 'mutating' | 'networked' | 'destructive';
+};
+
+export type PluginInspection = {
+    summary: string;
+    facts: Array<PluginFact>;
+    actions: Array<PluginAction>;
+    warnings: Array<string>;
+    observedAt: string;
+};
+
+export type PluginOperationRequest = {
+    action: string;
+    input: {
+        [key: string]: unknown;
+    };
+};
+
 export type PortFact = {
     id: string;
     kind: 'declaration' | 'reservation' | 'binding';
@@ -945,6 +1011,8 @@ export type ProjectId = string;
 export type ActionId = string;
 
 export type WorkspaceId = string;
+
+export type PluginId = string;
 
 export type GetSystemData = {
     body?: never;
@@ -2480,3 +2548,249 @@ export type CreateAgentSessionResponses = {
 };
 
 export type CreateAgentSessionResponse = CreateAgentSessionResponses[keyof CreateAgentSessionResponses];
+
+export type ListPluginsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/plugins';
+};
+
+export type ListPluginsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListPluginsError = ListPluginsErrors[keyof ListPluginsErrors];
+
+export type ListPluginsResponses = {
+    /**
+     * Plugin registrations
+     */
+    200: Array<PluginRegistration>;
+};
+
+export type ListPluginsResponse = ListPluginsResponses[keyof ListPluginsResponses];
+
+export type RefreshPluginsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/plugins/refresh';
+};
+
+export type RefreshPluginsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type RefreshPluginsError = RefreshPluginsErrors[keyof RefreshPluginsErrors];
+
+export type RefreshPluginsResponses = {
+    /**
+     * Reconciled plugin registrations
+     */
+    200: Array<PluginRegistration>;
+};
+
+export type RefreshPluginsResponse = RefreshPluginsResponses[keyof RefreshPluginsResponses];
+
+export type TrustPluginData = {
+    body: PluginTrustRequest;
+    path: {
+        pluginId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/trust';
+};
+
+export type TrustPluginErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type TrustPluginError = TrustPluginErrors[keyof TrustPluginErrors];
+
+export type TrustPluginResponses = {
+    /**
+     * Trusted but disabled registration
+     */
+    200: PluginRegistration;
+};
+
+export type TrustPluginResponse = TrustPluginResponses[keyof TrustPluginResponses];
+
+export type EnablePluginData = {
+    body: PluginEnableRequest;
+    path: {
+        pluginId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/enable';
+};
+
+export type EnablePluginErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type EnablePluginError = EnablePluginErrors[keyof EnablePluginErrors];
+
+export type EnablePluginResponses = {
+    /**
+     * Enabled registration after a successful health call
+     */
+    200: PluginRegistration;
+};
+
+export type EnablePluginResponse = EnablePluginResponses[keyof EnablePluginResponses];
+
+export type DisablePluginData = {
+    body?: never;
+    path: {
+        pluginId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/disable';
+};
+
+export type DisablePluginErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type DisablePluginError = DisablePluginErrors[keyof DisablePluginErrors];
+
+export type DisablePluginResponses = {
+    /**
+     * Disabled registration
+     */
+    200: PluginRegistration;
+};
+
+export type DisablePluginResponse = DisablePluginResponses[keyof DisablePluginResponses];
+
+export type CheckPluginHealthData = {
+    body?: never;
+    path: {
+        pluginId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/health';
+};
+
+export type CheckPluginHealthErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CheckPluginHealthError = CheckPluginHealthErrors[keyof CheckPluginHealthErrors];
+
+export type CheckPluginHealthResponses = {
+    /**
+     * Updated registration health
+     */
+    200: PluginRegistration;
+};
+
+export type CheckPluginHealthResponse = CheckPluginHealthResponses[keyof CheckPluginHealthResponses];
+
+export type ListPluginLogsData = {
+    body?: never;
+    path: {
+        pluginId: string;
+    };
+    query?: {
+        limit?: number;
+    };
+    url: '/plugins/{pluginId}/logs';
+};
+
+export type ListPluginLogsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListPluginLogsError = ListPluginLogsErrors[keyof ListPluginLogsErrors];
+
+export type ListPluginLogsResponses = {
+    /**
+     * Newest plugin logs first
+     */
+    200: Array<PluginLogEntry>;
+};
+
+export type ListPluginLogsResponse = ListPluginLogsResponses[keyof ListPluginLogsResponses];
+
+export type InspectProjectWithPluginData = {
+    body?: never;
+    path: {
+        pluginId: string;
+        projectId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/projects/{projectId}/inspection';
+};
+
+export type InspectProjectWithPluginErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type InspectProjectWithPluginError = InspectProjectWithPluginErrors[keyof InspectProjectWithPluginErrors];
+
+export type InspectProjectWithPluginResponses = {
+    /**
+     * Structured plugin observations and advertised actions
+     */
+    200: PluginInspection;
+};
+
+export type InspectProjectWithPluginResponse = InspectProjectWithPluginResponses[keyof InspectProjectWithPluginResponses];
+
+export type CreatePluginOperationData = {
+    body: PluginOperationRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        pluginId: string;
+        projectId: string;
+    };
+    query?: never;
+    url: '/plugins/{pluginId}/projects/{projectId}/operations';
+};
+
+export type CreatePluginOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreatePluginOperationError = CreatePluginOperationErrors[keyof CreatePluginOperationErrors];
+
+export type CreatePluginOperationResponses = {
+    /**
+     * Durable plugin operation accepted
+     */
+    202: Operation;
+};
+
+export type CreatePluginOperationResponse = CreatePluginOperationResponses[keyof CreatePluginOperationResponses];

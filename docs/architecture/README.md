@@ -41,6 +41,10 @@ boundary.
 The [native desktop shell](desktop-shell.md) note defines Phase 15 sidecar
 attachment, compatibility gates, native adapter ownership, capability
 isolation, notification transitions, and signed update behavior.
+The [out-of-process plugin architecture](plugins.md) note defines Phase 16
+discovery, executable trust, JSON-RPC negotiation, capability enforcement,
+supervision, and local-user security boundaries. The public
+[plugin SDK guide](../plugin-sdk.md) documents authoring and compatibility.
 
 ## Process topology
 

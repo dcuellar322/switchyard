@@ -85,6 +85,12 @@ signed updates without moving product policy into Rust. See the
 [desktop architecture](docs/architecture/desktop-shell.md). The standalone Go
 binary remains the supported headless/server installation.
 
+External tools can integrate through the versioned, out-of-process plugin SDK
+without entering the daemon address space. Packages are discovered without
+execution, trusted by exact executable fingerprint, enabled with explicit
+scopes, supervised per call, and automatically disabled after identity changes.
+See the [plugin SDK and compatibility policy](docs/plugin-sdk.md).
+
 Trusted Docker Compose projects support reviewable lifecycle plans, durable
 start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,
 and current resource metrics. See the

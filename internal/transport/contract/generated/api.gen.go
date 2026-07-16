@@ -249,19 +249,19 @@ func (e GitStateOperationState) Valid() bool {
 
 // Defines values for HealthResultSeverity.
 const (
-	Critical HealthResultSeverity = "critical"
-	Info     HealthResultSeverity = "info"
-	Warning  HealthResultSeverity = "warning"
+	HealthResultSeverityCritical HealthResultSeverity = "critical"
+	HealthResultSeverityInfo     HealthResultSeverity = "info"
+	HealthResultSeverityWarning  HealthResultSeverity = "warning"
 )
 
 // Valid indicates whether the value is a known member of the HealthResultSeverity enum.
 func (e HealthResultSeverity) Valid() bool {
 	switch e {
-	case Critical:
+	case HealthResultSeverityCritical:
 		return true
-	case Info:
+	case HealthResultSeverityInfo:
 		return true
-	case Warning:
+	case HealthResultSeverityWarning:
 		return true
 	default:
 		return false
@@ -391,6 +391,180 @@ func (e OperationState) Valid() bool {
 	case OperationStateRunning:
 		return true
 	case OperationStateSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginActionRisk.
+const (
+	PluginActionRiskDestructive PluginActionRisk = "destructive"
+	PluginActionRiskMutating    PluginActionRisk = "mutating"
+	PluginActionRiskNetworked   PluginActionRisk = "networked"
+	PluginActionRiskReadOnly    PluginActionRisk = "read_only"
+)
+
+// Valid indicates whether the value is a known member of the PluginActionRisk enum.
+func (e PluginActionRisk) Valid() bool {
+	switch e {
+	case PluginActionRiskDestructive:
+		return true
+	case PluginActionRiskMutating:
+		return true
+	case PluginActionRiskNetworked:
+		return true
+	case PluginActionRiskReadOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginEnableRequestGrantedScopes.
+const (
+	PluginEnableRequestGrantedScopesProjectFilesRead    PluginEnableRequestGrantedScopes = "project.files.read"
+	PluginEnableRequestGrantedScopesProjectMetadataRead PluginEnableRequestGrantedScopes = "project.metadata.read"
+	PluginEnableRequestGrantedScopesProjectOperate      PluginEnableRequestGrantedScopes = "project.operate"
+)
+
+// Valid indicates whether the value is a known member of the PluginEnableRequestGrantedScopes enum.
+func (e PluginEnableRequestGrantedScopes) Valid() bool {
+	switch e {
+	case PluginEnableRequestGrantedScopesProjectFilesRead:
+		return true
+	case PluginEnableRequestGrantedScopesProjectMetadataRead:
+		return true
+	case PluginEnableRequestGrantedScopesProjectOperate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginLogEntryLevel.
+const (
+	PluginLogEntryLevelDebug   PluginLogEntryLevel = "debug"
+	PluginLogEntryLevelError   PluginLogEntryLevel = "error"
+	PluginLogEntryLevelInfo    PluginLogEntryLevel = "info"
+	PluginLogEntryLevelWarning PluginLogEntryLevel = "warning"
+)
+
+// Valid indicates whether the value is a known member of the PluginLogEntryLevel enum.
+func (e PluginLogEntryLevel) Valid() bool {
+	switch e {
+	case PluginLogEntryLevelDebug:
+		return true
+	case PluginLogEntryLevelError:
+		return true
+	case PluginLogEntryLevelInfo:
+		return true
+	case PluginLogEntryLevelWarning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginRegistrationCapabilities.
+const (
+	PluginRegistrationCapabilitiesProjectInspect PluginRegistrationCapabilities = "project.inspect"
+	PluginRegistrationCapabilitiesProjectOperate PluginRegistrationCapabilities = "project.operate"
+)
+
+// Valid indicates whether the value is a known member of the PluginRegistrationCapabilities enum.
+func (e PluginRegistrationCapabilities) Valid() bool {
+	switch e {
+	case PluginRegistrationCapabilitiesProjectInspect:
+		return true
+	case PluginRegistrationCapabilitiesProjectOperate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginRegistrationGrantedScopes.
+const (
+	PluginRegistrationGrantedScopesProjectFilesRead    PluginRegistrationGrantedScopes = "project.files.read"
+	PluginRegistrationGrantedScopesProjectMetadataRead PluginRegistrationGrantedScopes = "project.metadata.read"
+	PluginRegistrationGrantedScopesProjectOperate      PluginRegistrationGrantedScopes = "project.operate"
+)
+
+// Valid indicates whether the value is a known member of the PluginRegistrationGrantedScopes enum.
+func (e PluginRegistrationGrantedScopes) Valid() bool {
+	switch e {
+	case PluginRegistrationGrantedScopesProjectFilesRead:
+		return true
+	case PluginRegistrationGrantedScopesProjectMetadataRead:
+		return true
+	case PluginRegistrationGrantedScopesProjectOperate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginRegistrationHealth.
+const (
+	PluginRegistrationHealthDegraded  PluginRegistrationHealth = "degraded"
+	PluginRegistrationHealthHealthy   PluginRegistrationHealth = "healthy"
+	PluginRegistrationHealthUnhealthy PluginRegistrationHealth = "unhealthy"
+	PluginRegistrationHealthUnknown   PluginRegistrationHealth = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the PluginRegistrationHealth enum.
+func (e PluginRegistrationHealth) Valid() bool {
+	switch e {
+	case PluginRegistrationHealthDegraded:
+		return true
+	case PluginRegistrationHealthHealthy:
+		return true
+	case PluginRegistrationHealthUnhealthy:
+		return true
+	case PluginRegistrationHealthUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginRegistrationRequestedScopes.
+const (
+	PluginRegistrationRequestedScopesProjectFilesRead    PluginRegistrationRequestedScopes = "project.files.read"
+	PluginRegistrationRequestedScopesProjectMetadataRead PluginRegistrationRequestedScopes = "project.metadata.read"
+	PluginRegistrationRequestedScopesProjectOperate      PluginRegistrationRequestedScopes = "project.operate"
+)
+
+// Valid indicates whether the value is a known member of the PluginRegistrationRequestedScopes enum.
+func (e PluginRegistrationRequestedScopes) Valid() bool {
+	switch e {
+	case PluginRegistrationRequestedScopesProjectFilesRead:
+		return true
+	case PluginRegistrationRequestedScopesProjectMetadataRead:
+		return true
+	case PluginRegistrationRequestedScopesProjectOperate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginRegistrationTrust.
+const (
+	PluginRegistrationTrustChanged   PluginRegistrationTrust = "changed"
+	PluginRegistrationTrustTrusted   PluginRegistrationTrust = "trusted"
+	PluginRegistrationTrustUntrusted PluginRegistrationTrust = "untrusted"
+)
+
+// Valid indicates whether the value is a known member of the PluginRegistrationTrust enum.
+func (e PluginRegistrationTrust) Valid() bool {
+	switch e {
+	case PluginRegistrationTrustChanged:
+		return true
+	case PluginRegistrationTrustTrusted:
+		return true
+	case PluginRegistrationTrustUntrusted:
 		return true
 	default:
 		return false
@@ -543,19 +717,19 @@ func (e PortSuggestionRequestProtocol) Valid() bool {
 
 // Defines values for ProjectTrustState.
 const (
-	Pending  ProjectTrustState = "pending"
-	Rejected ProjectTrustState = "rejected"
-	Trusted  ProjectTrustState = "trusted"
+	ProjectTrustStatePending  ProjectTrustState = "pending"
+	ProjectTrustStateRejected ProjectTrustState = "rejected"
+	ProjectTrustStateTrusted  ProjectTrustState = "trusted"
 )
 
 // Valid indicates whether the value is a known member of the ProjectTrustState enum.
 func (e ProjectTrustState) Valid() bool {
 	switch e {
-	case Pending:
+	case ProjectTrustStatePending:
 		return true
-	case Rejected:
+	case ProjectTrustStateRejected:
 		return true
-	case Trusted:
+	case ProjectTrustStateTrusted:
 		return true
 	default:
 		return false
@@ -849,19 +1023,19 @@ func (e RuntimePlanDriver) Valid() bool {
 
 // Defines values for RuntimePlanRisk.
 const (
-	Caution     RuntimePlanRisk = "caution"
-	Destructive RuntimePlanRisk = "destructive"
-	Safe        RuntimePlanRisk = "safe"
+	RuntimePlanRiskCaution     RuntimePlanRisk = "caution"
+	RuntimePlanRiskDestructive RuntimePlanRisk = "destructive"
+	RuntimePlanRiskSafe        RuntimePlanRisk = "safe"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
 func (e RuntimePlanRisk) Valid() bool {
 	switch e {
-	case Caution:
+	case RuntimePlanRiskCaution:
 		return true
-	case Destructive:
+	case RuntimePlanRiskDestructive:
 		return true
-	case Safe:
+	case RuntimePlanRiskSafe:
 		return true
 	default:
 		return false
@@ -1191,52 +1365,52 @@ func (e WorkspaceOperationAction) Valid() bool {
 
 // Defines values for WorkspaceProjectStatus.
 const (
-	Blocked        WorkspaceProjectStatus = "blocked"
-	Cancelled      WorkspaceProjectStatus = "cancelled"
-	CheckingHealth WorkspaceProjectStatus = "checking_health"
-	Idle           WorkspaceProjectStatus = "idle"
-	Queued         WorkspaceProjectStatus = "queued"
-	RollbackFailed WorkspaceProjectStatus = "rollback_failed"
-	RolledBack     WorkspaceProjectStatus = "rolled_back"
-	RollingBack    WorkspaceProjectStatus = "rolling_back"
-	Running        WorkspaceProjectStatus = "running"
-	StartFailed    WorkspaceProjectStatus = "start_failed"
-	Starting       WorkspaceProjectStatus = "starting"
-	StopFailed     WorkspaceProjectStatus = "stop_failed"
-	Stopped        WorkspaceProjectStatus = "stopped"
-	Stopping       WorkspaceProjectStatus = "stopping"
+	WorkspaceProjectStatusBlocked        WorkspaceProjectStatus = "blocked"
+	WorkspaceProjectStatusCancelled      WorkspaceProjectStatus = "cancelled"
+	WorkspaceProjectStatusCheckingHealth WorkspaceProjectStatus = "checking_health"
+	WorkspaceProjectStatusIdle           WorkspaceProjectStatus = "idle"
+	WorkspaceProjectStatusQueued         WorkspaceProjectStatus = "queued"
+	WorkspaceProjectStatusRollbackFailed WorkspaceProjectStatus = "rollback_failed"
+	WorkspaceProjectStatusRolledBack     WorkspaceProjectStatus = "rolled_back"
+	WorkspaceProjectStatusRollingBack    WorkspaceProjectStatus = "rolling_back"
+	WorkspaceProjectStatusRunning        WorkspaceProjectStatus = "running"
+	WorkspaceProjectStatusStartFailed    WorkspaceProjectStatus = "start_failed"
+	WorkspaceProjectStatusStarting       WorkspaceProjectStatus = "starting"
+	WorkspaceProjectStatusStopFailed     WorkspaceProjectStatus = "stop_failed"
+	WorkspaceProjectStatusStopped        WorkspaceProjectStatus = "stopped"
+	WorkspaceProjectStatusStopping       WorkspaceProjectStatus = "stopping"
 )
 
 // Valid indicates whether the value is a known member of the WorkspaceProjectStatus enum.
 func (e WorkspaceProjectStatus) Valid() bool {
 	switch e {
-	case Blocked:
+	case WorkspaceProjectStatusBlocked:
 		return true
-	case Cancelled:
+	case WorkspaceProjectStatusCancelled:
 		return true
-	case CheckingHealth:
+	case WorkspaceProjectStatusCheckingHealth:
 		return true
-	case Idle:
+	case WorkspaceProjectStatusIdle:
 		return true
-	case Queued:
+	case WorkspaceProjectStatusQueued:
 		return true
-	case RollbackFailed:
+	case WorkspaceProjectStatusRollbackFailed:
 		return true
-	case RolledBack:
+	case WorkspaceProjectStatusRolledBack:
 		return true
-	case RollingBack:
+	case WorkspaceProjectStatusRollingBack:
 		return true
-	case Running:
+	case WorkspaceProjectStatusRunning:
 		return true
-	case StartFailed:
+	case WorkspaceProjectStatusStartFailed:
 		return true
-	case Starting:
+	case WorkspaceProjectStatusStarting:
 		return true
-	case StopFailed:
+	case WorkspaceProjectStatusStopFailed:
 		return true
-	case Stopped:
+	case WorkspaceProjectStatusStopped:
 		return true
-	case Stopping:
+	case WorkspaceProjectStatusStopping:
 		return true
 	default:
 		return false
@@ -1782,6 +1956,102 @@ type Operation struct {
 
 // OperationState defines model for OperationState.
 type OperationState string
+
+// PluginAction defines model for PluginAction.
+type PluginAction struct {
+	Description string           `json:"description"`
+	Id          string           `json:"id"`
+	Name        string           `json:"name"`
+	Risk        PluginActionRisk `json:"risk"`
+}
+
+// PluginActionRisk defines model for PluginAction.Risk.
+type PluginActionRisk string
+
+// PluginEnableRequest defines model for PluginEnableRequest.
+type PluginEnableRequest struct {
+	GrantedScopes []PluginEnableRequestGrantedScopes `json:"grantedScopes"`
+}
+
+// PluginEnableRequestGrantedScopes defines model for PluginEnableRequest.GrantedScopes.
+type PluginEnableRequestGrantedScopes string
+
+// PluginFact defines model for PluginFact.
+type PluginFact struct {
+	Id      string  `json:"id"`
+	Label   string  `json:"label"`
+	Source  string  `json:"source"`
+	Value   string  `json:"value"`
+	Warning *string `json:"warning,omitempty"`
+}
+
+// PluginInspection defines model for PluginInspection.
+type PluginInspection struct {
+	Actions    []PluginAction `json:"actions"`
+	Facts      []PluginFact   `json:"facts"`
+	ObservedAt time.Time      `json:"observedAt"`
+	Summary    string         `json:"summary"`
+	Warnings   []string       `json:"warnings"`
+}
+
+// PluginLogEntry defines model for PluginLogEntry.
+type PluginLogEntry struct {
+	CreatedAt time.Time           `json:"createdAt"`
+	Id        int64               `json:"id"`
+	Level     PluginLogEntryLevel `json:"level"`
+	Message   string              `json:"message"`
+	PluginId  string              `json:"pluginId"`
+}
+
+// PluginLogEntryLevel defines model for PluginLogEntry.Level.
+type PluginLogEntryLevel string
+
+// PluginOperationRequest defines model for PluginOperationRequest.
+type PluginOperationRequest struct {
+	Action string                 `json:"action"`
+	Input  map[string]interface{} `json:"input"`
+}
+
+// PluginRegistration defines model for PluginRegistration.
+type PluginRegistration struct {
+	Available       bool                                `json:"available"`
+	Capabilities    []PluginRegistrationCapabilities    `json:"capabilities"`
+	DiscoveredAt    time.Time                           `json:"discoveredAt"`
+	Enabled         bool                                `json:"enabled"`
+	Fingerprint     string                              `json:"fingerprint"`
+	GrantedScopes   []PluginRegistrationGrantedScopes   `json:"grantedScopes"`
+	Health          PluginRegistrationHealth            `json:"health"`
+	HealthMessage   *string                             `json:"healthMessage,omitempty"`
+	Id              string                              `json:"id"`
+	LastError       *string                             `json:"lastError,omitempty"`
+	ManifestPath    string                              `json:"manifestPath"`
+	Name            string                              `json:"name"`
+	ProtocolVersion string                              `json:"protocolVersion"`
+	RequestedScopes []PluginRegistrationRequestedScopes `json:"requestedScopes"`
+	Trust           PluginRegistrationTrust             `json:"trust"`
+	UpdatedAt       time.Time                           `json:"updatedAt"`
+	Version         string                              `json:"version"`
+}
+
+// PluginRegistrationCapabilities defines model for PluginRegistration.Capabilities.
+type PluginRegistrationCapabilities string
+
+// PluginRegistrationGrantedScopes defines model for PluginRegistration.GrantedScopes.
+type PluginRegistrationGrantedScopes string
+
+// PluginRegistrationHealth defines model for PluginRegistration.Health.
+type PluginRegistrationHealth string
+
+// PluginRegistrationRequestedScopes defines model for PluginRegistration.RequestedScopes.
+type PluginRegistrationRequestedScopes string
+
+// PluginRegistrationTrust defines model for PluginRegistration.Trust.
+type PluginRegistrationTrust string
+
+// PluginTrustRequest defines model for PluginTrustRequest.
+type PluginTrustRequest struct {
+	Fingerprint string `json:"fingerprint"`
+}
 
 // PortConflict defines model for PortConflict.
 type PortConflict struct {
@@ -2458,6 +2728,9 @@ type IdempotencyKey = string
 // OperationId defines model for OperationId.
 type OperationId = string
 
+// PluginId defines model for PluginId.
+type PluginId = string
+
 // ProjectId defines model for ProjectId.
 type ProjectId = string
 
@@ -2521,6 +2794,16 @@ type ListOperationsParams struct {
 
 // CancelOperationParams defines parameters for CancelOperation.
 type CancelOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// ListPluginLogsParams defines parameters for ListPluginLogs.
+type ListPluginLogsParams struct {
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// CreatePluginOperationParams defines parameters for CreatePluginOperation.
+type CreatePluginOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
@@ -2648,6 +2931,15 @@ type CreateAIManifestEnhancementJSONRequestBody = CreateAIManifestEnhancementReq
 
 // PreviewAIManifestEvidenceJSONRequestBody defines body for PreviewAIManifestEvidence for application/json ContentType.
 type PreviewAIManifestEvidenceJSONRequestBody = AIGenerationLimits
+
+// EnablePluginJSONRequestBody defines body for EnablePlugin for application/json ContentType.
+type EnablePluginJSONRequestBody = PluginEnableRequest
+
+// CreatePluginOperationJSONRequestBody defines body for CreatePluginOperation for application/json ContentType.
+type CreatePluginOperationJSONRequestBody = PluginOperationRequest
+
+// TrustPluginJSONRequestBody defines body for TrustPlugin for application/json ContentType.
+type TrustPluginJSONRequestBody = PluginTrustRequest
 
 // CreatePortSuggestionJSONRequestBody defines body for CreatePortSuggestion for application/json ContentType.
 type CreatePortSuggestionJSONRequestBody = PortSuggestionRequest
@@ -2811,6 +3103,39 @@ type ClientInterface interface {
 
 	// CancelOperation request
 	CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPlugins request
+	ListPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RefreshPlugins request
+	RefreshPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DisablePlugin request
+	DisablePlugin(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// EnablePluginWithBody request with any body
+	EnablePluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EnablePlugin(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CheckPluginHealth request
+	CheckPluginHealth(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListPluginLogs request
+	ListPluginLogs(ctx context.Context, pluginId PluginId, params *ListPluginLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// InspectProjectWithPlugin request
+	InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreatePluginOperationWithBody request with any body
+	CreatePluginOperationWithBody(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePluginOperation(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, body CreatePluginOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TrustPluginWithBody request with any body
+	TrustPluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TrustPlugin(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPortRegistry request
 	GetPortRegistry(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3218,6 +3543,150 @@ func (c *Client) GetOperation(ctx context.Context, operationId OperationId, reqE
 
 func (c *Client) CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCancelOperationRequest(c.Server, operationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPluginsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RefreshPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefreshPluginsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DisablePlugin(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDisablePluginRequest(c.Server, pluginId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnablePluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnablePluginRequestWithBody(c.Server, pluginId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnablePlugin(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnablePluginRequest(c.Server, pluginId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CheckPluginHealth(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckPluginHealthRequest(c.Server, pluginId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListPluginLogs(ctx context.Context, pluginId PluginId, params *ListPluginLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPluginLogsRequest(c.Server, pluginId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInspectProjectWithPluginRequest(c.Server, pluginId, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePluginOperationWithBody(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePluginOperationRequestWithBody(c.Server, pluginId, projectId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePluginOperation(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, body CreatePluginOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePluginOperationRequest(c.Server, pluginId, projectId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TrustPluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustPluginRequestWithBody(c.Server, pluginId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TrustPlugin(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustPluginRequest(c.Server, pluginId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4575,6 +5044,391 @@ func NewCancelOperationRequest(server string, operationId OperationId, params *C
 		req.Header.Set("Idempotency-Key", headerParam0)
 
 	}
+
+	return req, nil
+}
+
+// NewListPluginsRequest generates requests for ListPlugins
+func NewListPluginsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRefreshPluginsRequest generates requests for RefreshPlugins
+func NewRefreshPluginsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/refresh")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDisablePluginRequest generates requests for DisablePlugin
+func NewDisablePluginRequest(server string, pluginId PluginId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/disable", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewEnablePluginRequest calls the generic EnablePlugin builder with application/json body
+func NewEnablePluginRequest(server string, pluginId PluginId, body EnablePluginJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEnablePluginRequestWithBody(server, pluginId, "application/json", bodyReader)
+}
+
+// NewEnablePluginRequestWithBody generates requests for EnablePlugin with any type of body
+func NewEnablePluginRequestWithBody(server string, pluginId PluginId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/enable", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCheckPluginHealthRequest generates requests for CheckPluginHealth
+func NewCheckPluginHealthRequest(server string, pluginId PluginId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/health", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListPluginLogsRequest generates requests for ListPluginLogs
+func NewListPluginLogsRequest(server string, pluginId PluginId, params *ListPluginLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/logs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewInspectProjectWithPluginRequest generates requests for InspectProjectWithPlugin
+func NewInspectProjectWithPluginRequest(server string, pluginId PluginId, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/projects/%s/inspection", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreatePluginOperationRequest calls the generic CreatePluginOperation builder with application/json body
+func NewCreatePluginOperationRequest(server string, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, body CreatePluginOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePluginOperationRequestWithBody(server, pluginId, projectId, params, "application/json", bodyReader)
+}
+
+// NewCreatePluginOperationRequestWithBody generates requests for CreatePluginOperation with any type of body
+func NewCreatePluginOperationRequestWithBody(server string, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/projects/%s/operations", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewTrustPluginRequest calls the generic TrustPlugin builder with application/json body
+func NewTrustPluginRequest(server string, pluginId PluginId, body TrustPluginJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTrustPluginRequestWithBody(server, pluginId, "application/json", bodyReader)
+}
+
+// NewTrustPluginRequestWithBody generates requests for TrustPlugin with any type of body
+func NewTrustPluginRequestWithBody(server string, pluginId PluginId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "pluginId", pluginId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/plugins/%s/trust", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -6411,6 +7265,39 @@ type ClientWithResponsesInterface interface {
 	// CancelOperationWithResponse request
 	CancelOperationWithResponse(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*CancelOperationResponse, error)
 
+	// ListPluginsWithResponse request
+	ListPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPluginsResponse, error)
+
+	// RefreshPluginsWithResponse request
+	RefreshPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error)
+
+	// DisablePluginWithResponse request
+	DisablePluginWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error)
+
+	// EnablePluginWithBodyWithResponse request with any body
+	EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
+
+	EnablePluginWithResponse(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
+
+	// CheckPluginHealthWithResponse request
+	CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error)
+
+	// ListPluginLogsWithResponse request
+	ListPluginLogsWithResponse(ctx context.Context, pluginId PluginId, params *ListPluginLogsParams, reqEditors ...RequestEditorFn) (*ListPluginLogsResponse, error)
+
+	// InspectProjectWithPluginWithResponse request
+	InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error)
+
+	// CreatePluginOperationWithBodyWithResponse request with any body
+	CreatePluginOperationWithBodyWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePluginOperationResponse, error)
+
+	CreatePluginOperationWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, body CreatePluginOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePluginOperationResponse, error)
+
+	// TrustPluginWithBodyWithResponse request with any body
+	TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
+
+	TrustPluginWithResponse(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
+
 	// GetPortRegistryWithResponse request
 	GetPortRegistryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPortRegistryResponse, error)
 
@@ -7091,6 +7978,285 @@ func (r CancelOperationResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CancelOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListPluginsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPluginsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPluginsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListPluginsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RefreshPluginsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r RefreshPluginsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RefreshPluginsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RefreshPluginsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DisablePluginResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r DisablePluginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DisablePluginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DisablePluginResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type EnablePluginResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r EnablePluginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EnablePluginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r EnablePluginResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CheckPluginHealthResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CheckPluginHealthResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CheckPluginHealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CheckPluginHealthResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListPluginLogsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]PluginLogEntry
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListPluginLogsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListPluginLogsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListPluginLogsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type InspectProjectWithPluginResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PluginInspection
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r InspectProjectWithPluginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InspectProjectWithPluginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r InspectProjectWithPluginResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreatePluginOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePluginOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePluginOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreatePluginOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type TrustPluginResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PluginRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r TrustPluginResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TrustPluginResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r TrustPluginResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -8451,6 +9617,111 @@ func (c *ClientWithResponses) CancelOperationWithResponse(ctx context.Context, o
 	return ParseCancelOperationResponse(rsp)
 }
 
+// ListPluginsWithResponse request returning *ListPluginsResponse
+func (c *ClientWithResponses) ListPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPluginsResponse, error) {
+	rsp, err := c.ListPlugins(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPluginsResponse(rsp)
+}
+
+// RefreshPluginsWithResponse request returning *RefreshPluginsResponse
+func (c *ClientWithResponses) RefreshPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error) {
+	rsp, err := c.RefreshPlugins(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRefreshPluginsResponse(rsp)
+}
+
+// DisablePluginWithResponse request returning *DisablePluginResponse
+func (c *ClientWithResponses) DisablePluginWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error) {
+	rsp, err := c.DisablePlugin(ctx, pluginId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDisablePluginResponse(rsp)
+}
+
+// EnablePluginWithBodyWithResponse request with arbitrary body returning *EnablePluginResponse
+func (c *ClientWithResponses) EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
+	rsp, err := c.EnablePluginWithBody(ctx, pluginId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnablePluginResponse(rsp)
+}
+
+func (c *ClientWithResponses) EnablePluginWithResponse(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
+	rsp, err := c.EnablePlugin(ctx, pluginId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnablePluginResponse(rsp)
+}
+
+// CheckPluginHealthWithResponse request returning *CheckPluginHealthResponse
+func (c *ClientWithResponses) CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error) {
+	rsp, err := c.CheckPluginHealth(ctx, pluginId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCheckPluginHealthResponse(rsp)
+}
+
+// ListPluginLogsWithResponse request returning *ListPluginLogsResponse
+func (c *ClientWithResponses) ListPluginLogsWithResponse(ctx context.Context, pluginId PluginId, params *ListPluginLogsParams, reqEditors ...RequestEditorFn) (*ListPluginLogsResponse, error) {
+	rsp, err := c.ListPluginLogs(ctx, pluginId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListPluginLogsResponse(rsp)
+}
+
+// InspectProjectWithPluginWithResponse request returning *InspectProjectWithPluginResponse
+func (c *ClientWithResponses) InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error) {
+	rsp, err := c.InspectProjectWithPlugin(ctx, pluginId, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInspectProjectWithPluginResponse(rsp)
+}
+
+// CreatePluginOperationWithBodyWithResponse request with arbitrary body returning *CreatePluginOperationResponse
+func (c *ClientWithResponses) CreatePluginOperationWithBodyWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePluginOperationResponse, error) {
+	rsp, err := c.CreatePluginOperationWithBody(ctx, pluginId, projectId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePluginOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePluginOperationWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *CreatePluginOperationParams, body CreatePluginOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePluginOperationResponse, error) {
+	rsp, err := c.CreatePluginOperation(ctx, pluginId, projectId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePluginOperationResponse(rsp)
+}
+
+// TrustPluginWithBodyWithResponse request with arbitrary body returning *TrustPluginResponse
+func (c *ClientWithResponses) TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
+	rsp, err := c.TrustPluginWithBody(ctx, pluginId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTrustPluginResponse(rsp)
+}
+
+func (c *ClientWithResponses) TrustPluginWithResponse(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
+	rsp, err := c.TrustPlugin(ctx, pluginId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTrustPluginResponse(rsp)
+}
+
 // GetPortRegistryWithResponse request returning *GetPortRegistryResponse
 func (c *ClientWithResponses) GetPortRegistryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPortRegistryResponse, error) {
 	rsp, err := c.GetPortRegistry(ctx, reqEditors...)
@@ -9425,6 +10696,303 @@ func ParseCancelOperationResponse(rsp *http.Response) (*CancelOperationResponse,
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPluginsResponse parses an HTTP response from a ListPluginsWithResponse call
+func ParseListPluginsResponse(rsp *http.Response) (*ListPluginsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPluginsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PluginRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRefreshPluginsResponse parses an HTTP response from a RefreshPluginsWithResponse call
+func ParseRefreshPluginsResponse(rsp *http.Response) (*RefreshPluginsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RefreshPluginsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PluginRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDisablePluginResponse parses an HTTP response from a DisablePluginWithResponse call
+func ParseDisablePluginResponse(rsp *http.Response) (*DisablePluginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DisablePluginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PluginRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseEnablePluginResponse parses an HTTP response from a EnablePluginWithResponse call
+func ParseEnablePluginResponse(rsp *http.Response) (*EnablePluginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EnablePluginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PluginRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCheckPluginHealthResponse parses an HTTP response from a CheckPluginHealthWithResponse call
+func ParseCheckPluginHealthResponse(rsp *http.Response) (*CheckPluginHealthResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CheckPluginHealthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PluginRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListPluginLogsResponse parses an HTTP response from a ListPluginLogsWithResponse call
+func ParseListPluginLogsResponse(rsp *http.Response) (*ListPluginLogsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListPluginLogsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PluginLogEntry
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseInspectProjectWithPluginResponse parses an HTTP response from a InspectProjectWithPluginWithResponse call
+func ParseInspectProjectWithPluginResponse(rsp *http.Response) (*InspectProjectWithPluginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InspectProjectWithPluginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PluginInspection
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreatePluginOperationResponse parses an HTTP response from a CreatePluginOperationWithResponse call
+func ParseCreatePluginOperationResponse(rsp *http.Response) (*CreatePluginOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePluginOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTrustPluginResponse parses an HTTP response from a TrustPluginWithResponse call
+func ParseTrustPluginResponse(rsp *http.Response) (*TrustPluginResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TrustPluginResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PluginRegistration
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10698,6 +12266,33 @@ type ServerInterface interface {
 	// Request idempotent operation cancellation
 	// (POST /operations/{operationId}/cancel)
 	CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams)
+	// List discovered external plugins and reviewed grants
+	// (GET /plugins)
+	ListPlugins(w http.ResponseWriter, r *http.Request)
+	// Re-read plugin manifests without executing plugin code
+	// (POST /plugins/refresh)
+	RefreshPlugins(w http.ResponseWriter, r *http.Request)
+	// Disable a plugin and revoke all granted scopes
+	// (POST /plugins/{pluginId}/disable)
+	DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	// Grant reviewed scopes and enable a compatible plugin
+	// (POST /plugins/{pluginId}/enable)
+	EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	// Start one supervised plugin health check
+	// (POST /plugins/{pluginId}/health)
+	CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	// List bounded redacted plugin supervision logs
+	// (GET /plugins/{pluginId}/logs)
+	ListPluginLogs(w http.ResponseWriter, r *http.Request, pluginId PluginId, params ListPluginLogsParams)
+	// Inspect one trusted project through reviewed plugin scopes
+	// (POST /plugins/{pluginId}/projects/{projectId}/inspection)
+	InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId)
+	// Queue one reviewed typed plugin action
+	// (POST /plugins/{pluginId}/projects/{projectId}/operations)
+	CreatePluginOperation(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId, params CreatePluginOperationParams)
+	// Trust the exact reviewed plugin package fingerprint
+	// (POST /plugins/{pluginId}/trust)
+	TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
 	// Reconcile declared, reserved, and bound local ports
 	// (GET /ports)
 	GetPortRegistry(w http.ResponseWriter, r *http.Request)
@@ -10920,6 +12515,60 @@ func (_ Unimplemented) GetOperation(w http.ResponseWriter, r *http.Request, oper
 // Request idempotent operation cancellation
 // (POST /operations/{operationId}/cancel)
 func (_ Unimplemented) CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List discovered external plugins and reviewed grants
+// (GET /plugins)
+func (_ Unimplemented) ListPlugins(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Re-read plugin manifests without executing plugin code
+// (POST /plugins/refresh)
+func (_ Unimplemented) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Disable a plugin and revoke all granted scopes
+// (POST /plugins/{pluginId}/disable)
+func (_ Unimplemented) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Grant reviewed scopes and enable a compatible plugin
+// (POST /plugins/{pluginId}/enable)
+func (_ Unimplemented) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Start one supervised plugin health check
+// (POST /plugins/{pluginId}/health)
+func (_ Unimplemented) CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List bounded redacted plugin supervision logs
+// (GET /plugins/{pluginId}/logs)
+func (_ Unimplemented) ListPluginLogs(w http.ResponseWriter, r *http.Request, pluginId PluginId, params ListPluginLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Inspect one trusted project through reviewed plugin scopes
+// (POST /plugins/{pluginId}/projects/{projectId}/inspection)
+func (_ Unimplemented) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue one reviewed typed plugin action
+// (POST /plugins/{pluginId}/projects/{projectId}/operations)
+func (_ Unimplemented) CreatePluginOperation(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId, params CreatePluginOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Trust the exact reviewed plugin package fingerprint
+// (POST /plugins/{pluginId}/trust)
+func (_ Unimplemented) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -11807,6 +13456,278 @@ func (siw *ServerInterfaceWrapper) CancelOperation(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CancelOperation(w, r, operationId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListPlugins operation middleware
+func (siw *ServerInterfaceWrapper) ListPlugins(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPlugins(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RefreshPlugins operation middleware
+func (siw *ServerInterfaceWrapper) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RefreshPlugins(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DisablePlugin operation middleware
+func (siw *ServerInterfaceWrapper) DisablePlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DisablePlugin(w, r, pluginId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// EnablePlugin operation middleware
+func (siw *ServerInterfaceWrapper) EnablePlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.EnablePlugin(w, r, pluginId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckPluginHealth operation middleware
+func (siw *ServerInterfaceWrapper) CheckPluginHealth(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckPluginHealth(w, r, pluginId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListPluginLogs operation middleware
+func (siw *ServerInterfaceWrapper) ListPluginLogs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListPluginLogsParams
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPluginLogs(w, r, pluginId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// InspectProjectWithPlugin operation middleware
+func (siw *ServerInterfaceWrapper) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.InspectProjectWithPlugin(w, r, pluginId, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreatePluginOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreatePluginOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreatePluginOperationParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePluginOperation(w, r, pluginId, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// TrustPlugin operation middleware
+func (siw *ServerInterfaceWrapper) TrustPlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId PluginId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.TrustPlugin(w, r, pluginId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -13399,6 +15320,33 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/operations/{operationId}/cancel", wrapper.CancelOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/plugins", wrapper.ListPlugins)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/refresh", wrapper.RefreshPlugins)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/disable", wrapper.DisablePlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/enable", wrapper.EnablePlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/health", wrapper.CheckPluginHealth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/plugins/{pluginId}/logs", wrapper.ListPluginLogs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/projects/{projectId}/inspection", wrapper.InspectProjectWithPlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/projects/{projectId}/operations", wrapper.CreatePluginOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/plugins/{pluginId}/trust", wrapper.TrustPlugin)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/ports", wrapper.GetPortRegistry)

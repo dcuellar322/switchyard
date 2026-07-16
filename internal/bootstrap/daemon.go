@@ -32,6 +32,7 @@ import (
 	"switchyard.dev/switchyard/internal/operations/domain"
 	hostPlatform "switchyard.dev/switchyard/internal/platform/host"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
+	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
 	portsAdapters "switchyard.dev/switchyard/internal/ports/adapters"
 	portsApplication "switchyard.dev/switchyard/internal/ports/application"
 	routingAdapters "switchyard.dev/switchyard/internal/routing/adapters"
@@ -56,9 +57,7 @@ import (
 
 // RunDaemon starts the migrated local control plane and blocks until shutdown.
 func RunDaemon(ctx context.Context, config Config) error {
-	if config.Logger == nil {
-		config.Logger = slog.Default()
-	}
+	config.Logger = daemonLogger(config.Logger)
 	if err := validateDaemonConfig(config); err != nil {
 		return err
 	}
@@ -186,13 +185,18 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
+	build := buildinfo.Current()
+	pluginService, err := newPluginService(ctx, database, catalogService, redactor, config.DataDir, build.Version, config.Logger)
+	if err != nil {
+		return err
+	}
 	operationRepository := sqlite.NewOperationRepository(database)
 	launcher := actionsAdapters.NewLauncher()
 	var workspaceService *workspaceApplication.Service
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
 			return executeOperation(
-				operationCtx, runtimeService, healthService, actionService, aiService, workspaceService,
+				operationCtx, runtimeService, healthService, actionService, aiService, pluginService, workspaceService,
 				workspaceRecipeRunner{projects: runtimeSource, launcher: launcher}, environmentRuntime, operation, progress,
 			)
 		},
@@ -209,7 +213,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	var background sync.WaitGroup
-	background.Add(4)
+	background.Add(5)
 	go func() {
 		defer background.Done()
 		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
@@ -234,6 +238,10 @@ func RunDaemon(ctx context.Context, config Config) error {
 			config.Logger.Warn("resource sampler unavailable", "component", "observability", "error", resourceErr)
 		})
 	}()
+	go func() {
+		defer background.Done()
+		pluginService.RunHealth(ctx, 30*time.Second)
+	}()
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	host := application.NewHostQuery(hostPlatform.NewObserver())
@@ -241,7 +249,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
-		AI: aiService, Resources: resourceService,
+		AI: aiService, Resources: resourceService, Plugins: pluginService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
 		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
 			actorType, actorID := httpapi.RequestActor(actorContext)
@@ -266,6 +274,13 @@ func RunDaemon(ctx context.Context, config Config) error {
 	return runErr
 }
 
+func daemonLogger(logger *slog.Logger) *slog.Logger {
+	if logger == nil {
+		return slog.Default()
+	}
+	return logger
+}
+
 func closeTerminalSessions(logger *slog.Logger, service *terminalApplication.Service) {
 	closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -280,6 +295,7 @@ func executeOperation(
 	health requiredHealthWaiter,
 	actions *actionsApplication.Service,
 	ai *agentsApplication.EnhancementService,
+	plugins *pluginsApplication.Service,
 	workspaces *workspaceApplication.Service,
 	recipes workspaceApplication.RecipeRunner,
 	environments environmentLifecycle,
@@ -288,75 +304,117 @@ func executeOperation(
 ) error {
 	switch operation.Kind {
 	case "manifest.enhance":
-		var input struct {
-			ProposalID string                   `json:"proposalId"`
-			Provider   string                   `json:"provider"`
-			Limits     agentsApplication.Limits `json:"limits"`
-		}
-		if err := json.Unmarshal(operation.Input, &input); err != nil || input.ProposalID == "" || input.Provider == "" {
-			return fmt.Errorf("decode manifest enhancement operation")
-		}
-		_ = progress.Step(ctx, "manifest.evidence", "succeeded", "redacted evidence bundle prepared")
-		_ = progress.Step(ctx, "manifest.provider", "running", "provider proposal requested")
-		err := ai.Execute(ctx, operation.ID, input.ProposalID, input.Provider, input.Limits)
-		if err == nil {
-			_ = progress.Step(ctx, "manifest.provider", "succeeded", "provider proposal validated and merged")
-		}
-		return err
+		return executeManifestEnhancement(ctx, ai, operation, progress)
 	case "action.run":
-		var input struct {
-			ActionID         string `json:"actionId"`
-			ConfirmRisk      bool   `json:"confirmRisk"`
-			AllowOutsideRoot bool   `json:"allowOutsideRoot"`
-			ActorType        string `json:"actorType"`
-			ActorID          string `json:"actorId"`
-		}
-		if err := json.Unmarshal(operation.Input, &input); err != nil || input.ActionID == "" {
-			return fmt.Errorf("decode action operation")
-		}
-		_ = progress.Step(ctx, "action.execute", "running", "action authorized")
-		err := actions.Execute(ctx, operation.ID, operation.ProjectID, input.ActionID, input.ActorType, input.ActorID, input.ConfirmRisk, input.AllowOutsideRoot)
-		if err == nil {
-			_ = progress.Step(ctx, "action.execute", "succeeded", "action completed")
-		}
-		return err
+		return executeActionOperation(ctx, actions, operation, progress)
+	case "plugin.operate":
+		return executePluginOperation(ctx, plugins, operation, progress)
 	case "workspace.start", "workspace.stop":
-		if workspaces == nil {
-			return errors.New("workspace service is unavailable")
-		}
-		var input struct {
-			Action     string                        `json:"action"`
-			Policy     workspaceDomain.FailurePolicy `json:"policy"`
-			ProfileID  string                        `json:"profileId"`
-			RemoveData bool                          `json:"removeData"`
-			RunRecipes bool                          `json:"runRecipes"`
-		}
-		if err := json.Unmarshal(operation.Input, &input); err != nil || "workspace."+input.Action != operation.Kind {
-			return errors.New("decode workspace operation")
-		}
-		workspaceID := strings.TrimPrefix(operation.ProjectID, "workspace:")
-		kind := workspaceDomain.ExecutionKind(input.Action)
-		_, err := workspaces.Execute(ctx, workspaceID, workspaceApplication.ExecuteRequest{
-			Kind: kind, Policy: input.Policy, ProfileID: input.ProfileID, RemoveData: input.RemoveData,
-		}, workspaceProgress{progress: progress})
-		var executionErr *workspaceApplication.ExecutionError
-		if errors.As(err, &executionErr) && executionErr.Partial() {
-			return operations.PartialSuccess(executionErr.Error())
-		}
-		if err != nil {
-			return err
-		}
-		if kind == workspaceDomain.ExecutionStart && input.RunRecipes {
-			_ = progress.Step(ctx, "workspace.recipes", "running", "running opt-in workspace recipes")
-			if err := workspaces.ExecuteRecipes(ctx, workspaceID, recipes); err != nil {
-				return err
-			}
-			_ = progress.Step(ctx, "workspace.recipes", "succeeded", "workspace recipes completed")
-		}
-		return nil
+		return executeWorkspaceOperation(ctx, workspaces, recipes, operation, progress)
 	default:
 		return executeRuntimeOperation(ctx, runtimeService, health, environments, operation, progress)
 	}
+}
+
+func executeManifestEnhancement(ctx context.Context, ai *agentsApplication.EnhancementService, operation domain.Operation, progress operations.Progress) error {
+	var input struct {
+		ProposalID string                   `json:"proposalId"`
+		Provider   string                   `json:"provider"`
+		Limits     agentsApplication.Limits `json:"limits"`
+	}
+	if err := json.Unmarshal(operation.Input, &input); err != nil || input.ProposalID == "" || input.Provider == "" {
+		return errors.New("decode manifest enhancement operation")
+	}
+	_ = progress.Step(ctx, "manifest.evidence", "succeeded", "redacted evidence bundle prepared")
+	_ = progress.Step(ctx, "manifest.provider", "running", "provider proposal requested")
+	err := ai.Execute(ctx, operation.ID, input.ProposalID, input.Provider, input.Limits)
+	if err == nil {
+		_ = progress.Step(ctx, "manifest.provider", "succeeded", "provider proposal validated and merged")
+	}
+	return err
+}
+
+func executeActionOperation(ctx context.Context, actions *actionsApplication.Service, operation domain.Operation, progress operations.Progress) error {
+	var input struct {
+		ActionID         string `json:"actionId"`
+		ConfirmRisk      bool   `json:"confirmRisk"`
+		AllowOutsideRoot bool   `json:"allowOutsideRoot"`
+		ActorType        string `json:"actorType"`
+		ActorID          string `json:"actorId"`
+	}
+	if err := json.Unmarshal(operation.Input, &input); err != nil || input.ActionID == "" {
+		return errors.New("decode action operation")
+	}
+	_ = progress.Step(ctx, "action.execute", "running", "action authorized")
+	err := actions.Execute(ctx, operation.ID, operation.ProjectID, input.ActionID, input.ActorType, input.ActorID, input.ConfirmRisk, input.AllowOutsideRoot)
+	if err == nil {
+		_ = progress.Step(ctx, "action.execute", "succeeded", "action completed")
+	}
+	return err
+}
+
+func executePluginOperation(ctx context.Context, plugins *pluginsApplication.Service, operation domain.Operation, progress operations.Progress) error {
+	if plugins == nil {
+		return errors.New("plugin service is unavailable")
+	}
+	var input struct {
+		PluginID string          `json:"pluginId"`
+		Action   string          `json:"action"`
+		Input    json.RawMessage `json:"input"`
+	}
+	if err := json.Unmarshal(operation.Input, &input); err != nil || input.PluginID == "" || input.Action == "" {
+		return errors.New("decode plugin operation")
+	}
+	_ = progress.Step(ctx, "plugin.execute", "running", "reviewed plugin action started")
+	result, err := plugins.Operate(ctx, input.PluginID, operation.ProjectID, input.Action, input.Input)
+	if err != nil {
+		return err
+	}
+	_ = progress.Step(ctx, "plugin.execute", "succeeded", result.Summary)
+	if result.Status == "partially_succeeded" {
+		return operations.PartialSuccess(result.Summary)
+	}
+	if result.Status == "failed" {
+		return errors.New("plugin reported action failure")
+	}
+	return nil
+}
+
+func executeWorkspaceOperation(ctx context.Context, workspaces *workspaceApplication.Service, recipes workspaceApplication.RecipeRunner, operation domain.Operation, progress operations.Progress) error {
+	if workspaces == nil {
+		return errors.New("workspace service is unavailable")
+	}
+	var input struct {
+		Action     string                        `json:"action"`
+		Policy     workspaceDomain.FailurePolicy `json:"policy"`
+		ProfileID  string                        `json:"profileId"`
+		RemoveData bool                          `json:"removeData"`
+		RunRecipes bool                          `json:"runRecipes"`
+	}
+	if err := json.Unmarshal(operation.Input, &input); err != nil || "workspace."+input.Action != operation.Kind {
+		return errors.New("decode workspace operation")
+	}
+	workspaceID := strings.TrimPrefix(operation.ProjectID, "workspace:")
+	kind := workspaceDomain.ExecutionKind(input.Action)
+	_, err := workspaces.Execute(ctx, workspaceID, workspaceApplication.ExecuteRequest{
+		Kind: kind, Policy: input.Policy, ProfileID: input.ProfileID, RemoveData: input.RemoveData,
+	}, workspaceProgress{progress: progress})
+	var executionErr *workspaceApplication.ExecutionError
+	if errors.As(err, &executionErr) && executionErr.Partial() {
+		return operations.PartialSuccess(executionErr.Error())
+	}
+	if err != nil {
+		return err
+	}
+	if kind != workspaceDomain.ExecutionStart || !input.RunRecipes {
+		return nil
+	}
+	_ = progress.Step(ctx, "workspace.recipes", "running", "running opt-in workspace recipes")
+	if err := workspaces.ExecuteRecipes(ctx, workspaceID, recipes); err != nil {
+		return err
+	}
+	_ = progress.Step(ctx, "workspace.recipes", "succeeded", "workspace recipes completed")
+	return nil
 }
 
 func executeRuntimeOperation(

@@ -25,6 +25,7 @@ type Dependencies struct {
 	Actions                 actionService
 	AI                      aiOnboardingService
 	Resources               resourceService
+	Plugins                 pluginService
 	Workspaces              workspaceService
 	Environments            environmentService
 	EnvironmentRegistration environmentRegistrationService
@@ -61,7 +62,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 	generated.HandlerFromMux(&handler{
 		system: dependencies.System, host: dependencies.Host, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
 		runtime: dependencies.Runtime, health: dependencies.Health, logs: dependencies.LogService,
-		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI, resources: dependencies.Resources,
+		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI, resources: dependencies.Resources, plugins: dependencies.Plugins,
 		workspaces:   dependencies.Workspaces,
 		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
 		terminals: dependencies.Terminals,

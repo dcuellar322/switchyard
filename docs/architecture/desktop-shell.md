@@ -16,7 +16,7 @@ the shell requires an exact match across:
 - desktop and bundled-sidecar semantic versions;
 - desktop and running-daemon semantic versions;
 - `switchyard.api/v1`; and
-- SQLite schema version 11.
+- SQLite schema version 12.
 
 Incompatibility is shown as a startup failure and no native mutation is
 attempted. SQLite independently refuses to open a database whose applied

@@ -18,6 +18,7 @@ import (
 	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
+	pluginsDomain "switchyard.dev/switchyard/internal/plugins/domain"
 	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
 	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
@@ -29,6 +30,7 @@ import (
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
 	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
+	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
 )
 
 type systemQuery interface {
@@ -53,6 +55,7 @@ type handler struct {
 	actions                 actionService
 	ai                      aiOnboardingService
 	resources               resourceService
+	plugins                 pluginService
 	workspaces              workspaceService
 	environments            environmentService
 	environmentRegistration environmentRegistrationService
@@ -143,6 +146,18 @@ type resourceService interface {
 	History(context.Context, string, string, string, time.Time, time.Time, int) (observabilityDomain.MetricHistory, error)
 	Storage(context.Context) (observabilityDomain.StorageInventory, error)
 	CleanupPreview(context.Context, string) (observabilityDomain.CleanupPreview, error)
+}
+
+type pluginService interface {
+	Refresh(context.Context) ([]pluginsDomain.Plugin, error)
+	List(context.Context) ([]pluginsDomain.Plugin, error)
+	Trust(context.Context, string, string) (pluginsDomain.Plugin, error)
+	Enable(context.Context, string, []string) (pluginsDomain.Plugin, error)
+	Disable(context.Context, string) (pluginsDomain.Plugin, error)
+	Health(context.Context, string) (pluginsDomain.Plugin, error)
+	Logs(context.Context, string, int) ([]pluginsDomain.LogEntry, error)
+	Inspect(context.Context, string, string) (pluginsdk.InspectResult, error)
+	ValidateOperation(context.Context, string, string) error
 }
 
 type workspaceService interface {

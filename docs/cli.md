@@ -25,6 +25,8 @@ switchyard manifest diff <project>
 switchyard manifest validate <project>
 switchyard open <project> [--print]
 switchyard ui [--path /projects/<id>]
+switchyard plugin list
+switchyard plugin refresh
 switchyard doctor
 ```
 
@@ -46,6 +48,14 @@ workspaces, recent operations, host pressure, and port-conflict count. It is
 read-only except that normal CLI attachment may start the bundled daemon when
 none is running. It is not intended as a replacement for the richer public
 query commands.
+
+`plugin list` and `plugin refresh` perform read-only package discovery. Trust
+requires the exact displayed fingerprint and `--yes`; enable is a separate
+decision requiring reviewed `--scope` values and `--yes`. `plugin disable`
+revokes every grant. `plugin health`, `plugin logs`, and `plugin inspect` expose
+bounded supervision and structured observations. `plugin run` accepts one
+advertised typed action, a JSON object, and `--yes`, then queues a durable
+audited operation. No plugin command exposes an arbitrary shell.
 
 ## Runtime commands
 

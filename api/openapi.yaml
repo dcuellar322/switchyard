@@ -938,6 +938,155 @@ paths:
               schema: { $ref: "#/components/schemas/TerminalSession" }
         default:
           $ref: "#/components/responses/Problem"
+  /plugins:
+    get:
+      operationId: listPlugins
+      summary: List discovered external plugins and reviewed grants
+      responses:
+        "200":
+          description: Plugin registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/refresh:
+    post:
+      operationId: refreshPlugins
+      summary: Re-read plugin manifests without executing plugin code
+      responses:
+        "200":
+          description: Reconciled plugin registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/trust:
+    post:
+      operationId: trustPlugin
+      summary: Trust the exact reviewed plugin package fingerprint
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PluginTrustRequest" }
+      responses:
+        "200":
+          description: Trusted but disabled registration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/enable:
+    post:
+      operationId: enablePlugin
+      summary: Grant reviewed scopes and enable a compatible plugin
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PluginEnableRequest" }
+      responses:
+        "200":
+          description: Enabled registration after a successful health call
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/disable:
+    post:
+      operationId: disablePlugin
+      summary: Disable a plugin and revoke all granted scopes
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+      responses:
+        "200":
+          description: Disabled registration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/health:
+    post:
+      operationId: checkPluginHealth
+      summary: Start one supervised plugin health check
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+      responses:
+        "200":
+          description: Updated registration health
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PluginRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/logs:
+    get:
+      operationId: listPluginLogs
+      summary: List bounded redacted plugin supervision logs
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+      responses:
+        "200":
+          description: Newest plugin logs first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PluginLogEntry" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/projects/{projectId}/inspection:
+    post:
+      operationId: inspectProjectWithPlugin
+      summary: Inspect one trusted project through reviewed plugin scopes
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Structured plugin observations and advertised actions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PluginInspection" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /plugins/{pluginId}/projects/{projectId}/operations:
+    post:
+      operationId: createPluginOperation
+      summary: Queue one reviewed typed plugin action
+      parameters:
+        - $ref: "#/components/parameters/PluginId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PluginOperationRequest" }
+      responses:
+        "202":
+          description: Durable plugin operation accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -996,6 +1145,13 @@ components:
         type: string
         minLength: 1
         maxLength: 128
+    PluginId:
+      name: pluginId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-z][a-z0-9.-]{0,63}$"
   responses:
     Problem:
       description: RFC 9457-style problem details
@@ -1004,6 +1160,104 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    PluginRegistration:
+      type: object
+      additionalProperties: false
+      required: [id, name, version, protocolVersion, manifestPath, fingerprint, capabilities, requestedScopes, grantedScopes, available, enabled, trust, health, discoveredAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        version: { type: string }
+        protocolVersion: { type: string }
+        manifestPath: { type: string }
+        fingerprint: { type: string, minLength: 64, maxLength: 64 }
+        capabilities:
+          type: array
+          items: { type: string, enum: [project.inspect, project.operate] }
+        requestedScopes:
+          type: array
+          items: { type: string, enum: [project.metadata.read, project.files.read, project.operate] }
+        grantedScopes:
+          type: array
+          items: { type: string, enum: [project.metadata.read, project.files.read, project.operate] }
+        available: { type: boolean }
+        enabled: { type: boolean }
+        trust: { type: string, enum: [untrusted, trusted, changed] }
+        health: { type: string, enum: [unknown, healthy, degraded, unhealthy] }
+        healthMessage: { type: string }
+        lastError: { type: string }
+        discoveredAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    PluginTrustRequest:
+      type: object
+      additionalProperties: false
+      required: [fingerprint]
+      properties:
+        fingerprint: { type: string, minLength: 64, maxLength: 64 }
+    PluginEnableRequest:
+      type: object
+      additionalProperties: false
+      required: [grantedScopes]
+      properties:
+        grantedScopes:
+          type: array
+          uniqueItems: true
+          maxItems: 16
+          items: { type: string, enum: [project.metadata.read, project.files.read, project.operate] }
+    PluginLogEntry:
+      type: object
+      additionalProperties: false
+      required: [id, pluginId, level, message, createdAt]
+      properties:
+        id: { type: integer, format: int64 }
+        pluginId: { type: string }
+        level: { type: string, enum: [debug, info, warning, error] }
+        message: { type: string }
+        createdAt: { type: string, format: date-time }
+    PluginFact:
+      type: object
+      additionalProperties: false
+      required: [id, label, value, source]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        value: { type: string }
+        source: { type: string }
+        warning: { type: string }
+    PluginAction:
+      type: object
+      additionalProperties: false
+      required: [id, name, description, risk]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        risk: { type: string, enum: [read_only, mutating, networked, destructive] }
+    PluginInspection:
+      type: object
+      additionalProperties: false
+      required: [summary, facts, actions, warnings, observedAt]
+      properties:
+        summary: { type: string }
+        facts:
+          type: array
+          items: { $ref: "#/components/schemas/PluginFact" }
+        actions:
+          type: array
+          items: { $ref: "#/components/schemas/PluginAction" }
+        warnings:
+          type: array
+          items: { type: string }
+        observedAt: { type: string, format: date-time }
+    PluginOperationRequest:
+      type: object
+      additionalProperties: false
+      required: [action, input]
+      properties:
+        action: { type: string, minLength: 1, maxLength: 128 }
+        input:
+          type: object
+          additionalProperties: true
     PortFact:
       type: object
       additionalProperties: false

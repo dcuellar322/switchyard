@@ -78,7 +78,7 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 
 			for _, project := range projects {
 				item := desktopProjectSnapshot{Project: project, Warnings: []string{}}
-				if project.TrustState == generated.Trusted {
+				if project.TrustState == generated.ProjectTrustStateTrusted {
 					if runtime, runtimeErr := client.Runtime(command.Context(), project.Id); runtimeErr == nil {
 						item.Runtime = &runtime
 					} else {

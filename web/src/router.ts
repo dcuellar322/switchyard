@@ -7,6 +7,7 @@ import ProjectOnboardingView from "./domains/projects/views/ProjectOnboardingVie
 import LogExplorerView from "./domains/logs/views/LogExplorerView.vue";
 import ResourcesView from "./domains/resources/views/ResourcesView.vue";
 import WorkspacesView from "./domains/workspaces/views/WorkspacesView.vue";
+import PluginsView from "./domains/plugins/views/PluginsView.vue";
 import SettingsView from "./domains/system/views/SettingsView.vue";
 import FeatureShellView from "./domains/shell/views/FeatureShellView.vue";
 
@@ -32,6 +33,7 @@ export const router = createRouter({
     { path: "/logs", name: "logs", component: LogExplorerView },
     { path: "/discovery", name: "discovery", component: ProjectOnboardingView },
     { path: "/workspaces", name: "workspaces", component: WorkspacesView },
+    { path: "/plugins", name: "plugins", component: PluginsView },
     {
       path: "/agents",
       name: "agents",

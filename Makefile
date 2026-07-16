@@ -13,7 +13,7 @@ SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector migrate-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
 
 bootstrap: frontend-install generate
 
@@ -68,7 +68,7 @@ fmt:
 	GOCACHE=$(GOCACHE) $(GO) fmt ./...
 
 fmt-check:
-	test -z "$$(gofmt -l $$(find cmd internal migrations tools web -name '*.go' -type f))"
+	test -z "$$(gofmt -l $$(find cmd internal migrations tools web sdk examples test -name '*.go' -type f))"
 
 archcheck:
 	GOCACHE=$(GOCACHE) $(GO) run ./tools/archcheck
@@ -100,6 +100,9 @@ test-visual-update:
 
 test-mcp-inspector: build
 	./scripts/test-mcp-inspector.sh
+
+test-plugin-sdk:
+	GOCACHE=$(GOCACHE) $(GO) test ./sdk/plugin/... ./internal/plugins/... ./test -run 'Plugin|plugin' -count=1
 
 migrate-check:
 	GOCACHE=$(GOCACHE) $(GO) test ./internal/platform/sqlite -run TestOpenMigratesEmptyDatabase -count=1

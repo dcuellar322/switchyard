@@ -148,7 +148,7 @@ mod tests {
         DesktopSnapshot {
             system: SystemInfo {
                 api_version: "switchyard.api/v1".into(),
-                database_schema_version: 11,
+                database_schema_version: 12,
                 status: "ready".into(),
                 version: env!("CARGO_PKG_VERSION").into(),
             },

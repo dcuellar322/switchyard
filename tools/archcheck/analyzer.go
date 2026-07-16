@@ -58,6 +58,13 @@ func forbiddenPackageName(module, importPath string) []violation {
 
 func checkImport(module, importer, imported string) []violation {
 	var violations []violation
+	if strings.HasPrefix(importer, module+"/sdk/") && strings.HasPrefix(imported, module+"/internal/") {
+		violations = append(violations, violation{
+			Importer: importer,
+			Imported: imported,
+			Rule:     "public SDK packages cannot depend on internal implementation packages",
+		})
+	}
 	if strings.Contains(importer, "/domain") {
 		for _, forbidden := range []string{"/application", "/adapters", "/transport"} {
 			if strings.HasPrefix(imported, module+"/") && strings.Contains(imported, forbidden) {
@@ -106,7 +113,7 @@ func domainName(module, importPath string) string {
 	}
 	name, _, _ := strings.Cut(relative, "/")
 	switch name {
-	case "catalog", "manifest", "operations", "runtime", "observability", "ports", "sourcecontrol", "actions", "workspace", "agents":
+	case "catalog", "manifest", "operations", "runtime", "observability", "ports", "sourcecontrol", "actions", "workspace", "agents", "plugins":
 		return name
 	default:
 		return ""

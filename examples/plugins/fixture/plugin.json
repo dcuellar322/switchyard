@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "switchyard.plugin-manifest/v1alpha1",
+  "id": "fixture-inspector",
+  "name": "Fixture inspector",
+  "version": "1.0.0",
+  "protocolVersion": "switchyard.plugin/v1alpha1",
+  "executable": "switchyard-fixture-plugin",
+  "arguments": [],
+  "capabilities": ["project.inspect", "project.operate"],
+  "requestedScopes": ["project.metadata.read", "project.files.read", "project.operate"]
+}

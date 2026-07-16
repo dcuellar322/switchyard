@@ -35,3 +35,15 @@ func TestAnalyzeRejectsGenericRootPackage(t *testing.T) {
 		t.Fatalf("analyze() violations = %#v", violations)
 	}
 }
+
+func TestAnalyzeRejectsPublicSDKImportingInternalImplementation(t *testing.T) {
+	t.Parallel()
+
+	packages := []packageInfo{{
+		ImportPath: modulePath + "/sdk/plugin",
+		Imports:    []string{modulePath + "/internal/plugins/application"},
+	}}
+	if violations := analyze(modulePath, packages); len(violations) != 1 {
+		t.Fatalf("analyze() violations = %#v", violations)
+	}
+}

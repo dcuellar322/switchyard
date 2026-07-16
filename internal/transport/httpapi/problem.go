@@ -12,6 +12,7 @@ import (
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	resources "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
+	plugins "switchyard.dev/switchyard/internal/plugins/application"
 	ports "switchyard.dev/switchyard/internal/ports/application"
 	runtime "switchyard.dev/switchyard/internal/runtime/application"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
@@ -92,7 +93,29 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writePluginError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, plugins.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "PLUGIN_NOT_FOUND", "Plugin not found", "Refresh discovery and verify the plugin package is installed.")
+	case errors.Is(err, plugins.ErrTrustRequired):
+		writeProblem(w, r, http.StatusConflict, "PLUGIN_TRUST_REQUIRED", "Plugin trust required", "Review the package fingerprint, capabilities, and requested scopes before trusting it.")
+	case errors.Is(err, plugins.ErrFingerprint):
+		writeProblem(w, r, http.StatusConflict, "PLUGIN_IDENTITY_CHANGED", "Plugin identity changed", "Refresh discovery and review the current executable fingerprint before enabling it.")
+	case errors.Is(err, plugins.ErrDisabled):
+		writeProblem(w, r, http.StatusConflict, "PLUGIN_DISABLED", "Plugin is disabled", "Enable the plugin with an explicit subset of its requested scopes.")
+	case errors.Is(err, plugins.ErrPermissionDenied):
+		writeProblem(w, r, http.StatusForbidden, "PLUGIN_SCOPE_DENIED", "Plugin scope denied", err.Error())
+	case errors.Is(err, plugins.ErrInvocation):
+		writeProblem(w, r, http.StatusBadGateway, "PLUGIN_UNAVAILABLE", "Plugin process unavailable", err.Error())
+	case errors.Is(err, plugins.ErrDiscovery):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "PLUGIN_DISCOVERY_INVALID", "Plugin package invalid", err.Error())
+	default:
+		return false
+	}
+	return true
 }
 
 func writeTerminalError(w http.ResponseWriter, r *http.Request, err error) bool {

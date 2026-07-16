@@ -181,6 +181,36 @@ type OperationStep struct {
 	OccurredAt  string `json:"occurred_at"`
 }
 
+type PluginLog struct {
+	ID        int64  `json:"id"`
+	PluginID  string `json:"plugin_id"`
+	Level     string `json:"level"`
+	Message   string `json:"message"`
+	CreatedAt string `json:"created_at"`
+}
+
+type PluginRegistration struct {
+	ID                  string `json:"id"`
+	Name                string `json:"name"`
+	Version             string `json:"version"`
+	ProtocolVersion     string `json:"protocol_version"`
+	ManifestPath        string `json:"manifest_path"`
+	ExecutablePath      string `json:"executable_path"`
+	ArgumentsJson       string `json:"arguments_json"`
+	Fingerprint         string `json:"fingerprint"`
+	TrustedFingerprint  string `json:"trusted_fingerprint"`
+	CapabilitiesJson    string `json:"capabilities_json"`
+	RequestedScopesJson string `json:"requested_scopes_json"`
+	GrantedScopesJson   string `json:"granted_scopes_json"`
+	Available           int64  `json:"available"`
+	Enabled             int64  `json:"enabled"`
+	Health              string `json:"health"`
+	HealthMessage       string `json:"health_message"`
+	LastError           string `json:"last_error"`
+	DiscoveredAt        string `json:"discovered_at"`
+	UpdatedAt           string `json:"updated_at"`
+}
+
 type PortReservation struct {
 	ID          string `json:"id"`
 	ProjectID   string `json:"project_id"`
