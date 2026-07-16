@@ -21,6 +21,13 @@ func main() {
 		os.Exit(2)
 	}
 	violations := analyze(modulePath, packages)
+	frontendViolations, err := analyzeFrontend("web/src")
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
+	violations = append(violations, frontendViolations...)
+	sortViolations(violations)
 	for _, item := range violations {
 		_, _ = fmt.Fprintln(os.Stderr, item)
 	}

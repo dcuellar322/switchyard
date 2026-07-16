@@ -18,9 +18,43 @@ func TestAnalyzeRejectsDomainAdapterImport(t *testing.T) {
 func TestAnalyzeRecognizesEveryProductDomain(t *testing.T) {
 	t.Parallel()
 
-	for _, name := range []string{"actions", "agents", "catalog", "diagnostics", "discovery", "environments", "manifest", "observability", "operations", "plugins", "ports", "routing", "runtime", "sourcecontrol", "terminal", "workspace"} {
+	for _, name := range []string{"actions", "agents", "catalog", "diagnostics", "discovery", "environments", "fleet", "manifest", "observability", "operations", "plugins", "ports", "routing", "runtime", "settings", "sourcecontrol", "support", "team", "telemetry", "terminal", "workspace"} {
 		if got := domainName(modulePath, modulePath+"/internal/"+name+"/application"); got != name {
 			t.Errorf("domainName(%q) = %q", name, got)
+		}
+	}
+}
+
+func TestAnalyzeRejectsApplicationImportingAdapter(t *testing.T) {
+	t.Parallel()
+
+	packages := []packageInfo{{
+		ImportPath: modulePath + "/internal/catalog/application",
+		Imports:    []string{modulePath + "/internal/catalog/adapters"},
+	}}
+	if violations := analyze(modulePath, packages); len(violations) != 1 {
+		t.Fatalf("analyze() violations = %#v", violations)
+	}
+}
+
+func TestAnalyzeRejectsDomainInfrastructure(t *testing.T) {
+	t.Parallel()
+
+	for _, imported := range []string{"database/sql", "net/http", "os/exec", "github.com/docker/docker/client"} {
+		packages := []packageInfo{{ImportPath: modulePath + "/internal/catalog/domain", Imports: []string{imported}}}
+		if violations := analyze(modulePath, packages); len(violations) != 1 {
+			t.Errorf("analyze(%q) violations = %#v", imported, violations)
+		}
+	}
+}
+
+func TestAnalyzeRejectsActualMCPAdapterBypass(t *testing.T) {
+	t.Parallel()
+
+	for _, imported := range []string{"database/sql", "os/exec", "github.com/docker/docker/client", modulePath + "/internal/platform/sqlite", modulePath + "/internal/runtime/compose"} {
+		packages := []packageInfo{{ImportPath: modulePath + "/internal/transport/mcpserver", Imports: []string{imported}}}
+		if violations := analyze(modulePath, packages); len(violations) != 1 {
+			t.Errorf("analyze(%q) violations = %#v", imported, violations)
 		}
 	}
 }

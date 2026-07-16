@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Switchyard
+Upstream-Contact: https://github.com/dcuellar322/switchyard/issues
+Source: https://github.com/dcuellar322/switchyard
+
+Files: *
+Copyright: 2026 Switchyard contributors
+License: Apache-2.0

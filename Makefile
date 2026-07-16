@@ -13,7 +13,7 @@ SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
 
 bootstrap: frontend-install generate
 
@@ -73,6 +73,10 @@ fmt-check:
 archcheck:
 	GOCACHE=$(GOCACHE) $(GO) run ./tools/archcheck
 
+repository-check:
+	GOCACHE=$(GOCACHE) $(GO) run ./tools/repositorycheck
+	git diff --check
+
 lint: fmt-check
 	GOCACHE=$(GOCACHE) $(GO) vet ./...
 	GOCACHE=$(GOCACHE) $(GOLANGCI_LINT) run
@@ -114,4 +118,4 @@ platform-check:
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...
 
-quality: generate-check lint typecheck test test-race migrate-check platform-check vuln test-e2e test-visual build desktop-quality desktop-build
+quality: generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build
