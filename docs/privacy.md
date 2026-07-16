@@ -17,3 +17,9 @@ redaction pipeline before display, persistence, export, or provider use.
 Plugins are external programs with separately reviewed fingerprints and scopes;
 their own network or data behavior remains the plugin publisher's
 responsibility within permissions granted by the user.
+
+Optional peer federation sends only the bounded identity, trusted-project, and
+registered-environment fields documented in the federation guide. It excludes
+repository locations, source, Git changes, logs, terminal output, secrets,
+environment values, and runtime-native identifiers. Switchyard does not supply
+the tunnel or relay remote traffic through a hosted service.

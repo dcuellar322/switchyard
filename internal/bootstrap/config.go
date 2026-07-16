@@ -34,6 +34,13 @@ type Config struct {
 	AIOpenAIEndpoint           string
 	AIOpenAIModel              string
 	AIOpenAIAPIKeyEnv          string
+	RemoteAddr                 string
+	RemoteTLSCertificate       string
+	RemoteTLSKey               string
+	RemoteClientCA             string
+	RemoteMachineID            string
+	RemoteMachineName          string
+	RemoteControllers          []string
 }
 
 // DefaultConfig uses a per-user data directory and loopback-only HTTP.

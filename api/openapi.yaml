@@ -938,6 +938,128 @@ paths:
               schema: { $ref: "#/components/schemas/TerminalSession" }
         default:
           $ref: "#/components/responses/Problem"
+  /machines:
+    get:
+      operationId: listMachines
+      summary: List explicitly configured remote Switchyard machines
+      responses:
+        "200":
+          description: Redacted machine inventory and connection state
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Machine" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createMachine
+      summary: Register and probe a certificate-pinned remote Switchyard machine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MachineRegistrationRequest" }
+      responses:
+        "201":
+          description: Registered machine with credential values redacted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Machine" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /machines/{machineId}:
+    parameters:
+      - $ref: "#/components/parameters/MachineId"
+    get:
+      operationId: getMachine
+      summary: Read one redacted remote machine registration
+      responses:
+        "200":
+          description: Remote machine registration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Machine" }
+        default:
+          $ref: "#/components/responses/Problem"
+    delete:
+      operationId: deleteMachine
+      summary: Remove a remote machine registration without changing the peer
+      parameters:
+        - name: confirmRisk
+          in: query
+          required: true
+          schema: { type: boolean }
+      responses:
+        "204": { description: Machine registration removed }
+        default:
+          $ref: "#/components/responses/Problem"
+  /machines/{machineId}/access:
+    parameters:
+      - $ref: "#/components/parameters/MachineId"
+    put:
+      operationId: updateMachineAccess
+      summary: Replace the complete reviewed remote capability grant set
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MachineAccessRequest" }
+      responses:
+        "200":
+          description: Updated machine access
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Machine" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /machines/{machineId}/probe:
+    parameters:
+      - $ref: "#/components/parameters/MachineId"
+    post:
+      operationId: probeMachine
+      summary: Authenticate and refresh a remote machine identity and inventory
+      responses:
+        "200":
+          description: Current machine observation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Machine" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /machines/{machineId}/snapshot:
+    parameters:
+      - $ref: "#/components/parameters/MachineId"
+    get:
+      operationId: getMachineSnapshot
+      summary: Read a fresh bounded inventory from a remote machine
+      responses:
+        "200":
+          description: Redacted remote inventory
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FleetSnapshot" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /machines/{machineId}/operations:
+    parameters:
+      - $ref: "#/components/parameters/MachineId"
+    post:
+      operationId: createMachineOperation
+      summary: Submit a typed and explicitly confirmed remote lifecycle operation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RemoteOperationRequest" }
+      responses:
+        "202":
+          description: Remote daemon accepted the durable operation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RemoteOperationReceipt" }
+        default:
+          $ref: "#/components/responses/Problem"
   /plugins:
     get:
       operationId: listPlugins
@@ -1336,6 +1458,11 @@ components:
       schema:
         type: string
         pattern: "^[a-z][a-z0-9.-]{0,63}$"
+    MachineId:
+      name: machineId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128 }
     DiagnosisId:
       name: diagnosisId
       in: path
@@ -1512,6 +1639,134 @@ components:
         firstSeenAt: { type: string, format: date-time }
         lastSeenAt: { type: string, format: date-time }
         acknowledgedAt: { type: string, format: date-time }
+    FleetCapability:
+      type: string
+      enum: [inventory.read, project.operate, environment.manage]
+    Machine:
+      type: object
+      additionalProperties: false
+      required: [id, name, endpoint, certificateFingerprint, credentialConfigured, enabled, capabilities, grantedCapabilities, state, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        endpoint: { type: string, format: uri }
+        certificateFingerprint: { type: string, pattern: "^[a-f0-9]{64}$" }
+        credentialConfigured: { type: boolean }
+        enabled: { type: boolean }
+        capabilities:
+          type: array
+          items: { $ref: "#/components/schemas/FleetCapability" }
+        grantedCapabilities:
+          type: array
+          items: { $ref: "#/components/schemas/FleetCapability" }
+        state: { type: string, enum: [pending, online, degraded, offline, disabled] }
+        peerId: { type: string }
+        peerVersion: { type: string }
+        os: { type: string }
+        architecture: { type: string }
+        lastError: { type: string }
+        lastSeenAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    MachineRegistrationRequest:
+      type: object
+      additionalProperties: false
+      required: [name, endpoint, certificateFingerprint, caCertificatePath, clientCertificatePath, clientKeyPath, grantedCapabilities, confirmRisk]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 128 }
+        endpoint: { type: string, format: uri, maxLength: 2048 }
+        certificateFingerprint: { type: string, pattern: "^[A-Fa-f0-9:]{64,95}$" }
+        caCertificatePath: { type: string, minLength: 1, maxLength: 4096 }
+        clientCertificatePath: { type: string, minLength: 1, maxLength: 4096 }
+        clientKeyPath: { type: string, minLength: 1, maxLength: 4096 }
+        grantedCapabilities:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 3
+          items: { $ref: "#/components/schemas/FleetCapability" }
+        confirmRisk: { type: boolean }
+    MachineAccessRequest:
+      type: object
+      additionalProperties: false
+      required: [enabled, grantedCapabilities, confirmRisk]
+      properties:
+        enabled: { type: boolean }
+        grantedCapabilities:
+          type: array
+          uniqueItems: true
+          maxItems: 3
+          items: { $ref: "#/components/schemas/FleetCapability" }
+        confirmRisk: { type: boolean }
+    FleetIdentity:
+      type: object
+      additionalProperties: false
+      required: [protocolVersion, machineId, name, version, os, architecture, capabilities]
+      properties:
+        protocolVersion: { type: string, enum: [switchyard.remote/v1] }
+        machineId: { type: string }
+        name: { type: string }
+        version: { type: string }
+        os: { type: string }
+        architecture: { type: string }
+        capabilities:
+          type: array
+          items: { $ref: "#/components/schemas/FleetCapability" }
+    FleetProject:
+      type: object
+      additionalProperties: false
+      required: [id, slug, displayName, runtime, state, health, degraded]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        displayName: { type: string }
+        runtime: { type: string }
+        state: { type: string }
+        health: { type: string }
+        degraded: { type: boolean }
+    FleetEnvironment:
+      type: object
+      additionalProperties: false
+      required: [id, projectId, name, state, availability]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        name: { type: string }
+        branch: { type: string }
+        state: { type: string }
+        availability: { type: string }
+    FleetSnapshot:
+      type: object
+      additionalProperties: false
+      required: [identity, projects, environments, observedAt]
+      properties:
+        identity: { $ref: "#/components/schemas/FleetIdentity" }
+        projects:
+          type: array
+          items: { $ref: "#/components/schemas/FleetProject" }
+        environments:
+          type: array
+          items: { $ref: "#/components/schemas/FleetEnvironment" }
+        observedAt: { type: string, format: date-time }
+    RemoteOperationRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, projectId, action, confirmRisk]
+      properties:
+        requestId: { type: string, minLength: 8, maxLength: 128 }
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        environmentId: { type: string, minLength: 1, maxLength: 128 }
+        action: { type: string, enum: [start, stop, restart, rebuild] }
+        confirmRisk: { type: boolean }
+    RemoteOperationReceipt:
+      type: object
+      additionalProperties: false
+      required: [requestId, operationId, state, acceptedAt]
+      properties:
+        requestId: { type: string }
+        operationId: { type: string }
+        state: { type: string, enum: [queued, running, succeeded, failed, cancelled, partially_succeeded] }
+        acceptedAt: { type: string, format: date-time }
     PluginRegistration:
       type: object
       additionalProperties: false

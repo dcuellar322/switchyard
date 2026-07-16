@@ -349,6 +349,42 @@ func (e EnvironmentPortLeaseProtocol) Valid() bool {
 	}
 }
 
+// Defines values for FleetCapability.
+const (
+	FleetCapabilityEnvironmentManage FleetCapability = "environment.manage"
+	FleetCapabilityInventoryRead     FleetCapability = "inventory.read"
+	FleetCapabilityProjectOperate    FleetCapability = "project.operate"
+)
+
+// Valid indicates whether the value is a known member of the FleetCapability enum.
+func (e FleetCapability) Valid() bool {
+	switch e {
+	case FleetCapabilityEnvironmentManage:
+		return true
+	case FleetCapabilityInventoryRead:
+		return true
+	case FleetCapabilityProjectOperate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for FleetIdentityProtocolVersion.
+const (
+	SwitchyardRemotev1 FleetIdentityProtocolVersion = "switchyard.remote/v1"
+)
+
+// Valid indicates whether the value is a known member of the FleetIdentityProtocolVersion enum.
+func (e FleetIdentityProtocolVersion) Valid() bool {
+	switch e {
+	case SwitchyardRemotev1:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GitRemoteKind.
 const (
 	Fetch GitRemoteKind = "fetch"
@@ -478,6 +514,33 @@ func (e LocalRouteStatus) Valid() bool {
 	case LocalRouteStatusDisabled:
 		return true
 	case LocalRouteStatusUnavailable:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MachineState.
+const (
+	MachineStateDegraded MachineState = "degraded"
+	MachineStateDisabled MachineState = "disabled"
+	MachineStateOffline  MachineState = "offline"
+	MachineStateOnline   MachineState = "online"
+	MachineStatePending  MachineState = "pending"
+)
+
+// Valid indicates whether the value is a known member of the MachineState enum.
+func (e MachineState) Valid() bool {
+	switch e {
+	case MachineStateDegraded:
+		return true
+	case MachineStateDisabled:
+		return true
+	case MachineStateOffline:
+		return true
+	case MachineStateOnline:
+		return true
+	case MachineStatePending:
 		return true
 	default:
 		return false
@@ -672,19 +735,19 @@ func (e PluginRegistrationHealth) Valid() bool {
 
 // Defines values for PluginRegistrationRequestedScopes.
 const (
-	PluginRegistrationRequestedScopesProjectFilesRead    PluginRegistrationRequestedScopes = "project.files.read"
-	PluginRegistrationRequestedScopesProjectMetadataRead PluginRegistrationRequestedScopes = "project.metadata.read"
-	PluginRegistrationRequestedScopesProjectOperate      PluginRegistrationRequestedScopes = "project.operate"
+	ProjectFilesRead    PluginRegistrationRequestedScopes = "project.files.read"
+	ProjectMetadataRead PluginRegistrationRequestedScopes = "project.metadata.read"
+	ProjectOperate      PluginRegistrationRequestedScopes = "project.operate"
 )
 
 // Valid indicates whether the value is a known member of the PluginRegistrationRequestedScopes enum.
 func (e PluginRegistrationRequestedScopes) Valid() bool {
 	switch e {
-	case PluginRegistrationRequestedScopesProjectFilesRead:
+	case ProjectFilesRead:
 		return true
-	case PluginRegistrationRequestedScopesProjectMetadataRead:
+	case ProjectMetadataRead:
 		return true
-	case PluginRegistrationRequestedScopesProjectOperate:
+	case ProjectOperate:
 		return true
 	default:
 		return false
@@ -976,6 +1039,60 @@ func (e PublishedPortProtocol) Valid() bool {
 	case Tcp:
 		return true
 	case Udp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RemoteOperationReceiptState.
+const (
+	RemoteOperationReceiptStateCancelled          RemoteOperationReceiptState = "cancelled"
+	RemoteOperationReceiptStateFailed             RemoteOperationReceiptState = "failed"
+	RemoteOperationReceiptStatePartiallySucceeded RemoteOperationReceiptState = "partially_succeeded"
+	RemoteOperationReceiptStateQueued             RemoteOperationReceiptState = "queued"
+	RemoteOperationReceiptStateRunning            RemoteOperationReceiptState = "running"
+	RemoteOperationReceiptStateSucceeded          RemoteOperationReceiptState = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the RemoteOperationReceiptState enum.
+func (e RemoteOperationReceiptState) Valid() bool {
+	switch e {
+	case RemoteOperationReceiptStateCancelled:
+		return true
+	case RemoteOperationReceiptStateFailed:
+		return true
+	case RemoteOperationReceiptStatePartiallySucceeded:
+		return true
+	case RemoteOperationReceiptStateQueued:
+		return true
+	case RemoteOperationReceiptStateRunning:
+		return true
+	case RemoteOperationReceiptStateSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RemoteOperationRequestAction.
+const (
+	RemoteOperationRequestActionRebuild RemoteOperationRequestAction = "rebuild"
+	RemoteOperationRequestActionRestart RemoteOperationRequestAction = "restart"
+	RemoteOperationRequestActionStart   RemoteOperationRequestAction = "start"
+	RemoteOperationRequestActionStop    RemoteOperationRequestAction = "stop"
+)
+
+// Valid indicates whether the value is a known member of the RemoteOperationRequestAction enum.
+func (e RemoteOperationRequestAction) Valid() bool {
+	switch e {
+	case RemoteOperationRequestActionRebuild:
+		return true
+	case RemoteOperationRequestActionRestart:
+		return true
+	case RemoteOperationRequestActionStart:
+		return true
+	case RemoteOperationRequestActionStop:
 		return true
 	default:
 		return false
@@ -1404,16 +1521,16 @@ func (e TerminalSessionStatus) Valid() bool {
 
 // Defines values for WorkspaceExecutionKind.
 const (
-	WorkspaceExecutionKindStart WorkspaceExecutionKind = "start"
-	WorkspaceExecutionKindStop  WorkspaceExecutionKind = "stop"
+	Start WorkspaceExecutionKind = "start"
+	Stop  WorkspaceExecutionKind = "stop"
 )
 
 // Valid indicates whether the value is a known member of the WorkspaceExecutionKind enum.
 func (e WorkspaceExecutionKind) Valid() bool {
 	switch e {
-	case WorkspaceExecutionKindStart:
+	case Start:
 		return true
-	case WorkspaceExecutionKindStop:
+	case Stop:
 		return true
 	default:
 		return false
@@ -2072,6 +2189,52 @@ type EnvironmentUpdate struct {
 	Hostname string `json:"hostname"`
 }
 
+// FleetCapability defines model for FleetCapability.
+type FleetCapability string
+
+// FleetEnvironment defines model for FleetEnvironment.
+type FleetEnvironment struct {
+	Availability string  `json:"availability"`
+	Branch       *string `json:"branch,omitempty"`
+	Id           string  `json:"id"`
+	Name         string  `json:"name"`
+	ProjectId    string  `json:"projectId"`
+	State        string  `json:"state"`
+}
+
+// FleetIdentity defines model for FleetIdentity.
+type FleetIdentity struct {
+	Architecture    string                       `json:"architecture"`
+	Capabilities    []FleetCapability            `json:"capabilities"`
+	MachineId       string                       `json:"machineId"`
+	Name            string                       `json:"name"`
+	Os              string                       `json:"os"`
+	ProtocolVersion FleetIdentityProtocolVersion `json:"protocolVersion"`
+	Version         string                       `json:"version"`
+}
+
+// FleetIdentityProtocolVersion defines model for FleetIdentity.ProtocolVersion.
+type FleetIdentityProtocolVersion string
+
+// FleetProject defines model for FleetProject.
+type FleetProject struct {
+	Degraded    bool   `json:"degraded"`
+	DisplayName string `json:"displayName"`
+	Health      string `json:"health"`
+	Id          string `json:"id"`
+	Runtime     string `json:"runtime"`
+	Slug        string `json:"slug"`
+	State       string `json:"state"`
+}
+
+// FleetSnapshot defines model for FleetSnapshot.
+type FleetSnapshot struct {
+	Environments []FleetEnvironment `json:"environments"`
+	Identity     FleetIdentity      `json:"identity"`
+	ObservedAt   time.Time          `json:"observedAt"`
+	Projects     []FleetProject     `json:"projects"`
+}
+
 // GitChangeCounts defines model for GitChangeCounts.
 type GitChangeCounts struct {
 	Conflicted int `json:"conflicted"`
@@ -2178,6 +2341,49 @@ type LocalRoute struct {
 
 // LocalRouteStatus defines model for LocalRoute.Status.
 type LocalRouteStatus string
+
+// Machine defines model for Machine.
+type Machine struct {
+	Architecture           *string           `json:"architecture,omitempty"`
+	Capabilities           []FleetCapability `json:"capabilities"`
+	CertificateFingerprint string            `json:"certificateFingerprint"`
+	CreatedAt              time.Time         `json:"createdAt"`
+	CredentialConfigured   bool              `json:"credentialConfigured"`
+	Enabled                bool              `json:"enabled"`
+	Endpoint               string            `json:"endpoint"`
+	GrantedCapabilities    []FleetCapability `json:"grantedCapabilities"`
+	Id                     string            `json:"id"`
+	LastError              *string           `json:"lastError,omitempty"`
+	LastSeenAt             *time.Time        `json:"lastSeenAt,omitempty"`
+	Name                   string            `json:"name"`
+	Os                     *string           `json:"os,omitempty"`
+	PeerId                 *string           `json:"peerId,omitempty"`
+	PeerVersion            *string           `json:"peerVersion,omitempty"`
+	State                  MachineState      `json:"state"`
+	UpdatedAt              time.Time         `json:"updatedAt"`
+}
+
+// MachineState defines model for Machine.State.
+type MachineState string
+
+// MachineAccessRequest defines model for MachineAccessRequest.
+type MachineAccessRequest struct {
+	ConfirmRisk         bool              `json:"confirmRisk"`
+	Enabled             bool              `json:"enabled"`
+	GrantedCapabilities []FleetCapability `json:"grantedCapabilities"`
+}
+
+// MachineRegistrationRequest defines model for MachineRegistrationRequest.
+type MachineRegistrationRequest struct {
+	CaCertificatePath      string            `json:"caCertificatePath"`
+	CertificateFingerprint string            `json:"certificateFingerprint"`
+	ClientCertificatePath  string            `json:"clientCertificatePath"`
+	ClientKeyPath          string            `json:"clientKeyPath"`
+	ConfirmRisk            bool              `json:"confirmRisk"`
+	Endpoint               string            `json:"endpoint"`
+	GrantedCapabilities    []FleetCapability `json:"grantedCapabilities"`
+	Name                   string            `json:"name"`
+}
 
 // ManifestDiff defines model for ManifestDiff.
 type ManifestDiff struct {
@@ -2523,6 +2729,29 @@ type PublishedPort struct {
 
 // PublishedPortProtocol defines model for PublishedPort.Protocol.
 type PublishedPortProtocol string
+
+// RemoteOperationReceipt defines model for RemoteOperationReceipt.
+type RemoteOperationReceipt struct {
+	AcceptedAt  time.Time                   `json:"acceptedAt"`
+	OperationId string                      `json:"operationId"`
+	RequestId   string                      `json:"requestId"`
+	State       RemoteOperationReceiptState `json:"state"`
+}
+
+// RemoteOperationReceiptState defines model for RemoteOperationReceipt.State.
+type RemoteOperationReceiptState string
+
+// RemoteOperationRequest defines model for RemoteOperationRequest.
+type RemoteOperationRequest struct {
+	Action        RemoteOperationRequestAction `json:"action"`
+	ConfirmRisk   bool                         `json:"confirmRisk"`
+	EnvironmentId *string                      `json:"environmentId,omitempty"`
+	ProjectId     string                       `json:"projectId"`
+	RequestId     string                       `json:"requestId"`
+}
+
+// RemoteOperationRequestAction defines model for RemoteOperationRequest.Action.
+type RemoteOperationRequestAction string
 
 // ResourceBudget defines model for ResourceBudget.
 type ResourceBudget struct {
@@ -3022,6 +3251,9 @@ type DiagnosisId = string
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
+// MachineId defines model for MachineId.
+type MachineId = string
+
 // NotificationId defines model for NotificationId.
 type NotificationId = string
 
@@ -3079,6 +3311,11 @@ type ListDiagnosticNotificationsParams struct {
 // UpdateEnvironmentParams defines parameters for UpdateEnvironment.
 type UpdateEnvironmentParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// DeleteMachineParams defines parameters for DeleteMachine.
+type DeleteMachineParams struct {
+	ConfirmRisk bool `form:"confirmRisk" json:"confirmRisk"`
 }
 
 // CreateManifestProposalParams defines parameters for CreateManifestProposal.
@@ -3251,6 +3488,15 @@ type CreateDiagnosticFeedbackJSONRequestBody = DiagnosticFeedbackRequest
 
 // UpdateEnvironmentJSONRequestBody defines body for UpdateEnvironment for application/json ContentType.
 type UpdateEnvironmentJSONRequestBody = EnvironmentUpdate
+
+// CreateMachineJSONRequestBody defines body for CreateMachine for application/json ContentType.
+type CreateMachineJSONRequestBody = MachineRegistrationRequest
+
+// UpdateMachineAccessJSONRequestBody defines body for UpdateMachineAccess for application/json ContentType.
+type UpdateMachineAccessJSONRequestBody = MachineAccessRequest
+
+// CreateMachineOperationJSONRequestBody defines body for CreateMachineOperation for application/json ContentType.
+type CreateMachineOperationJSONRequestBody = RemoteOperationRequest
 
 // CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
 type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
@@ -3429,6 +3675,36 @@ type ClientInterface interface {
 
 	// GetHost request
 	GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListMachines request
+	ListMachines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateMachineWithBody request with any body
+	CreateMachineWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateMachine(ctx context.Context, body CreateMachineJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteMachine request
+	DeleteMachine(ctx context.Context, machineId MachineId, params *DeleteMachineParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMachine request
+	GetMachine(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateMachineAccessWithBody request with any body
+	UpdateMachineAccessWithBody(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateMachineAccess(ctx context.Context, machineId MachineId, body UpdateMachineAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateMachineOperationWithBody request with any body
+	CreateMachineOperationWithBody(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateMachineOperation(ctx context.Context, machineId MachineId, body CreateMachineOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ProbeMachine request
+	ProbeMachine(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMachineSnapshot request
+	GetMachineSnapshot(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateManifestProposalWithBody request with any body
 	CreateManifestProposalWithBody(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3892,6 +4168,138 @@ func (c *Client) UpdateEnvironment(ctx context.Context, environmentId string, pa
 
 func (c *Client) GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHostRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListMachines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMachinesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateMachineWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMachineRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateMachine(ctx context.Context, body CreateMachineJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMachineRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteMachine(ctx context.Context, machineId MachineId, params *DeleteMachineParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteMachineRequest(c.Server, machineId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetMachine(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMachineRequest(c.Server, machineId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMachineAccessWithBody(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMachineAccessRequestWithBody(c.Server, machineId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMachineAccess(ctx context.Context, machineId MachineId, body UpdateMachineAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMachineAccessRequest(c.Server, machineId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateMachineOperationWithBody(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMachineOperationRequestWithBody(c.Server, machineId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateMachineOperation(ctx context.Context, machineId MachineId, body CreateMachineOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMachineOperationRequest(c.Server, machineId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProbeMachine(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProbeMachineRequest(c.Server, machineId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetMachineSnapshot(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMachineSnapshotRequest(c.Server, machineId)
 	if err != nil {
 		return nil, err
 	}
@@ -5483,6 +5891,326 @@ func NewGetHostRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/host")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListMachinesRequest generates requests for ListMachines
+func NewListMachinesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateMachineRequest calls the generic CreateMachine builder with application/json body
+func NewCreateMachineRequest(server string, body CreateMachineJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateMachineRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateMachineRequestWithBody generates requests for CreateMachine with any type of body
+func NewCreateMachineRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteMachineRequest generates requests for DeleteMachine
+func NewDeleteMachineRequest(server string, machineId MachineId, params *DeleteMachineParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "confirmRisk", params.ConfirmRisk, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetMachineRequest generates requests for GetMachine
+func NewGetMachineRequest(server string, machineId MachineId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateMachineAccessRequest calls the generic UpdateMachineAccess builder with application/json body
+func NewUpdateMachineAccessRequest(server string, machineId MachineId, body UpdateMachineAccessJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateMachineAccessRequestWithBody(server, machineId, "application/json", bodyReader)
+}
+
+// NewUpdateMachineAccessRequestWithBody generates requests for UpdateMachineAccess with any type of body
+func NewUpdateMachineAccessRequestWithBody(server string, machineId MachineId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s/access", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateMachineOperationRequest calls the generic CreateMachineOperation builder with application/json body
+func NewCreateMachineOperationRequest(server string, machineId MachineId, body CreateMachineOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateMachineOperationRequestWithBody(server, machineId, "application/json", bodyReader)
+}
+
+// NewCreateMachineOperationRequestWithBody generates requests for CreateMachineOperation with any type of body
+func NewCreateMachineOperationRequestWithBody(server string, machineId MachineId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s/operations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewProbeMachineRequest generates requests for ProbeMachine
+func NewProbeMachineRequest(server string, machineId MachineId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s/probe", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetMachineSnapshotRequest generates requests for GetMachineSnapshot
+func NewGetMachineSnapshotRequest(server string, machineId MachineId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "machineId", machineId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/machines/%s/snapshot", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -8315,6 +9043,36 @@ type ClientWithResponsesInterface interface {
 	// GetHostWithResponse request
 	GetHostWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHostResponse, error)
 
+	// ListMachinesWithResponse request
+	ListMachinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMachinesResponse, error)
+
+	// CreateMachineWithBodyWithResponse request with any body
+	CreateMachineWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMachineResponse, error)
+
+	CreateMachineWithResponse(ctx context.Context, body CreateMachineJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMachineResponse, error)
+
+	// DeleteMachineWithResponse request
+	DeleteMachineWithResponse(ctx context.Context, machineId MachineId, params *DeleteMachineParams, reqEditors ...RequestEditorFn) (*DeleteMachineResponse, error)
+
+	// GetMachineWithResponse request
+	GetMachineWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*GetMachineResponse, error)
+
+	// UpdateMachineAccessWithBodyWithResponse request with any body
+	UpdateMachineAccessWithBodyWithResponse(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMachineAccessResponse, error)
+
+	UpdateMachineAccessWithResponse(ctx context.Context, machineId MachineId, body UpdateMachineAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMachineAccessResponse, error)
+
+	// CreateMachineOperationWithBodyWithResponse request with any body
+	CreateMachineOperationWithBodyWithResponse(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMachineOperationResponse, error)
+
+	CreateMachineOperationWithResponse(ctx context.Context, machineId MachineId, body CreateMachineOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMachineOperationResponse, error)
+
+	// ProbeMachineWithResponse request
+	ProbeMachineWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*ProbeMachineResponse, error)
+
+	// GetMachineSnapshotWithResponse request
+	GetMachineSnapshotWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*GetMachineSnapshotResponse, error)
+
 	// CreateManifestProposalWithBodyWithResponse request with any body
 	CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error)
 
@@ -9013,6 +9771,253 @@ func (r GetHostResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetHostResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListMachinesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]Machine
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMachinesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMachinesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListMachinesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateMachineResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *Machine
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateMachineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateMachineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateMachineResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteMachineResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteMachineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteMachineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteMachineResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetMachineResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Machine
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMachineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMachineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetMachineResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateMachineAccessResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Machine
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateMachineAccessResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateMachineAccessResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateMachineAccessResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateMachineOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *RemoteOperationReceipt
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateMachineOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateMachineOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateMachineOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ProbeMachineResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Machine
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ProbeMachineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ProbeMachineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ProbeMachineResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetMachineSnapshotResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *FleetSnapshot
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMachineSnapshotResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMachineSnapshotResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetMachineSnapshotResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -11037,6 +12042,102 @@ func (c *ClientWithResponses) GetHostWithResponse(ctx context.Context, reqEditor
 	return ParseGetHostResponse(rsp)
 }
 
+// ListMachinesWithResponse request returning *ListMachinesResponse
+func (c *ClientWithResponses) ListMachinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMachinesResponse, error) {
+	rsp, err := c.ListMachines(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMachinesResponse(rsp)
+}
+
+// CreateMachineWithBodyWithResponse request with arbitrary body returning *CreateMachineResponse
+func (c *ClientWithResponses) CreateMachineWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMachineResponse, error) {
+	rsp, err := c.CreateMachineWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMachineResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateMachineWithResponse(ctx context.Context, body CreateMachineJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMachineResponse, error) {
+	rsp, err := c.CreateMachine(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMachineResponse(rsp)
+}
+
+// DeleteMachineWithResponse request returning *DeleteMachineResponse
+func (c *ClientWithResponses) DeleteMachineWithResponse(ctx context.Context, machineId MachineId, params *DeleteMachineParams, reqEditors ...RequestEditorFn) (*DeleteMachineResponse, error) {
+	rsp, err := c.DeleteMachine(ctx, machineId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteMachineResponse(rsp)
+}
+
+// GetMachineWithResponse request returning *GetMachineResponse
+func (c *ClientWithResponses) GetMachineWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*GetMachineResponse, error) {
+	rsp, err := c.GetMachine(ctx, machineId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMachineResponse(rsp)
+}
+
+// UpdateMachineAccessWithBodyWithResponse request with arbitrary body returning *UpdateMachineAccessResponse
+func (c *ClientWithResponses) UpdateMachineAccessWithBodyWithResponse(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMachineAccessResponse, error) {
+	rsp, err := c.UpdateMachineAccessWithBody(ctx, machineId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMachineAccessResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateMachineAccessWithResponse(ctx context.Context, machineId MachineId, body UpdateMachineAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMachineAccessResponse, error) {
+	rsp, err := c.UpdateMachineAccess(ctx, machineId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMachineAccessResponse(rsp)
+}
+
+// CreateMachineOperationWithBodyWithResponse request with arbitrary body returning *CreateMachineOperationResponse
+func (c *ClientWithResponses) CreateMachineOperationWithBodyWithResponse(ctx context.Context, machineId MachineId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMachineOperationResponse, error) {
+	rsp, err := c.CreateMachineOperationWithBody(ctx, machineId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMachineOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateMachineOperationWithResponse(ctx context.Context, machineId MachineId, body CreateMachineOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMachineOperationResponse, error) {
+	rsp, err := c.CreateMachineOperation(ctx, machineId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMachineOperationResponse(rsp)
+}
+
+// ProbeMachineWithResponse request returning *ProbeMachineResponse
+func (c *ClientWithResponses) ProbeMachineWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*ProbeMachineResponse, error) {
+	rsp, err := c.ProbeMachine(ctx, machineId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProbeMachineResponse(rsp)
+}
+
+// GetMachineSnapshotWithResponse request returning *GetMachineSnapshotResponse
+func (c *ClientWithResponses) GetMachineSnapshotWithResponse(ctx context.Context, machineId MachineId, reqEditors ...RequestEditorFn) (*GetMachineSnapshotResponse, error) {
+	rsp, err := c.GetMachineSnapshot(ctx, machineId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMachineSnapshotResponse(rsp)
+}
+
 // CreateManifestProposalWithBodyWithResponse request with arbitrary body returning *CreateManifestProposalResponse
 func (c *ClientWithResponses) CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error) {
 	rsp, err := c.CreateManifestProposalWithBody(ctx, params, contentType, body, reqEditors...)
@@ -12199,6 +13300,263 @@ func ParseGetHostResponse(rsp *http.Response) (*GetHostResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest HostObservation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListMachinesResponse parses an HTTP response from a ListMachinesWithResponse call
+func ParseListMachinesResponse(rsp *http.Response) (*ListMachinesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMachinesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Machine
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateMachineResponse parses an HTTP response from a CreateMachineWithResponse call
+func ParseCreateMachineResponse(rsp *http.Response) (*CreateMachineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateMachineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Machine
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteMachineResponse parses an HTTP response from a DeleteMachineWithResponse call
+func ParseDeleteMachineResponse(rsp *http.Response) (*DeleteMachineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteMachineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMachineResponse parses an HTTP response from a GetMachineWithResponse call
+func ParseGetMachineResponse(rsp *http.Response) (*GetMachineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMachineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Machine
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateMachineAccessResponse parses an HTTP response from a UpdateMachineAccessWithResponse call
+func ParseUpdateMachineAccessResponse(rsp *http.Response) (*UpdateMachineAccessResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateMachineAccessResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Machine
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateMachineOperationResponse parses an HTTP response from a CreateMachineOperationWithResponse call
+func ParseCreateMachineOperationResponse(rsp *http.Response) (*CreateMachineOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateMachineOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest RemoteOperationReceipt
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseProbeMachineResponse parses an HTTP response from a ProbeMachineWithResponse call
+func ParseProbeMachineResponse(rsp *http.Response) (*ProbeMachineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ProbeMachineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Machine
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMachineSnapshotResponse parses an HTTP response from a GetMachineSnapshotWithResponse call
+func ParseGetMachineSnapshotResponse(rsp *http.Response) (*GetMachineSnapshotResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMachineSnapshotResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FleetSnapshot
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -14192,6 +15550,30 @@ type ServerInterface interface {
 	// Read current host CPU, memory, and aggregate Docker storage
 	// (GET /host)
 	GetHost(w http.ResponseWriter, r *http.Request)
+	// List explicitly configured remote Switchyard machines
+	// (GET /machines)
+	ListMachines(w http.ResponseWriter, r *http.Request)
+	// Register and probe a certificate-pinned remote Switchyard machine
+	// (POST /machines)
+	CreateMachine(w http.ResponseWriter, r *http.Request)
+	// Remove a remote machine registration without changing the peer
+	// (DELETE /machines/{machineId})
+	DeleteMachine(w http.ResponseWriter, r *http.Request, machineId MachineId, params DeleteMachineParams)
+	// Read one redacted remote machine registration
+	// (GET /machines/{machineId})
+	GetMachine(w http.ResponseWriter, r *http.Request, machineId MachineId)
+	// Replace the complete reviewed remote capability grant set
+	// (PUT /machines/{machineId}/access)
+	UpdateMachineAccess(w http.ResponseWriter, r *http.Request, machineId MachineId)
+	// Submit a typed and explicitly confirmed remote lifecycle operation
+	// (POST /machines/{machineId}/operations)
+	CreateMachineOperation(w http.ResponseWriter, r *http.Request, machineId MachineId)
+	// Authenticate and refresh a remote machine identity and inventory
+	// (POST /machines/{machineId}/probe)
+	ProbeMachine(w http.ResponseWriter, r *http.Request, machineId MachineId)
+	// Read a fresh bounded inventory from a remote machine
+	// (GET /machines/{machineId}/snapshot)
+	GetMachineSnapshot(w http.ResponseWriter, r *http.Request, machineId MachineId)
 	// Scan a selected repository into an untrusted manifest proposal
 	// (POST /manifest-proposals)
 	CreateManifestProposal(w http.ResponseWriter, r *http.Request, params CreateManifestProposalParams)
@@ -14468,6 +15850,54 @@ func (_ Unimplemented) UpdateEnvironment(w http.ResponseWriter, r *http.Request,
 // Read current host CPU, memory, and aggregate Docker storage
 // (GET /host)
 func (_ Unimplemented) GetHost(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List explicitly configured remote Switchyard machines
+// (GET /machines)
+func (_ Unimplemented) ListMachines(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Register and probe a certificate-pinned remote Switchyard machine
+// (POST /machines)
+func (_ Unimplemented) CreateMachine(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Remove a remote machine registration without changing the peer
+// (DELETE /machines/{machineId})
+func (_ Unimplemented) DeleteMachine(w http.ResponseWriter, r *http.Request, machineId MachineId, params DeleteMachineParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read one redacted remote machine registration
+// (GET /machines/{machineId})
+func (_ Unimplemented) GetMachine(w http.ResponseWriter, r *http.Request, machineId MachineId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Replace the complete reviewed remote capability grant set
+// (PUT /machines/{machineId}/access)
+func (_ Unimplemented) UpdateMachineAccess(w http.ResponseWriter, r *http.Request, machineId MachineId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Submit a typed and explicitly confirmed remote lifecycle operation
+// (POST /machines/{machineId}/operations)
+func (_ Unimplemented) CreateMachineOperation(w http.ResponseWriter, r *http.Request, machineId MachineId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Authenticate and refresh a remote machine identity and inventory
+// (POST /machines/{machineId}/probe)
+func (_ Unimplemented) ProbeMachine(w http.ResponseWriter, r *http.Request, machineId MachineId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read a fresh bounded inventory from a remote machine
+// (GET /machines/{machineId}/snapshot)
+func (_ Unimplemented) GetMachineSnapshot(w http.ResponseWriter, r *http.Request, machineId MachineId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -15312,6 +16742,206 @@ func (siw *ServerInterfaceWrapper) GetHost(w http.ResponseWriter, r *http.Reques
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetHost(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListMachines operation middleware
+func (siw *ServerInterfaceWrapper) ListMachines(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListMachines(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateMachine operation middleware
+func (siw *ServerInterfaceWrapper) CreateMachine(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateMachine(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteMachine operation middleware
+func (siw *ServerInterfaceWrapper) DeleteMachine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteMachineParams
+
+	// ------------- Required query parameter "confirmRisk" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "confirmRisk", r.URL.Query(), &params.ConfirmRisk, runtime.BindQueryParameterOptions{Type: "boolean", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "confirmRisk"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "confirmRisk", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteMachine(w, r, machineId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetMachine operation middleware
+func (siw *ServerInterfaceWrapper) GetMachine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetMachine(w, r, machineId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateMachineAccess operation middleware
+func (siw *ServerInterfaceWrapper) UpdateMachineAccess(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateMachineAccess(w, r, machineId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateMachineOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreateMachineOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateMachineOperation(w, r, machineId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ProbeMachine operation middleware
+func (siw *ServerInterfaceWrapper) ProbeMachine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProbeMachine(w, r, machineId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetMachineSnapshot operation middleware
+func (siw *ServerInterfaceWrapper) GetMachineSnapshot(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "machineId" -------------
+	var machineId MachineId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "machineId", chi.URLParam(r, "machineId"), &machineId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "machineId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetMachineSnapshot(w, r, machineId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -17696,6 +19326,30 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/host", wrapper.GetHost)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/machines", wrapper.ListMachines)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/machines", wrapper.CreateMachine)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/machines/{machineId}", wrapper.DeleteMachine)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/machines/{machineId}", wrapper.GetMachine)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/machines/{machineId}/access", wrapper.UpdateMachineAccess)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/machines/{machineId}/operations", wrapper.CreateMachineOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/machines/{machineId}/probe", wrapper.ProbeMachine)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/machines/{machineId}/snapshot", wrapper.GetMachineSnapshot)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/manifest-proposals", wrapper.CreateManifestProposal)

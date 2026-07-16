@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
+	goruntime "runtime"
 	"strings"
 	"sync"
 	"time"
@@ -27,6 +29,9 @@ import (
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	environmentsAdapters "switchyard.dev/switchyard/internal/environments/adapters"
 	environmentsApplication "switchyard.dev/switchyard/internal/environments/application"
+	fleetAdapters "switchyard.dev/switchyard/internal/fleet/adapters"
+	fleetApplication "switchyard.dev/switchyard/internal/fleet/application"
+	fleetDomain "switchyard.dev/switchyard/internal/fleet/domain"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
 	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
 	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
@@ -201,6 +206,26 @@ func RunDaemon(ctx context.Context, config Config) error {
 			)
 		},
 	))
+	fleetService, err := fleetApplication.NewService(sqlite.NewFleetRepository(database), fleetAdapters.NewHTTPSPeerClient())
+	if err != nil {
+		return err
+	}
+	var remoteHandler http.Handler
+	if config.RemoteAddr != "" {
+		controllers, controllerErr := parseRemoteControllers(config.RemoteControllers)
+		if controllerErr != nil {
+			return controllerErr
+		}
+		agentService, agentErr := fleetApplication.NewAgentService(fleetDomain.Identity{
+			ProtocolVersion: fleetDomain.ProtocolVersion, MachineID: config.RemoteMachineID, Name: config.RemoteMachineName,
+			Version: build.Version, OS: goruntime.GOOS, Architecture: goruntime.GOARCH,
+			Capabilities: append([]fleetDomain.Capability(nil), fleetDomain.KnownCapabilities...),
+		}, fleetAdapters.NewLocalInventory(catalogService, runtimeService, environmentService), fleetAdapters.NewLocalOperator(coordinator), controllers)
+		if agentErr != nil {
+			return agentErr
+		}
+		remoteHandler = fleetAdapters.NewAgentHandler(agentService)
+	}
 	workspaceService = workspaceApplication.NewService(
 		sqlite.NewWorkspaceRepository(database), &workspaceProjectOperator{operations: coordinator},
 		workspaceHealthGate{health: healthService}, workspaceMemberValidator{runtime: runtimeSource},
@@ -263,13 +288,14 @@ func RunDaemon(ctx context.Context, config Config) error {
 		Ports: portService, Git: gitService, Actions: actionService,
 		AI: aiService, Resources: resourceService, Plugins: pluginService, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
+		Fleet:     fleetService,
 		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
 			actorType, actorID := httpapi.RequestActor(actorContext)
 			return terminalDomain.Owner{Type: actorType, ID: actorID}
 		}),
 		Web: web.Handler(), Logger: config.Logger,
 	}
-	servers, err := newLocalServers(config, dependencies, routingAdapters.NewProxy(routeRegistry))
+	servers, err := newLocalServers(config, dependencies, routingAdapters.NewProxy(routeRegistry), remoteHandler)
 	if err != nil {
 		return err
 	}
@@ -279,6 +305,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		"address", servers.browserAddress(),
 		"ipc_address", servers.ipcAddress,
 		"routing_address", config.RoutingAddr,
+		"remote_address", servers.remoteAddress,
 		"data_dir", config.DataDir,
 	)
 	runErr := servers.run(ctx, coordinator.Shutdown)
@@ -514,11 +541,15 @@ func validateDaemonConfig(config Config) error {
 	if err := validateLoopbackAddress(config.HTTPAddr); err != nil {
 		return err
 	}
-	if config.RoutingAddr == "" {
-		return nil
+	if config.RoutingAddr != "" {
+		if err := validateLoopbackAddress(config.RoutingAddr); err != nil {
+			return fmt.Errorf("validate local routing address: %w", err)
+		}
 	}
-	if err := validateLoopbackAddress(config.RoutingAddr); err != nil {
-		return fmt.Errorf("validate local routing address: %w", err)
+	if config.RemoteAddr != "" {
+		if _, _, err := net.SplitHostPort(config.RemoteAddr); err != nil {
+			return fmt.Errorf("validate remote agent address: %w", err)
+		}
 	}
-	return nil
+	return validateRemoteConfig(config)
 }

@@ -114,6 +114,45 @@ type EventJournal struct {
 	PayloadJson string         `json:"payload_json"`
 }
 
+type FleetAuditEvent struct {
+	ID         int64  `json:"id"`
+	MachineID  string `json:"machine_id"`
+	EventType  string `json:"event_type"`
+	ActorType  string `json:"actor_type"`
+	ActorID    string `json:"actor_id"`
+	RequestID  string `json:"request_id"`
+	Detail     string `json:"detail"`
+	OccurredAt string `json:"occurred_at"`
+}
+
+type FleetMachine struct {
+	ID                     string         `json:"id"`
+	Name                   string         `json:"name"`
+	Endpoint               string         `json:"endpoint"`
+	CertificateFingerprint string         `json:"certificate_fingerprint"`
+	CaCertificatePath      string         `json:"ca_certificate_path"`
+	ClientCertificatePath  string         `json:"client_certificate_path"`
+	ClientKeyPath          string         `json:"client_key_path"`
+	Enabled                int64          `json:"enabled"`
+	CapabilitiesJson       string         `json:"capabilities_json"`
+	GrantsJson             string         `json:"grants_json"`
+	State                  string         `json:"state"`
+	PeerID                 string         `json:"peer_id"`
+	PeerVersion            string         `json:"peer_version"`
+	Os                     string         `json:"os"`
+	Architecture           string         `json:"architecture"`
+	LastError              string         `json:"last_error"`
+	LastSeenAt             sql.NullString `json:"last_seen_at"`
+	CreatedAt              string         `json:"created_at"`
+	UpdatedAt              string         `json:"updated_at"`
+}
+
+type FleetSnapshot struct {
+	MachineID    string `json:"machine_id"`
+	SnapshotJson string `json:"snapshot_json"`
+	ObservedAt   string `json:"observed_at"`
+}
+
 type HealthSample struct {
 	ID         int64  `json:"id"`
 	ProjectID  string `json:"project_id"`

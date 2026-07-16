@@ -170,7 +170,7 @@ mod tests {
         DesktopSnapshot {
             system: SystemInfo {
                 api_version: "v1".into(),
-                database_schema_version: 13,
+                database_schema_version: 14,
                 status: "ready".into(),
                 version: env!("CARGO_PKG_VERSION").into(),
             },

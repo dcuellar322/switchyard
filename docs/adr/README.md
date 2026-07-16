@@ -26,3 +26,4 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0013: Local IPC and browser session security](0013-local-transport-security.md)
 - [ADR-0014: Log retention and redaction](0014-log-retention-redaction.md)
 - [ADR-0015: Platform support order](0015-platform-order.md)
+- [ADR-0016: Optional peer federation and signed shared configuration](0016-optional-federation.md)

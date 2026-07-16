@@ -27,6 +27,10 @@ switchyard open <project> [--print]
 switchyard ui [--path /projects/<id>]
 switchyard plugin list
 switchyard plugin refresh
+switchyard machine list
+switchyard machine show <machine>
+switchyard machine probe <machine>
+switchyard machine snapshot <machine>
 switchyard doctor
 ```
 
@@ -57,6 +61,27 @@ revokes every grant. `plugin health`, `plugin logs`, and `plugin inspect` expose
 bounded supervision and structured observations. `plugin run` accepts one
 advertised typed action, a JSON object, and `--yes`, then queues a durable
 audited operation. No plugin command exposes an arbitrary shell.
+
+Remote-machine commands are optional and preserve local-only operation:
+
+```text
+switchyard machine add <name> <https-endpoint> --server-fingerprint <sha256>
+  --ca <absolute-path> --client-certificate <absolute-path>
+  --client-key <absolute-path> [--grant inventory.read] --yes
+switchyard machine access <machine> --grant inventory.read
+  [--grant project.operate] [--grant environment.manage] --yes
+switchyard machine disable <machine> --yes
+switchyard machine remove <machine> --yes
+switchyard machine run <machine> <remote-project> <start|stop|restart|rebuild>
+  [--environment <remote-environment>] [--request-id <stable-id>] --yes
+```
+
+The CLI never accepts tunnel credentials or certificate values, only absolute
+local certificate file references. Registration pins the reviewed server
+certificate and starts with the specified complete grants. Every later grant
+replacement and lifecycle operation requires `--yes`. See the
+[federation guide](federation.md) for the separate agent-listener flags and
+trust model.
 
 ## Diagnosis and safe automation
 

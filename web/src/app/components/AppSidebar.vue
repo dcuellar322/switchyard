@@ -29,6 +29,7 @@ const navigation = [
 ];
 const tools = [
   { to: "/workspaces", label: "Workspaces", icon: "▥" },
+  { to: "/fleet", label: "Machines", icon: "⌁" },
   { to: "/agents", label: "Agents", icon: "◆" },
   { to: "/plugins", label: "Plugins", icon: "⬡" },
   { to: "/settings", label: "Settings", icon: "⚙" },

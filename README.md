@@ -170,6 +170,12 @@ Agent records describe user-visible terminal output and never claim access to
 hidden reasoning. See the
 [terminal and agent session architecture](docs/architecture/terminal-sessions.md).
 
+Optional peer federation connects explicitly configured Switchyard daemons
+over an operator-owned tunnel with mutual TLS, exact certificate pins, separate
+capability grants, bounded inventory, typed lifecycle operations, and durable
+audit. It remains disabled by default and local projects require no account or
+cloud service. See the [federation guide](docs/federation.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

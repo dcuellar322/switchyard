@@ -10,6 +10,7 @@ import WorkspacesView from "./domains/workspaces/views/WorkspacesView.vue";
 import PluginsView from "./domains/plugins/views/PluginsView.vue";
 import DiagnosticsView from "./domains/diagnostics/views/DiagnosticsView.vue";
 import SettingsView from "./domains/system/views/SettingsView.vue";
+import FleetView from "./domains/fleet/views/FleetView.vue";
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -34,6 +35,8 @@ export const router = createRouter({
     { path: "/discovery", name: "discovery", component: ProjectOnboardingView },
     { path: "/workspaces", name: "workspaces", component: WorkspacesView },
     { path: "/plugins", name: "plugins", component: PluginsView },
+    { path: "/fleet", name: "fleet", component: FleetView },
+    { path: "/companion", name: "companion", component: FleetView, props: { readOnly: true } },
     { path: "/agents", name: "agents", component: DiagnosticsView },
     { path: "/settings", name: "settings", component: SettingsView },
     { path: "/:pathMatch(.*)*", redirect: "/" },

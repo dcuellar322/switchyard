@@ -125,6 +125,96 @@ export type DiagnosticNotification = {
     acknowledgedAt?: string;
 };
 
+export type FleetCapability = 'inventory.read' | 'project.operate' | 'environment.manage';
+
+export type Machine = {
+    id: string;
+    name: string;
+    endpoint: string;
+    certificateFingerprint: string;
+    credentialConfigured: boolean;
+    enabled: boolean;
+    capabilities: Array<FleetCapability>;
+    grantedCapabilities: Array<FleetCapability>;
+    state: 'pending' | 'online' | 'degraded' | 'offline' | 'disabled';
+    peerId?: string;
+    peerVersion?: string;
+    os?: string;
+    architecture?: string;
+    lastError?: string;
+    lastSeenAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type MachineRegistrationRequest = {
+    name: string;
+    endpoint: string;
+    certificateFingerprint: string;
+    caCertificatePath: string;
+    clientCertificatePath: string;
+    clientKeyPath: string;
+    grantedCapabilities: Array<FleetCapability>;
+    confirmRisk: boolean;
+};
+
+export type MachineAccessRequest = {
+    enabled: boolean;
+    grantedCapabilities: Array<FleetCapability>;
+    confirmRisk: boolean;
+};
+
+export type FleetIdentity = {
+    protocolVersion: 'switchyard.remote/v1';
+    machineId: string;
+    name: string;
+    version: string;
+    os: string;
+    architecture: string;
+    capabilities: Array<FleetCapability>;
+};
+
+export type FleetProject = {
+    id: string;
+    slug: string;
+    displayName: string;
+    runtime: string;
+    state: string;
+    health: string;
+    degraded: boolean;
+};
+
+export type FleetEnvironment = {
+    id: string;
+    projectId: string;
+    name: string;
+    branch?: string;
+    state: string;
+    availability: string;
+};
+
+export type FleetSnapshot = {
+    identity: FleetIdentity;
+    projects: Array<FleetProject>;
+    environments: Array<FleetEnvironment>;
+    observedAt: string;
+};
+
+export type RemoteOperationRequest = {
+    requestId: string;
+    projectId: string;
+    environmentId?: string;
+    action: 'start' | 'stop' | 'restart' | 'rebuild';
+    confirmRisk: boolean;
+};
+
+export type RemoteOperationReceipt = {
+    requestId: string;
+    operationId: string;
+    state: 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'partially_succeeded';
+    acceptedAt: string;
+};
+
 export type PluginRegistration = {
     id: string;
     name: string;
@@ -1134,6 +1224,8 @@ export type ActionId = string;
 export type WorkspaceId = string;
 
 export type PluginId = string;
+
+export type MachineId = string;
 
 export type DiagnosisId = string;
 
@@ -2675,6 +2767,220 @@ export type CreateAgentSessionResponses = {
 };
 
 export type CreateAgentSessionResponse = CreateAgentSessionResponses[keyof CreateAgentSessionResponses];
+
+export type ListMachinesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/machines';
+};
+
+export type ListMachinesErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListMachinesError = ListMachinesErrors[keyof ListMachinesErrors];
+
+export type ListMachinesResponses = {
+    /**
+     * Redacted machine inventory and connection state
+     */
+    200: Array<Machine>;
+};
+
+export type ListMachinesResponse = ListMachinesResponses[keyof ListMachinesResponses];
+
+export type CreateMachineData = {
+    body: MachineRegistrationRequest;
+    path?: never;
+    query?: never;
+    url: '/machines';
+};
+
+export type CreateMachineErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateMachineError = CreateMachineErrors[keyof CreateMachineErrors];
+
+export type CreateMachineResponses = {
+    /**
+     * Registered machine with credential values redacted
+     */
+    201: Machine;
+};
+
+export type CreateMachineResponse = CreateMachineResponses[keyof CreateMachineResponses];
+
+export type DeleteMachineData = {
+    body?: never;
+    path: {
+        machineId: string;
+    };
+    query: {
+        confirmRisk: boolean;
+    };
+    url: '/machines/{machineId}';
+};
+
+export type DeleteMachineErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type DeleteMachineError = DeleteMachineErrors[keyof DeleteMachineErrors];
+
+export type DeleteMachineResponses = {
+    /**
+     * Machine registration removed
+     */
+    204: void;
+};
+
+export type DeleteMachineResponse = DeleteMachineResponses[keyof DeleteMachineResponses];
+
+export type GetMachineData = {
+    body?: never;
+    path: {
+        machineId: string;
+    };
+    query?: never;
+    url: '/machines/{machineId}';
+};
+
+export type GetMachineErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetMachineError = GetMachineErrors[keyof GetMachineErrors];
+
+export type GetMachineResponses = {
+    /**
+     * Remote machine registration
+     */
+    200: Machine;
+};
+
+export type GetMachineResponse = GetMachineResponses[keyof GetMachineResponses];
+
+export type UpdateMachineAccessData = {
+    body: MachineAccessRequest;
+    path: {
+        machineId: string;
+    };
+    query?: never;
+    url: '/machines/{machineId}/access';
+};
+
+export type UpdateMachineAccessErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateMachineAccessError = UpdateMachineAccessErrors[keyof UpdateMachineAccessErrors];
+
+export type UpdateMachineAccessResponses = {
+    /**
+     * Updated machine access
+     */
+    200: Machine;
+};
+
+export type UpdateMachineAccessResponse = UpdateMachineAccessResponses[keyof UpdateMachineAccessResponses];
+
+export type ProbeMachineData = {
+    body?: never;
+    path: {
+        machineId: string;
+    };
+    query?: never;
+    url: '/machines/{machineId}/probe';
+};
+
+export type ProbeMachineErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ProbeMachineError = ProbeMachineErrors[keyof ProbeMachineErrors];
+
+export type ProbeMachineResponses = {
+    /**
+     * Current machine observation
+     */
+    200: Machine;
+};
+
+export type ProbeMachineResponse = ProbeMachineResponses[keyof ProbeMachineResponses];
+
+export type GetMachineSnapshotData = {
+    body?: never;
+    path: {
+        machineId: string;
+    };
+    query?: never;
+    url: '/machines/{machineId}/snapshot';
+};
+
+export type GetMachineSnapshotErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetMachineSnapshotError = GetMachineSnapshotErrors[keyof GetMachineSnapshotErrors];
+
+export type GetMachineSnapshotResponses = {
+    /**
+     * Redacted remote inventory
+     */
+    200: FleetSnapshot;
+};
+
+export type GetMachineSnapshotResponse = GetMachineSnapshotResponses[keyof GetMachineSnapshotResponses];
+
+export type CreateMachineOperationData = {
+    body: RemoteOperationRequest;
+    path: {
+        machineId: string;
+    };
+    query?: never;
+    url: '/machines/{machineId}/operations';
+};
+
+export type CreateMachineOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateMachineOperationError = CreateMachineOperationErrors[keyof CreateMachineOperationErrors];
+
+export type CreateMachineOperationResponses = {
+    /**
+     * Remote daemon accepted the durable operation
+     */
+    202: RemoteOperationReceipt;
+};
+
+export type CreateMachineOperationResponse = CreateMachineOperationResponses[keyof CreateMachineOperationResponses];
 
 export type ListPluginsData = {
     body?: never;

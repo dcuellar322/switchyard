@@ -33,6 +33,7 @@ type Dependencies struct {
 	EnvironmentRegistration environmentRegistrationService
 	Routes                  routeService
 	Terminals               terminalService
+	Fleet                   fleetService
 	Events                  http.Handler
 	Logs                    http.Handler
 	Terminal                http.Handler
@@ -68,7 +69,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 		diagnostics: dependencies.Diagnostics, automations: dependencies.Automations,
 		workspaces:   dependencies.Workspaces,
 		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
-		terminals: dependencies.Terminals,
+		terminals: dependencies.Terminals, fleet: dependencies.Fleet,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {

@@ -2,10 +2,13 @@ package bootstrap
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"switchyard.dev/switchyard/internal/platform/localipc"
@@ -13,12 +16,13 @@ import (
 )
 
 type localServers struct {
-	servers    []*http.Server
-	listeners  []net.Listener
-	ipcAddress string
+	servers       []*http.Server
+	listeners     []net.Listener
+	ipcAddress    string
+	remoteAddress string
 }
 
-func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHandlers ...http.Handler) (*localServers, error) {
+func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHandler, remoteHandler http.Handler) (*localServers, error) {
 	browserListener, err := net.Listen("tcp", config.HTTPAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen on loopback API: %w", err)
@@ -41,7 +45,7 @@ func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHand
 		group.listeners = append(group.listeners, ipcListener)
 	}
 	if config.RoutingAddr != "" {
-		if len(routeHandlers) == 0 || routeHandlers[0] == nil {
+		if routeHandler == nil {
 			_ = browserListener.Close()
 			if ipcListener != nil {
 				_ = ipcListener.Close()
@@ -55,10 +59,51 @@ func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHand
 			}
 			return nil, fmt.Errorf("listen for local routes: %w", listenErr)
 		}
-		group.servers = append(group.servers, newHTTPServer(routeHandlers[0]))
+		group.servers = append(group.servers, newHTTPServer(routeHandler))
 		group.listeners = append(group.listeners, routeListener)
 	}
+	if config.RemoteAddr != "" {
+		if remoteHandler == nil {
+			for _, listener := range group.listeners {
+				_ = listener.Close()
+			}
+			return nil, errors.New("remote listener requires an authenticated agent handler")
+		}
+		listener, listenErr := newRemoteListener(config)
+		if listenErr != nil {
+			for _, current := range group.listeners {
+				_ = current.Close()
+			}
+			return nil, listenErr
+		}
+		group.servers = append(group.servers, newHTTPServer(remoteHandler))
+		group.listeners = append(group.listeners, listener)
+		group.remoteAddress = listener.Addr().String()
+	}
 	return group, nil
+}
+
+func newRemoteListener(config Config) (net.Listener, error) {
+	certificate, err := tls.LoadX509KeyPair(config.RemoteTLSCertificate, config.RemoteTLSKey)
+	if err != nil {
+		return nil, fmt.Errorf("load remote server identity: %w", err)
+	}
+	caDocument, err := os.ReadFile(config.RemoteClientCA)
+	if err != nil {
+		return nil, fmt.Errorf("read remote client CA: %w", err)
+	}
+	clientCAs := x509.NewCertPool()
+	if !clientCAs.AppendCertsFromPEM(caDocument) {
+		return nil, errors.New("remote client CA is invalid")
+	}
+	listener, err := net.Listen("tcp", config.RemoteAddr)
+	if err != nil {
+		return nil, fmt.Errorf("listen for authenticated remote agents: %w", err)
+	}
+	return tls.NewListener(listener, &tls.Config{
+		MinVersion: tls.VersionTLS13, Certificates: []tls.Certificate{certificate},
+		ClientCAs: clientCAs, ClientAuth: tls.RequireAndVerifyClientCert,
+	}), nil
 }
 
 func newHTTPServer(handler http.Handler) *http.Server {

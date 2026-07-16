@@ -45,6 +45,13 @@ type rootOptions struct {
 	aiOpenAIEndpoint           string
 	aiOpenAIModel              string
 	aiOpenAIAPIKeyEnv          string
+	remoteAddr                 string
+	remoteTLSCertificate       string
+	remoteTLSKey               string
+	remoteClientCA             string
+	remoteMachineID            string
+	remoteMachineName          string
+	remoteControllers          []string
 }
 
 // Execute runs the CLI with explicit process dependencies.
@@ -99,6 +106,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newWorkspaceCommand(options), newEnvironmentCommand(options),
 		newMCPCommand(options), newAgentCommand(options),
 		newPluginCommand(options), newDiagnoseCommand(options), newAutomationCommand(options),
+		newMachineCommand(options),
 		newDataCommand(options),
 		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"),
 		newLifecycleCommand(options, "pause"), newLifecycleCommand(options, "unpause"), newLifecycleCommand(options, "rebuild"),
@@ -131,6 +139,9 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 			AICodexExecutable:          options.aiCodexExecutable, AICodexModel: options.aiCodexModel,
 			AIClaudeExecutable: options.aiClaudeExecutable, AIClaudeModel: options.aiClaudeModel,
 			AIOpenAIEndpoint: options.aiOpenAIEndpoint, AIOpenAIModel: options.aiOpenAIModel, AIOpenAIAPIKeyEnv: options.aiOpenAIAPIKeyEnv,
+			RemoteAddr: options.remoteAddr, RemoteTLSCertificate: options.remoteTLSCertificate, RemoteTLSKey: options.remoteTLSKey,
+			RemoteClientCA: options.remoteClientCA, RemoteMachineID: options.remoteMachineID, RemoteMachineName: options.remoteMachineName,
+			RemoteControllers: options.remoteControllers,
 		})
 	}}
 	command.Flags().IntVar(&options.logRingCapacity, "log-ring-entries", options.logRingCapacity, "redacted in-memory log entries per service")
@@ -150,6 +161,13 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 	command.Flags().StringVar(&options.aiOpenAIEndpoint, "ai-openai-endpoint", options.aiOpenAIEndpoint, "configured OpenAI-compatible endpoint base URL")
 	command.Flags().StringVar(&options.aiOpenAIModel, "ai-openai-model", options.aiOpenAIModel, "configured OpenAI-compatible model")
 	command.Flags().StringVar(&options.aiOpenAIAPIKeyEnv, "ai-openai-api-key-env", options.aiOpenAIAPIKeyEnv, "environment variable containing the endpoint API key")
+	command.Flags().StringVar(&options.remoteAddr, "remote-address", "", "optional mTLS remote-agent listen address")
+	command.Flags().StringVar(&options.remoteTLSCertificate, "remote-tls-certificate", "", "absolute remote-agent server certificate path")
+	command.Flags().StringVar(&options.remoteTLSKey, "remote-tls-key", "", "absolute remote-agent server private key path")
+	command.Flags().StringVar(&options.remoteClientCA, "remote-client-ca", "", "absolute PEM CA path for remote controller certificates")
+	command.Flags().StringVar(&options.remoteMachineID, "remote-machine-id", "", "stable identity advertised by this remote agent")
+	command.Flags().StringVar(&options.remoteMachineName, "remote-machine-name", "", "display name advertised by this remote agent")
+	command.Flags().StringArrayVar(&options.remoteControllers, "remote-controller", nil, "allowed controller as SHA256=capability,capability (repeatable)")
 	return command
 }
 

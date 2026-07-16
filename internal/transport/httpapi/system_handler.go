@@ -15,6 +15,8 @@ import (
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
 	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
+	fleetApplication "switchyard.dev/switchyard/internal/fleet/application"
+	fleetDomain "switchyard.dev/switchyard/internal/fleet/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
 	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
@@ -64,6 +66,7 @@ type handler struct {
 	environmentRegistration environmentRegistrationService
 	routes                  routeService
 	terminals               terminalService
+	fleet                   fleetService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +110,17 @@ type operationService interface {
 	Get(ctx context.Context, id string) (operationsDomain.Operation, error)
 	List(ctx context.Context, projectID string, limit int64) ([]operationsDomain.Operation, error)
 	Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (operationsDomain.Operation, error)
+}
+
+type fleetService interface {
+	Register(context.Context, fleetApplication.RegisterRequest, fleetApplication.Actor) (fleetDomain.Machine, error)
+	List(context.Context) ([]fleetDomain.Machine, error)
+	Get(context.Context, string) (fleetDomain.Machine, error)
+	ConfigureAccess(context.Context, string, bool, []fleetDomain.Capability, bool, fleetApplication.Actor) (fleetDomain.Machine, error)
+	Probe(context.Context, string, fleetApplication.Actor) (fleetDomain.Machine, error)
+	Snapshot(context.Context, string) (fleetDomain.Snapshot, error)
+	Operate(context.Context, string, fleetDomain.OperationRequest, fleetApplication.Actor) (fleetDomain.OperationReceipt, error)
+	Remove(context.Context, string, bool, fleetApplication.Actor) error
 }
 
 type runtimeService interface {

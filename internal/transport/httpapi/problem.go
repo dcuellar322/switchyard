@@ -10,6 +10,7 @@ import (
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	diagnostics "switchyard.dev/switchyard/internal/diagnostics/application"
 	environments "switchyard.dev/switchyard/internal/environments/application"
+	fleet "switchyard.dev/switchyard/internal/fleet/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	resources "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
@@ -94,7 +95,25 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeFleetError(w, r, err) || writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeFleetError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, fleet.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "MACHINE_NOT_FOUND", "Remote machine not found", "No configured remote machine exists for this identifier.")
+	case errors.Is(err, fleet.ErrInvalidMachine):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "MACHINE_INVALID", "Remote machine invalid", err.Error())
+	case errors.Is(err, fleet.ErrPermissionDenied):
+		writeProblem(w, r, http.StatusForbidden, "REMOTE_CAPABILITY_DENIED", "Remote capability denied", err.Error())
+	case errors.Is(err, fleet.ErrConfirmationNeeded):
+		writeProblem(w, r, http.StatusConflict, "REMOTE_CONFIRMATION_REQUIRED", "Explicit confirmation required", "Registering, changing access, removing, and mutating remote machines require explicit confirmation.")
+	case errors.Is(err, fleet.ErrPeerIdentity):
+		writeProblem(w, r, http.StatusConflict, "REMOTE_IDENTITY_CHANGED", "Remote identity changed", "The authenticated peer identity no longer matches the reviewed registration.")
+	default:
+		return false
+	}
+	return true
 }
 
 func writeDiagnosticError(w http.ResponseWriter, r *http.Request, err error) bool {
