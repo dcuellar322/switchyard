@@ -1,8 +1,8 @@
 -- name: CreateOperation :execrows
 INSERT INTO operations (
     id, project_id, kind, state, idempotency_key, input_json,
-    requested_at, updated_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    requested_at, updated_at, workspace_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT (project_id, idempotency_key) DO NOTHING;
 
 -- name: GetOperation :one
@@ -44,8 +44,8 @@ SELECT * FROM operation_steps WHERE operation_id = ? ORDER BY id;
 -- name: CreateAuditEvent :exec
 INSERT INTO audit_events (
     event_type, actor_type, actor_id, project_id, operation_id,
-    idempotency_key, detail_json, occurred_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    idempotency_key, detail_json, occurred_at, workspace_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: ListAuditEventsForOperation :many
 SELECT * FROM audit_events WHERE operation_id = ? ORDER BY id;

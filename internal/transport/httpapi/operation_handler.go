@@ -64,6 +64,9 @@ func operationResponse(operation domain.Operation) generated.Operation {
 	if operation.ErrorCode != "" {
 		response.ErrorCode = &operation.ErrorCode
 	}
+	if operation.WorkspaceID != "" {
+		response.WorkspaceId = &operation.WorkspaceID
+	}
 	if operation.ErrorMessage != "" {
 		response.ErrorMessage = &operation.ErrorMessage
 	}

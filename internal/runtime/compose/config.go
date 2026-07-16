@@ -16,11 +16,13 @@ type normalizedConfig struct {
 	ProjectName string
 	Services    []string
 	Connection  dockerConnection
+	BaseArgs    []string
 }
 
 type configReader struct {
-	runner   commandRunner
-	contexts contextResolver
+	runner            commandRunner
+	contexts          contextResolver
+	artifactDirectory string
 }
 
 func (r configReader) Normalize(ctx context.Context, project domain.ProjectRuntime) (normalizedConfig, error) {
@@ -35,6 +37,14 @@ func (r configReader) Normalize(ctx context.Context, project domain.ProjectRunti
 	if err != nil {
 		return normalizedConfig{}, err
 	}
+	if len(project.Compose.PortOverrides) > 0 {
+		overridePath, overrideErr := writePortOverride(r.artifactDirectory, project)
+		if overrideErr != nil {
+			return normalizedConfig{}, overrideErr
+		}
+		arguments = appendComposeFile(arguments, overridePath)
+	}
+	baseArguments := append([]string(nil), arguments...)
 	arguments = append(arguments, "config", "--format", "json")
 	var stdout, stderr limitedBuffer
 	err = r.runner.Run(ctx, domain.Command{Executable: "docker", Arguments: arguments, WorkingDirectory: project.Root}, &stdout, &stderr)
@@ -56,7 +66,22 @@ func (r configReader) Normalize(ctx context.Context, project domain.ProjectRunti
 		services = append(services, service)
 	}
 	sort.Strings(services)
-	return normalizedConfig{ProjectName: document.Name, Services: services, Connection: connection}, nil
+	return normalizedConfig{ProjectName: document.Name, Services: services, Connection: connection, BaseArgs: baseArguments}, nil
+}
+
+func appendComposeFile(arguments []string, path string) []string {
+	projectNameIndex := len(arguments)
+	for index, argument := range arguments {
+		if argument == "--project-name" {
+			projectNameIndex = index
+			break
+		}
+	}
+	result := make([]string, 0, len(arguments)+2)
+	result = append(result, arguments[:projectNameIndex]...)
+	result = append(result, "--file", path)
+	result = append(result, arguments[projectNameIndex:]...)
+	return result
 }
 
 func composeBaseArguments(project domain.ProjectRuntime, connection dockerConnection, projectName string) ([]string, error) {

@@ -159,7 +159,7 @@ func TestDevelopCanStartAndWaitButCannotRunDestructiveAction(t *testing.T) {
 	if err != nil || result.IsError {
 		t.Fatalf("start error=%v result=%#v", err, result)
 	}
-	if backend.lastAction != generated.Start || !slices.Equal(backend.lastServices, []string{"api"}) || backend.lastRequestID != "request-123" {
+	if backend.lastAction != generated.RuntimeActionStart || !slices.Equal(backend.lastServices, []string{"api"}) || backend.lastRequestID != "request-123" {
 		t.Fatalf("backend call = action=%s services=%v request=%s", backend.lastAction, backend.lastServices, backend.lastRequestID)
 	}
 	result, err = session.CallTool(context.Background(), &mcp.CallToolParams{Name: "switchyard_operation_wait", Arguments: map[string]any{"operationId": "operation-1", "timeoutSeconds": 1}})

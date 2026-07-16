@@ -6,6 +6,7 @@ import ProjectDetailView from "./domains/projects/views/ProjectDetailView.vue";
 import ProjectOnboardingView from "./domains/projects/views/ProjectOnboardingView.vue";
 import LogExplorerView from "./domains/logs/views/LogExplorerView.vue";
 import ResourcesView from "./domains/resources/views/ResourcesView.vue";
+import WorkspacesView from "./domains/workspaces/views/WorkspacesView.vue";
 import SettingsView from "./domains/system/views/SettingsView.vue";
 import FeatureShellView from "./domains/shell/views/FeatureShellView.vue";
 
@@ -30,18 +31,7 @@ export const router = createRouter({
     { path: "/resources", name: "resources", component: ResourcesView },
     { path: "/logs", name: "logs", component: LogExplorerView },
     { path: "/discovery", name: "discovery", component: ProjectOnboardingView },
-    {
-      path: "/workspaces",
-      name: "workspaces",
-      component: FeatureShellView,
-      props: {
-        eyebrow: "Roadmap preview",
-        title: "Workspaces",
-        description:
-          "Coordinated multi-project environments without hidden orchestration.",
-        phase: "Planned for Phase 10",
-      },
-    },
+    { path: "/workspaces", name: "workspaces", component: WorkspacesView },
     {
       path: "/agents",
       name: "agents",

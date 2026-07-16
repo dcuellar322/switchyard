@@ -32,6 +32,7 @@ var ErrInvalidTransition = errors.New("invalid operation transition")
 type Operation struct {
 	ID                    string
 	ProjectID             string
+	WorkspaceID           string
 	Kind                  string
 	State                 State
 	IdempotencyKey        string

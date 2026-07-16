@@ -172,6 +172,24 @@ func (e DockerHostObservationAttribution) Valid() bool {
 	}
 }
 
+// Defines values for EnvironmentPortLeaseProtocol.
+const (
+	EnvironmentPortLeaseProtocolTcp EnvironmentPortLeaseProtocol = "tcp"
+	EnvironmentPortLeaseProtocolUdp EnvironmentPortLeaseProtocol = "udp"
+)
+
+// Valid indicates whether the value is a known member of the EnvironmentPortLeaseProtocol enum.
+func (e EnvironmentPortLeaseProtocol) Valid() bool {
+	switch e {
+	case EnvironmentPortLeaseProtocolTcp:
+		return true
+	case EnvironmentPortLeaseProtocolUdp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GitRemoteKind.
 const (
 	Fetch GitRemoteKind = "fetch"
@@ -277,6 +295,30 @@ func (e HealthResultType) Valid() bool {
 	case HealthResultTypeProcess:
 		return true
 	case HealthResultTypeTcp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for LocalRouteStatus.
+const (
+	LocalRouteStatusActive      LocalRouteStatus = "active"
+	LocalRouteStatusConflict    LocalRouteStatus = "conflict"
+	LocalRouteStatusDisabled    LocalRouteStatus = "disabled"
+	LocalRouteStatusUnavailable LocalRouteStatus = "unavailable"
+)
+
+// Valid indicates whether the value is a known member of the LocalRouteStatus enum.
+func (e LocalRouteStatus) Valid() bool {
+	switch e {
+	case LocalRouteStatusActive:
+		return true
+	case LocalRouteStatusConflict:
+		return true
+	case LocalRouteStatusDisabled:
+		return true
+	case LocalRouteStatusUnavailable:
 		return true
 	default:
 		return false
@@ -502,6 +544,48 @@ func (e ProjectTrustState) Valid() bool {
 	}
 }
 
+// Defines values for ProjectEnvironmentAvailability.
+const (
+	ProjectEnvironmentAvailabilityAvailable   ProjectEnvironmentAvailability = "available"
+	ProjectEnvironmentAvailabilityUnavailable ProjectEnvironmentAvailability = "unavailable"
+)
+
+// Valid indicates whether the value is a known member of the ProjectEnvironmentAvailability enum.
+func (e ProjectEnvironmentAvailability) Valid() bool {
+	switch e {
+	case ProjectEnvironmentAvailabilityAvailable:
+		return true
+	case ProjectEnvironmentAvailabilityUnavailable:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProjectEnvironmentState.
+const (
+	Active      ProjectEnvironmentState = "active"
+	Inactive    ProjectEnvironmentState = "inactive"
+	Registered  ProjectEnvironmentState = "registered"
+	Unavailable ProjectEnvironmentState = "unavailable"
+)
+
+// Valid indicates whether the value is a known member of the ProjectEnvironmentState enum.
+func (e ProjectEnvironmentState) Valid() bool {
+	switch e {
+	case Active:
+		return true
+	case Inactive:
+		return true
+	case Registered:
+		return true
+	case Unavailable:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ProjectHealthObserverState.
 const (
 	Connected    ProjectHealthObserverState = "connected"
@@ -546,19 +630,19 @@ func (e ProjectHealthStatus) Valid() bool {
 
 // Defines values for PublishedPortProtocol.
 const (
-	PublishedPortProtocolSctp PublishedPortProtocol = "sctp"
-	PublishedPortProtocolTcp  PublishedPortProtocol = "tcp"
-	PublishedPortProtocolUdp  PublishedPortProtocol = "udp"
+	Sctp PublishedPortProtocol = "sctp"
+	Tcp  PublishedPortProtocol = "tcp"
+	Udp  PublishedPortProtocol = "udp"
 )
 
 // Valid indicates whether the value is a known member of the PublishedPortProtocol enum.
 func (e PublishedPortProtocol) Valid() bool {
 	switch e {
-	case PublishedPortProtocolSctp:
+	case Sctp:
 		return true
-	case PublishedPortProtocolTcp:
+	case Tcp:
 		return true
-	case PublishedPortProtocolUdp:
+	case Udp:
 		return true
 	default:
 		return false
@@ -582,31 +666,31 @@ func (e ResourceFootprintClassification) Valid() bool {
 
 // Defines values for RuntimeAction.
 const (
-	Pause    RuntimeAction = "pause"
-	Rebuild  RuntimeAction = "rebuild"
-	Restart  RuntimeAction = "restart"
-	Start    RuntimeAction = "start"
-	Stop     RuntimeAction = "stop"
-	Teardown RuntimeAction = "teardown"
-	Unpause  RuntimeAction = "unpause"
+	RuntimeActionPause    RuntimeAction = "pause"
+	RuntimeActionRebuild  RuntimeAction = "rebuild"
+	RuntimeActionRestart  RuntimeAction = "restart"
+	RuntimeActionStart    RuntimeAction = "start"
+	RuntimeActionStop     RuntimeAction = "stop"
+	RuntimeActionTeardown RuntimeAction = "teardown"
+	RuntimeActionUnpause  RuntimeAction = "unpause"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeAction enum.
 func (e RuntimeAction) Valid() bool {
 	switch e {
-	case Pause:
+	case RuntimeActionPause:
 		return true
-	case Rebuild:
+	case RuntimeActionRebuild:
 		return true
-	case Restart:
+	case RuntimeActionRestart:
 		return true
-	case Start:
+	case RuntimeActionStart:
 		return true
-	case Stop:
+	case RuntimeActionStop:
 		return true
-	case Teardown:
+	case RuntimeActionTeardown:
 		return true
-	case Unpause:
+	case RuntimeActionUnpause:
 		return true
 	default:
 		return false
@@ -687,40 +771,40 @@ func (e RuntimeObservationOrigin) Valid() bool {
 
 // Defines values for RuntimeObservationState.
 const (
-	Degraded         RuntimeObservationState = "degraded"
-	Failed           RuntimeObservationState = "failed"
-	PartiallyRunning RuntimeObservationState = "partially_running"
-	Paused           RuntimeObservationState = "paused"
-	Running          RuntimeObservationState = "running"
-	RunningExternal  RuntimeObservationState = "running_external"
-	Starting         RuntimeObservationState = "starting"
-	Stopped          RuntimeObservationState = "stopped"
-	Stopping         RuntimeObservationState = "stopping"
-	Unknown          RuntimeObservationState = "unknown"
+	RuntimeObservationStateDegraded         RuntimeObservationState = "degraded"
+	RuntimeObservationStateFailed           RuntimeObservationState = "failed"
+	RuntimeObservationStatePartiallyRunning RuntimeObservationState = "partially_running"
+	RuntimeObservationStatePaused           RuntimeObservationState = "paused"
+	RuntimeObservationStateRunning          RuntimeObservationState = "running"
+	RuntimeObservationStateRunningExternal  RuntimeObservationState = "running_external"
+	RuntimeObservationStateStarting         RuntimeObservationState = "starting"
+	RuntimeObservationStateStopped          RuntimeObservationState = "stopped"
+	RuntimeObservationStateStopping         RuntimeObservationState = "stopping"
+	RuntimeObservationStateUnknown          RuntimeObservationState = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeObservationState enum.
 func (e RuntimeObservationState) Valid() bool {
 	switch e {
-	case Degraded:
+	case RuntimeObservationStateDegraded:
 		return true
-	case Failed:
+	case RuntimeObservationStateFailed:
 		return true
-	case PartiallyRunning:
+	case RuntimeObservationStatePartiallyRunning:
 		return true
-	case Paused:
+	case RuntimeObservationStatePaused:
 		return true
-	case Running:
+	case RuntimeObservationStateRunning:
 		return true
-	case RunningExternal:
+	case RuntimeObservationStateRunningExternal:
 		return true
-	case Starting:
+	case RuntimeObservationStateStarting:
 		return true
-	case Stopped:
+	case RuntimeObservationStateStopped:
 		return true
-	case Stopping:
+	case RuntimeObservationStateStopping:
 		return true
-	case Unknown:
+	case RuntimeObservationStateUnknown:
 		return true
 	default:
 		return false
@@ -823,6 +907,186 @@ const (
 func (e SystemInfoStatus) Valid() bool {
 	switch e {
 	case Ready:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceExecutionKind.
+const (
+	WorkspaceExecutionKindStart WorkspaceExecutionKind = "start"
+	WorkspaceExecutionKindStop  WorkspaceExecutionKind = "stop"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceExecutionKind enum.
+func (e WorkspaceExecutionKind) Valid() bool {
+	switch e {
+	case WorkspaceExecutionKindStart:
+		return true
+	case WorkspaceExecutionKindStop:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceExecutionState.
+const (
+	WorkspaceExecutionStateCancelled          WorkspaceExecutionState = "cancelled"
+	WorkspaceExecutionStateFailed             WorkspaceExecutionState = "failed"
+	WorkspaceExecutionStatePartiallySucceeded WorkspaceExecutionState = "partially_succeeded"
+	WorkspaceExecutionStateRunning            WorkspaceExecutionState = "running"
+	WorkspaceExecutionStateSucceeded          WorkspaceExecutionState = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceExecutionState enum.
+func (e WorkspaceExecutionState) Valid() bool {
+	switch e {
+	case WorkspaceExecutionStateCancelled:
+		return true
+	case WorkspaceExecutionStateFailed:
+		return true
+	case WorkspaceExecutionStatePartiallySucceeded:
+		return true
+	case WorkspaceExecutionStateRunning:
+		return true
+	case WorkspaceExecutionStateSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceFailurePolicy.
+const (
+	Continue WorkspaceFailurePolicy = "continue"
+	Rollback WorkspaceFailurePolicy = "rollback"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceFailurePolicy enum.
+func (e WorkspaceFailurePolicy) Valid() bool {
+	switch e {
+	case Continue:
+		return true
+	case Rollback:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceMemberRole.
+const (
+	Application WorkspaceMemberRole = "application"
+	Dependency  WorkspaceMemberRole = "dependency"
+	Tooling     WorkspaceMemberRole = "tooling"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceMemberRole enum.
+func (e WorkspaceMemberRole) Valid() bool {
+	switch e {
+	case Application:
+		return true
+	case Dependency:
+		return true
+	case Tooling:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceOperationAction.
+const (
+	WorkspaceStart WorkspaceOperationAction = "start"
+	WorkspaceStop  WorkspaceOperationAction = "stop"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceOperationAction enum.
+func (e WorkspaceOperationAction) Valid() bool {
+	switch e {
+	case WorkspaceStart:
+		return true
+	case WorkspaceStop:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceProjectStatus.
+const (
+	Blocked        WorkspaceProjectStatus = "blocked"
+	Cancelled      WorkspaceProjectStatus = "cancelled"
+	CheckingHealth WorkspaceProjectStatus = "checking_health"
+	Idle           WorkspaceProjectStatus = "idle"
+	Queued         WorkspaceProjectStatus = "queued"
+	RollbackFailed WorkspaceProjectStatus = "rollback_failed"
+	RolledBack     WorkspaceProjectStatus = "rolled_back"
+	RollingBack    WorkspaceProjectStatus = "rolling_back"
+	Running        WorkspaceProjectStatus = "running"
+	StartFailed    WorkspaceProjectStatus = "start_failed"
+	Starting       WorkspaceProjectStatus = "starting"
+	StopFailed     WorkspaceProjectStatus = "stop_failed"
+	Stopped        WorkspaceProjectStatus = "stopped"
+	Stopping       WorkspaceProjectStatus = "stopping"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceProjectStatus enum.
+func (e WorkspaceProjectStatus) Valid() bool {
+	switch e {
+	case Blocked:
+		return true
+	case Cancelled:
+		return true
+	case CheckingHealth:
+		return true
+	case Idle:
+		return true
+	case Queued:
+		return true
+	case RollbackFailed:
+		return true
+	case RolledBack:
+		return true
+	case RollingBack:
+		return true
+	case Running:
+		return true
+	case StartFailed:
+		return true
+	case Starting:
+		return true
+	case StopFailed:
+		return true
+	case Stopped:
+		return true
+	case Stopping:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WorkspaceRecipeKind.
+const (
+	OpenEditor   WorkspaceRecipeKind = "open_editor"
+	OpenTerminal WorkspaceRecipeKind = "open_terminal"
+	OpenUrl      WorkspaceRecipeKind = "open_url"
+	StartAgent   WorkspaceRecipeKind = "start_agent"
+)
+
+// Valid indicates whether the value is a known member of the WorkspaceRecipeKind enum.
+func (e WorkspaceRecipeKind) Valid() bool {
+	switch e {
+	case OpenEditor:
+		return true
+	case OpenTerminal:
+		return true
+	case OpenUrl:
+		return true
+	case StartAgent:
 		return true
 	default:
 		return false
@@ -1127,6 +1391,38 @@ type EffectiveManifest struct {
 	Sources    []ManifestSource       `json:"sources"`
 }
 
+// EnvironmentPortLease defines model for EnvironmentPortLease.
+type EnvironmentPortLease struct {
+	HostPort   int                          `json:"hostPort"`
+	PortId     string                       `json:"portId"`
+	Protocol   EnvironmentPortLeaseProtocol `json:"protocol"`
+	TargetPort int                          `json:"targetPort"`
+}
+
+// EnvironmentPortLeaseProtocol defines model for EnvironmentPortLease.Protocol.
+type EnvironmentPortLeaseProtocol string
+
+// EnvironmentRegistration defines model for EnvironmentRegistration.
+type EnvironmentRegistration struct {
+	Environments []ProjectEnvironment `json:"environments"`
+	ObservedAt   time.Time            `json:"observedAt"`
+	ProjectId    string               `json:"projectId"`
+	RemovedIds   []string             `json:"removedIds"`
+}
+
+// EnvironmentRuntimeAllocation defines model for EnvironmentRuntimeAllocation.
+type EnvironmentRuntimeAllocation struct {
+	ComposeProjectName string                 `json:"composeProjectName"`
+	PortLeaseNamespace string                 `json:"portLeaseNamespace"`
+	PortLeases         []EnvironmentPortLease `json:"portLeases"`
+	PortOffset         int                    `json:"portOffset"`
+}
+
+// EnvironmentUpdate defines model for EnvironmentUpdate.
+type EnvironmentUpdate struct {
+	Hostname string `json:"hostname"`
+}
+
 // GitChangeCounts defines model for GitChangeCounts.
 type GitChangeCounts struct {
 	Conflicted int `json:"conflicted"`
@@ -1219,6 +1515,21 @@ type HostObservation struct {
 	Warnings         []string              `json:"warnings"`
 }
 
+// LocalRoute defines model for LocalRoute.
+type LocalRoute struct {
+	CandidateEnvironmentIds []string         `json:"candidateEnvironmentIds"`
+	EnvironmentId           *string          `json:"environmentId,omitempty"`
+	Hostname                string           `json:"hostname"`
+	ProjectId               *string          `json:"projectId,omitempty"`
+	Reason                  *string          `json:"reason,omitempty"`
+	Status                  LocalRouteStatus `json:"status"`
+	Target                  *string          `json:"target,omitempty"`
+	UpdatedAt               time.Time        `json:"updatedAt"`
+}
+
+// LocalRouteStatus defines model for LocalRoute.Status.
+type LocalRouteStatus string
+
 // ManifestDiff defines model for ManifestDiff.
 type ManifestDiff struct {
 	Accepted  map[string]interface{} `json:"accepted"`
@@ -1280,6 +1591,7 @@ type Operation struct {
 	StartedAt             *time.Time     `json:"startedAt,omitempty"`
 	State                 OperationState `json:"state"`
 	UpdatedAt             time.Time      `json:"updatedAt"`
+	WorkspaceId           *string        `json:"workspaceId,omitempty"`
 }
 
 // OperationState defines model for OperationState.
@@ -1403,6 +1715,35 @@ type ProjectActions struct {
 	ProjectId   string             `json:"projectId"`
 	ProjectName string             `json:"projectName"`
 }
+
+// ProjectEnvironment defines model for ProjectEnvironment.
+type ProjectEnvironment struct {
+	Allocation        EnvironmentRuntimeAllocation   `json:"allocation"`
+	Availability      ProjectEnvironmentAvailability `json:"availability"`
+	Bare              bool                           `json:"bare"`
+	Branch            *string                        `json:"branch,omitempty"`
+	Detached          bool                           `json:"detached"`
+	Head              *string                        `json:"head,omitempty"`
+	Hostname          string                         `json:"hostname"`
+	Id                string                         `json:"id"`
+	LastObservedAt    time.Time                      `json:"lastObservedAt"`
+	Locked            bool                           `json:"locked"`
+	Name              string                         `json:"name"`
+	Path              string                         `json:"path"`
+	Primary           bool                           `json:"primary"`
+	ProjectId         string                         `json:"projectId"`
+	RegisteredAt      time.Time                      `json:"registeredAt"`
+	State             ProjectEnvironmentState        `json:"state"`
+	Target            *string                        `json:"target,omitempty"`
+	UnavailableReason *string                        `json:"unavailableReason,omitempty"`
+	UpdatedAt         time.Time                      `json:"updatedAt"`
+}
+
+// ProjectEnvironmentAvailability defines model for ProjectEnvironment.Availability.
+type ProjectEnvironmentAvailability string
+
+// ProjectEnvironmentState defines model for ProjectEnvironment.State.
+type ProjectEnvironmentState string
 
 // ProjectHealth defines model for ProjectHealth.
 type ProjectHealth struct {
@@ -1708,6 +2049,153 @@ type SystemInfo struct {
 // SystemInfoStatus defines model for SystemInfo.Status.
 type SystemInfoStatus string
 
+// Workspace defines model for Workspace.
+type Workspace struct {
+	CreatedAt    time.Time              `json:"createdAt"`
+	Dependencies []WorkspaceDependency  `json:"dependencies"`
+	Description  *string                `json:"description,omitempty"`
+	Id           string                 `json:"id"`
+	LastRun      *WorkspaceExecution    `json:"lastRun,omitempty"`
+	Members      []WorkspaceMember      `json:"members"`
+	Name         string                 `json:"name"`
+	Policy       WorkspaceFailurePolicy `json:"policy"`
+	Profile      *string                `json:"profile,omitempty"`
+	Profiles     []WorkspaceProfile     `json:"profiles"`
+	Recipes      []WorkspaceRecipe      `json:"recipes"`
+	Revision     int64                  `json:"revision"`
+	UpdatedAt    time.Time              `json:"updatedAt"`
+}
+
+// WorkspaceDefinition defines model for WorkspaceDefinition.
+type WorkspaceDefinition struct {
+	Dependencies []WorkspaceDependency       `json:"dependencies"`
+	Description  *string                     `json:"description,omitempty"`
+	Members      []WorkspaceMemberDefinition `json:"members"`
+	Name         string                      `json:"name"`
+	Policy       WorkspaceFailurePolicy      `json:"policy"`
+	Profile      *string                     `json:"profile,omitempty"`
+	Profiles     []WorkspaceProfile          `json:"profiles"`
+	Recipes      []WorkspaceRecipe           `json:"recipes"`
+}
+
+// WorkspaceDependency defines model for WorkspaceDependency.
+type WorkspaceDependency struct {
+	DependsOnProjectId string `json:"dependsOnProjectId"`
+	ProjectId          string `json:"projectId"`
+}
+
+// WorkspaceExecution defines model for WorkspaceExecution.
+type WorkspaceExecution struct {
+	ErrorMessage *string                  `json:"errorMessage,omitempty"`
+	FinishedAt   *time.Time               `json:"finishedAt,omitempty"`
+	Id           string                   `json:"id"`
+	Kind         WorkspaceExecutionKind   `json:"kind"`
+	Policy       WorkspaceFailurePolicy   `json:"policy"`
+	ProfileId    *string                  `json:"profileId,omitempty"`
+	Projects     []WorkspaceProjectResult `json:"projects"`
+	RemoveData   bool                     `json:"removeData"`
+	StartedAt    time.Time                `json:"startedAt"`
+	State        WorkspaceExecutionState  `json:"state"`
+	WorkspaceId  string                   `json:"workspaceId"`
+}
+
+// WorkspaceExecutionKind defines model for WorkspaceExecution.Kind.
+type WorkspaceExecutionKind string
+
+// WorkspaceExecutionState defines model for WorkspaceExecution.State.
+type WorkspaceExecutionState string
+
+// WorkspaceFailurePolicy defines model for WorkspaceFailurePolicy.
+type WorkspaceFailurePolicy string
+
+// WorkspaceMember defines model for WorkspaceMember.
+type WorkspaceMember struct {
+	HealthGate           bool                   `json:"healthGate"`
+	HealthTimeoutSeconds int                    `json:"healthTimeoutSeconds"`
+	Message              *string                `json:"message,omitempty"`
+	Order                int                    `json:"order"`
+	ProjectId            string                 `json:"projectId"`
+	Role                 WorkspaceMemberRole    `json:"role"`
+	Status               WorkspaceProjectStatus `json:"status"`
+}
+
+// WorkspaceMemberDefinition defines model for WorkspaceMemberDefinition.
+type WorkspaceMemberDefinition struct {
+	HealthGate           bool                `json:"healthGate"`
+	HealthTimeoutSeconds int                 `json:"healthTimeoutSeconds"`
+	Order                int                 `json:"order"`
+	ProjectId            string              `json:"projectId"`
+	Role                 WorkspaceMemberRole `json:"role"`
+}
+
+// WorkspaceMemberRole defines model for WorkspaceMemberRole.
+type WorkspaceMemberRole string
+
+// WorkspaceOperationAction defines model for WorkspaceOperationAction.
+type WorkspaceOperationAction string
+
+// WorkspaceOperationRequest defines model for WorkspaceOperationRequest.
+type WorkspaceOperationRequest struct {
+	Action             WorkspaceOperationAction `json:"action"`
+	ConfirmDataRemoval *bool                    `json:"confirmDataRemoval,omitempty"`
+	Policy             *WorkspaceFailurePolicy  `json:"policy,omitempty"`
+	ProfileId          *string                  `json:"profileId,omitempty"`
+	RemoveData         *bool                    `json:"removeData,omitempty"`
+	RunRecipes         *bool                    `json:"runRecipes,omitempty"`
+}
+
+// WorkspaceProfile defines model for WorkspaceProfile.
+type WorkspaceProfile struct {
+	Description       *string  `json:"description,omitempty"`
+	Id                string   `json:"id"`
+	LowMemory         bool     `json:"lowMemory"`
+	MaxParallel       int      `json:"maxParallel"`
+	MemoryBudgetBytes *int64   `json:"memoryBudgetBytes,omitempty"`
+	Name              string   `json:"name"`
+	ProjectIds        []string `json:"projectIds"`
+}
+
+// WorkspaceProjectResult defines model for WorkspaceProjectResult.
+type WorkspaceProjectResult struct {
+	FinishedAt *time.Time             `json:"finishedAt,omitempty"`
+	Message    *string                `json:"message,omitempty"`
+	Order      int                    `json:"order"`
+	ProjectId  string                 `json:"projectId"`
+	Role       WorkspaceMemberRole    `json:"role"`
+	StartedAt  *time.Time             `json:"startedAt,omitempty"`
+	Status     WorkspaceProjectStatus `json:"status"`
+}
+
+// WorkspaceProjectStatus defines model for WorkspaceProjectStatus.
+type WorkspaceProjectStatus string
+
+// WorkspaceRecipe defines model for WorkspaceRecipe.
+type WorkspaceRecipe struct {
+	Arguments []string            `json:"arguments"`
+	Id        string              `json:"id"`
+	Kind      WorkspaceRecipeKind `json:"kind"`
+	Name      string              `json:"name"`
+	Order     int                 `json:"order"`
+	ProjectId *string             `json:"projectId,omitempty"`
+	Target    *string             `json:"target,omitempty"`
+}
+
+// WorkspaceRecipeKind defines model for WorkspaceRecipe.Kind.
+type WorkspaceRecipeKind string
+
+// WorkspaceUpdate defines model for WorkspaceUpdate.
+type WorkspaceUpdate struct {
+	Dependencies []WorkspaceDependency       `json:"dependencies"`
+	Description  *string                     `json:"description,omitempty"`
+	Members      []WorkspaceMemberDefinition `json:"members"`
+	Name         string                      `json:"name"`
+	Policy       WorkspaceFailurePolicy      `json:"policy"`
+	Profile      *string                     `json:"profile,omitempty"`
+	Profiles     []WorkspaceProfile          `json:"profiles"`
+	Recipes      []WorkspaceRecipe           `json:"recipes"`
+	Revision     int64                       `json:"revision"`
+}
+
 // ActionId defines model for ActionId.
 type ActionId = string
 
@@ -1723,8 +2211,16 @@ type ProjectId = string
 // ProposalId defines model for ProposalId.
 type ProposalId = string
 
+// WorkspaceId defines model for WorkspaceId.
+type WorkspaceId = string
+
 // Problem defines model for Problem.
 type Problem = ProblemDetails
+
+// UpdateEnvironmentParams defines parameters for UpdateEnvironment.
+type UpdateEnvironmentParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
 
 // CreateManifestProposalParams defines parameters for CreateManifestProposal.
 type CreateManifestProposalParams struct {
@@ -1774,6 +2270,11 @@ type RemoveProjectParams struct {
 
 // CreateActionOperationParams defines parameters for CreateActionOperation.
 type CreateActionOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// RegisterProjectEnvironmentsParams defines parameters for RegisterProjectEnvironments.
+type RegisterProjectEnvironmentsParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
@@ -1829,8 +2330,31 @@ type GetCleanupPreviewParams struct {
 	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
 }
 
+// CreateWorkspaceParams defines parameters for CreateWorkspace.
+type CreateWorkspaceParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// DeleteWorkspaceParams defines parameters for DeleteWorkspace.
+type DeleteWorkspaceParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// UpdateWorkspaceParams defines parameters for UpdateWorkspace.
+type UpdateWorkspaceParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// CreateWorkspaceOperationParams defines parameters for CreateWorkspaceOperation.
+type CreateWorkspaceOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // CreateBrowserSessionJSONRequestBody defines body for CreateBrowserSession for application/json ContentType.
 type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
+
+// UpdateEnvironmentJSONRequestBody defines body for UpdateEnvironment for application/json ContentType.
+type UpdateEnvironmentJSONRequestBody = EnvironmentUpdate
 
 // CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
 type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
@@ -1852,6 +2376,15 @@ type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
 
 // PlanProjectRuntimeJSONRequestBody defines body for PlanProjectRuntime for application/json ContentType.
 type PlanProjectRuntimeJSONRequestBody = RuntimeActionRequest
+
+// CreateWorkspaceJSONRequestBody defines body for CreateWorkspace for application/json ContentType.
+type CreateWorkspaceJSONRequestBody = WorkspaceDefinition
+
+// UpdateWorkspaceJSONRequestBody defines body for UpdateWorkspace for application/json ContentType.
+type UpdateWorkspaceJSONRequestBody = WorkspaceUpdate
+
+// CreateWorkspaceOperationJSONRequestBody defines body for CreateWorkspaceOperation for application/json ContentType.
+type CreateWorkspaceOperationJSONRequestBody = WorkspaceOperationRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -1937,6 +2470,14 @@ type ClientInterface interface {
 
 	CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetEnvironment request
+	GetEnvironment(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateEnvironmentWithBody request with any body
+	UpdateEnvironmentWithBody(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateEnvironment(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, body UpdateEnvironmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetHost request
 	GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2001,6 +2542,12 @@ type ClientInterface interface {
 
 	CreateActionOperation(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListProjectEnvironments request
+	ListProjectEnvironments(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RegisterProjectEnvironments request
+	RegisterProjectEnvironments(ctx context.Context, projectId ProjectId, params *RegisterProjectEnvironmentsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetProjectGit request
 	GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2053,8 +2600,35 @@ type ClientInterface interface {
 	// GetStorageInventory request
 	GetStorageInventory(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListLocalRoutes request
+	ListLocalRoutes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListWorkspaces request
+	ListWorkspaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateWorkspaceWithBody request with any body
+	CreateWorkspaceWithBody(ctx context.Context, params *CreateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateWorkspace(ctx context.Context, params *CreateWorkspaceParams, body CreateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteWorkspace request
+	DeleteWorkspace(ctx context.Context, workspaceId WorkspaceId, params *DeleteWorkspaceParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWorkspace request
+	GetWorkspace(ctx context.Context, workspaceId WorkspaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateWorkspaceWithBody request with any body
+	UpdateWorkspaceWithBody(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateWorkspace(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, body UpdateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateWorkspaceOperationWithBody request with any body
+	CreateWorkspaceOperationWithBody(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateWorkspaceOperation(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) ListAIProposalProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -2095,6 +2669,42 @@ func (c *Client) CreateBrowserSessionWithBody(ctx context.Context, contentType s
 
 func (c *Client) CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateBrowserSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetEnvironment(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEnvironmentRequest(c.Server, environmentId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateEnvironmentWithBody(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvironmentRequestWithBody(c.Server, environmentId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateEnvironment(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, body UpdateEnvironmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvironmentRequest(c.Server, environmentId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2381,6 +2991,30 @@ func (c *Client) CreateActionOperation(ctx context.Context, projectId ProjectId,
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListProjectEnvironments(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectEnvironmentsRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegisterProjectEnvironments(ctx context.Context, projectId ProjectId, params *RegisterProjectEnvironmentsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegisterProjectEnvironmentsRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProjectGitRequest(c.Server, projectId)
 	if err != nil {
@@ -2597,8 +3231,128 @@ func (c *Client) GetStorageInventory(ctx context.Context, reqEditors ...RequestE
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListLocalRoutes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLocalRoutesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSystemRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListWorkspaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListWorkspacesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWorkspaceWithBody(ctx context.Context, params *CreateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWorkspaceRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWorkspace(ctx context.Context, params *CreateWorkspaceParams, body CreateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWorkspaceRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteWorkspace(ctx context.Context, workspaceId WorkspaceId, params *DeleteWorkspaceParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteWorkspaceRequest(c.Server, workspaceId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetWorkspace(ctx context.Context, workspaceId WorkspaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWorkspaceRequest(c.Server, workspaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateWorkspaceWithBody(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateWorkspaceRequestWithBody(c.Server, workspaceId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateWorkspace(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, body UpdateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateWorkspaceRequest(c.Server, workspaceId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWorkspaceOperationWithBody(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWorkspaceOperationRequestWithBody(c.Server, workspaceId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWorkspaceOperation(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWorkspaceOperationRequest(c.Server, workspaceId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2699,6 +3453,100 @@ func NewCreateBrowserSessionRequestWithBody(server string, contentType string, b
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEnvironmentRequest generates requests for GetEnvironment
+func NewGetEnvironmentRequest(server string, environmentId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "environmentId", environmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/environments/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateEnvironmentRequest calls the generic UpdateEnvironment builder with application/json body
+func NewUpdateEnvironmentRequest(server string, environmentId string, params *UpdateEnvironmentParams, body UpdateEnvironmentJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateEnvironmentRequestWithBody(server, environmentId, params, "application/json", bodyReader)
+}
+
+// NewUpdateEnvironmentRequestWithBody generates requests for UpdateEnvironment with any type of body
+func NewUpdateEnvironmentRequestWithBody(server string, environmentId string, params *UpdateEnvironmentParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "environmentId", environmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/environments/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
 
 	return req, nil
 }
@@ -3491,6 +4339,87 @@ func NewCreateActionOperationRequestWithBody(server string, projectId ProjectId,
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewListProjectEnvironmentsRequest generates requests for ListProjectEnvironments
+func NewListProjectEnvironmentsRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRegisterProjectEnvironmentsRequest generates requests for RegisterProjectEnvironments
+func NewRegisterProjectEnvironmentsRequest(server string, projectId ProjectId, params *RegisterProjectEnvironmentsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	if params != nil {
 
@@ -4338,6 +5267,33 @@ func NewGetStorageInventoryRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewListLocalRoutesRequest generates requests for ListLocalRoutes
+func NewListLocalRoutesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/routes")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetSystemRequest generates requests for GetSystem
 func NewGetSystemRequest(server string) (*http.Request, error) {
 	var err error
@@ -4360,6 +5316,287 @@ func NewGetSystemRequest(server string) (*http.Request, error) {
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListWorkspacesRequest generates requests for ListWorkspaces
+func NewListWorkspacesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateWorkspaceRequest calls the generic CreateWorkspace builder with application/json body
+func NewCreateWorkspaceRequest(server string, params *CreateWorkspaceParams, body CreateWorkspaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateWorkspaceRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateWorkspaceRequestWithBody generates requests for CreateWorkspace with any type of body
+func NewCreateWorkspaceRequestWithBody(server string, params *CreateWorkspaceParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteWorkspaceRequest generates requests for DeleteWorkspace
+func NewDeleteWorkspaceRequest(server string, workspaceId WorkspaceId, params *DeleteWorkspaceParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "workspaceId", workspaceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetWorkspaceRequest generates requests for GetWorkspace
+func NewGetWorkspaceRequest(server string, workspaceId WorkspaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "workspaceId", workspaceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateWorkspaceRequest calls the generic UpdateWorkspace builder with application/json body
+func NewUpdateWorkspaceRequest(server string, workspaceId WorkspaceId, params *UpdateWorkspaceParams, body UpdateWorkspaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateWorkspaceRequestWithBody(server, workspaceId, params, "application/json", bodyReader)
+}
+
+// NewUpdateWorkspaceRequestWithBody generates requests for UpdateWorkspace with any type of body
+func NewUpdateWorkspaceRequestWithBody(server string, workspaceId WorkspaceId, params *UpdateWorkspaceParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "workspaceId", workspaceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewCreateWorkspaceOperationRequest calls the generic CreateWorkspaceOperation builder with application/json body
+func NewCreateWorkspaceOperationRequest(server string, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateWorkspaceOperationRequestWithBody(server, workspaceId, params, "application/json", bodyReader)
+}
+
+// NewCreateWorkspaceOperationRequestWithBody generates requests for CreateWorkspaceOperation with any type of body
+func NewCreateWorkspaceOperationRequestWithBody(server string, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "workspaceId", workspaceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workspaces/%s/operations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
 	}
 
 	return req, nil
@@ -4418,6 +5655,14 @@ type ClientWithResponsesInterface interface {
 	CreateBrowserSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateBrowserSessionResponse, error)
 
 	CreateBrowserSessionWithResponse(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBrowserSessionResponse, error)
+
+	// GetEnvironmentWithResponse request
+	GetEnvironmentWithResponse(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*GetEnvironmentResponse, error)
+
+	// UpdateEnvironmentWithBodyWithResponse request with any body
+	UpdateEnvironmentWithBodyWithResponse(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvironmentResponse, error)
+
+	UpdateEnvironmentWithResponse(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, body UpdateEnvironmentJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvironmentResponse, error)
 
 	// GetHostWithResponse request
 	GetHostWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHostResponse, error)
@@ -4483,6 +5728,12 @@ type ClientWithResponsesInterface interface {
 
 	CreateActionOperationWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error)
 
+	// ListProjectEnvironmentsWithResponse request
+	ListProjectEnvironmentsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListProjectEnvironmentsResponse, error)
+
+	// RegisterProjectEnvironmentsWithResponse request
+	RegisterProjectEnvironmentsWithResponse(ctx context.Context, projectId ProjectId, params *RegisterProjectEnvironmentsParams, reqEditors ...RequestEditorFn) (*RegisterProjectEnvironmentsResponse, error)
+
 	// GetProjectGitWithResponse request
 	GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error)
 
@@ -4535,8 +5786,35 @@ type ClientWithResponsesInterface interface {
 	// GetStorageInventoryWithResponse request
 	GetStorageInventoryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStorageInventoryResponse, error)
 
+	// ListLocalRoutesWithResponse request
+	ListLocalRoutesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLocalRoutesResponse, error)
+
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
+
+	// ListWorkspacesWithResponse request
+	ListWorkspacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListWorkspacesResponse, error)
+
+	// CreateWorkspaceWithBodyWithResponse request with any body
+	CreateWorkspaceWithBodyWithResponse(ctx context.Context, params *CreateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWorkspaceResponse, error)
+
+	CreateWorkspaceWithResponse(ctx context.Context, params *CreateWorkspaceParams, body CreateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWorkspaceResponse, error)
+
+	// DeleteWorkspaceWithResponse request
+	DeleteWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, params *DeleteWorkspaceParams, reqEditors ...RequestEditorFn) (*DeleteWorkspaceResponse, error)
+
+	// GetWorkspaceWithResponse request
+	GetWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, reqEditors ...RequestEditorFn) (*GetWorkspaceResponse, error)
+
+	// UpdateWorkspaceWithBodyWithResponse request with any body
+	UpdateWorkspaceWithBodyWithResponse(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateWorkspaceResponse, error)
+
+	UpdateWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, body UpdateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWorkspaceResponse, error)
+
+	// CreateWorkspaceOperationWithBodyWithResponse request with any body
+	CreateWorkspaceOperationWithBodyWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error)
+
+	CreateWorkspaceOperationWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error)
 }
 
 type ListAIProposalProvidersResponse struct {
@@ -4626,6 +5904,68 @@ func (r CreateBrowserSessionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateBrowserSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetEnvironmentResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ProjectEnvironment
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEnvironmentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEnvironmentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetEnvironmentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateEnvironmentResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ProjectEnvironment
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateEnvironmentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateEnvironmentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateEnvironmentResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -5189,6 +6529,68 @@ func (r CreateActionOperationResponse) ContentType() string {
 	return ""
 }
 
+type ListProjectEnvironmentsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]ProjectEnvironment
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProjectEnvironmentsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProjectEnvironmentsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListProjectEnvironmentsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RegisterProjectEnvironmentsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *EnvironmentRegistration
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r RegisterProjectEnvironmentsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RegisterProjectEnvironmentsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RegisterProjectEnvironmentsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetProjectGitResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -5684,6 +7086,37 @@ func (r GetStorageInventoryResponse) ContentType() string {
 	return ""
 }
 
+type ListLocalRoutesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]LocalRoute
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListLocalRoutesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListLocalRoutesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListLocalRoutesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetSystemResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -5709,6 +7142,191 @@ func (r GetSystemResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetSystemResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListWorkspacesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]Workspace
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListWorkspacesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListWorkspacesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListWorkspacesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateWorkspaceResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *Workspace
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateWorkspaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateWorkspaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateWorkspaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteWorkspaceResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteWorkspaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteWorkspaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteWorkspaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetWorkspaceResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Workspace
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWorkspaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWorkspaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetWorkspaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateWorkspaceResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Workspace
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateWorkspaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateWorkspaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateWorkspaceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateWorkspaceOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateWorkspaceOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateWorkspaceOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateWorkspaceOperationResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -5748,6 +7366,32 @@ func (c *ClientWithResponses) CreateBrowserSessionWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseCreateBrowserSessionResponse(rsp)
+}
+
+// GetEnvironmentWithResponse request returning *GetEnvironmentResponse
+func (c *ClientWithResponses) GetEnvironmentWithResponse(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*GetEnvironmentResponse, error) {
+	rsp, err := c.GetEnvironment(ctx, environmentId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEnvironmentResponse(rsp)
+}
+
+// UpdateEnvironmentWithBodyWithResponse request with arbitrary body returning *UpdateEnvironmentResponse
+func (c *ClientWithResponses) UpdateEnvironmentWithBodyWithResponse(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvironmentResponse, error) {
+	rsp, err := c.UpdateEnvironmentWithBody(ctx, environmentId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvironmentResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateEnvironmentWithResponse(ctx context.Context, environmentId string, params *UpdateEnvironmentParams, body UpdateEnvironmentJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvironmentResponse, error) {
+	rsp, err := c.UpdateEnvironment(ctx, environmentId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvironmentResponse(rsp)
 }
 
 // GetHostWithResponse request returning *GetHostResponse
@@ -5952,6 +7596,24 @@ func (c *ClientWithResponses) CreateActionOperationWithResponse(ctx context.Cont
 	return ParseCreateActionOperationResponse(rsp)
 }
 
+// ListProjectEnvironmentsWithResponse request returning *ListProjectEnvironmentsResponse
+func (c *ClientWithResponses) ListProjectEnvironmentsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListProjectEnvironmentsResponse, error) {
+	rsp, err := c.ListProjectEnvironments(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProjectEnvironmentsResponse(rsp)
+}
+
+// RegisterProjectEnvironmentsWithResponse request returning *RegisterProjectEnvironmentsResponse
+func (c *ClientWithResponses) RegisterProjectEnvironmentsWithResponse(ctx context.Context, projectId ProjectId, params *RegisterProjectEnvironmentsParams, reqEditors ...RequestEditorFn) (*RegisterProjectEnvironmentsResponse, error) {
+	rsp, err := c.RegisterProjectEnvironments(ctx, projectId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegisterProjectEnvironmentsResponse(rsp)
+}
+
 // GetProjectGitWithResponse request returning *GetProjectGitResponse
 func (c *ClientWithResponses) GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error) {
 	rsp, err := c.GetProjectGit(ctx, projectId, reqEditors...)
@@ -6112,6 +7774,15 @@ func (c *ClientWithResponses) GetStorageInventoryWithResponse(ctx context.Contex
 	return ParseGetStorageInventoryResponse(rsp)
 }
 
+// ListLocalRoutesWithResponse request returning *ListLocalRoutesResponse
+func (c *ClientWithResponses) ListLocalRoutesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLocalRoutesResponse, error) {
+	rsp, err := c.ListLocalRoutes(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListLocalRoutesResponse(rsp)
+}
+
 // GetSystemWithResponse request returning *GetSystemResponse
 func (c *ClientWithResponses) GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error) {
 	rsp, err := c.GetSystem(ctx, reqEditors...)
@@ -6119,6 +7790,84 @@ func (c *ClientWithResponses) GetSystemWithResponse(ctx context.Context, reqEdit
 		return nil, err
 	}
 	return ParseGetSystemResponse(rsp)
+}
+
+// ListWorkspacesWithResponse request returning *ListWorkspacesResponse
+func (c *ClientWithResponses) ListWorkspacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListWorkspacesResponse, error) {
+	rsp, err := c.ListWorkspaces(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListWorkspacesResponse(rsp)
+}
+
+// CreateWorkspaceWithBodyWithResponse request with arbitrary body returning *CreateWorkspaceResponse
+func (c *ClientWithResponses) CreateWorkspaceWithBodyWithResponse(ctx context.Context, params *CreateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWorkspaceResponse, error) {
+	rsp, err := c.CreateWorkspaceWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWorkspaceResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateWorkspaceWithResponse(ctx context.Context, params *CreateWorkspaceParams, body CreateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWorkspaceResponse, error) {
+	rsp, err := c.CreateWorkspace(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWorkspaceResponse(rsp)
+}
+
+// DeleteWorkspaceWithResponse request returning *DeleteWorkspaceResponse
+func (c *ClientWithResponses) DeleteWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, params *DeleteWorkspaceParams, reqEditors ...RequestEditorFn) (*DeleteWorkspaceResponse, error) {
+	rsp, err := c.DeleteWorkspace(ctx, workspaceId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteWorkspaceResponse(rsp)
+}
+
+// GetWorkspaceWithResponse request returning *GetWorkspaceResponse
+func (c *ClientWithResponses) GetWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, reqEditors ...RequestEditorFn) (*GetWorkspaceResponse, error) {
+	rsp, err := c.GetWorkspace(ctx, workspaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWorkspaceResponse(rsp)
+}
+
+// UpdateWorkspaceWithBodyWithResponse request with arbitrary body returning *UpdateWorkspaceResponse
+func (c *ClientWithResponses) UpdateWorkspaceWithBodyWithResponse(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateWorkspaceResponse, error) {
+	rsp, err := c.UpdateWorkspaceWithBody(ctx, workspaceId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateWorkspaceResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateWorkspaceWithResponse(ctx context.Context, workspaceId WorkspaceId, params *UpdateWorkspaceParams, body UpdateWorkspaceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWorkspaceResponse, error) {
+	rsp, err := c.UpdateWorkspace(ctx, workspaceId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateWorkspaceResponse(rsp)
+}
+
+// CreateWorkspaceOperationWithBodyWithResponse request with arbitrary body returning *CreateWorkspaceOperationResponse
+func (c *ClientWithResponses) CreateWorkspaceOperationWithBodyWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error) {
+	rsp, err := c.CreateWorkspaceOperationWithBody(ctx, workspaceId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWorkspaceOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateWorkspaceOperationWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error) {
+	rsp, err := c.CreateWorkspaceOperation(ctx, workspaceId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWorkspaceOperationResponse(rsp)
 }
 
 // ParseListAIProposalProvidersResponse parses an HTTP response from a ListAIProposalProvidersWithResponse call
@@ -6207,6 +7956,72 @@ func ParseCreateBrowserSessionResponse(rsp *http.Response) (*CreateBrowserSessio
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEnvironmentResponse parses an HTTP response from a GetEnvironmentWithResponse call
+func ParseGetEnvironmentResponse(rsp *http.Response) (*GetEnvironmentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEnvironmentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProjectEnvironment
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateEnvironmentResponse parses an HTTP response from a UpdateEnvironmentWithResponse call
+func ParseUpdateEnvironmentResponse(rsp *http.Response) (*UpdateEnvironmentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateEnvironmentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProjectEnvironment
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
@@ -6807,6 +8622,72 @@ func ParseCreateActionOperationResponse(rsp *http.Response) (*CreateActionOperat
 	return response, nil
 }
 
+// ParseListProjectEnvironmentsResponse parses an HTTP response from a ListProjectEnvironmentsWithResponse call
+func ParseListProjectEnvironmentsResponse(rsp *http.Response) (*ListProjectEnvironmentsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProjectEnvironmentsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ProjectEnvironment
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRegisterProjectEnvironmentsResponse parses an HTTP response from a RegisterProjectEnvironmentsWithResponse call
+func ParseRegisterProjectEnvironmentsResponse(rsp *http.Response) (*RegisterProjectEnvironmentsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RegisterProjectEnvironmentsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvironmentRegistration
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetProjectGitResponse parses an HTTP response from a GetProjectGitWithResponse call
 func ParseGetProjectGitResponse(rsp *http.Response) (*GetProjectGitResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -7328,6 +9209,39 @@ func ParseGetStorageInventoryResponse(rsp *http.Response) (*GetStorageInventoryR
 	return response, nil
 }
 
+// ParseListLocalRoutesResponse parses an HTTP response from a ListLocalRoutesWithResponse call
+func ParseListLocalRoutesResponse(rsp *http.Response) (*ListLocalRoutesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListLocalRoutesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []LocalRoute
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetSystemResponse parses an HTTP response from a GetSystemWithResponse call
 func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -7361,6 +9275,197 @@ func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	return response, nil
 }
 
+// ParseListWorkspacesResponse parses an HTTP response from a ListWorkspacesWithResponse call
+func ParseListWorkspacesResponse(rsp *http.Response) (*ListWorkspacesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListWorkspacesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Workspace
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateWorkspaceResponse parses an HTTP response from a CreateWorkspaceWithResponse call
+func ParseCreateWorkspaceResponse(rsp *http.Response) (*CreateWorkspaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateWorkspaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Workspace
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteWorkspaceResponse parses an HTTP response from a DeleteWorkspaceWithResponse call
+func ParseDeleteWorkspaceResponse(rsp *http.Response) (*DeleteWorkspaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteWorkspaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWorkspaceResponse parses an HTTP response from a GetWorkspaceWithResponse call
+func ParseGetWorkspaceResponse(rsp *http.Response) (*GetWorkspaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWorkspaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Workspace
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateWorkspaceResponse parses an HTTP response from a UpdateWorkspaceWithResponse call
+func ParseUpdateWorkspaceResponse(rsp *http.Response) (*UpdateWorkspaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateWorkspaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Workspace
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateWorkspaceOperationResponse parses an HTTP response from a CreateWorkspaceOperationWithResponse call
+func ParseCreateWorkspaceOperationResponse(rsp *http.Response) (*CreateWorkspaceOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateWorkspaceOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// List configured assisted-onboarding providers and current availability
@@ -7372,6 +9477,12 @@ type ServerInterface interface {
 	// Exchange a one-time bootstrap token for a same-origin session
 	// (POST /auth/sessions)
 	CreateBrowserSession(w http.ResponseWriter, r *http.Request)
+	// Read one registered project environment
+	// (GET /environments/{environmentId})
+	GetEnvironment(w http.ResponseWriter, r *http.Request, environmentId string)
+	// Update the friendly localhost hostname without changing runtime state
+	// (PATCH /environments/{environmentId})
+	UpdateEnvironment(w http.ResponseWriter, r *http.Request, environmentId string, params UpdateEnvironmentParams)
 	// Read current host CPU, memory, and aggregate Docker storage
 	// (GET /host)
 	GetHost(w http.ResponseWriter, r *http.Request)
@@ -7426,6 +9537,12 @@ type ServerInterface interface {
 	// Queue a durable audited project action
 	// (POST /projects/{projectId}/actions/{actionId}/operations)
 	CreateActionOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, actionId ActionId, params CreateActionOperationParams)
+	// List registered Git worktree environments for a trusted project
+	// (GET /projects/{projectId}/environments)
+	ListProjectEnvironments(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Reconcile trusted Git worktrees and allocate exact runtime ports
+	// (POST /projects/{projectId}/environments)
+	RegisterProjectEnvironments(w http.ResponseWriter, r *http.Request, projectId ProjectId, params RegisterProjectEnvironmentsParams)
 	// Read a fresh Git porcelain snapshot for a trusted project
 	// (GET /projects/{projectId}/git)
 	GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -7474,9 +9591,30 @@ type ServerInterface interface {
 	// Inspect Docker storage with explicit attribution confidence
 	// (GET /resources/storage)
 	GetStorageInventory(w http.ResponseWriter, r *http.Request)
+	// List optional localhost routes and explicit availability states
+	// (GET /routes)
+	ListLocalRoutes(w http.ResponseWriter, r *http.Request)
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
+	// List durable multi-project workspaces
+	// (GET /workspaces)
+	ListWorkspaces(w http.ResponseWriter, r *http.Request)
+	// Create a validated workspace dependency graph
+	// (POST /workspaces)
+	CreateWorkspace(w http.ResponseWriter, r *http.Request, params CreateWorkspaceParams)
+	// Remove workspace metadata without touching projects or runtime data
+	// (DELETE /workspaces/{workspaceId})
+	DeleteWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params DeleteWorkspaceParams)
+	// Read one workspace graph and its latest execution
+	// (GET /workspaces/{workspaceId})
+	GetWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId)
+	// Replace a workspace graph after revision validation
+	// (PUT /workspaces/{workspaceId})
+	UpdateWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params UpdateWorkspaceParams)
+	// Queue an ordered workspace start or dependency-safe bulk stop
+	// (POST /workspaces/{workspaceId}/operations)
+	CreateWorkspaceOperation(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params CreateWorkspaceOperationParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -7498,6 +9636,18 @@ func (_ Unimplemented) CreateBrowserBootstrapToken(w http.ResponseWriter, r *htt
 // Exchange a one-time bootstrap token for a same-origin session
 // (POST /auth/sessions)
 func (_ Unimplemented) CreateBrowserSession(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read one registered project environment
+// (GET /environments/{environmentId})
+func (_ Unimplemented) GetEnvironment(w http.ResponseWriter, r *http.Request, environmentId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update the friendly localhost hostname without changing runtime state
+// (PATCH /environments/{environmentId})
+func (_ Unimplemented) UpdateEnvironment(w http.ResponseWriter, r *http.Request, environmentId string, params UpdateEnvironmentParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -7609,6 +9759,18 @@ func (_ Unimplemented) CreateActionOperation(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// List registered Git worktree environments for a trusted project
+// (GET /projects/{projectId}/environments)
+func (_ Unimplemented) ListProjectEnvironments(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Reconcile trusted Git worktrees and allocate exact runtime ports
+// (POST /projects/{projectId}/environments)
+func (_ Unimplemented) RegisterProjectEnvironments(w http.ResponseWriter, r *http.Request, projectId ProjectId, params RegisterProjectEnvironmentsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Read a fresh Git porcelain snapshot for a trusted project
 // (GET /projects/{projectId}/git)
 func (_ Unimplemented) GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
@@ -7705,9 +9867,51 @@ func (_ Unimplemented) GetStorageInventory(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// List optional localhost routes and explicit availability states
+// (GET /routes)
+func (_ Unimplemented) ListLocalRoutes(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Read daemon and storage status
 // (GET /system)
 func (_ Unimplemented) GetSystem(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List durable multi-project workspaces
+// (GET /workspaces)
+func (_ Unimplemented) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a validated workspace dependency graph
+// (POST /workspaces)
+func (_ Unimplemented) CreateWorkspace(w http.ResponseWriter, r *http.Request, params CreateWorkspaceParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Remove workspace metadata without touching projects or runtime data
+// (DELETE /workspaces/{workspaceId})
+func (_ Unimplemented) DeleteWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params DeleteWorkspaceParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read one workspace graph and its latest execution
+// (GET /workspaces/{workspaceId})
+func (_ Unimplemented) GetWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Replace a workspace graph after revision validation
+// (PUT /workspaces/{workspaceId})
+func (_ Unimplemented) UpdateWorkspace(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params UpdateWorkspaceParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue an ordered workspace start or dependency-safe bulk stop
+// (POST /workspaces/{workspaceId}/operations)
+func (_ Unimplemented) CreateWorkspaceOperation(w http.ResponseWriter, r *http.Request, workspaceId WorkspaceId, params CreateWorkspaceOperationParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -7753,6 +9957,86 @@ func (siw *ServerInterfaceWrapper) CreateBrowserSession(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateBrowserSession(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetEnvironment operation middleware
+func (siw *ServerInterfaceWrapper) GetEnvironment(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "environmentId" -------------
+	var environmentId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "environmentId", chi.URLParam(r, "environmentId"), &environmentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "environmentId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEnvironment(w, r, environmentId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateEnvironment operation middleware
+func (siw *ServerInterfaceWrapper) UpdateEnvironment(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "environmentId" -------------
+	var environmentId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "environmentId", chi.URLParam(r, "environmentId"), &environmentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "environmentId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UpdateEnvironmentParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateEnvironment(w, r, environmentId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -8466,6 +10750,86 @@ func (siw *ServerInterfaceWrapper) CreateActionOperation(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
+// ListProjectEnvironments operation middleware
+func (siw *ServerInterfaceWrapper) ListProjectEnvironments(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjectEnvironments(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RegisterProjectEnvironments operation middleware
+func (siw *ServerInterfaceWrapper) RegisterProjectEnvironments(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params RegisterProjectEnvironmentsParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RegisterProjectEnvironments(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetProjectGit operation middleware
 func (siw *ServerInterfaceWrapper) GetProjectGit(w http.ResponseWriter, r *http.Request) {
 
@@ -9128,11 +11492,272 @@ func (siw *ServerInterfaceWrapper) GetStorageInventory(w http.ResponseWriter, r 
 	handler.ServeHTTP(w, r)
 }
 
+// ListLocalRoutes operation middleware
+func (siw *ServerInterfaceWrapper) ListLocalRoutes(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLocalRoutes(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetSystem operation middleware
 func (siw *ServerInterfaceWrapper) GetSystem(w http.ResponseWriter, r *http.Request) {
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetSystem(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListWorkspaces operation middleware
+func (siw *ServerInterfaceWrapper) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListWorkspaces(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateWorkspace operation middleware
+func (siw *ServerInterfaceWrapper) CreateWorkspace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateWorkspaceParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateWorkspace(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteWorkspace operation middleware
+func (siw *ServerInterfaceWrapper) DeleteWorkspace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", chi.URLParam(r, "workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "workspaceId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteWorkspaceParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteWorkspace(w, r, workspaceId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetWorkspace operation middleware
+func (siw *ServerInterfaceWrapper) GetWorkspace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", chi.URLParam(r, "workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "workspaceId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetWorkspace(w, r, workspaceId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateWorkspace operation middleware
+func (siw *ServerInterfaceWrapper) UpdateWorkspace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", chi.URLParam(r, "workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "workspaceId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UpdateWorkspaceParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateWorkspace(w, r, workspaceId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateWorkspaceOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreateWorkspaceOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", chi.URLParam(r, "workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "workspaceId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateWorkspaceOperationParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateWorkspaceOperation(w, r, workspaceId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -9265,6 +11890,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/auth/sessions", wrapper.CreateBrowserSession)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/environments/{environmentId}", wrapper.GetEnvironment)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/environments/{environmentId}", wrapper.UpdateEnvironment)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/host", wrapper.GetHost)
 	})
 	r.Group(func(r chi.Router) {
@@ -9319,6 +11950,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/projects/{projectId}/actions/{actionId}/operations", wrapper.CreateActionOperation)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/environments", wrapper.ListProjectEnvironments)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/environments", wrapper.RegisterProjectEnvironments)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/git", wrapper.GetProjectGit)
 	})
 	r.Group(func(r chi.Router) {
@@ -9367,7 +12004,28 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/resources/storage", wrapper.GetStorageInventory)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/routes", wrapper.ListLocalRoutes)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/workspaces", wrapper.ListWorkspaces)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/workspaces", wrapper.CreateWorkspace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/workspaces/{workspaceId}", wrapper.DeleteWorkspace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/workspaces/{workspaceId}", wrapper.GetWorkspace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/workspaces/{workspaceId}", wrapper.UpdateWorkspace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/workspaces/{workspaceId}/operations", wrapper.CreateWorkspaceOperation)
 	})
 
 	return r

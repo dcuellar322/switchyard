@@ -55,7 +55,10 @@ func (g *Git) Observe(ctx context.Context, projectID, root string) (domain.State
 	parseStatus(status, &state)
 	state.LastCommit = g.lastCommit(ctx, root)
 	state.Remotes = g.remotes(ctx, root)
-	state.Worktrees = g.worktrees(ctx, root)
+	state.Worktrees, err = g.ObserveWorktrees(ctx, root)
+	if err != nil {
+		return domain.State{}, err
+	}
 	state.OperationState = g.operationState(ctx, root)
 	return state, nil
 }
@@ -137,11 +140,20 @@ func (g *Git) remotes(ctx context.Context, root string) []domain.Remote {
 	return result
 }
 
-func (g *Git) worktrees(ctx context.Context, root string) []domain.Worktree {
+// ObserveWorktrees reads stable Git porcelain without invoking repository
+// hooks or repository-defined commands.
+func (g *Git) ObserveWorktrees(ctx context.Context, root string) ([]domain.Worktree, error) {
 	output, err := g.runner.Run(ctx, root, "worktree", "list", "--porcelain")
 	if err != nil {
-		return []domain.Worktree{}
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, fmt.Errorf("read Git worktree inventory: %w", err)
 	}
+	return parseWorktrees(output), nil
+}
+
+func parseWorktrees(output []byte) []domain.Worktree {
 	var result []domain.Worktree
 	var current *domain.Worktree
 	for _, line := range strings.Split(string(output), "\n") {

@@ -189,3 +189,54 @@ type proposalAcceptOutput struct {
 	SchemaVersion string                             `json:"schemaVersion"`
 	Accepted      generated.AcceptedManifestProposal `json:"accepted"`
 }
+
+type workspaceInput struct {
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+}
+
+type workspacesOutput struct {
+	SchemaVersion string                `json:"schemaVersion"`
+	Workspaces    []generated.Workspace `json:"workspaces"`
+	Truncated     bool                  `json:"truncated"`
+}
+
+type workspaceOutput struct {
+	SchemaVersion string              `json:"schemaVersion"`
+	Workspace     generated.Workspace `json:"workspace"`
+}
+
+type workspaceMutationInput struct {
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+	Policy      string `json:"policy,omitempty" jsonschema:"optional rollback or continue failure policy"`
+	ProfileID   string `json:"profileId,omitempty" jsonschema:"optional workspace profile identifier"`
+	RunRecipes  bool   `json:"runRecipes,omitempty" jsonschema:"run reviewed launch recipes after successful start"`
+	RequestID   string `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
+}
+
+type workspaceStopInput struct {
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+	ProfileID   string `json:"profileId,omitempty" jsonschema:"optional workspace profile identifier"`
+	RemoveData  bool   `json:"removeData,omitempty" jsonschema:"explicit destructive teardown of runtime data"`
+	ConfirmRisk bool   `json:"confirmRisk,omitempty" jsonschema:"required confirmation when removeData is true"`
+	RequestID   string `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
+}
+
+type environmentsOutput struct {
+	SchemaVersion string                         `json:"schemaVersion"`
+	Environments  []generated.ProjectEnvironment `json:"environments"`
+}
+
+type environmentRegistrationInput struct {
+	ProjectID string `json:"projectId" jsonschema:"opaque trusted project identifier"`
+	RequestID string `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
+}
+
+type environmentRegistrationOutput struct {
+	SchemaVersion string                            `json:"schemaVersion"`
+	Registration  generated.EnvironmentRegistration `json:"registration"`
+}
+
+type routesOutput struct {
+	SchemaVersion string                 `json:"schemaVersion"`
+	Routes        []generated.LocalRoute `json:"routes"`
+}

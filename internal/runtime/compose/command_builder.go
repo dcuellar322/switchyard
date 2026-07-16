@@ -17,9 +17,13 @@ type executionPlan struct {
 type commandBuilder struct{}
 
 func (commandBuilder) Build(request domain.PlanRequest, config normalizedConfig) (domain.Plan, error) {
-	arguments, err := composeBaseArguments(request.Project, config.Connection, config.ProjectName)
-	if err != nil {
-		return domain.Plan{}, err
+	arguments := append([]string(nil), config.BaseArgs...)
+	if len(arguments) == 0 {
+		var err error
+		arguments, err = composeBaseArguments(request.Project, config.Connection, config.ProjectName)
+		if err != nil {
+			return domain.Plan{}, err
+		}
 	}
 	risk, summary, effects, actionArguments, err := lifecycleArguments(request.Action, request.RemoveVolumes)
 	if err != nil {

@@ -2,10 +2,12 @@ package adapters
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"switchyard.dev/switchyard/internal/sourcecontrol/domain"
 )
@@ -56,6 +58,39 @@ func TestGitObservesRealRepositoryChanges(t *testing.T) {
 		t.Fatalf("dirty = %#v", dirty.Changes)
 	}
 }
+
+func TestParseWorktreesPorcelain(t *testing.T) {
+	t.Parallel()
+
+	worktrees := parseWorktrees([]byte("worktree /repo/main\nHEAD abc123\nbranch refs/heads/main\n\nworktree /repo/feature\nHEAD def456\ndetached\nlocked maintenance\n\nworktree /repo/bare\nHEAD 000000\nbare\n"))
+	if len(worktrees) != 3 {
+		t.Fatalf("worktrees = %#v", worktrees)
+	}
+	if worktrees[0].Path != "/repo/main" || worktrees[0].Branch != "main" || worktrees[0].Head != "abc123" {
+		t.Fatalf("primary worktree = %#v", worktrees[0])
+	}
+	if !worktrees[1].Detached || !worktrees[1].Locked {
+		t.Fatalf("detached worktree = %#v", worktrees[1])
+	}
+	if !worktrees[2].Bare {
+		t.Fatalf("bare worktree = %#v", worktrees[2])
+	}
+}
+
+func TestObserveWorktreesReportsCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	git := &Git{runner: failingRunner{err: context.Canceled}, now: time.Now}
+	if _, err := git.ObserveWorktrees(ctx, "/repo"); !errors.Is(err, context.Canceled) {
+		t.Fatalf("ObserveWorktrees() error = %v", err)
+	}
+}
+
+type failingRunner struct{ err error }
+
+func (r failingRunner) Run(context.Context, string, ...string) ([]byte, error) { return nil, r.err }
 
 func runGit(t *testing.T, root string, arguments ...string) {
 	t.Helper()

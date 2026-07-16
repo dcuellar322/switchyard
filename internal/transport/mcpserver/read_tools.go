@@ -25,6 +25,10 @@ func (s *Server) addReadTools() {
 	mcp.AddTool(s.mcp, readTool("switchyard_operation_get", "Get operation", "Read one durable operation and its terminal or cancellation state."), s.operationGet)
 	mcp.AddTool(s.mcp, readTool("switchyard_operation_wait", "Wait for operation", "Wait up to 30 seconds for an operation and emit MCP progress notifications."), s.operationWait)
 	mcp.AddTool(s.mcp, readTool("switchyard_manifest_explain", "Explain effective manifest", "Read the effective trusted manifest and field provenance."), s.manifestExplain)
+	mcp.AddTool(s.mcp, readTool("switchyard_workspaces_list", "List workspaces", "List bounded workspace graphs visible to this agent scope."), s.workspacesList)
+	mcp.AddTool(s.mcp, readTool("switchyard_workspace_get", "Get workspace", "Read one workspace dependency graph and latest execution."), s.workspaceGet)
+	mcp.AddTool(s.mcp, readTool("switchyard_environments_list", "List project environments", "List registered Git worktrees and exact runtime leases."), s.environmentsList)
+	mcp.AddTool(s.mcp, readTool("switchyard_routes_list", "List local routes", "List friendly localhost routes visible to this agent scope."), s.routesList)
 }
 
 func (s *Server) systemInfo(ctx context.Context, _ *mcp.CallToolRequest, _ emptyInput) (*mcp.CallToolResult, systemOutput, error) {

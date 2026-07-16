@@ -4,10 +4,28 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"switchyard.dev/switchyard/internal/operations/domain"
 )
+
+// PartialSuccessError tells the operation kernel that a declared subset of
+// work completed and that the executor preserved detailed per-target results.
+// It is intentionally transport- and domain-neutral so orchestrators such as
+// workspaces can report honest aggregate outcomes.
+type PartialSuccessError struct{ Message string }
+
+// Error implements error without exposing nested provider output.
+func (e *PartialSuccessError) Error() string {
+	if e == nil || e.Message == "" {
+		return "operation partially succeeded"
+	}
+	return fmt.Sprintf("operation partially succeeded: %s", e.Message)
+}
+
+// PartialSuccess creates the typed aggregate outcome understood by Coordinator.
+func PartialSuccess(message string) error { return &PartialSuccessError{Message: message} }
 
 var (
 	// ErrNotFound identifies an unknown operation.
@@ -43,6 +61,7 @@ type AuditEvent struct {
 	ActorType      string
 	ActorID        string
 	ProjectID      string
+	WorkspaceID    string
 	OperationID    string
 	IdempotencyKey string
 	Detail         []byte

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateAiManifestEnhancementData, CreateAiManifestEnhancementErrors, CreateAiManifestEnhancementResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetAiManifestEnhancementData, GetAiManifestEnhancementErrors, GetAiManifestEnhancementResponses, GetCleanupPreviewData, GetCleanupPreviewErrors, GetCleanupPreviewResponses, GetHostData, GetHostErrors, GetHostResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetMetricHistoryData, GetMetricHistoryErrors, GetMetricHistoryResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetResourceOverviewData, GetResourceOverviewErrors, GetResourceOverviewResponses, GetStorageInventoryData, GetStorageInventoryErrors, GetStorageInventoryResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListAiProposalProvidersData, ListAiProposalProvidersErrors, ListAiProposalProvidersResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, PreviewAiManifestEvidenceData, PreviewAiManifestEvidenceErrors, PreviewAiManifestEvidenceResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateAiManifestEnhancementData, CreateAiManifestEnhancementErrors, CreateAiManifestEnhancementResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, CreateWorkspaceData, CreateWorkspaceErrors, CreateWorkspaceOperationData, CreateWorkspaceOperationErrors, CreateWorkspaceOperationResponses, CreateWorkspaceResponses, DeleteWorkspaceData, DeleteWorkspaceErrors, DeleteWorkspaceResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetAiManifestEnhancementData, GetAiManifestEnhancementErrors, GetAiManifestEnhancementResponses, GetCleanupPreviewData, GetCleanupPreviewErrors, GetCleanupPreviewResponses, GetEnvironmentData, GetEnvironmentErrors, GetEnvironmentResponses, GetHostData, GetHostErrors, GetHostResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetMetricHistoryData, GetMetricHistoryErrors, GetMetricHistoryResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetResourceOverviewData, GetResourceOverviewErrors, GetResourceOverviewResponses, GetStorageInventoryData, GetStorageInventoryErrors, GetStorageInventoryResponses, GetSystemData, GetSystemErrors, GetSystemResponses, GetWorkspaceData, GetWorkspaceErrors, GetWorkspaceResponses, ListAiProposalProvidersData, ListAiProposalProvidersErrors, ListAiProposalProvidersResponses, ListLocalRoutesData, ListLocalRoutesErrors, ListLocalRoutesResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectEnvironmentsData, ListProjectEnvironmentsErrors, ListProjectEnvironmentsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListWorkspacesData, ListWorkspacesErrors, ListWorkspacesResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, PreviewAiManifestEvidenceData, PreviewAiManifestEvidenceErrors, PreviewAiManifestEvidenceResponses, RegisterProjectEnvironmentsData, RegisterProjectEnvironmentsErrors, RegisterProjectEnvironmentsResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, UpdateEnvironmentData, UpdateEnvironmentErrors, UpdateEnvironmentResponses, UpdateWorkspaceData, UpdateWorkspaceErrors, UpdateWorkspaceResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -231,6 +231,38 @@ export const getMetricHistory = <ThrowOnError extends boolean = false>(options: 
 export const getProjectGit = <ThrowOnError extends boolean = false>(options: Options<GetProjectGitData, ThrowOnError>): RequestResult<GetProjectGitResponses, GetProjectGitErrors, ThrowOnError> => (options.client ?? client).get<GetProjectGitResponses, GetProjectGitErrors, ThrowOnError>({ url: '/projects/{projectId}/git', ...options });
 
 /**
+ * List registered Git worktree environments for a trusted project
+ */
+export const listProjectEnvironments = <ThrowOnError extends boolean = false>(options: Options<ListProjectEnvironmentsData, ThrowOnError>): RequestResult<ListProjectEnvironmentsResponses, ListProjectEnvironmentsErrors, ThrowOnError> => (options.client ?? client).get<ListProjectEnvironmentsResponses, ListProjectEnvironmentsErrors, ThrowOnError>({ url: '/projects/{projectId}/environments', ...options });
+
+/**
+ * Reconcile trusted Git worktrees and allocate exact runtime ports
+ */
+export const registerProjectEnvironments = <ThrowOnError extends boolean = false>(options: Options<RegisterProjectEnvironmentsData, ThrowOnError>): RequestResult<RegisterProjectEnvironmentsResponses, RegisterProjectEnvironmentsErrors, ThrowOnError> => (options.client ?? client).post<RegisterProjectEnvironmentsResponses, RegisterProjectEnvironmentsErrors, ThrowOnError>({ url: '/projects/{projectId}/environments', ...options });
+
+/**
+ * Read one registered project environment
+ */
+export const getEnvironment = <ThrowOnError extends boolean = false>(options: Options<GetEnvironmentData, ThrowOnError>): RequestResult<GetEnvironmentResponses, GetEnvironmentErrors, ThrowOnError> => (options.client ?? client).get<GetEnvironmentResponses, GetEnvironmentErrors, ThrowOnError>({ url: '/environments/{environmentId}', ...options });
+
+/**
+ * Update the friendly localhost hostname without changing runtime state
+ */
+export const updateEnvironment = <ThrowOnError extends boolean = false>(options: Options<UpdateEnvironmentData, ThrowOnError>): RequestResult<UpdateEnvironmentResponses, UpdateEnvironmentErrors, ThrowOnError> => (options.client ?? client).patch<UpdateEnvironmentResponses, UpdateEnvironmentErrors, ThrowOnError>({
+    url: '/environments/{environmentId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List optional localhost routes and explicit availability states
+ */
+export const listLocalRoutes = <ThrowOnError extends boolean = false>(options?: Options<ListLocalRoutesData, ThrowOnError>): RequestResult<ListLocalRoutesResponses, ListLocalRoutesErrors, ThrowOnError> => (options?.client ?? client).get<ListLocalRoutesResponses, ListLocalRoutesErrors, ThrowOnError>({ url: '/routes', ...options });
+
+/**
  * List trusted declarative and built-in quick actions
  */
 export const listProjectActions = <ThrowOnError extends boolean = false>(options: Options<ListProjectActionsData, ThrowOnError>): RequestResult<ListProjectActionsResponses, ListProjectActionsErrors, ThrowOnError> => (options.client ?? client).get<ListProjectActionsResponses, ListProjectActionsErrors, ThrowOnError>({ url: '/projects/{projectId}/actions', ...options });
@@ -257,6 +289,57 @@ export const getPortRegistry = <ThrowOnError extends boolean = false>(options?: 
  */
 export const createPortSuggestion = <ThrowOnError extends boolean = false>(options: Options<CreatePortSuggestionData, ThrowOnError>): RequestResult<CreatePortSuggestionResponses, CreatePortSuggestionErrors, ThrowOnError> => (options.client ?? client).post<CreatePortSuggestionResponses, CreatePortSuggestionErrors, ThrowOnError>({
     url: '/ports/suggestions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List durable multi-project workspaces
+ */
+export const listWorkspaces = <ThrowOnError extends boolean = false>(options?: Options<ListWorkspacesData, ThrowOnError>): RequestResult<ListWorkspacesResponses, ListWorkspacesErrors, ThrowOnError> => (options?.client ?? client).get<ListWorkspacesResponses, ListWorkspacesErrors, ThrowOnError>({ url: '/workspaces', ...options });
+
+/**
+ * Create a validated workspace dependency graph
+ */
+export const createWorkspace = <ThrowOnError extends boolean = false>(options: Options<CreateWorkspaceData, ThrowOnError>): RequestResult<CreateWorkspaceResponses, CreateWorkspaceErrors, ThrowOnError> => (options.client ?? client).post<CreateWorkspaceResponses, CreateWorkspaceErrors, ThrowOnError>({
+    url: '/workspaces',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Remove workspace metadata without touching projects or runtime data
+ */
+export const deleteWorkspace = <ThrowOnError extends boolean = false>(options: Options<DeleteWorkspaceData, ThrowOnError>): RequestResult<DeleteWorkspaceResponses, DeleteWorkspaceErrors, ThrowOnError> => (options.client ?? client).delete<DeleteWorkspaceResponses, DeleteWorkspaceErrors, ThrowOnError>({ url: '/workspaces/{workspaceId}', ...options });
+
+/**
+ * Read one workspace graph and its latest execution
+ */
+export const getWorkspace = <ThrowOnError extends boolean = false>(options: Options<GetWorkspaceData, ThrowOnError>): RequestResult<GetWorkspaceResponses, GetWorkspaceErrors, ThrowOnError> => (options.client ?? client).get<GetWorkspaceResponses, GetWorkspaceErrors, ThrowOnError>({ url: '/workspaces/{workspaceId}', ...options });
+
+/**
+ * Replace a workspace graph after revision validation
+ */
+export const updateWorkspace = <ThrowOnError extends boolean = false>(options: Options<UpdateWorkspaceData, ThrowOnError>): RequestResult<UpdateWorkspaceResponses, UpdateWorkspaceErrors, ThrowOnError> => (options.client ?? client).put<UpdateWorkspaceResponses, UpdateWorkspaceErrors, ThrowOnError>({
+    url: '/workspaces/{workspaceId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Queue an ordered workspace start or dependency-safe bulk stop
+ */
+export const createWorkspaceOperation = <ThrowOnError extends boolean = false>(options: Options<CreateWorkspaceOperationData, ThrowOnError>): RequestResult<CreateWorkspaceOperationResponses, CreateWorkspaceOperationErrors, ThrowOnError> => (options.client ?? client).post<CreateWorkspaceOperationResponses, CreateWorkspaceOperationErrors, ThrowOnError>({
+    url: '/workspaces/{workspaceId}/operations',
     ...options,
     headers: {
         'Content-Type': 'application/json',

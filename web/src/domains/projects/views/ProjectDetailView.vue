@@ -17,6 +17,10 @@ import {
 import { trackOperation } from "../../operations/store";
 import { loadPortRegistry } from "../../ports/api";
 import {
+  loadProjectEnvironments,
+  registerEnvironments,
+} from "../../environments/api";
+import {
   loadEffectiveManifest,
   loadProject,
   loadProjectActions,
@@ -94,6 +98,11 @@ const ports = useQuery({
   queryFn: loadPortRegistry,
   refetchInterval: 10_000,
 });
+const environments = useQuery({
+  queryKey: computed(() => ["project-environments", projectId.value]),
+  queryFn: () => loadProjectEnvironments(projectId.value),
+  refetchInterval: 10_000,
+});
 
 watch(() => props.projectId, markProjectAccess, { immediate: true });
 watch(
@@ -117,6 +126,12 @@ const customAction = useMutation({
   mutationFn: (action: ActionDefinition) =>
     runProjectAction(projectId.value, action.id),
   onSuccess: trackOperation,
+});
+const registerWorktrees = useMutation({
+  mutationFn: () => registerEnvironments(projectId.value),
+  onSuccess: async () => {
+    await Promise.all([environments.refetch(), git.refetch()]);
+  },
 });
 
 const state = computed(() => runtime.data.value?.state ?? "unknown");
@@ -676,6 +691,31 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
             <span>by {{ git.data.value.lastCommit.author }}</span>
           </p>
         </article>
+        <article class="panel">
+          <header class="panel-head">
+            <div>
+              <p>Parallel feature environments</p>
+              <h2>Registered worktrees</h2>
+            </div>
+            <button type="button" :disabled="registerWorktrees.isPending.value" @click="registerWorktrees.mutate()">
+              {{ registerWorktrees.isPending.value ? "Registering…" : "↻ Reconcile worktrees" }}
+            </button>
+          </header>
+          <p v-if="registerWorktrees.isError.value" class="panel-state message--error" role="alert">
+            {{ registerWorktrees.error.value?.message }}
+          </p>
+          <p v-else-if="environments.isPending.value" class="panel-state">Reading durable environment registrations…</p>
+          <p v-else-if="environments.isError.value" class="panel-state message--error" role="alert">Worktree environments are unavailable.</p>
+          <div v-else-if="environments.data.value?.length" class="environment-list">
+            <article v-for="environment in environments.data.value" :key="environment.id">
+              <div><strong>{{ environment.name }}</strong><span>{{ environment.primary ? "primary checkout" : environment.branch || "detached worktree" }}</span></div>
+              <code>{{ environment.hostname }}</code>
+              <span :class="`environment-state environment-state--${environment.state}`">{{ environment.state }}</span>
+              <small>{{ environment.allocation.composeProjectName }} · {{ environment.allocation.portLeases.length }} exact ports</small>
+            </article>
+          </div>
+          <p v-else class="panel-state">No worktrees are registered. Reconcile after the project is trusted.</p>
+        </article>
       </div>
       <div
         v-else-if="activeTab === 'ports'"
@@ -1132,8 +1172,46 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
   gap: 7px;
 }
 .single-panel {
+  display: grid;
+  gap: 14px;
   max-width: 1220px;
 }
+.environment-list {
+  display: grid;
+  gap: 7px;
+}
+.environment-list > article {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, auto) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel-2);
+}
+.environment-list div,
+.environment-list div span {
+  display: grid;
+  gap: 3px;
+}
+.environment-list div span,
+.environment-list small {
+  color: var(--soft);
+  font-size: 10px;
+}
+.environment-list small {
+  grid-column: 1 / -1;
+}
+.environment-state {
+  padding: 3px 7px;
+  border-radius: 99px;
+  background: rgba(148, 163, 184, .1);
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.environment-state--active { background: rgba(77, 208, 137, .12); color: var(--green); }
 .future-panel {
   padding: 34px;
 }

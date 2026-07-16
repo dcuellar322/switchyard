@@ -4,11 +4,13 @@ package bootstrap
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -21,6 +23,8 @@ import (
 	openAIProvider "switchyard.dev/switchyard/internal/agents/providers/openai"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
+	environmentsAdapters "switchyard.dev/switchyard/internal/environments/adapters"
+	environmentsApplication "switchyard.dev/switchyard/internal/environments/application"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
 	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
 	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
@@ -30,6 +34,8 @@ import (
 	"switchyard.dev/switchyard/internal/platform/sqlite"
 	portsAdapters "switchyard.dev/switchyard/internal/ports/adapters"
 	portsApplication "switchyard.dev/switchyard/internal/ports/application"
+	routingAdapters "switchyard.dev/switchyard/internal/routing/adapters"
+	routingApplication "switchyard.dev/switchyard/internal/routing/application"
 	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
 	"switchyard.dev/switchyard/internal/runtime/compose"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
@@ -40,6 +46,8 @@ import (
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
 	eventtransport "switchyard.dev/switchyard/internal/transport/websocket"
+	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
+	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
 	"switchyard.dev/switchyard/web"
 )
 
@@ -48,7 +56,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if config.Logger == nil {
 		config.Logger = slog.Default()
 	}
-	if err := validateLoopbackAddress(config.HTTPAddr); err != nil {
+	if err := validateDaemonConfig(config); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(config.DataDir, 0o700); err != nil {
@@ -76,14 +84,19 @@ func RunDaemon(ctx context.Context, config Config) error {
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
+	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), sourcecontrolAdapters.NewGit())
+	environmentService := environmentsApplication.NewService(
+		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(gitService),
+		sqlite.NewEnvironmentRepository(database),
+	)
 	redactor, err := observabilityAdapters.NewRedactor(config.RedactionPatterns)
 	if err != nil {
 		return fmt.Errorf("compile log redaction patterns: %w", err)
 	}
-	runtimeSource := runtimeApplication.NewCatalogSource(catalogService)
+	runtimeSource := runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService))
 	runtimeService := runtimeApplication.NewService(
 		runtimeSource,
-		compose.NewDriver(),
+		compose.NewDriverWithArtifacts(filepath.Join(config.DataDir, "runtime", "compose")),
 		processRuntime.NewDriver(ctx, sqlite.NewRunRepository(database), redactor),
 	)
 	logStore, err := sqlite.NewLogStore(database, sqlite.LogStoreConfig{
@@ -115,13 +128,26 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
+	portDeclarations := portsApplication.NewCatalogSource(catalogService)
 	portService := portsApplication.NewService(
-		portsApplication.NewCatalogSource(catalogService),
+		portDeclarations,
 		portsAdapters.NewRuntimeBindings(catalogService, runtimeService),
 		portsAdapters.NewOSListeners(),
 		sqlite.NewPortReservationRepository(database),
+		environmentsAdapters.NewPortLeaseSource(environmentService),
 	)
-	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), sourcecontrolAdapters.NewGit())
+	environmentRegistration := environmentsApplication.NewRegistrationCoordinator(
+		environmentService, environmentsAdapters.NewPortDeclarations(portDeclarations), environmentsAdapters.NewPortAllocator(portService),
+	)
+	routeService := routingApplication.NewService(config.RoutingAddr != "")
+	routeRegistry := routingAdapters.NewRegistry(routeService, routingAdapters.NewEnvironmentSource(environmentService))
+	if _, err := routeRegistry.Refresh(ctx); err != nil {
+		return err
+	}
+	environmentRuntime := environmentsAdapters.NewLifecycle(environmentService, runtimeService, func(refreshCtx context.Context) error {
+		_, refreshErr := routeRegistry.Refresh(refreshCtx)
+		return refreshErr
+	})
 	actionAudits := sqlite.NewActionAuditRepository(database)
 	if err := actionAudits.Recover(ctx, time.Now().UTC()); err != nil {
 		return err
@@ -146,11 +172,23 @@ func RunDaemon(ctx context.Context, config Config) error {
 		return err
 	}
 	operationRepository := sqlite.NewOperationRepository(database)
+	launcher := actionsAdapters.NewLauncher()
+	var workspaceService *workspaceApplication.Service
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
-			return executeOperation(operationCtx, runtimeService, healthService, actionService, aiService, operation, progress)
+			return executeOperation(
+				operationCtx, runtimeService, healthService, actionService, aiService, workspaceService,
+				workspaceRecipeRunner{projects: runtimeSource, launcher: launcher}, environmentRuntime, operation, progress,
+			)
 		},
 	))
+	workspaceService = workspaceApplication.NewService(
+		sqlite.NewWorkspaceRepository(database), &workspaceProjectOperator{operations: coordinator},
+		workspaceHealthGate{health: healthService}, workspaceMemberValidator{runtime: runtimeSource},
+	)
+	if err := workspaceService.Recover(ctx); err != nil {
+		return err
+	}
 	if err := coordinator.Recover(ctx); err != nil {
 		return err
 	}
@@ -189,9 +227,10 @@ func RunDaemon(ctx context.Context, config Config) error {
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
 		AI: aiService, Resources: resourceService,
+		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
 		Web: web.Handler(), Logger: config.Logger,
 	}
-	servers, err := newLocalServers(config, dependencies)
+	servers, err := newLocalServers(config, dependencies, routingAdapters.NewProxy(routeRegistry))
 	if err != nil {
 		return err
 	}
@@ -200,6 +239,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		"component", "bootstrap",
 		"address", servers.browserAddress(),
 		"ipc_address", servers.ipcAddress,
+		"routing_address", config.RoutingAddr,
 		"data_dir", config.DataDir,
 	)
 	runErr := servers.run(ctx, coordinator.Shutdown)
@@ -213,6 +253,9 @@ func executeOperation(
 	health requiredHealthWaiter,
 	actions *actionsApplication.Service,
 	ai *agentsApplication.EnhancementService,
+	workspaces *workspaceApplication.Service,
+	recipes workspaceApplication.RecipeRunner,
+	environments environmentLifecycle,
 	operation domain.Operation,
 	progress operations.Progress,
 ) error {
@@ -250,8 +293,42 @@ func executeOperation(
 			_ = progress.Step(ctx, "action.execute", "succeeded", "action completed")
 		}
 		return err
+	case "workspace.start", "workspace.stop":
+		if workspaces == nil {
+			return errors.New("workspace service is unavailable")
+		}
+		var input struct {
+			Action     string                        `json:"action"`
+			Policy     workspaceDomain.FailurePolicy `json:"policy"`
+			ProfileID  string                        `json:"profileId"`
+			RemoveData bool                          `json:"removeData"`
+			RunRecipes bool                          `json:"runRecipes"`
+		}
+		if err := json.Unmarshal(operation.Input, &input); err != nil || "workspace."+input.Action != operation.Kind {
+			return errors.New("decode workspace operation")
+		}
+		workspaceID := strings.TrimPrefix(operation.ProjectID, "workspace:")
+		kind := workspaceDomain.ExecutionKind(input.Action)
+		_, err := workspaces.Execute(ctx, workspaceID, workspaceApplication.ExecuteRequest{
+			Kind: kind, Policy: input.Policy, ProfileID: input.ProfileID, RemoveData: input.RemoveData,
+		}, workspaceProgress{progress: progress})
+		var executionErr *workspaceApplication.ExecutionError
+		if errors.As(err, &executionErr) && executionErr.Partial() {
+			return operations.PartialSuccess(executionErr.Error())
+		}
+		if err != nil {
+			return err
+		}
+		if kind == workspaceDomain.ExecutionStart && input.RunRecipes {
+			_ = progress.Step(ctx, "workspace.recipes", "running", "running opt-in workspace recipes")
+			if err := workspaces.ExecuteRecipes(ctx, workspaceID, recipes); err != nil {
+				return err
+			}
+			_ = progress.Step(ctx, "workspace.recipes", "succeeded", "workspace recipes completed")
+		}
+		return nil
 	default:
-		return executeRuntimeOperation(ctx, runtimeService, health, operation, progress)
+		return executeRuntimeOperation(ctx, runtimeService, health, environments, operation, progress)
 	}
 }
 
@@ -259,6 +336,7 @@ func executeRuntimeOperation(
 	ctx context.Context,
 	service *runtimeApplication.Service,
 	health requiredHealthWaiter,
+	environments environmentLifecycle,
 	operation domain.Operation,
 	progress operations.Progress,
 ) error {
@@ -282,8 +360,18 @@ func executeRuntimeOperation(
 	if err := service.Execute(ctx, plan, progress); err != nil {
 		return err
 	}
-	if action == runtimeDomain.ActionStart || action == runtimeDomain.ActionRestart || action == runtimeDomain.ActionRebuild {
-		return health.WaitRequired(ctx, operation.ProjectID)
+	if action == runtimeDomain.ActionStart || action == runtimeDomain.ActionRestart || action == runtimeDomain.ActionRebuild || action == runtimeDomain.ActionUnpause {
+		if err := health.WaitRequired(ctx, operation.ProjectID); err != nil {
+			return err
+		}
+		if environments != nil {
+			return environments.Started(ctx, operation.ProjectID)
+		}
+	}
+	if action == runtimeDomain.ActionStop || action == runtimeDomain.ActionTeardown || action == runtimeDomain.ActionPause {
+		if environments != nil {
+			return environments.Stopped(ctx, operation.ProjectID)
+		}
 	}
 	return nil
 }
@@ -303,6 +391,19 @@ func validateLoopbackAddress(address string) error {
 	ip := net.ParseIP(host)
 	if ip == nil || !ip.IsLoopback() {
 		return fmt.Errorf("daemon address must use a loopback host: %s", address)
+	}
+	return nil
+}
+
+func validateDaemonConfig(config Config) error {
+	if err := validateLoopbackAddress(config.HTTPAddr); err != nil {
+		return err
+	}
+	if config.RoutingAddr == "" {
+		return nil
+	}
+	if err := validateLoopbackAddress(config.RoutingAddr); err != nil {
+		return fmt.Errorf("validate local routing address: %w", err)
 	}
 	return nil
 }

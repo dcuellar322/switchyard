@@ -18,7 +18,7 @@ type localServers struct {
 	ipcAddress string
 }
 
-func newLocalServers(config Config, dependencies httpapi.Dependencies) (*localServers, error) {
+func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHandlers ...http.Handler) (*localServers, error) {
 	browserListener, err := net.Listen("tcp", config.HTTPAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen on loopback API: %w", err)
@@ -39,6 +39,24 @@ func newLocalServers(config Config, dependencies httpapi.Dependencies) (*localSe
 	if ipcListener != nil {
 		group.servers = append(group.servers, newHTTPServer(httpapi.NewIPC(dependencies)))
 		group.listeners = append(group.listeners, ipcListener)
+	}
+	if config.RoutingAddr != "" {
+		if len(routeHandlers) == 0 || routeHandlers[0] == nil {
+			_ = browserListener.Close()
+			if ipcListener != nil {
+				_ = ipcListener.Close()
+			}
+			return nil, errors.New("local route listener requires a proxy handler")
+		}
+		routeListener, listenErr := net.Listen("tcp", config.RoutingAddr)
+		if listenErr != nil {
+			for _, listener := range group.listeners {
+				_ = listener.Close()
+			}
+			return nil, fmt.Errorf("listen for local routes: %w", listenErr)
+		}
+		group.servers = append(group.servers, newHTTPServer(routeHandlers[0]))
+		group.listeners = append(group.listeners, routeListener)
 	}
 	return group, nil
 }

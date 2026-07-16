@@ -97,9 +97,10 @@ type RestartPolicy struct {
 
 // ComposeRuntime identifies Compose inputs and Docker context.
 type ComposeRuntime struct {
-	Files       []string
-	ProjectName string
-	Context     string
+	Files         []string
+	ProjectName   string
+	Context       string
+	PortOverrides map[string]int
 }
 
 // ServiceDeclaration maps a product service to a driver-native service.

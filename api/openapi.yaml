@@ -597,6 +597,84 @@ paths:
               schema: { $ref: "#/components/schemas/GitState" }
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/environments:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: listProjectEnvironments
+      summary: List registered Git worktree environments for a trusted project
+      responses:
+        "200":
+          description: Stable worktree environment registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ProjectEnvironment" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: registerProjectEnvironments
+      summary: Reconcile trusted Git worktrees and allocate exact runtime ports
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Complete worktree registration result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EnvironmentRegistration" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /environments/{environmentId}:
+    parameters:
+      - name: environmentId
+        in: path
+        required: true
+        schema: { type: string, minLength: 1, maxLength: 128 }
+    get:
+      operationId: getEnvironment
+      summary: Read one registered project environment
+      responses:
+        "200":
+          description: Registered environment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectEnvironment" }
+        default:
+          $ref: "#/components/responses/Problem"
+    patch:
+      operationId: updateEnvironment
+      summary: Update the friendly localhost hostname without changing runtime state
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EnvironmentUpdate" }
+      responses:
+        "200":
+          description: Updated environment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectEnvironment" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /routes:
+    get:
+      operationId: listLocalRoutes
+      summary: List optional localhost routes and explicit availability states
+      responses:
+        "200":
+          description: Current local route registry
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/LocalRoute" }
+        default:
+          $ref: "#/components/responses/Problem"
   /projects/{projectId}/actions:
     parameters:
       - $ref: "#/components/parameters/ProjectId"
@@ -664,6 +742,100 @@ paths:
               schema: { $ref: "#/components/schemas/PortSuggestion" }
         default:
           $ref: "#/components/responses/Problem"
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      summary: List durable multi-project workspaces
+      responses:
+        "200":
+          description: Workspaces in stable display order
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Workspace" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createWorkspace
+      summary: Create a validated workspace dependency graph
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WorkspaceDefinition" }
+      responses:
+        "201":
+          description: Workspace created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /workspaces/{workspaceId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      operationId: getWorkspace
+      summary: Read one workspace graph and its latest execution
+      responses:
+        "200":
+          description: Workspace graph and execution state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        default:
+          $ref: "#/components/responses/Problem"
+    put:
+      operationId: updateWorkspace
+      summary: Replace a workspace graph after revision validation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WorkspaceUpdate" }
+      responses:
+        "200":
+          description: Updated workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        default:
+          $ref: "#/components/responses/Problem"
+    delete:
+      operationId: deleteWorkspace
+      summary: Remove workspace metadata without touching projects or runtime data
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "204": { description: Workspace metadata removed }
+        default:
+          $ref: "#/components/responses/Problem"
+  /workspaces/{workspaceId}/operations:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    post:
+      operationId: createWorkspaceOperation
+      summary: Queue an ordered workspace start or dependency-safe bulk stop
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WorkspaceOperationRequest" }
+      responses:
+        "202":
+          description: Durable workspace operation accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -700,6 +872,14 @@ components:
         maxLength: 128
     ActionId:
       name: actionId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    WorkspaceId:
+      name: workspaceId
       in: path
       required: true
       schema:
@@ -1167,6 +1347,7 @@ components:
     RuntimeAction:
       type: string
       enum: [start, stop, restart, pause, unpause, rebuild, teardown]
+      x-enum-varnames: [Start, Stop, Restart, Pause, Unpause, Rebuild, Teardown]
     RuntimeActionRequest:
       type: object
       additionalProperties: false
@@ -1536,6 +1717,234 @@ components:
         footprint: { $ref: "#/components/schemas/ResourceFootprint" }
         retention: { $ref: "#/components/schemas/ResourceRetention" }
         warnings: { type: array, items: { type: string } }
+    WorkspaceFailurePolicy:
+      type: string
+      enum: [rollback, continue]
+    EnvironmentPortLease:
+      type: object
+      additionalProperties: false
+      required: [portId, protocol, targetPort, hostPort]
+      properties:
+        portId: { type: string }
+        protocol: { type: string, enum: [tcp, udp] }
+        targetPort: { type: integer, minimum: 1, maximum: 65535 }
+        hostPort: { type: integer, minimum: 1, maximum: 65535 }
+    EnvironmentRuntimeAllocation:
+      type: object
+      additionalProperties: false
+      required: [composeProjectName, portLeaseNamespace, portOffset, portLeases]
+      properties:
+        composeProjectName: { type: string }
+        portLeaseNamespace: { type: string }
+        portOffset: { type: integer, minimum: 1, maximum: 65535 }
+        portLeases:
+          type: array
+          items: { $ref: "#/components/schemas/EnvironmentPortLease" }
+    ProjectEnvironment:
+      type: object
+      additionalProperties: false
+      required: [id, projectId, name, path, detached, bare, locked, primary, availability, state, hostname, allocation, registeredAt, lastObservedAt, updatedAt]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        name: { type: string }
+        path: { type: string }
+        head: { type: string }
+        branch: { type: string }
+        detached: { type: boolean }
+        bare: { type: boolean }
+        locked: { type: boolean }
+        primary: { type: boolean }
+        availability: { type: string, enum: [available, unavailable] }
+        unavailableReason: { type: string }
+        state: { type: string, enum: [registered, active, inactive, unavailable] }
+        hostname: { type: string }
+        target: { type: string }
+        allocation: { $ref: "#/components/schemas/EnvironmentRuntimeAllocation" }
+        registeredAt: { type: string, format: date-time }
+        lastObservedAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    EnvironmentRegistration:
+      type: object
+      additionalProperties: false
+      required: [projectId, environments, removedIds, observedAt]
+      properties:
+        projectId: { type: string }
+        environments:
+          type: array
+          items: { $ref: "#/components/schemas/ProjectEnvironment" }
+        removedIds:
+          type: array
+          items: { type: string }
+        observedAt: { type: string, format: date-time }
+    EnvironmentUpdate:
+      type: object
+      additionalProperties: false
+      required: [hostname]
+      properties:
+        hostname: { type: string, minLength: 1, maxLength: 253 }
+    LocalRoute:
+      type: object
+      additionalProperties: false
+      required: [hostname, status, candidateEnvironmentIds, updatedAt]
+      properties:
+        hostname: { type: string }
+        status: { type: string, enum: [active, unavailable, conflict, disabled] }
+        projectId: { type: string }
+        environmentId: { type: string }
+        target: { type: string }
+        reason: { type: string }
+        candidateEnvironmentIds:
+          type: array
+          items: { type: string }
+        updatedAt: { type: string, format: date-time }
+    WorkspaceMemberRole:
+      type: string
+      enum: [application, dependency, tooling]
+    WorkspaceProjectStatus:
+      type: string
+      enum: [idle, queued, blocked, starting, checking_health, running, start_failed, stopping, stopped, stop_failed, rolling_back, rolled_back, rollback_failed, cancelled]
+    WorkspaceMemberDefinition:
+      type: object
+      additionalProperties: false
+      required: [projectId, role, order, healthGate, healthTimeoutSeconds]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        role: { $ref: "#/components/schemas/WorkspaceMemberRole" }
+        order: { type: integer, minimum: 0, maximum: 10000 }
+        healthGate: { type: boolean }
+        healthTimeoutSeconds: { type: integer, minimum: 0, maximum: 3600 }
+    WorkspaceMember:
+      type: object
+      additionalProperties: false
+      required: [projectId, role, order, healthGate, healthTimeoutSeconds, status]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        role: { $ref: "#/components/schemas/WorkspaceMemberRole" }
+        order: { type: integer, minimum: 0, maximum: 10000 }
+        healthGate: { type: boolean }
+        healthTimeoutSeconds: { type: integer, minimum: 0, maximum: 3600 }
+        status: { $ref: "#/components/schemas/WorkspaceProjectStatus" }
+        message: { type: string, maxLength: 2000 }
+    WorkspaceDependency:
+      type: object
+      additionalProperties: false
+      required: [projectId, dependsOnProjectId]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        dependsOnProjectId: { type: string, minLength: 1, maxLength: 128 }
+    WorkspaceRecipe:
+      type: object
+      additionalProperties: false
+      required: [id, name, kind, order, arguments]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 128 }
+        name: { type: string, minLength: 1, maxLength: 160 }
+        kind: { type: string, enum: [open_url, open_terminal, open_editor, start_agent] }
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        target: { type: string, maxLength: 2048 }
+        arguments: { type: array, maxItems: 32, items: { type: string, maxLength: 2048 } }
+        order: { type: integer, minimum: 0, maximum: 10000 }
+    WorkspaceProfile:
+      type: object
+      additionalProperties: false
+      required: [id, name, projectIds, maxParallel, lowMemory]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 128 }
+        name: { type: string, minLength: 1, maxLength: 160 }
+        description: { type: string, maxLength: 1000 }
+        projectIds: { type: array, maxItems: 128, items: { type: string, minLength: 1, maxLength: 128 } }
+        maxParallel: { type: integer, minimum: 1, maximum: 64 }
+        lowMemory: { type: boolean }
+        memoryBudgetBytes: { type: integer, format: int64, minimum: 0 }
+    WorkspaceDefinition:
+      type: object
+      additionalProperties: false
+      required: [name, policy, members, dependencies, recipes, profiles]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        description: { type: string, maxLength: 2000 }
+        policy: { $ref: "#/components/schemas/WorkspaceFailurePolicy" }
+        profile: { type: string, maxLength: 128 }
+        members: { type: array, minItems: 1, maxItems: 128, items: { $ref: "#/components/schemas/WorkspaceMemberDefinition" } }
+        dependencies: { type: array, maxItems: 512, items: { $ref: "#/components/schemas/WorkspaceDependency" } }
+        recipes: { type: array, maxItems: 128, items: { $ref: "#/components/schemas/WorkspaceRecipe" } }
+        profiles: { type: array, maxItems: 64, items: { $ref: "#/components/schemas/WorkspaceProfile" } }
+    WorkspaceUpdate:
+      type: object
+      additionalProperties: false
+      required: [name, policy, members, dependencies, recipes, profiles, revision]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        description: { type: string, maxLength: 2000 }
+        policy: { $ref: "#/components/schemas/WorkspaceFailurePolicy" }
+        profile: { type: string, maxLength: 128 }
+        members: { type: array, minItems: 1, maxItems: 128, items: { $ref: "#/components/schemas/WorkspaceMemberDefinition" } }
+        dependencies: { type: array, maxItems: 512, items: { $ref: "#/components/schemas/WorkspaceDependency" } }
+        recipes: { type: array, maxItems: 128, items: { $ref: "#/components/schemas/WorkspaceRecipe" } }
+        profiles: { type: array, maxItems: 64, items: { $ref: "#/components/schemas/WorkspaceProfile" } }
+        revision: { type: integer, format: int64, minimum: 1 }
+    WorkspaceProjectResult:
+      type: object
+      additionalProperties: false
+      required: [projectId, role, status, order]
+      properties:
+        projectId: { type: string }
+        role: { $ref: "#/components/schemas/WorkspaceMemberRole" }
+        status: { $ref: "#/components/schemas/WorkspaceProjectStatus" }
+        message: { type: string }
+        order: { type: integer }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
+    WorkspaceExecution:
+      type: object
+      additionalProperties: false
+      required: [id, workspaceId, kind, state, policy, removeData, projects, startedAt]
+      properties:
+        id: { type: string }
+        workspaceId: { type: string }
+        kind: { type: string, enum: [start, stop] }
+        state: { type: string, enum: [running, succeeded, partially_succeeded, failed, cancelled] }
+        policy: { $ref: "#/components/schemas/WorkspaceFailurePolicy" }
+        profileId: { type: string }
+        removeData: { type: boolean }
+        projects: { type: array, items: { $ref: "#/components/schemas/WorkspaceProjectResult" } }
+        errorMessage: { type: string }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
+    Workspace:
+      type: object
+      additionalProperties: false
+      required: [id, name, policy, members, dependencies, recipes, profiles, revision, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        policy: { $ref: "#/components/schemas/WorkspaceFailurePolicy" }
+        profile: { type: string }
+        members: { type: array, items: { $ref: "#/components/schemas/WorkspaceMember" } }
+        dependencies: { type: array, items: { $ref: "#/components/schemas/WorkspaceDependency" } }
+        recipes: { type: array, items: { $ref: "#/components/schemas/WorkspaceRecipe" } }
+        profiles: { type: array, items: { $ref: "#/components/schemas/WorkspaceProfile" } }
+        lastRun: { $ref: "#/components/schemas/WorkspaceExecution" }
+        revision: { type: integer, format: int64, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    WorkspaceOperationRequest:
+      type: object
+      additionalProperties: false
+      required: [action]
+      properties:
+        action: { $ref: "#/components/schemas/WorkspaceOperationAction" }
+        policy: { $ref: "#/components/schemas/WorkspaceFailurePolicy" }
+        profileId: { type: string, maxLength: 128 }
+        removeData: { type: boolean, default: false }
+        confirmDataRemoval: { type: boolean, default: false }
+        runRecipes: { type: boolean, default: false }
+    WorkspaceOperationAction:
+      type: string
+      enum: [start, stop]
+      x-enum-varnames: [WorkspaceStart, WorkspaceStop]
     Operation:
       type: object
       additionalProperties: false
@@ -1551,6 +1960,8 @@ components:
         id:
           type: string
         projectId:
+          type: string
+        workspaceId:
           type: string
         kind:
           type: string

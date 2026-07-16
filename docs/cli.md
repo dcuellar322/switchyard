@@ -111,6 +111,47 @@ switchyard daemon \
   --redact-pattern 'company-secret-[A-Za-z0-9]+'
 ```
 
+## Workspaces and worktree environments
+
+Worktree discovery is an explicit post-trust operation. Registration reads Git
+administrative metadata, projects monorepo subdirectories into every checkout,
+and persists stable environment identities and isolation allocations:
+
+```text
+switchyard environment list <project>
+switchyard environment register <project>
+switchyard environment get <environment-id>
+switchyard environment hostname <environment-id> <name.localhost>
+switchyard environment routes
+```
+
+Workspaces are reviewed JSON graph documents. Members may be trusted project
+IDs or registered environment IDs. Dependencies must be acyclic; profiles can
+select a dependency-closed subset and cap parallelism.
+
+```text
+switchyard workspace list
+switchyard workspace get <workspace-id>
+switchyard workspace create <definition.json>
+switchyard workspace update <workspace-id> <update.json>
+switchyard workspace delete <workspace-id> --yes
+switchyard workspace start <workspace-id> [--policy rollback|continue]
+  [--profile <profile-id>] [--run-recipes]
+switchyard workspace stop <workspace-id> [--profile <profile-id>]
+  [--remove-data --yes]
+```
+
+Start and stop return durable operations immediately. Start follows dependency
+order while running independent branches in parallel; stop reverses that
+order. Rollback and continue policies report per-member outcomes. Stop
+preserves data by default. `--remove-data` is destructive and is rejected
+without `--yes`.
+
+Friendly routing is disabled unless the daemon is started with a loopback-only
+`--routing-address`. It accepts HTTP targets only, reports unavailable and
+conflicting routes explicitly, and returns `503` for unknown hostnames. Local
+TLS is not implied by this option.
+
 ## Automation modes
 
 All query and mutation commands accept global flags after or before the command:

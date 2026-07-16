@@ -8,6 +8,7 @@ import (
 	actions "switchyard.dev/switchyard/internal/actions/application"
 	agents "switchyard.dev/switchyard/internal/agents/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
+	environments "switchyard.dev/switchyard/internal/environments/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	resources "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
@@ -16,6 +17,8 @@ import (
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrol "switchyard.dev/switchyard/internal/sourcecontrol/application"
+	workspace "switchyard.dev/switchyard/internal/workspace/application"
+	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
 )
 
 type problemDetails struct {
@@ -87,7 +90,37 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeAgentError(w, r, err) || writeResourceError(w, r, err)
+	return writeAgentError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeEnvironmentError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, environments.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "ENVIRONMENT_NOT_FOUND", "Environment not found", "No registered project environment exists for this identifier.")
+	case errors.Is(err, environments.ErrProjectUntrusted):
+		writeProblem(w, r, http.StatusForbidden, "PROJECT_UNTRUSTED", "Project is not trusted", "Approve the project manifest before registering worktrees.")
+	case errors.Is(err, environments.ErrNoWorktrees):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "WORKTREES_UNAVAILABLE", "No Git worktrees found", "The trusted repository did not return a worktree inventory.")
+	case errors.Is(err, environments.ErrRuntimeConflict):
+		writeProblem(w, r, http.StatusConflict, "ENVIRONMENT_RUNTIME_CONFLICT", "Environment runtime conflict", err.Error())
+	default:
+		return false
+	}
+	return true
+}
+
+func writeWorkspaceError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, workspace.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "WORKSPACE_NOT_FOUND", "Workspace not found", "No workspace exists for this identifier.")
+	case errors.Is(err, workspace.ErrRevisionConflict):
+		writeProblem(w, r, http.StatusConflict, "WORKSPACE_REVISION_CONFLICT", "Workspace changed", "Reload the workspace graph before applying another edit.")
+	case errors.Is(err, workspace.ErrInvalidRequest), errors.Is(err, workspaceDomain.ErrInvalidWorkspace), errors.Is(err, workspaceDomain.ErrDependencyCycle), errors.Is(err, workspaceDomain.ErrUnknownProfile):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "WORKSPACE_INVALID", "Workspace invalid", err.Error())
+	default:
+		return false
+	}
+	return true
 }
 
 func writeResourceError(w http.ResponseWriter, r *http.Request, err error) bool {

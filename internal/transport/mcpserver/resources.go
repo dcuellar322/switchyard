@@ -16,6 +16,8 @@ const resourceMIMEType = "application/json"
 func (s *Server) addResources() {
 	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://system", Name: "switchyard-system", Title: "Switchyard system", Description: "Daemon version and readiness.", MIMEType: resourceMIMEType}, s.readResource)
 	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://projects", Name: "switchyard-projects", Title: "Switchyard projects", Description: "Registered projects visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://workspaces", Name: "switchyard-workspaces", Title: "Switchyard workspaces", Description: "Workspace graphs visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://routes", Name: "switchyard-routes", Title: "Switchyard local routes", Description: "Friendly localhost route states visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
 	for _, template := range []*mcp.ResourceTemplate{
 		{URITemplate: "switchyard://projects/{projectId}", Name: "switchyard-project", Title: "Switchyard project", Description: "One catalog project.", MIMEType: resourceMIMEType},
 		{URITemplate: "switchyard://projects/{projectId}/status", Name: "switchyard-project-status", Title: "Project status", Description: "Catalog, runtime, and health status.", MIMEType: resourceMIMEType},
@@ -24,6 +26,8 @@ func (s *Server) addResources() {
 		{URITemplate: "switchyard://projects/{projectId}/git", Name: "switchyard-project-git", Title: "Project Git status", Description: "Bounded Git state.", MIMEType: resourceMIMEType},
 		{URITemplate: "switchyard://projects/{projectId}/ports", Name: "switchyard-project-ports", Title: "Project ports", Description: "Port facts owned by this project.", MIMEType: resourceMIMEType},
 		{URITemplate: "switchyard://projects/{projectId}/recent-errors", Name: "switchyard-project-errors", Title: "Recent project errors", Description: "At most 50 redacted recent error log entries.", MIMEType: resourceMIMEType},
+		{URITemplate: "switchyard://projects/{projectId}/environments", Name: "switchyard-project-environments", Title: "Project environments", Description: "Registered Git worktrees and exact runtime leases.", MIMEType: resourceMIMEType},
+		{URITemplate: "switchyard://workspaces/{workspaceId}", Name: "switchyard-workspace", Title: "Switchyard workspace", Description: "One workspace graph and latest execution.", MIMEType: resourceMIMEType},
 	} {
 		s.mcp.AddResourceTemplate(template, s.readResource)
 	}
@@ -41,6 +45,12 @@ func (s *Server) readResource(ctx context.Context, request *mcp.ReadResourceRequ
 		value, err = s.backend.System(ctx)
 	case len(segments) == 1 && segments[0] == "projects":
 		value, err = s.scopedProjects(ctx)
+	case len(segments) == 1 && segments[0] == "workspaces":
+		value, err = s.scopedWorkspaces(ctx)
+	case len(segments) == 2 && segments[0] == "workspaces":
+		value, err = s.readWorkspaceResource(ctx, segments[1])
+	case len(segments) == 1 && segments[0] == "routes":
+		value, err = s.scopedRoutes(ctx)
 	case len(segments) >= 2 && segments[0] == "projects":
 		projectID := segments[1]
 		if err = s.validateProjectRead(projectID); err == nil {
@@ -78,9 +88,66 @@ func (s *Server) readProjectResource(ctx context.Context, projectID string, suff
 		return s.readPortsResource(ctx, projectID)
 	case "recent-errors":
 		return s.readRecentErrorsResource(ctx, projectID)
+	case "environments":
+		api, ok := s.backend.(environmentBackend)
+		if !ok {
+			return nil, mcp.ResourceNotFoundError("switchyard://projects/" + projectID + "/environments")
+		}
+		return api.ProjectEnvironments(ctx, projectID)
 	default:
 		return nil, mcp.ResourceNotFoundError("switchyard://projects/" + projectID + "/" + strings.Join(suffix, "/"))
 	}
+}
+
+func (s *Server) scopedWorkspaces(ctx context.Context) ([]generated.Workspace, error) {
+	api, ok := s.backend.(workspaceBackend)
+	if !ok {
+		return nil, mcp.ResourceNotFoundError("switchyard://workspaces")
+	}
+	items, err := api.Workspaces(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]generated.Workspace, 0, min(100, len(items)))
+	for _, workspace := range items {
+		if s.authorizeWorkspaceRead(ctx, workspace) == nil {
+			result = append(result, workspace)
+		}
+		if len(result) == 100 {
+			break
+		}
+	}
+	return result, nil
+}
+
+func (s *Server) readWorkspaceResource(ctx context.Context, workspaceID string) (generated.Workspace, error) {
+	api, ok := s.backend.(workspaceBackend)
+	if !ok {
+		return generated.Workspace{}, mcp.ResourceNotFoundError("switchyard://workspaces/" + workspaceID)
+	}
+	workspace, err := api.Workspace(ctx, workspaceID)
+	if err == nil {
+		err = s.authorizeWorkspaceRead(ctx, workspace)
+	}
+	return workspace, err
+}
+
+func (s *Server) scopedRoutes(ctx context.Context) ([]generated.LocalRoute, error) {
+	api, ok := s.backend.(environmentBackend)
+	if !ok {
+		return nil, mcp.ResourceNotFoundError("switchyard://routes")
+	}
+	routes, err := api.LocalRoutes(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]generated.LocalRoute, 0, len(routes))
+	for _, route := range routes {
+		if route.ProjectId != nil && s.scope.AuthorizeRead(*route.ProjectId) == nil {
+			result = append(result, route)
+		}
+	}
+	return result, nil
 }
 
 func (s *Server) readStatusResource(ctx context.Context, projectID string) (statusOutput, error) {

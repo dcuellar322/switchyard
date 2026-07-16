@@ -31,6 +31,9 @@ failure isolation.
 The [AI-assisted onboarding](ai-assisted-onboarding.md) note defines Phase 11
 evidence consent, provider isolation, schema-constrained output, deterministic
 merge authority, dry-run review, and human-only trust transitions.
+The [workspace and worktree orchestration](workspaces.md) note defines Phase 13
+dependency execution, failure policy, environment isolation, optional local
+routing, launch recipes, and restart reconciliation.
 
 ## Process topology
 

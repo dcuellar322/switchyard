@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
@@ -18,16 +19,44 @@ var ErrProjectUntrusted = errors.New("project must be trusted before runtime use
 
 // CatalogSource adapts catalog use cases to the narrow runtime project boundary.
 type CatalogSource struct {
-	catalog *catalog.Service
+	catalog      *catalog.Service
+	environments EnvironmentSource
+}
+
+// RuntimeEnvironment is the narrow worktree overlay consumed by runtime
+// resolution. The accepted catalog manifest remains the source of behavior.
+type RuntimeEnvironment struct {
+	ID                 string
+	ProjectID          string
+	Name               string
+	Root               string
+	Available          bool
+	ComposeProjectName string
+	PortLeases         map[string]int
+}
+
+// EnvironmentSource resolves registered worktrees without exposing their storage.
+type EnvironmentSource interface {
+	ResolveRuntimeEnvironment(context.Context, string) (RuntimeEnvironment, error)
+	ListRuntimeEnvironmentIDs(context.Context) ([]string, error)
 }
 
 // NewCatalogSource creates a trusted runtime input adapter.
-func NewCatalogSource(service *catalog.Service) *CatalogSource {
-	return &CatalogSource{catalog: service}
+func NewCatalogSource(service *catalog.Service, environments ...EnvironmentSource) *CatalogSource {
+	result := &CatalogSource{catalog: service}
+	if len(environments) > 0 {
+		result.environments = environments[0]
+	}
+	return result
 }
 
 // ResolveRuntime returns only the accepted, effective runtime declaration.
 func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (domain.ProjectRuntime, error) {
+	requestedID := projectID
+	projectID, environment, err := s.resolveEnvironment(ctx, projectID)
+	if err != nil {
+		return domain.ProjectRuntime{}, err
+	}
 	project, err := s.catalog.GetProject(ctx, projectID)
 	if err != nil {
 		return domain.ProjectRuntime{}, err
@@ -104,7 +133,58 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 		}
 		result.Services = append(result.Services, declaration)
 	}
+	if environment.ID != "" {
+		applyRuntimeEnvironment(&result, requestedID, environment)
+	}
 	return result, nil
+}
+
+func (s *CatalogSource) resolveEnvironment(ctx context.Context, requestedID string) (string, RuntimeEnvironment, error) {
+	if s.environments == nil || !strings.HasPrefix(requestedID, "env-") {
+		return requestedID, RuntimeEnvironment{}, nil
+	}
+	environment, err := s.environments.ResolveRuntimeEnvironment(ctx, requestedID)
+	if err != nil {
+		return "", RuntimeEnvironment{}, err
+	}
+	if !environment.Available {
+		return "", RuntimeEnvironment{}, fmt.Errorf("project environment %s is unavailable", requestedID)
+	}
+	return environment.ProjectID, environment, nil
+}
+
+func applyRuntimeEnvironment(result *domain.ProjectRuntime, requestedID string, environment RuntimeEnvironment) {
+	result.ProjectID = requestedID
+	result.ProjectSlug += "-" + environment.Name
+	result.Root = environment.Root
+	if result.Compose != nil {
+		result.Compose.ProjectName = environment.ComposeProjectName
+		result.Compose.PortOverrides = cloneIntMap(environment.PortLeases)
+	}
+	for id, host := range environment.PortLeases {
+		port, exists := result.Ports[id]
+		if !exists {
+			continue
+		}
+		port.Host = host
+		result.Ports[id] = port
+	}
+	for index := range result.Services {
+		result.Services[index].HostPorts = result.Services[index].HostPorts[:0]
+		for _, port := range result.Ports {
+			if port.Service == result.Services[index].ID && port.Protocol == "tcp" {
+				result.Services[index].HostPorts = append(result.Services[index].HostPorts, port.Host)
+			}
+		}
+	}
+}
+
+func cloneIntMap(source map[string]int) map[string]int {
+	result := make(map[string]int, len(source))
+	for key, value := range source {
+		result[key] = value
+	}
+	return result
 }
 
 func cloneStringMap(source map[string]string) map[string]string {
@@ -126,6 +206,13 @@ func (s *CatalogSource) ListRuntimeProjectIDs(ctx context.Context) ([]string, er
 		if project.TrustState == catalogDomain.TrustTrusted {
 			ids = append(ids, project.ID)
 		}
+	}
+	if s.environments != nil {
+		environments, environmentErr := s.environments.ListRuntimeEnvironmentIDs(ctx)
+		if environmentErr != nil {
+			return nil, environmentErr
+		}
+		ids = append(ids, environments...)
 	}
 	return ids, nil
 }

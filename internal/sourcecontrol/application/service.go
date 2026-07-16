@@ -13,6 +13,11 @@ import (
 // ErrProjectUntrusted prevents repository access before manifest approval.
 var ErrProjectUntrusted = errors.New("project must be trusted before repository observation")
 
+// ErrWorktreeObservationUnsupported reports an observer that cannot provide an
+// explicit worktree inventory. Production Git observers implement this seam;
+// keeping it separate avoids pretending an empty list is a successful probe.
+var ErrWorktreeObservationUnsupported = errors.New("source-control observer does not support worktree inventory")
+
 // ProjectSource resolves the trusted repository root.
 type ProjectSource interface {
 	Root(context.Context, string) (string, error)
@@ -21,6 +26,12 @@ type ProjectSource interface {
 // Observer reads Git without mutating the repository.
 type Observer interface {
 	Observe(context.Context, string, string) (domain.State, error)
+}
+
+// WorktreeObserver reads only Git's administrative worktree metadata. It must
+// never invoke repository-defined commands or hooks.
+type WorktreeObserver interface {
+	ObserveWorktrees(context.Context, string) ([]domain.Worktree, error)
 }
 
 // Service resolves a trusted root before delegating read-only Git observation.
@@ -41,6 +52,21 @@ func (s *Service) Get(ctx context.Context, projectID string) (domain.State, erro
 		return domain.State{}, err
 	}
 	return s.observer.Observe(ctx, projectID, root)
+}
+
+// ListWorktrees returns the trusted repository's current worktree inventory.
+// This is an explicit observation operation, not part of deterministic project
+// discovery, and executes no repository-defined command.
+func (s *Service) ListWorktrees(ctx context.Context, projectID string) ([]domain.Worktree, error) {
+	root, err := s.projects.Root(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	observer, ok := s.observer.(WorktreeObserver)
+	if !ok {
+		return nil, ErrWorktreeObservationUnsupported
+	}
+	return observer.ObserveWorktrees(ctx, root)
 }
 
 // CatalogSource prevents pending repository paths from reaching Git.

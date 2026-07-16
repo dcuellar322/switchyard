@@ -92,6 +92,31 @@ func TestCoordinatorCancellation(t *testing.T) {
 	}
 }
 
+func TestCoordinatorPersistsPartialSuccess(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	database, repository, journal := operationFixture(ctx, t)
+	defer closeDatabase(t, database)
+	coordinator := application.NewCoordinator(ctx, repository, journal, application.ExecutorFunc(
+		func(context.Context, domain.Operation, application.Progress) error {
+			return application.PartialSuccess("one workspace member failed")
+		},
+	))
+	operation, err := coordinator.Submit(ctx, request("workspace:fixture", "partial-key"))
+	if err != nil {
+		t.Fatalf("Submit() error = %v", err)
+	}
+	finished, err := coordinator.Wait(ctx, operation.ID)
+	if err != nil {
+		t.Fatalf("Wait() error = %v", err)
+	}
+	if finished.State != domain.StatePartiallySucceeded || finished.ErrorCode != "OPERATION_PARTIAL" {
+		t.Fatalf("finished = %#v", finished)
+	}
+}
+
 func TestCoordinatorRecoveryFailsInterruptedAndResumesQueued(t *testing.T) {
 	t.Parallel()
 

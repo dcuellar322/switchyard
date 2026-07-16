@@ -28,7 +28,8 @@ func (r *OperationRepository) CreateOrGet(ctx context.Context, operation domain.
 		ID: operation.ID, ProjectID: operation.ProjectID, Kind: operation.Kind,
 		State: string(operation.State), IdempotencyKey: operation.IdempotencyKey,
 		InputJson: string(defaultJSON(operation.Input)), RequestedAt: formatTime(operation.RequestedAt),
-		UpdatedAt: formatTime(operation.UpdatedAt),
+		UpdatedAt:   formatTime(operation.UpdatedAt),
+		WorkspaceID: nullable(operation.WorkspaceID),
 	})
 	if err != nil {
 		return domain.Operation{}, false, fmt.Errorf("insert operation: %w", err)
@@ -136,7 +137,8 @@ func (r *OperationRepository) RecordAudit(ctx context.Context, event operations.
 		EventType: event.Type, ActorType: event.ActorType, ActorID: event.ActorID,
 		ProjectID: nullable(event.ProjectID), OperationID: nullable(event.OperationID),
 		IdempotencyKey: nullable(event.IdempotencyKey), DetailJson: string(defaultJSON(event.Detail)),
-		OccurredAt: formatTime(event.OccurredAt),
+		OccurredAt:  formatTime(event.OccurredAt),
+		WorkspaceID: nullable(event.WorkspaceID),
 	}); err != nil {
 		return fmt.Errorf("insert audit event: %w", err)
 	}
@@ -161,7 +163,7 @@ func mapOperation(record generated.Operation) (domain.Operation, error) {
 		return domain.Operation{}, err
 	}
 	return domain.Operation{
-		ID: record.ID, ProjectID: record.ProjectID, Kind: record.Kind,
+		ID: record.ID, ProjectID: record.ProjectID, WorkspaceID: record.WorkspaceID.String, Kind: record.Kind,
 		State: domain.State(record.State), IdempotencyKey: record.IdempotencyKey,
 		Input: []byte(record.InputJson), ErrorCode: record.ErrorCode.String,
 		ErrorMessage: record.ErrorMessage.String, CancellationRequested: record.CancellationRequested == 1,

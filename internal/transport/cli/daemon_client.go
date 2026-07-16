@@ -72,6 +72,9 @@ func startDaemon(options *rootOptions) error {
 	if options.ipcAddr != "" {
 		args = append(args, "--ipc-address", options.ipcAddr)
 	}
+	if options.routingAddr != "" {
+		args = append(args, "--routing-address", options.routingAddr)
+	}
 	command := exec.Command(executable, args...)
 	configureDetached(command)
 	logPath := filepath.Join(options.dataDir, "daemon.log")

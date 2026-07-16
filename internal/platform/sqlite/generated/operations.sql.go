@@ -13,8 +13,8 @@ import (
 const createAuditEvent = `-- name: CreateAuditEvent :exec
 INSERT INTO audit_events (
     event_type, actor_type, actor_id, project_id, operation_id,
-    idempotency_key, detail_json, occurred_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    idempotency_key, detail_json, occurred_at, workspace_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateAuditEventParams struct {
@@ -26,6 +26,7 @@ type CreateAuditEventParams struct {
 	IdempotencyKey sql.NullString `json:"idempotency_key"`
 	DetailJson     string         `json:"detail_json"`
 	OccurredAt     string         `json:"occurred_at"`
+	WorkspaceID    sql.NullString `json:"workspace_id"`
 }
 
 func (q *Queries) CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error {
@@ -38,6 +39,7 @@ func (q *Queries) CreateAuditEvent(ctx context.Context, arg CreateAuditEventPara
 		arg.IdempotencyKey,
 		arg.DetailJson,
 		arg.OccurredAt,
+		arg.WorkspaceID,
 	)
 	return err
 }
@@ -75,20 +77,21 @@ func (q *Queries) CreateJournalEvent(ctx context.Context, arg CreateJournalEvent
 const createOperation = `-- name: CreateOperation :execrows
 INSERT INTO operations (
     id, project_id, kind, state, idempotency_key, input_json,
-    requested_at, updated_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    requested_at, updated_at, workspace_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT (project_id, idempotency_key) DO NOTHING
 `
 
 type CreateOperationParams struct {
-	ID             string `json:"id"`
-	ProjectID      string `json:"project_id"`
-	Kind           string `json:"kind"`
-	State          string `json:"state"`
-	IdempotencyKey string `json:"idempotency_key"`
-	InputJson      string `json:"input_json"`
-	RequestedAt    string `json:"requested_at"`
-	UpdatedAt      string `json:"updated_at"`
+	ID             string         `json:"id"`
+	ProjectID      string         `json:"project_id"`
+	Kind           string         `json:"kind"`
+	State          string         `json:"state"`
+	IdempotencyKey string         `json:"idempotency_key"`
+	InputJson      string         `json:"input_json"`
+	RequestedAt    string         `json:"requested_at"`
+	UpdatedAt      string         `json:"updated_at"`
+	WorkspaceID    sql.NullString `json:"workspace_id"`
 }
 
 func (q *Queries) CreateOperation(ctx context.Context, arg CreateOperationParams) (int64, error) {
@@ -101,6 +104,7 @@ func (q *Queries) CreateOperation(ctx context.Context, arg CreateOperationParams
 		arg.InputJson,
 		arg.RequestedAt,
 		arg.UpdatedAt,
+		arg.WorkspaceID,
 	)
 	if err != nil {
 		return 0, err
@@ -134,7 +138,7 @@ func (q *Queries) CreateOperationStep(ctx context.Context, arg CreateOperationSt
 }
 
 const getOperation = `-- name: GetOperation :one
-SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations WHERE id = ?
+SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at, workspace_id FROM operations WHERE id = ?
 `
 
 func (q *Queries) GetOperation(ctx context.Context, id string) (Operation, error) {
@@ -154,12 +158,13 @@ func (q *Queries) GetOperation(ctx context.Context, id string) (Operation, error
 		&i.StartedAt,
 		&i.FinishedAt,
 		&i.UpdatedAt,
+		&i.WorkspaceID,
 	)
 	return i, err
 }
 
 const getOperationByIdempotency = `-- name: GetOperationByIdempotency :one
-SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations WHERE project_id = ? AND idempotency_key = ?
+SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at, workspace_id FROM operations WHERE project_id = ? AND idempotency_key = ?
 `
 
 type GetOperationByIdempotencyParams struct {
@@ -184,12 +189,13 @@ func (q *Queries) GetOperationByIdempotency(ctx context.Context, arg GetOperatio
 		&i.StartedAt,
 		&i.FinishedAt,
 		&i.UpdatedAt,
+		&i.WorkspaceID,
 	)
 	return i, err
 }
 
 const listAuditEventsForOperation = `-- name: ListAuditEventsForOperation :many
-SELECT id, event_type, actor_type, actor_id, project_id, operation_id, idempotency_key, detail_json, occurred_at FROM audit_events WHERE operation_id = ? ORDER BY id
+SELECT id, event_type, actor_type, actor_id, project_id, operation_id, idempotency_key, detail_json, occurred_at, workspace_id FROM audit_events WHERE operation_id = ? ORDER BY id
 `
 
 func (q *Queries) ListAuditEventsForOperation(ctx context.Context, operationID sql.NullString) ([]AuditEvent, error) {
@@ -211,6 +217,7 @@ func (q *Queries) ListAuditEventsForOperation(ctx context.Context, operationID s
 			&i.IdempotencyKey,
 			&i.DetailJson,
 			&i.OccurredAt,
+			&i.WorkspaceID,
 		); err != nil {
 			return nil, err
 		}
@@ -303,7 +310,7 @@ func (q *Queries) ListOperationSteps(ctx context.Context, operationID string) ([
 }
 
 const listOperations = `-- name: ListOperations :many
-SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations
+SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at, workspace_id FROM operations
 WHERE (?1 = '' OR project_id = ?1)
 ORDER BY requested_at DESC, id DESC
 LIMIT ?2
@@ -337,6 +344,7 @@ func (q *Queries) ListOperations(ctx context.Context, arg ListOperationsParams) 
 			&i.StartedAt,
 			&i.FinishedAt,
 			&i.UpdatedAt,
+			&i.WorkspaceID,
 		); err != nil {
 			return nil, err
 		}
@@ -352,7 +360,7 @@ func (q *Queries) ListOperations(ctx context.Context, arg ListOperationsParams) 
 }
 
 const listRecoverableOperations = `-- name: ListRecoverableOperations :many
-SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations
+SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at, workspace_id FROM operations
 WHERE state IN ('queued', 'running')
 ORDER BY requested_at, id
 `
@@ -380,6 +388,7 @@ func (q *Queries) ListRecoverableOperations(ctx context.Context) ([]Operation, e
 			&i.StartedAt,
 			&i.FinishedAt,
 			&i.UpdatedAt,
+			&i.WorkspaceID,
 		); err != nil {
 			return nil, err
 		}

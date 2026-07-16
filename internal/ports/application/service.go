@@ -29,13 +29,17 @@ type Service struct {
 	declarations FactSource
 	bindings     FactSource
 	listeners    FactSource
+	additional   []FactSource
 	reservations ReservationRepository
 	now          func() time.Time
 }
 
 // NewService creates the port registry from its independent evidence sources.
-func NewService(declarations, bindings, listeners FactSource, reservations ReservationRepository) *Service {
-	return &Service{declarations: declarations, bindings: bindings, listeners: listeners, reservations: reservations, now: time.Now}
+func NewService(declarations, bindings, listeners FactSource, reservations ReservationRepository, additional ...FactSource) *Service {
+	return &Service{
+		declarations: declarations, bindings: bindings, listeners: listeners,
+		reservations: reservations, additional: additional, now: time.Now,
+	}
 }
 
 // Registry refreshes every source; unavailable optional sources become explicit warnings.
@@ -51,6 +55,14 @@ func (s *Service) Registry(ctx context.Context) (domain.Registry, error) {
 	}
 	facts := append(append([]domain.Fact{}, declarations...), reservations...)
 	var warnings []string
+	for _, source := range s.additional {
+		additional, additionalErr := source.Facts(ctx)
+		if additionalErr != nil {
+			warnings = append(warnings, "additional port evidence unavailable: "+additionalErr.Error())
+			continue
+		}
+		facts = append(facts, additional...)
+	}
 	runtimeBindings, bindingErr := s.bindings.Facts(ctx)
 	if bindingErr != nil {
 		warnings = append(warnings, "runtime bindings unavailable: "+bindingErr.Error())

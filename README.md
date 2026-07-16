@@ -127,6 +127,13 @@ resulting untrusted revision. Provider absence never affects deterministic
 onboarding. See the
 [AI-assisted onboarding architecture](docs/architecture/ai-assisted-onboarding.md).
 
+Workspaces coordinate trusted projects and registered Git worktrees as a
+validated dependency graph. Starts respect health gates and failure policy,
+stops preserve data unless removal is explicitly confirmed, and every
+worktree receives stable Compose, port-lease, and optional `.localhost`
+routing identity. See the
+[workspace and worktree architecture](docs/architecture/workspaces.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

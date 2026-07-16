@@ -21,6 +21,7 @@ type rootOptions struct {
 	address                    string
 	dataDir                    string
 	ipcAddr                    string
+	routingAddr                string
 	json                       bool
 	jsonl                      bool
 	nonInteractive             bool
@@ -83,6 +84,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 	root.PersistentFlags().StringVar(&options.address, "address", options.address, "loopback daemon address")
 	root.PersistentFlags().StringVar(&options.dataDir, "data-dir", options.dataDir, "local Switchyard data directory")
 	root.PersistentFlags().StringVar(&options.ipcAddr, "ipc-address", "", "privileged local IPC address")
+	root.PersistentFlags().StringVar(&options.routingAddr, "routing-address", "", "optional loopback HTTP address for .localhost routes")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "emit a stable JSON envelope")
 	root.PersistentFlags().BoolVar(&options.jsonl, "jsonl", false, "emit one stable JSON envelope per item")
 	root.PersistentFlags().BoolVar(&options.nonInteractive, "non-interactive", false, "disable interactive prompts")
@@ -93,6 +95,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newManifestCommand(options), newOpenCommand(options), newCompletionCommand(root), newSchemaCommand(options),
 		newStatusCommand(options), newPlanCommand(options), newLogsCommand(options), newMetricsCommand(options),
 		newPortsCommand(options), newGitCommand(options), newActionCommand(options),
+		newWorkspaceCommand(options), newEnvironmentCommand(options),
 		newMCPCommand(options), newAgentCommand(options),
 		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"),
 		newLifecycleCommand(options, "pause"), newLifecycleCommand(options, "unpause"), newLifecycleCommand(options, "rebuild"),
@@ -115,7 +118,7 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 	command := &cobra.Command{Use: "daemon", Short: "Run the local Switchyard control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
 		logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
-			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger,
+			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, RoutingAddr: options.routingAddr, Logger: logger,
 			LogRingCapacity: options.logRingCapacity, LogSegmentBytes: options.logSegmentBytes,
 			LogRetentionAge: options.logRetentionAge, LogRetentionBytes: options.logRetentionBytes,
 			MetricSampleInterval: options.metricSampleInterval, MetricRawRetention: options.metricRawRetention,

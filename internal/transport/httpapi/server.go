@@ -12,23 +12,27 @@ import (
 
 // Dependencies are the application ports exposed through local transports.
 type Dependencies struct {
-	System     systemQuery
-	Host       hostQuery
-	Operations operationService
-	Sessions   sessionService
-	Catalog    catalogService
-	Runtime    runtimeService
-	Health     healthService
-	LogService logService
-	Ports      portService
-	Git        gitService
-	Actions    actionService
-	AI         aiOnboardingService
-	Resources  resourceService
-	Events     http.Handler
-	Logs       http.Handler
-	Web        http.Handler
-	Logger     *slog.Logger
+	System                  systemQuery
+	Host                    hostQuery
+	Operations              operationService
+	Sessions                sessionService
+	Catalog                 catalogService
+	Runtime                 runtimeService
+	Health                  healthService
+	LogService              logService
+	Ports                   portService
+	Git                     gitService
+	Actions                 actionService
+	AI                      aiOnboardingService
+	Resources               resourceService
+	Workspaces              workspaceService
+	Environments            environmentService
+	EnvironmentRegistration environmentRegistrationService
+	Routes                  routeService
+	Events                  http.Handler
+	Logs                    http.Handler
+	Web                     http.Handler
+	Logger                  *slog.Logger
 }
 
 // NewBrowser constructs the authenticated loopback router and embedded UI.
@@ -56,6 +60,8 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 		system: dependencies.System, host: dependencies.Host, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
 		runtime: dependencies.Runtime, health: dependencies.Health, logs: dependencies.LogService,
 		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI, resources: dependencies.Resources,
+		workspaces:   dependencies.Workspaces,
+		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {

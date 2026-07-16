@@ -16,6 +16,7 @@ import (
 // SubmitRequest describes a durable mutation before domain-specific execution.
 type SubmitRequest struct {
 	ProjectID      string
+	WorkspaceID    string
 	Kind           string
 	IdempotencyKey string
 	Input          []byte
@@ -55,7 +56,7 @@ func (c *Coordinator) Submit(ctx context.Context, request SubmitRequest) (domain
 	}
 	now := c.now().UTC()
 	operation := domain.Operation{
-		ID: id, ProjectID: request.ProjectID, Kind: request.Kind,
+		ID: id, ProjectID: request.ProjectID, WorkspaceID: request.WorkspaceID, Kind: request.Kind,
 		State: domain.StateQueued, IdempotencyKey: request.IdempotencyKey,
 		Input: append([]byte(nil), request.Input...), RequestedAt: now, UpdatedAt: now,
 	}
@@ -69,6 +70,7 @@ func (c *Coordinator) Submit(ctx context.Context, request SubmitRequest) (domain
 	auditErr := c.repo.RecordAudit(ctx, AuditEvent{
 		Type: "operation.requested", ActorType: defaultValue(request.ActorType, "local"),
 		ActorID: defaultValue(request.ActorID, "unknown"), ProjectID: operation.ProjectID,
+		WorkspaceID: operation.WorkspaceID,
 		OperationID: operation.ID, IdempotencyKey: operation.IdempotencyKey,
 		Detail: []byte(`{}`), OccurredAt: now,
 	})
@@ -168,6 +170,11 @@ func (c *Coordinator) run(ctx context.Context, operation domain.Operation) {
 	err = c.execute(ctx, running)
 	if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
 		c.finish(running, domain.StateCancelled, "OPERATION_CANCELLED", "operation cancelled")
+		return
+	}
+	var partial *PartialSuccessError
+	if errors.As(err, &partial) {
+		c.finish(running, domain.StatePartiallySucceeded, "OPERATION_PARTIAL", partial.Error())
 		return
 	}
 	if err != nil {

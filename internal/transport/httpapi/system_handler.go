@@ -12,16 +12,21 @@ import (
 	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
+	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
+	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
 	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
 	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
+	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
+	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
 )
 
 type systemQuery interface {
@@ -33,19 +38,23 @@ type hostQuery interface {
 }
 
 type handler struct {
-	system     systemQuery
-	host       hostQuery
-	operations operationService
-	sessions   sessionService
-	catalog    catalogService
-	runtime    runtimeService
-	health     healthService
-	logs       logService
-	ports      portService
-	git        gitService
-	actions    actionService
-	ai         aiOnboardingService
-	resources  resourceService
+	system                  systemQuery
+	host                    hostQuery
+	operations              operationService
+	sessions                sessionService
+	catalog                 catalogService
+	runtime                 runtimeService
+	health                  healthService
+	logs                    logService
+	ports                   portService
+	git                     gitService
+	actions                 actionService
+	ai                      aiOnboardingService
+	resources               resourceService
+	workspaces              workspaceService
+	environments            environmentService
+	environmentRegistration environmentRegistrationService
+	routes                  routeService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +140,29 @@ type resourceService interface {
 	History(context.Context, string, string, string, time.Time, time.Time, int) (observabilityDomain.MetricHistory, error)
 	Storage(context.Context) (observabilityDomain.StorageInventory, error)
 	CleanupPreview(context.Context, string) (observabilityDomain.CleanupPreview, error)
+}
+
+type workspaceService interface {
+	Create(context.Context, workspaceApplication.SaveRequest) (workspaceDomain.Workspace, error)
+	Update(context.Context, string, workspaceApplication.SaveRequest) (workspaceDomain.Workspace, error)
+	Get(context.Context, string) (workspaceDomain.Workspace, error)
+	List(context.Context) ([]workspaceDomain.Workspace, error)
+	Delete(context.Context, string) error
+}
+
+type environmentService interface {
+	Get(context.Context, string) (environmentDomain.Environment, error)
+	ListProject(context.Context, string) ([]environmentDomain.Environment, error)
+	ConfigureRuntime(context.Context, string, environmentApplication.RuntimeConfiguration) (environmentDomain.Environment, error)
+}
+
+type environmentRegistrationService interface {
+	RegisterWorktrees(context.Context, string) (environmentApplication.Registration, error)
+}
+
+type routeService interface {
+	Refresh(context.Context) ([]routingDomain.Route, error)
+	Snapshot() []routingDomain.Route
 }
 
 type sessionService interface {

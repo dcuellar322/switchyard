@@ -14,14 +14,17 @@ import (
 
 func (s *Server) addMutationTools() {
 	if s.scope.Allows(agents.CapabilityLifecycle) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_start", "Start project", "Queue an idempotent start for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.Start, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_stop", "Stop project", "Queue an idempotent stop for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.Stop, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_restart", "Restart project", "Queue a restart for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, false, false), lifecycleHandler(s, generated.Restart, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_pause", "Pause project", "Queue an idempotent pause for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.Pause, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_resume", "Resume project", "Queue an idempotent resume for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.Unpause, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_start", "Start project", "Queue an idempotent start for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStart, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_stop", "Stop project", "Queue an idempotent stop for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStop, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_restart", "Restart project", "Queue a restart for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, false, false), lifecycleHandler(s, generated.RuntimeActionRestart, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_pause", "Pause project", "Queue an idempotent pause for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionPause, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_resume", "Resume project", "Queue an idempotent resume for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionUnpause, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_workspace_start", "Start workspace", "Queue dependency-ordered workspace start with bounded concurrency.", "mutating", agents.ProfileDevelop, false, true, false), s.workspaceStart)
+		mcp.AddTool(s.mcp, mutationTool("switchyard_workspace_stop", "Stop workspace", "Queue dependency-safe workspace stop; data removal is separately authorized.", "conditional-destructive", agents.ProfileDevelop, true, true, false), s.workspaceStop)
+		mcp.AddTool(s.mcp, mutationTool("switchyard_environments_register", "Register worktree environments", "Reconcile trusted Git worktrees and allocate exact ports without running repository code.", "filesystem-read", agents.ProfileDevelop, false, true, false), s.environmentsRegister)
 	}
 	if s.scope.Allows(agents.CapabilityRebuild) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_rebuild", "Rebuild project", "Queue an explicit rebuild for a project or selected declared services.", "mutating", agents.ProfileMaintain, false, false, true), lifecycleHandler(s, generated.Rebuild, agents.CapabilityRebuild))
+		mcp.AddTool(s.mcp, mutationTool("switchyard_project_rebuild", "Rebuild project", "Queue an explicit rebuild for a project or selected declared services.", "mutating", agents.ProfileMaintain, false, false, true), lifecycleHandler(s, generated.RuntimeActionRebuild, agents.CapabilityRebuild))
 	}
 	if s.scope.Allows(agents.CapabilityAction) {
 		mcp.AddTool(s.mcp, mutationTool("switchyard_action_run", "Run trusted action", "Queue one reviewed manifest action; risk confirmation is enforced.", "declared", agents.ProfileDevelop, true, false, true), s.actionRun)
@@ -56,7 +59,7 @@ func (s *Server) teardown(ctx context.Context, _ *mcp.CallToolRequest, input tea
 	if err := s.validateProjectMutation(agents.CapabilityDestructive, input.ProjectID, input.RequestID); err != nil {
 		return nil, mutationOutput{}, err
 	}
-	operation, err := s.backend.CreateRuntimeOperationForServices(ctx, input.ProjectID, generated.Teardown, input.RemoveVolumes, nil, input.RequestID)
+	operation, err := s.backend.CreateRuntimeOperationForServices(ctx, input.ProjectID, generated.RuntimeActionTeardown, input.RemoveVolumes, nil, input.RequestID)
 	return nil, mutationOutput{SchemaVersion: schemaVersion, Operation: operation}, err
 }
 

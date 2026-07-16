@@ -34,6 +34,7 @@ type AuditEvent struct {
 	IdempotencyKey sql.NullString `json:"idempotency_key"`
 	DetailJson     string         `json:"detail_json"`
 	OccurredAt     string         `json:"occurred_at"`
+	WorkspaceID    sql.NullString `json:"workspace_id"`
 }
 
 type DiscoveryEvidence struct {
@@ -47,6 +48,14 @@ type DiscoveryEvidence struct {
 	Confidence   float64 `json:"confidence"`
 	DataJson     string  `json:"data_json"`
 	WarningsJson string  `json:"warnings_json"`
+}
+
+type EnvironmentPortLease struct {
+	EnvironmentID string `json:"environment_id"`
+	PortID        string `json:"port_id"`
+	Protocol      string `json:"protocol"`
+	TargetPort    int64  `json:"target_port"`
+	HostPort      int64  `json:"host_port"`
 }
 
 type EventJournal struct {
@@ -160,6 +169,7 @@ type Operation struct {
 	StartedAt             sql.NullString `json:"started_at"`
 	FinishedAt            sql.NullString `json:"finished_at"`
 	UpdatedAt             string         `json:"updated_at"`
+	WorkspaceID           sql.NullString `json:"workspace_id"`
 }
 
 type OperationStep struct {
@@ -196,6 +206,30 @@ type Project struct {
 	ManifestRevision int64  `json:"manifest_revision"`
 	CreatedAt        string `json:"created_at"`
 	UpdatedAt        string `json:"updated_at"`
+}
+
+type ProjectEnvironment struct {
+	ID                 string `json:"id"`
+	ProjectID          string `json:"project_id"`
+	Name               string `json:"name"`
+	Path               string `json:"path"`
+	Head               string `json:"head"`
+	Branch             string `json:"branch"`
+	Detached           int64  `json:"detached"`
+	Bare               int64  `json:"bare"`
+	Locked             int64  `json:"locked"`
+	IsPrimary          int64  `json:"is_primary"`
+	Availability       string `json:"availability"`
+	UnavailableReason  string `json:"unavailable_reason"`
+	RuntimeState       string `json:"runtime_state"`
+	Hostname           string `json:"hostname"`
+	Target             string `json:"target"`
+	ComposeProjectName string `json:"compose_project_name"`
+	PortLeaseNamespace string `json:"port_lease_namespace"`
+	PortOffset         int64  `json:"port_offset"`
+	RegisteredAt       string `json:"registered_at"`
+	LastObservedAt     string `json:"last_observed_at"`
+	UpdatedAt          string `json:"updated_at"`
 }
 
 type ProjectLocation struct {
@@ -268,4 +302,82 @@ type SystemHealth struct {
 	Singleton     int64  `json:"singleton"`
 	SchemaVersion int64  `json:"schema_version"`
 	InitializedAt string `json:"initialized_at"`
+}
+
+type Workspace struct {
+	ID                   string `json:"id"`
+	Name                 string `json:"name"`
+	Description          string `json:"description"`
+	DefaultFailurePolicy string `json:"default_failure_policy"`
+	DefaultProfileID     string `json:"default_profile_id"`
+	Revision             int64  `json:"revision"`
+	CreatedAt            string `json:"created_at"`
+	UpdatedAt            string `json:"updated_at"`
+}
+
+type WorkspaceDependency struct {
+	WorkspaceID        string `json:"workspace_id"`
+	ProjectID          string `json:"project_id"`
+	DependsOnProjectID string `json:"depends_on_project_id"`
+}
+
+type WorkspaceProfile struct {
+	WorkspaceID       string `json:"workspace_id"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	Description       string `json:"description"`
+	MaxParallel       int64  `json:"max_parallel"`
+	LowMemory         int64  `json:"low_memory"`
+	MemoryBudgetBytes int64  `json:"memory_budget_bytes"`
+}
+
+type WorkspaceProfileProject struct {
+	WorkspaceID string `json:"workspace_id"`
+	ProfileID   string `json:"profile_id"`
+	ProjectID   string `json:"project_id"`
+	SortOrder   int64  `json:"sort_order"`
+}
+
+type WorkspaceProject struct {
+	WorkspaceID          string `json:"workspace_id"`
+	ProjectID            string `json:"project_id"`
+	Role                 string `json:"role"`
+	SortOrder            int64  `json:"sort_order"`
+	HealthGate           int64  `json:"health_gate"`
+	HealthTimeoutSeconds int64  `json:"health_timeout_seconds"`
+}
+
+type WorkspaceRecipe struct {
+	WorkspaceID   string         `json:"workspace_id"`
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Kind          string         `json:"kind"`
+	ProjectID     sql.NullString `json:"project_id"`
+	Target        string         `json:"target"`
+	ArgumentsJson string         `json:"arguments_json"`
+	SortOrder     int64          `json:"sort_order"`
+}
+
+type WorkspaceRun struct {
+	ID            string         `json:"id"`
+	WorkspaceID   string         `json:"workspace_id"`
+	Kind          string         `json:"kind"`
+	State         string         `json:"state"`
+	FailurePolicy string         `json:"failure_policy"`
+	ProfileID     string         `json:"profile_id"`
+	RemoveData    int64          `json:"remove_data"`
+	ErrorMessage  string         `json:"error_message"`
+	StartedAt     string         `json:"started_at"`
+	FinishedAt    sql.NullString `json:"finished_at"`
+}
+
+type WorkspaceRunProject struct {
+	RunID      string         `json:"run_id"`
+	ProjectID  string         `json:"project_id"`
+	Role       string         `json:"role"`
+	State      string         `json:"state"`
+	Message    string         `json:"message"`
+	SortOrder  int64          `json:"sort_order"`
+	StartedAt  sql.NullString `json:"started_at"`
+	FinishedAt sql.NullString `json:"finished_at"`
 }

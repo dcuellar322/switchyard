@@ -644,9 +644,191 @@ export type ResourceOverview = {
     warnings: Array<string>;
 };
 
+export type WorkspaceFailurePolicy = 'rollback' | 'continue';
+
+export type EnvironmentPortLease = {
+    portId: string;
+    protocol: 'tcp' | 'udp';
+    targetPort: number;
+    hostPort: number;
+};
+
+export type EnvironmentRuntimeAllocation = {
+    composeProjectName: string;
+    portLeaseNamespace: string;
+    portOffset: number;
+    portLeases: Array<EnvironmentPortLease>;
+};
+
+export type ProjectEnvironment = {
+    id: string;
+    projectId: string;
+    name: string;
+    path: string;
+    head?: string;
+    branch?: string;
+    detached: boolean;
+    bare: boolean;
+    locked: boolean;
+    primary: boolean;
+    availability: 'available' | 'unavailable';
+    unavailableReason?: string;
+    state: 'registered' | 'active' | 'inactive' | 'unavailable';
+    hostname: string;
+    target?: string;
+    allocation: EnvironmentRuntimeAllocation;
+    registeredAt: string;
+    lastObservedAt: string;
+    updatedAt: string;
+};
+
+export type EnvironmentRegistration = {
+    projectId: string;
+    environments: Array<ProjectEnvironment>;
+    removedIds: Array<string>;
+    observedAt: string;
+};
+
+export type EnvironmentUpdate = {
+    hostname: string;
+};
+
+export type LocalRoute = {
+    hostname: string;
+    status: 'active' | 'unavailable' | 'conflict' | 'disabled';
+    projectId?: string;
+    environmentId?: string;
+    target?: string;
+    reason?: string;
+    candidateEnvironmentIds: Array<string>;
+    updatedAt: string;
+};
+
+export type WorkspaceMemberRole = 'application' | 'dependency' | 'tooling';
+
+export type WorkspaceProjectStatus = 'idle' | 'queued' | 'blocked' | 'starting' | 'checking_health' | 'running' | 'start_failed' | 'stopping' | 'stopped' | 'stop_failed' | 'rolling_back' | 'rolled_back' | 'rollback_failed' | 'cancelled';
+
+export type WorkspaceMemberDefinition = {
+    projectId: string;
+    role: WorkspaceMemberRole;
+    order: number;
+    healthGate: boolean;
+    healthTimeoutSeconds: number;
+};
+
+export type WorkspaceMember = {
+    projectId: string;
+    role: WorkspaceMemberRole;
+    order: number;
+    healthGate: boolean;
+    healthTimeoutSeconds: number;
+    status: WorkspaceProjectStatus;
+    message?: string;
+};
+
+export type WorkspaceDependency = {
+    projectId: string;
+    dependsOnProjectId: string;
+};
+
+export type WorkspaceRecipe = {
+    id: string;
+    name: string;
+    kind: 'open_url' | 'open_terminal' | 'open_editor' | 'start_agent';
+    projectId?: string;
+    target?: string;
+    arguments: Array<string>;
+    order: number;
+};
+
+export type WorkspaceProfile = {
+    id: string;
+    name: string;
+    description?: string;
+    projectIds: Array<string>;
+    maxParallel: number;
+    lowMemory: boolean;
+    memoryBudgetBytes?: number;
+};
+
+export type WorkspaceDefinition = {
+    name: string;
+    description?: string;
+    policy: WorkspaceFailurePolicy;
+    profile?: string;
+    members: Array<WorkspaceMemberDefinition>;
+    dependencies: Array<WorkspaceDependency>;
+    recipes: Array<WorkspaceRecipe>;
+    profiles: Array<WorkspaceProfile>;
+};
+
+export type WorkspaceUpdate = {
+    name: string;
+    description?: string;
+    policy: WorkspaceFailurePolicy;
+    profile?: string;
+    members: Array<WorkspaceMemberDefinition>;
+    dependencies: Array<WorkspaceDependency>;
+    recipes: Array<WorkspaceRecipe>;
+    profiles: Array<WorkspaceProfile>;
+    revision: number;
+};
+
+export type WorkspaceProjectResult = {
+    projectId: string;
+    role: WorkspaceMemberRole;
+    status: WorkspaceProjectStatus;
+    message?: string;
+    order: number;
+    startedAt?: string;
+    finishedAt?: string;
+};
+
+export type WorkspaceExecution = {
+    id: string;
+    workspaceId: string;
+    kind: 'start' | 'stop';
+    state: 'running' | 'succeeded' | 'partially_succeeded' | 'failed' | 'cancelled';
+    policy: WorkspaceFailurePolicy;
+    profileId?: string;
+    removeData: boolean;
+    projects: Array<WorkspaceProjectResult>;
+    errorMessage?: string;
+    startedAt: string;
+    finishedAt?: string;
+};
+
+export type Workspace = {
+    id: string;
+    name: string;
+    description?: string;
+    policy: WorkspaceFailurePolicy;
+    profile?: string;
+    members: Array<WorkspaceMember>;
+    dependencies: Array<WorkspaceDependency>;
+    recipes: Array<WorkspaceRecipe>;
+    profiles: Array<WorkspaceProfile>;
+    lastRun?: WorkspaceExecution;
+    revision: number;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type WorkspaceOperationRequest = {
+    action: WorkspaceOperationAction;
+    policy?: WorkspaceFailurePolicy;
+    profileId?: string;
+    removeData?: boolean;
+    confirmDataRemoval?: boolean;
+    runRecipes?: boolean;
+};
+
+export type WorkspaceOperationAction = 'start' | 'stop';
+
 export type Operation = {
     id: string;
     projectId: string;
+    workspaceId?: string;
     kind: string;
     state: OperationState;
     errorCode?: string;
@@ -704,6 +886,8 @@ export type ProposalId = string;
 export type ProjectId = string;
 
 export type ActionId = string;
+
+export type WorkspaceId = string;
 
 export type GetSystemData = {
     body?: never;
@@ -1653,6 +1837,145 @@ export type GetProjectGitResponses = {
 
 export type GetProjectGitResponse = GetProjectGitResponses[keyof GetProjectGitResponses];
 
+export type ListProjectEnvironmentsData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/environments';
+};
+
+export type ListProjectEnvironmentsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListProjectEnvironmentsError = ListProjectEnvironmentsErrors[keyof ListProjectEnvironmentsErrors];
+
+export type ListProjectEnvironmentsResponses = {
+    /**
+     * Stable worktree environment registrations
+     */
+    200: Array<ProjectEnvironment>;
+};
+
+export type ListProjectEnvironmentsResponse = ListProjectEnvironmentsResponses[keyof ListProjectEnvironmentsResponses];
+
+export type RegisterProjectEnvironmentsData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/environments';
+};
+
+export type RegisterProjectEnvironmentsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type RegisterProjectEnvironmentsError = RegisterProjectEnvironmentsErrors[keyof RegisterProjectEnvironmentsErrors];
+
+export type RegisterProjectEnvironmentsResponses = {
+    /**
+     * Complete worktree registration result
+     */
+    200: EnvironmentRegistration;
+};
+
+export type RegisterProjectEnvironmentsResponse = RegisterProjectEnvironmentsResponses[keyof RegisterProjectEnvironmentsResponses];
+
+export type GetEnvironmentData = {
+    body?: never;
+    path: {
+        environmentId: string;
+    };
+    query?: never;
+    url: '/environments/{environmentId}';
+};
+
+export type GetEnvironmentErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetEnvironmentError = GetEnvironmentErrors[keyof GetEnvironmentErrors];
+
+export type GetEnvironmentResponses = {
+    /**
+     * Registered environment
+     */
+    200: ProjectEnvironment;
+};
+
+export type GetEnvironmentResponse = GetEnvironmentResponses[keyof GetEnvironmentResponses];
+
+export type UpdateEnvironmentData = {
+    body: EnvironmentUpdate;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        environmentId: string;
+    };
+    query?: never;
+    url: '/environments/{environmentId}';
+};
+
+export type UpdateEnvironmentErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateEnvironmentError = UpdateEnvironmentErrors[keyof UpdateEnvironmentErrors];
+
+export type UpdateEnvironmentResponses = {
+    /**
+     * Updated environment
+     */
+    200: ProjectEnvironment;
+};
+
+export type UpdateEnvironmentResponse = UpdateEnvironmentResponses[keyof UpdateEnvironmentResponses];
+
+export type ListLocalRoutesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/routes';
+};
+
+export type ListLocalRoutesErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListLocalRoutesError = ListLocalRoutesErrors[keyof ListLocalRoutesErrors];
+
+export type ListLocalRoutesResponses = {
+    /**
+     * Current local route registry
+     */
+    200: Array<LocalRoute>;
+};
+
+export type ListLocalRoutesResponse = ListLocalRoutesResponses[keyof ListLocalRoutesResponses];
+
 export type ListProjectActionsData = {
     body?: never;
     path: {
@@ -1763,3 +2086,173 @@ export type CreatePortSuggestionResponses = {
 };
 
 export type CreatePortSuggestionResponse = CreatePortSuggestionResponses[keyof CreatePortSuggestionResponses];
+
+export type ListWorkspacesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/workspaces';
+};
+
+export type ListWorkspacesErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListWorkspacesError = ListWorkspacesErrors[keyof ListWorkspacesErrors];
+
+export type ListWorkspacesResponses = {
+    /**
+     * Workspaces in stable display order
+     */
+    200: Array<Workspace>;
+};
+
+export type ListWorkspacesResponse = ListWorkspacesResponses[keyof ListWorkspacesResponses];
+
+export type CreateWorkspaceData = {
+    body: WorkspaceDefinition;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/workspaces';
+};
+
+export type CreateWorkspaceErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateWorkspaceError = CreateWorkspaceErrors[keyof CreateWorkspaceErrors];
+
+export type CreateWorkspaceResponses = {
+    /**
+     * Workspace created
+     */
+    201: Workspace;
+};
+
+export type CreateWorkspaceResponse = CreateWorkspaceResponses[keyof CreateWorkspaceResponses];
+
+export type DeleteWorkspaceData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        workspaceId: string;
+    };
+    query?: never;
+    url: '/workspaces/{workspaceId}';
+};
+
+export type DeleteWorkspaceErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type DeleteWorkspaceError = DeleteWorkspaceErrors[keyof DeleteWorkspaceErrors];
+
+export type DeleteWorkspaceResponses = {
+    /**
+     * Workspace metadata removed
+     */
+    204: void;
+};
+
+export type DeleteWorkspaceResponse = DeleteWorkspaceResponses[keyof DeleteWorkspaceResponses];
+
+export type GetWorkspaceData = {
+    body?: never;
+    path: {
+        workspaceId: string;
+    };
+    query?: never;
+    url: '/workspaces/{workspaceId}';
+};
+
+export type GetWorkspaceErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetWorkspaceError = GetWorkspaceErrors[keyof GetWorkspaceErrors];
+
+export type GetWorkspaceResponses = {
+    /**
+     * Workspace graph and execution state
+     */
+    200: Workspace;
+};
+
+export type GetWorkspaceResponse = GetWorkspaceResponses[keyof GetWorkspaceResponses];
+
+export type UpdateWorkspaceData = {
+    body: WorkspaceUpdate;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        workspaceId: string;
+    };
+    query?: never;
+    url: '/workspaces/{workspaceId}';
+};
+
+export type UpdateWorkspaceErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateWorkspaceError = UpdateWorkspaceErrors[keyof UpdateWorkspaceErrors];
+
+export type UpdateWorkspaceResponses = {
+    /**
+     * Updated workspace
+     */
+    200: Workspace;
+};
+
+export type UpdateWorkspaceResponse = UpdateWorkspaceResponses[keyof UpdateWorkspaceResponses];
+
+export type CreateWorkspaceOperationData = {
+    body: WorkspaceOperationRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        workspaceId: string;
+    };
+    query?: never;
+    url: '/workspaces/{workspaceId}/operations';
+};
+
+export type CreateWorkspaceOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateWorkspaceOperationError = CreateWorkspaceOperationErrors[keyof CreateWorkspaceOperationErrors];
+
+export type CreateWorkspaceOperationResponses = {
+    /**
+     * Durable workspace operation accepted
+     */
+    202: Operation;
+};
+
+export type CreateWorkspaceOperationResponse = CreateWorkspaceOperationResponses[keyof CreateWorkspaceOperationResponses];

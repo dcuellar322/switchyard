@@ -79,7 +79,7 @@ func TestExecuteRuntimeOperationCorrelatesAndWaitsForRequiredHealth(t *testing.T
 	healthErr := errors.New("not ready")
 	health := &requiredHealthStub{err: healthErr}
 	operation := operationsDomain.Operation{ID: "op-1", ProjectID: "project-1", Kind: "runtime.start", Input: []byte(`{"action":"start"}`)}
-	err := executeRuntimeOperation(context.Background(), service, health, operation, operationsApplication.Progress(progressStub{}))
+	err := executeRuntimeOperation(context.Background(), service, health, nil, operation, operationsApplication.Progress(progressStub{}))
 	if !errors.Is(err, healthErr) || health.projectID != "project-1" {
 		t.Fatalf("error = %v, health project = %q", err, health.projectID)
 	}

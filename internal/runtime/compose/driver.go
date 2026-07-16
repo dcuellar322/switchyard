@@ -3,6 +3,8 @@ package compose
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	"switchyard.dev/switchyard/internal/runtime/domain"
 )
@@ -18,10 +20,16 @@ type Driver struct {
 
 // NewDriver creates a production Compose driver using the installed Docker CLI.
 func NewDriver() *Driver {
+	return NewDriverWithArtifacts(filepath.Join(os.TempDir(), "switchyard-compose"))
+}
+
+// NewDriverWithArtifacts creates a driver whose generated, non-secret
+// worktree port overlays live under a private Switchyard-owned directory.
+func NewDriverWithArtifacts(artifactDirectory string) *Driver {
 	runner := osCommandRunner{}
 	managed := newManagedContainers()
 	return &Driver{
-		config:  configReader{runner: runner, contexts: contextResolver{runner: runner}},
+		config:  configReader{runner: runner, contexts: contextResolver{runner: runner}, artifactDirectory: artifactDirectory},
 		builder: commandBuilder{}, executor: executor{runner: runner, managed: managed},
 		engine: engineFactory{}, managed: managed,
 	}

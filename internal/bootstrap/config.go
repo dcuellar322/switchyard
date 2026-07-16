@@ -15,6 +15,7 @@ type Config struct {
 	DataDir                    string
 	HTTPAddr                   string
 	IPCAddr                    string
+	RoutingAddr                string
 	Logger                     *slog.Logger
 	LogRingCapacity            int
 	LogSegmentBytes            int64
