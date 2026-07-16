@@ -4,6 +4,9 @@ import {
   getProjectHealth,
   getProjectLogs,
   getProjectRuntime,
+  getProjectGit,
+  listProjectActions,
+  createActionOperation,
   listProjects,
   validateManifestProposal,
 } from '../../api/generated/sdk.gen'
@@ -14,6 +17,9 @@ import type {
   ProjectHealth,
   RuntimeLogEntry,
   RuntimeObservation,
+  GitState,
+  ProjectActions,
+  Operation,
 } from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
@@ -69,5 +75,26 @@ export async function loadProjectHealth(projectId: string): Promise<ProjectHealt
 export async function loadProjectLogs(projectId: string): Promise<Array<RuntimeLogEntry>> {
   const result = await getProjectLogs({ path: { projectId }, query: { tail: 200 } })
   if (result.error || !result.data) throw new Error('Persisted logs are unavailable.')
+  return result.data
+}
+
+export async function loadProjectGit(projectId: string): Promise<GitState> {
+  const result = await getProjectGit({ path: { projectId } })
+  if (result.error || !result.data) throw new Error('Git state is unavailable.')
+  return result.data
+}
+
+export async function loadProjectActions(projectId: string): Promise<ProjectActions> {
+  const result = await listProjectActions({ path: { projectId } })
+  if (result.error || !result.data) throw new Error('Project actions are unavailable.')
+  return result.data
+}
+
+export async function runProjectAction(projectId: string, actionId: string, confirmRisk = false): Promise<Operation> {
+  const result = await createActionOperation({
+    path: { projectId, actionId }, body: { confirmRisk, allowOutsideRoot: false },
+    headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data) throw new Error('The project action could not be queued.')
   return result.data
 }

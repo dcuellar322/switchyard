@@ -1,0 +1,28 @@
+schemaVersion: switchyard.dev/v1alpha1
+kind: Project
+metadata:
+  id: action-project
+  name: Action Project Fixture
+  tags: [git, actions]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: noop
+        command: [git, status, --porcelain]
+        workingDirectory: .
+services:
+  - id: noop
+    source:
+      process: noop
+actions:
+  - id: verify
+    name: Verify repository access
+    type: command
+    command: [git, status, --porcelain]
+    workingDirectory: .
+    captureOutput: true
+    risk: read_only
+    timeoutSeconds: 10

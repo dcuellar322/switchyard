@@ -166,14 +166,18 @@ type Endpoint struct {
 
 // Action is an explicit argument-array command or typed built-in capability.
 type Action struct {
-	ID               string   `json:"id" yaml:"id" jsonschema:"required"`
-	Name             string   `json:"name" yaml:"name" jsonschema:"required"`
-	Type             string   `json:"type" yaml:"type" jsonschema:"required"`
-	Command          []string `json:"command,omitempty" yaml:"command,omitempty"`
-	WorkingDirectory string   `json:"workingDirectory,omitempty" yaml:"workingDirectory,omitempty"`
-	Shell            bool     `json:"shell,omitempty" yaml:"shell,omitempty"`
-	CaptureOutput    bool     `json:"captureOutput,omitempty" yaml:"captureOutput,omitempty"`
-	Provider         string   `json:"provider,omitempty" yaml:"provider,omitempty"`
+	ID               string            `json:"id" yaml:"id" jsonschema:"required"`
+	Name             string            `json:"name" yaml:"name" jsonschema:"required"`
+	Type             string            `json:"type" yaml:"type" jsonschema:"required,enum=terminal.open,enum=editor.open,enum=browser.open,enum=command,enum=command.run,enum=agent.start,enum=git.fetch,enum=git.pull,enum=git.push,enum=tests.run,enum=migration.run"`
+	Command          []string          `json:"command,omitempty" yaml:"command,omitempty"`
+	WorkingDirectory string            `json:"workingDirectory,omitempty" yaml:"workingDirectory,omitempty"`
+	Shell            bool              `json:"shell,omitempty" yaml:"shell,omitempty"`
+	CaptureOutput    bool              `json:"captureOutput,omitempty" yaml:"captureOutput,omitempty"`
+	Provider         string            `json:"provider,omitempty" yaml:"provider,omitempty"`
+	Target           string            `json:"target,omitempty" yaml:"target,omitempty"`
+	Risk             string            `json:"risk,omitempty" yaml:"risk,omitempty" jsonschema:"enum=read_only,enum=mutating,enum=networked,enum=destructive,enum=interactive"`
+	TimeoutSeconds   int               `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" jsonschema:"minimum=0,maximum=86400"`
+	Environment      map[string]string `json:"environment,omitempty" yaml:"environment,omitempty"`
 }
 
 // ResourcePolicy contains warning thresholds only.
@@ -518,9 +522,19 @@ func validateEndpoints(endpoints []Endpoint) []error {
 func validateActions(actions []Action) []error {
 	var problems []error
 	for _, action := range actions {
-		if action.Type == "command" && len(action.Command) == 0 {
+		if (action.Type == "command" || action.Type == "command.run" || action.Type == "tests.run" || action.Type == "migration.run") && len(action.Command) == 0 {
 			problems = append(problems, fmt.Errorf("command action %q requires an argument array", action.ID))
 		}
+		if action.Shell && len(action.Command) != 1 {
+			problems = append(problems, fmt.Errorf("shell action %q requires exactly one command string", action.ID))
+		}
+		if action.Type == "agent.start" && action.Provider == "" {
+			problems = append(problems, fmt.Errorf("agent action %q requires a provider", action.ID))
+		}
+		if action.Type == "browser.open" && action.Target == "" {
+			problems = append(problems, fmt.Errorf("browser action %q requires a target", action.ID))
+		}
+		problems = append(problems, validateEnvironment("action "+action.ID, action.Environment, nil)...)
 	}
 	return problems
 }

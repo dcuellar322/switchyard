@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+import PortRegistryView from '../domains/ports/views/PortRegistryView.vue'
 import ProjectOnboardingView from '../domains/projects/views/ProjectOnboardingView.vue'
 import SystemStatusView from '../domains/system/views/SystemStatusView.vue'
 
-const activeView = ref<'projects' | 'system'>('system')
+const activeView = ref<'projects' | 'ports' | 'system'>('system')
 </script>
 
 <template>
@@ -23,6 +24,10 @@ const activeView = ref<'projects' | 'system'>('system')
           <span aria-hidden="true">◇</span>
           <span>Projects</span>
         </button>
+        <button class="nav-item" :class="{ 'nav-item--active': activeView === 'ports' }" type="button" :aria-current="activeView === 'ports' ? 'page' : undefined" @click="activeView = 'ports'">
+          <span aria-hidden="true">⇄</span>
+          <span>Ports</span>
+        </button>
         <button class="nav-item" :class="{ 'nav-item--active': activeView === 'system' }" type="button" :aria-current="activeView === 'system' ? 'page' : undefined" @click="activeView = 'system'">
           <span aria-hidden="true">⌂</span>
           <span>System</span>
@@ -39,6 +44,7 @@ const activeView = ref<'projects' | 'system'>('system')
         </div>
       </header>
       <ProjectOnboardingView v-if="activeView === 'projects'" />
+      <PortRegistryView v-else-if="activeView === 'ports'" />
       <SystemStatusView v-else />
     </main>
   </div>

@@ -427,6 +427,87 @@ paths:
                 items: { $ref: "#/components/schemas/RuntimeMetricSample" }
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/git:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectGit
+      summary: Read a fresh Git porcelain snapshot for a trusted project
+      responses:
+        "200":
+          description: Current repository state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GitState" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/actions:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: listProjectActions
+      summary: List trusted declarative and built-in quick actions
+      responses:
+        "200":
+          description: Available project actions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectActions" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/actions/{actionId}/operations:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+      - $ref: "#/components/parameters/ActionId"
+    post:
+      operationId: createActionOperation
+      summary: Queue a durable audited project action
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ActionExecutionRequest" }
+      responses:
+        "202":
+          description: Durable action operation accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /ports:
+    get:
+      operationId: getPortRegistry
+      summary: Reconcile declared, reserved, and bound local ports
+      responses:
+        "200":
+          description: Current provenance-bearing port registry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PortRegistry" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /ports/suggestions:
+    post:
+      operationId: createPortSuggestion
+      summary: Suggest the first free port in an explicit preferred range
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PortSuggestionRequest" }
+      responses:
+        "200":
+          description: Free port suggestion based on current evidence
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PortSuggestion" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -461,6 +542,14 @@ components:
         type: string
         minLength: 1
         maxLength: 128
+    ActionId:
+      name: actionId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
   responses:
     Problem:
       description: RFC 9457-style problem details
@@ -469,6 +558,173 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    PortFact:
+      type: object
+      additionalProperties: false
+      required: [id, kind, host, port, protocol, source, evidence, observedAt]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [declaration, reservation, binding] }
+        projectId: { type: string }
+        projectName: { type: string }
+        serviceId: { type: string }
+        portId: { type: string }
+        host: { type: string }
+        port: { type: integer, minimum: 1, maximum: 65535 }
+        target: { type: integer, minimum: 0, maximum: 65535 }
+        protocol: { type: string, enum: [tcp, udp] }
+        source: { type: string, enum: [manifest, compose, switchyard, docker, process, os, manual, worktree] }
+        evidence: { type: string }
+        processId: { type: integer, minimum: 1 }
+        observedAt: { type: string, format: date-time }
+    PortConflict:
+      type: object
+      additionalProperties: false
+      required: [id, type, port, summary, facts]
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [DECLARED_VS_DECLARED, DECLARED_VS_RESERVED, DECLARED_VS_BOUND, RESERVED_VS_RESERVED, BOUND_BY_UNKNOWN_PROCESS, PROTOCOL_MISMATCH, HOST_ADDRESS_OVERLAP]
+        port: { type: integer, minimum: 1, maximum: 65535 }
+        summary: { type: string }
+        facts:
+          type: array
+          minItems: 2
+          items: { $ref: "#/components/schemas/PortFact" }
+    PortRegistry:
+      type: object
+      additionalProperties: false
+      required: [facts, conflicts, observedAt, warnings]
+      properties:
+        facts:
+          type: array
+          items: { $ref: "#/components/schemas/PortFact" }
+        conflicts:
+          type: array
+          items: { $ref: "#/components/schemas/PortConflict" }
+        observedAt: { type: string, format: date-time }
+        warnings:
+          type: array
+          items: { type: string }
+    PortSuggestionRequest:
+      type: object
+      additionalProperties: false
+      required: [rangeStart, rangeEnd, protocol]
+      properties:
+        rangeStart: { type: integer, minimum: 1, maximum: 65535 }
+        rangeEnd: { type: integer, minimum: 1, maximum: 65535 }
+        protocol: { type: string, enum: [tcp, udp] }
+        projectId: { type: string }
+        excluded:
+          type: array
+          items: { type: integer, minimum: 1, maximum: 65535 }
+    PortSuggestion:
+      type: object
+      additionalProperties: false
+      required: [port, rangeStart, rangeEnd, protocol, observedAt]
+      properties:
+        port: { type: integer, minimum: 1, maximum: 65535 }
+        rangeStart: { type: integer, minimum: 1, maximum: 65535 }
+        rangeEnd: { type: integer, minimum: 1, maximum: 65535 }
+        protocol: { type: string, enum: [tcp, udp] }
+        observedAt: { type: string, format: date-time }
+    GitChangeCounts:
+      type: object
+      additionalProperties: false
+      required: [staged, modified, untracked, conflicted]
+      properties:
+        staged: { type: integer, minimum: 0 }
+        modified: { type: integer, minimum: 0 }
+        untracked: { type: integer, minimum: 0 }
+        conflicted: { type: integer, minimum: 0 }
+    GitRemote:
+      type: object
+      additionalProperties: false
+      required: [name, url, kind]
+      properties:
+        name: { type: string }
+        url: { type: string }
+        kind: { type: string, enum: [fetch, push] }
+    GitCommit:
+      type: object
+      additionalProperties: false
+      required: [hash, shortHash, author, subject, committedAt]
+      properties:
+        hash: { type: string }
+        shortHash: { type: string }
+        author: { type: string }
+        subject: { type: string }
+        committedAt: { type: string, format: date-time }
+    GitWorktree:
+      type: object
+      additionalProperties: false
+      required: [path, head, detached, bare, locked]
+      properties:
+        path: { type: string }
+        head: { type: string }
+        branch: { type: string }
+        detached: { type: boolean }
+        bare: { type: boolean }
+        locked: { type: boolean }
+    GitState:
+      type: object
+      additionalProperties: false
+      required: [projectId, repository, detached, ahead, behind, changes, stashes, remotes, worktrees, observedAt]
+      properties:
+        projectId: { type: string }
+        repository: { type: boolean }
+        branch: { type: string }
+        detached: { type: boolean }
+        head: { type: string }
+        upstream: { type: string }
+        ahead: { type: integer, minimum: 0 }
+        behind: { type: integer, minimum: 0 }
+        changes: { $ref: "#/components/schemas/GitChangeCounts" }
+        stashes: { type: integer, minimum: 0 }
+        operationState: { type: string, enum: [merge, rebase, unknown] }
+        lastCommit: { $ref: "#/components/schemas/GitCommit" }
+        remotes:
+          type: array
+          items: { $ref: "#/components/schemas/GitRemote" }
+        worktrees:
+          type: array
+          items: { $ref: "#/components/schemas/GitWorktree" }
+        observedAt: { type: string, format: date-time }
+    ActionDefinition:
+      type: object
+      additionalProperties: false
+      required: [id, name, type, command, workingDirectory, shell, captureOutput, risk, timeoutSeconds]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        command:
+          type: array
+          items: { type: string }
+        workingDirectory: { type: string }
+        shell: { type: boolean }
+        captureOutput: { type: boolean }
+        provider: { type: string }
+        target: { type: string }
+        risk: { type: string, enum: [read_only, mutating, networked, destructive, interactive] }
+        timeoutSeconds: { type: integer, minimum: 0, maximum: 86400 }
+    ProjectActions:
+      type: object
+      additionalProperties: false
+      required: [projectId, projectName, actions]
+      properties:
+        projectId: { type: string }
+        projectName: { type: string }
+        actions:
+          type: array
+          items: { $ref: "#/components/schemas/ActionDefinition" }
+    ActionExecutionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        confirmRisk: { type: boolean, default: false }
+        allowOutsideRoot: { type: boolean, default: false }
     CreateManifestProposalRequest:
       type: object
       additionalProperties: false

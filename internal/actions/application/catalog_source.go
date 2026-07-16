@@ -1,0 +1,107 @@
+package application
+
+import (
+	"context"
+	"fmt"
+	"sort"
+	"strings"
+
+	"switchyard.dev/switchyard/internal/actions/domain"
+	catalog "switchyard.dev/switchyard/internal/catalog/application"
+	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
+	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+)
+
+// CatalogSource exposes only accepted action and endpoint declarations.
+type CatalogSource struct{ catalog *catalog.Service }
+
+// NewCatalogSource adapts accepted manifest actions and safe defaults.
+func NewCatalogSource(service *catalog.Service) *CatalogSource {
+	return &CatalogSource{catalog: service}
+}
+
+// ResolveActions returns actions only after project trust has been established.
+func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (domain.ProjectActions, error) {
+	project, err := s.catalog.GetProject(ctx, projectID)
+	if err != nil {
+		return domain.ProjectActions{}, err
+	}
+	if project.TrustState != catalogDomain.TrustTrusted {
+		return domain.ProjectActions{}, ErrProjectUntrusted
+	}
+	effective, err := s.catalog.EffectiveManifest(ctx, projectID, nil)
+	if err != nil {
+		return domain.ProjectActions{}, err
+	}
+	actions := make(map[string]domain.Definition)
+	for _, action := range effective.Manifest.Actions {
+		actions[action.ID] = definition(action)
+	}
+	addDefault(actions, domain.Definition{ID: "terminal", Name: "Open terminal", Type: "terminal.open", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	addDefault(actions, domain.Definition{ID: "vscode", Name: "Open VS Code", Type: "editor.open", Provider: "vscode", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	addDefault(actions, domain.Definition{ID: "codex", Name: "Start Codex", Type: "agent.start", Provider: "codex", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	addDefault(actions, domain.Definition{ID: "claude", Name: "Start Claude Code", Type: "agent.start", Provider: "claude", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	addDefault(actions, domain.Definition{ID: "git-pull", Name: "Git pull", Type: "git.pull", WorkingDirectory: ".", Risk: domain.RiskNetworked, TimeoutSeconds: 300})
+	for _, endpoint := range effective.Manifest.Endpoints {
+		addDefault(actions, domain.Definition{
+			ID: "open-" + endpoint.ID, Name: "Open " + endpoint.Name, Type: "browser.open",
+			Target: resolveEndpoint(endpoint.URL, effective.Manifest.Ports), Risk: domain.RiskInteractive,
+		})
+	}
+	result := make([]domain.Definition, 0, len(actions))
+	for _, action := range actions {
+		if action.Command == nil {
+			action.Command = []string{}
+		}
+		result = append(result, action)
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
+	return domain.ProjectActions{ProjectID: project.ID, ProjectName: project.DisplayName, Root: project.PrimaryLocation, Actions: result}, nil
+}
+
+func definition(action manifestDomain.Action) domain.Definition {
+	risk := domain.Risk(action.Risk)
+	if risk == "" {
+		risk = defaultRisk(action.Type)
+	}
+	return domain.Definition{
+		ID: action.ID, Name: action.Name, Type: action.Type, Command: append([]string(nil), action.Command...),
+		WorkingDirectory: action.WorkingDirectory, Shell: action.Shell, CaptureOutput: action.CaptureOutput,
+		Provider: action.Provider, Target: action.Target, Risk: risk, TimeoutSeconds: action.TimeoutSeconds,
+		Environment: cloneEnvironment(action.Environment),
+	}
+}
+
+func defaultRisk(actionType string) domain.Risk {
+	switch actionType {
+	case "git.fetch", "git.pull", "git.push":
+		return domain.RiskNetworked
+	case "terminal.open", "editor.open", "browser.open", "agent.start":
+		return domain.RiskInteractive
+	case "command", "command.run", "tests.run", "migration.run":
+		return domain.RiskMutating
+	default:
+		return domain.RiskReadOnly
+	}
+}
+
+func addDefault(actions map[string]domain.Definition, action domain.Definition) {
+	if _, exists := actions[action.ID]; !exists {
+		actions[action.ID] = action
+	}
+}
+
+func resolveEndpoint(url string, ports []manifestDomain.Port) string {
+	for _, port := range ports {
+		url = strings.ReplaceAll(url, fmt.Sprintf("${ports.%s}", port.ID), fmt.Sprint(port.Host))
+	}
+	return url
+}
+
+func cloneEnvironment(values map[string]string) map[string]string {
+	result := make(map[string]string, len(values))
+	for key, value := range values {
+		result[key] = value
+	}
+	return result
+}

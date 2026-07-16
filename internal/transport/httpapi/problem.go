@@ -5,12 +5,15 @@ import (
 	"errors"
 	"net/http"
 
+	actions "switchyard.dev/switchyard/internal/actions/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	operations "switchyard.dev/switchyard/internal/operations/application"
+	ports "switchyard.dev/switchyard/internal/ports/application"
 	runtime "switchyard.dev/switchyard/internal/runtime/application"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
+	sourcecontrol "switchyard.dev/switchyard/internal/sourcecontrol/application"
 )
 
 type problemDetails struct {
@@ -47,6 +50,18 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request invalid", "One or more request parameters are outside their supported range.")
 	case errors.Is(err, operations.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "OPERATION_NOT_FOUND", "Operation not found", "No durable operation exists for this identifier.")
+	case errors.Is(err, actions.ErrActionNotFound):
+		writeProblem(w, r, http.StatusNotFound, "ACTION_NOT_FOUND", "Action not found", "No trusted project action has this identifier.")
+	case errors.Is(err, actions.ErrConfirmationRequired):
+		writeProblem(w, r, http.StatusConflict, "ACTION_CONFIRMATION_REQUIRED", "Action confirmation required", "Destructive actions require explicit confirmation.")
+	case errors.Is(err, actions.ErrWorkingDirEscape):
+		writeProblem(w, r, http.StatusForbidden, "ACTION_PATH_DENIED", "Action path denied", "The working directory escapes the trusted project root without explicit permission.")
+	case errors.Is(err, actions.ErrProjectUntrusted):
+		writeProblem(w, r, http.StatusForbidden, "PROJECT_UNTRUSTED", "Project is not trusted", "Approve the project manifest before using project actions.")
+	case errors.Is(err, ports.ErrNoPortAvailable):
+		writeProblem(w, r, http.StatusConflict, "PORT_RANGE_EXHAUSTED", "Port range exhausted", "No free port remains in the requested range.")
+	case errors.Is(err, sourcecontrol.ErrProjectUntrusted):
+		writeProblem(w, r, http.StatusForbidden, "PROJECT_UNTRUSTED", "Project is not trusted", "Approve the project manifest before reading repository state.")
 	case errors.Is(err, runtime.ErrProjectUntrusted):
 		writeProblem(w, r, http.StatusForbidden, "PROJECT_UNTRUSTED", "Project is not trusted", "Approve the project manifest before using runtime capabilities.")
 	case errors.Is(err, runtimeDomain.ErrUnsupportedDriver):

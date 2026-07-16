@@ -48,6 +48,36 @@ switchyard logs <project> [--service name] [--run id] [--operation id] --export 
 switchyard metrics <project> [--service name]
 ```
 
+## Ports, Git, and trusted actions
+
+```text
+switchyard ports list
+switchyard ports next [--range 15000-19999] [--protocol tcp|udp]
+  [--project <project>] [--exclude 15001,15002]
+switchyard git <project>
+switchyard action list <project>
+switchyard action run <project> <action> [--yes] [--allow-outside-root]
+```
+
+`ports list` combines accepted declarations, persistent stopped-project
+reservations, attributed runtime bindings, and unmatched OS listeners. Every
+row reports provenance, and conflict state is derived before startup. `ports
+next` considers all of those facts plus explicit exclusions; `--project`
+ignores that project's declarations and reservations, but never ignores a live
+binding.
+
+`git` is a fresh, read-only porcelain-v2 snapshot with branch or detached
+state, change categories, ahead/behind, stashes, last commit, remotes,
+merge/rebase state, and worktrees.
+
+Actions are available only for trusted projects. Built-ins include terminal,
+VS Code, Codex, Claude Code, and Git pull; accepted endpoint and manifest
+actions add browser, test, migration, and project-specific commands. `action
+run` returns a durable `action.run` operation immediately. Use `operation get`
+to read its outcome. Destructive actions require `--yes`. Working directories
+are confined to the trusted root after symlink resolution unless the caller
+also supplies the explicit `--allow-outside-root` permission.
+
 Lifecycle commands return a durable operation immediately. Read it with
 `switchyard operation get <id>` or list recent project operations. `stop`
 preserves containers and volumes. `teardown` is destructive, requires `--yes`,

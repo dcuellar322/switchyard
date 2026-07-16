@@ -74,6 +74,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newAddCommand(options), newListAliasCommand(options), newProjectCommand(options), newOperationCommand(options),
 		newManifestCommand(options), newOpenCommand(options), newCompletionCommand(root), newSchemaCommand(options),
 		newStatusCommand(options), newPlanCommand(options), newLogsCommand(options), newMetricsCommand(options),
+		newPortsCommand(options), newGitCommand(options), newActionCommand(options),
 		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"),
 		newLifecycleCommand(options, "pause"), newLifecycleCommand(options, "unpause"), newLifecycleCommand(options, "rebuild"),
 		newLifecycleCommand(options, "teardown"),

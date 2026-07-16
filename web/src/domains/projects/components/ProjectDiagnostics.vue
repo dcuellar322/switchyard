@@ -5,6 +5,7 @@ import { computed, ref, watch } from 'vue'
 import type { Project, RuntimeLogEntry } from '../../../api/generated/types.gen'
 import { loadProjectHealth, loadProjectLogs, loadProjectRuntime } from '../api'
 import { useProjectLogStream } from '../composables/useProjectLogStream'
+import ProjectDeveloperTools from './ProjectDeveloperTools.vue'
 
 const props = defineProps<{ project: Project }>()
 const projectId = computed(() => props.project.id)
@@ -95,6 +96,7 @@ async function refresh() {
         <p v-else class="empty log-empty">No persisted logs yet. New runtime output will appear here automatically.</p>
       </article>
     </div>
+    <ProjectDeveloperTools :project="project" />
   </section>
 </template>
 

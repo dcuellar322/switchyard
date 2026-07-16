@@ -25,6 +25,12 @@ The daemon persists events before live publication. A connection receives a
 client must refresh query state before continuing. Unknown event types are
 ignorable.
 
+Project actions use the same durable operation envelopes. An `action.run`
+operation emits ordinary queued, running, progress, and terminal events with
+its operation and project IDs. Action output and environment values are never
+included in these events; clients refresh the operation and action list using
+the generated API after reconnect.
+
 ## Project log stream
 
 The authenticated log stream is available at:

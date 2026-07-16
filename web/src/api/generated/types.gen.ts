@@ -4,6 +4,127 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type PortFact = {
+    id: string;
+    kind: 'declaration' | 'reservation' | 'binding';
+    projectId?: string;
+    projectName?: string;
+    serviceId?: string;
+    portId?: string;
+    host: string;
+    port: number;
+    target?: number;
+    protocol: 'tcp' | 'udp';
+    source: 'manifest' | 'compose' | 'switchyard' | 'docker' | 'process' | 'os' | 'manual' | 'worktree';
+    evidence: string;
+    processId?: number;
+    observedAt: string;
+};
+
+export type PortConflict = {
+    id: string;
+    type: 'DECLARED_VS_DECLARED' | 'DECLARED_VS_RESERVED' | 'DECLARED_VS_BOUND' | 'RESERVED_VS_RESERVED' | 'BOUND_BY_UNKNOWN_PROCESS' | 'PROTOCOL_MISMATCH' | 'HOST_ADDRESS_OVERLAP';
+    port: number;
+    summary: string;
+    facts: Array<PortFact>;
+};
+
+export type PortRegistry = {
+    facts: Array<PortFact>;
+    conflicts: Array<PortConflict>;
+    observedAt: string;
+    warnings: Array<string>;
+};
+
+export type PortSuggestionRequest = {
+    rangeStart: number;
+    rangeEnd: number;
+    protocol: 'tcp' | 'udp';
+    projectId?: string;
+    excluded?: Array<number>;
+};
+
+export type PortSuggestion = {
+    port: number;
+    rangeStart: number;
+    rangeEnd: number;
+    protocol: 'tcp' | 'udp';
+    observedAt: string;
+};
+
+export type GitChangeCounts = {
+    staged: number;
+    modified: number;
+    untracked: number;
+    conflicted: number;
+};
+
+export type GitRemote = {
+    name: string;
+    url: string;
+    kind: 'fetch' | 'push';
+};
+
+export type GitCommit = {
+    hash: string;
+    shortHash: string;
+    author: string;
+    subject: string;
+    committedAt: string;
+};
+
+export type GitWorktree = {
+    path: string;
+    head: string;
+    branch?: string;
+    detached: boolean;
+    bare: boolean;
+    locked: boolean;
+};
+
+export type GitState = {
+    projectId: string;
+    repository: boolean;
+    branch?: string;
+    detached: boolean;
+    head?: string;
+    upstream?: string;
+    ahead: number;
+    behind: number;
+    changes: GitChangeCounts;
+    stashes: number;
+    operationState?: 'merge' | 'rebase' | 'unknown';
+    lastCommit?: GitCommit;
+    remotes: Array<GitRemote>;
+    worktrees: Array<GitWorktree>;
+    observedAt: string;
+};
+
+export type ActionDefinition = {
+    id: string;
+    name: string;
+    type: string;
+    command: Array<string>;
+    workingDirectory: string;
+    shell: boolean;
+    captureOutput: boolean;
+    provider?: string;
+    target?: string;
+    risk: 'read_only' | 'mutating' | 'networked' | 'destructive' | 'interactive';
+    timeoutSeconds: number;
+};
+
+export type ProjectActions = {
+    projectId: string;
+    projectName: string;
+    actions: Array<ActionDefinition>;
+};
+
+export type ActionExecutionRequest = {
+    confirmRisk?: boolean;
+    allowOutsideRoot?: boolean;
+};
+
 export type CreateManifestProposalRequest = {
     path: string;
 };
@@ -286,6 +407,8 @@ export type IdempotencyKey = string;
 export type ProposalId = string;
 
 export type ProjectId = string;
+
+export type ActionId = string;
 
 export type GetSystemData = {
     body?: never;
@@ -959,3 +1082,141 @@ export type GetProjectMetricsResponses = {
 };
 
 export type GetProjectMetricsResponse = GetProjectMetricsResponses[keyof GetProjectMetricsResponses];
+
+export type GetProjectGitData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/git';
+};
+
+export type GetProjectGitErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectGitError = GetProjectGitErrors[keyof GetProjectGitErrors];
+
+export type GetProjectGitResponses = {
+    /**
+     * Current repository state
+     */
+    200: GitState;
+};
+
+export type GetProjectGitResponse = GetProjectGitResponses[keyof GetProjectGitResponses];
+
+export type ListProjectActionsData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/actions';
+};
+
+export type ListProjectActionsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListProjectActionsError = ListProjectActionsErrors[keyof ListProjectActionsErrors];
+
+export type ListProjectActionsResponses = {
+    /**
+     * Available project actions
+     */
+    200: ProjectActions;
+};
+
+export type ListProjectActionsResponse = ListProjectActionsResponses[keyof ListProjectActionsResponses];
+
+export type CreateActionOperationData = {
+    body: ActionExecutionRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+        actionId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/actions/{actionId}/operations';
+};
+
+export type CreateActionOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateActionOperationError = CreateActionOperationErrors[keyof CreateActionOperationErrors];
+
+export type CreateActionOperationResponses = {
+    /**
+     * Durable action operation accepted
+     */
+    202: Operation;
+};
+
+export type CreateActionOperationResponse = CreateActionOperationResponses[keyof CreateActionOperationResponses];
+
+export type GetPortRegistryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/ports';
+};
+
+export type GetPortRegistryErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetPortRegistryError = GetPortRegistryErrors[keyof GetPortRegistryErrors];
+
+export type GetPortRegistryResponses = {
+    /**
+     * Current provenance-bearing port registry
+     */
+    200: PortRegistry;
+};
+
+export type GetPortRegistryResponse = GetPortRegistryResponses[keyof GetPortRegistryResponses];
+
+export type CreatePortSuggestionData = {
+    body: PortSuggestionRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/ports/suggestions';
+};
+
+export type CreatePortSuggestionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreatePortSuggestionError = CreatePortSuggestionErrors[keyof CreatePortSuggestionErrors];
+
+export type CreatePortSuggestionResponses = {
+    /**
+     * Free port suggestion based on current evidence
+     */
+    200: PortSuggestion;
+};
+
+export type CreatePortSuggestionResponse = CreatePortSuggestionResponses[keyof CreatePortSuggestionResponses];

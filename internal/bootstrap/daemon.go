@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	actionsAdapters "switchyard.dev/switchyard/internal/actions/adapters"
+	actionsApplication "switchyard.dev/switchyard/internal/actions/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
@@ -20,11 +22,15 @@ import (
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
+	portsAdapters "switchyard.dev/switchyard/internal/ports/adapters"
+	portsApplication "switchyard.dev/switchyard/internal/ports/application"
 	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
 	"switchyard.dev/switchyard/internal/runtime/compose"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	processRuntime "switchyard.dev/switchyard/internal/runtime/process"
 	session "switchyard.dev/switchyard/internal/session/application"
+	sourcecontrolAdapters "switchyard.dev/switchyard/internal/sourcecontrol/adapters"
+	sourcecontrolApplication "switchyard.dev/switchyard/internal/sourcecontrol/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
 	eventtransport "switchyard.dev/switchyard/internal/transport/websocket"
@@ -88,10 +94,26 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}()
 	logService := observabilityApplication.NewLogService(runtimeService, logStore)
 	healthService := observabilityApplication.NewHealthService(runtimeSource, runtimeService, sqlite.NewHealthRepository(database), observabilityAdapters.NewHealthEvaluator())
+	portService := portsApplication.NewService(
+		portsApplication.NewCatalogSource(catalogService),
+		portsAdapters.NewRuntimeBindings(catalogService, runtimeService),
+		portsAdapters.NewOSListeners(),
+		sqlite.NewPortReservationRepository(database),
+	)
+	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), sourcecontrolAdapters.NewGit())
+	actionAudits := sqlite.NewActionAuditRepository(database)
+	if err := actionAudits.Recover(ctx, time.Now().UTC()); err != nil {
+		return err
+	}
+	actionService := actionsApplication.NewService(
+		actionsApplication.NewCatalogSource(catalogService),
+		actionsAdapters.NewRunner(actionsAdapters.NewLauncher()),
+		actionAudits,
+	)
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
-			return executeRuntimeOperation(operationCtx, runtimeService, healthService, operation, progress)
+			return executeOperation(operationCtx, runtimeService, healthService, actionService, operation, progress)
 		},
 	))
 	if err := coordinator.Recover(ctx); err != nil {
@@ -123,6 +145,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	dependencies := httpapi.Dependencies{
 		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
+		Ports: portService, Git: gitService, Actions: actionService,
 		Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)
@@ -139,6 +162,37 @@ func RunDaemon(ctx context.Context, config Config) error {
 	runErr := servers.run(ctx, coordinator.Shutdown)
 	background.Wait()
 	return runErr
+}
+
+func executeOperation(
+	ctx context.Context,
+	runtimeService *runtimeApplication.Service,
+	health requiredHealthWaiter,
+	actions *actionsApplication.Service,
+	operation domain.Operation,
+	progress operations.Progress,
+) error {
+	switch operation.Kind {
+	case "action.run":
+		var input struct {
+			ActionID         string `json:"actionId"`
+			ConfirmRisk      bool   `json:"confirmRisk"`
+			AllowOutsideRoot bool   `json:"allowOutsideRoot"`
+			ActorType        string `json:"actorType"`
+			ActorID          string `json:"actorId"`
+		}
+		if err := json.Unmarshal(operation.Input, &input); err != nil || input.ActionID == "" {
+			return fmt.Errorf("decode action operation")
+		}
+		_ = progress.Step(ctx, "action.execute", "running", "action authorized")
+		err := actions.Execute(ctx, operation.ID, operation.ProjectID, input.ActionID, input.ActorType, input.ActorID, input.ConfirmRisk, input.AllowOutsideRoot)
+		if err == nil {
+			_ = progress.Step(ctx, "action.execute", "succeeded", "action completed")
+		}
+		return err
+	default:
+		return executeRuntimeOperation(ctx, runtimeService, health, operation, progress)
+	}
 }
 
 func executeRuntimeOperation(

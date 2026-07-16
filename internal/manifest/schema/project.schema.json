@@ -12,7 +12,20 @@
           "type": "string"
         },
         "type": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "terminal.open",
+            "editor.open",
+            "browser.open",
+            "command",
+            "command.run",
+            "agent.start",
+            "git.fetch",
+            "git.pull",
+            "git.push",
+            "tests.run",
+            "migration.run"
+          ]
         },
         "command": {
           "items": {
@@ -31,6 +44,30 @@
         },
         "provider": {
           "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "risk": {
+          "type": "string",
+          "enum": [
+            "read_only",
+            "mutating",
+            "networked",
+            "destructive",
+            "interactive"
+          ]
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "maximum": 86400,
+          "minimum": 0
+        },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         }
       },
       "additionalProperties": false,

@@ -6,14 +6,17 @@ import (
 	"io"
 	"net/http"
 
+	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
 	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
 	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
+	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
+	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 )
@@ -30,6 +33,9 @@ type handler struct {
 	runtime    runtimeService
 	health     healthService
 	logs       logService
+	ports      portService
+	git        gitService
+	actions    actionService
 }
 
 type catalogService interface {
@@ -66,6 +72,19 @@ type healthService interface {
 type logService interface {
 	Logs(context.Context, string, string, string, string, string, int) ([]runtimeDomain.LogEntry, error)
 	Export(context.Context, string, string, string, string, string, io.Writer) error
+}
+
+type portService interface {
+	Registry(context.Context) (portsDomain.Registry, error)
+	Suggest(context.Context, int, int, string, string, []int) (portsDomain.Suggestion, error)
+}
+
+type gitService interface {
+	Get(context.Context, string) (sourcecontrolDomain.State, error)
+}
+
+type actionService interface {
+	List(context.Context, string) (actionsDomain.ProjectActions, error)
 }
 
 type sessionService interface {

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -165,3 +165,42 @@ export const exportProjectLogs = <ThrowOnError extends boolean = false>(options:
  * Read one current resource sample per runtime service
  */
 export const getProjectMetrics = <ThrowOnError extends boolean = false>(options: Options<GetProjectMetricsData, ThrowOnError>): RequestResult<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError>({ url: '/projects/{projectId}/metrics', ...options });
+
+/**
+ * Read a fresh Git porcelain snapshot for a trusted project
+ */
+export const getProjectGit = <ThrowOnError extends boolean = false>(options: Options<GetProjectGitData, ThrowOnError>): RequestResult<GetProjectGitResponses, GetProjectGitErrors, ThrowOnError> => (options.client ?? client).get<GetProjectGitResponses, GetProjectGitErrors, ThrowOnError>({ url: '/projects/{projectId}/git', ...options });
+
+/**
+ * List trusted declarative and built-in quick actions
+ */
+export const listProjectActions = <ThrowOnError extends boolean = false>(options: Options<ListProjectActionsData, ThrowOnError>): RequestResult<ListProjectActionsResponses, ListProjectActionsErrors, ThrowOnError> => (options.client ?? client).get<ListProjectActionsResponses, ListProjectActionsErrors, ThrowOnError>({ url: '/projects/{projectId}/actions', ...options });
+
+/**
+ * Queue a durable audited project action
+ */
+export const createActionOperation = <ThrowOnError extends boolean = false>(options: Options<CreateActionOperationData, ThrowOnError>): RequestResult<CreateActionOperationResponses, CreateActionOperationErrors, ThrowOnError> => (options.client ?? client).post<CreateActionOperationResponses, CreateActionOperationErrors, ThrowOnError>({
+    url: '/projects/{projectId}/actions/{actionId}/operations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Reconcile declared, reserved, and bound local ports
+ */
+export const getPortRegistry = <ThrowOnError extends boolean = false>(options?: Options<GetPortRegistryData, ThrowOnError>): RequestResult<GetPortRegistryResponses, GetPortRegistryErrors, ThrowOnError> => (options?.client ?? client).get<GetPortRegistryResponses, GetPortRegistryErrors, ThrowOnError>({ url: '/ports', ...options });
+
+/**
+ * Suggest the first free port in an explicit preferred range
+ */
+export const createPortSuggestion = <ThrowOnError extends boolean = false>(options: Options<CreatePortSuggestionData, ThrowOnError>): RequestResult<CreatePortSuggestionResponses, CreatePortSuggestionErrors, ThrowOnError> => (options.client ?? client).post<CreatePortSuggestionResponses, CreatePortSuggestionErrors, ThrowOnError>({
+    url: '/ports/suggestions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});

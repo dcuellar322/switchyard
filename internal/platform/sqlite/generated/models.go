@@ -8,6 +8,22 @@ import (
 	"database/sql"
 )
 
+type ActionAudit struct {
+	ID               string         `json:"id"`
+	OperationID      string         `json:"operation_id"`
+	ProjectID        string         `json:"project_id"`
+	ActionID         string         `json:"action_id"`
+	ActionType       string         `json:"action_type"`
+	Risk             string         `json:"risk"`
+	ActorType        string         `json:"actor_type"`
+	ActorID          string         `json:"actor_id"`
+	State            string         `json:"state"`
+	WorkingDirectory string         `json:"working_directory"`
+	StartedAt        string         `json:"started_at"`
+	FinishedAt       sql.NullString `json:"finished_at"`
+	ErrorCode        sql.NullString `json:"error_code"`
+}
+
 type AuditEvent struct {
 	ID             int64          `json:"id"`
 	EventType      string         `json:"event_type"`
@@ -131,6 +147,21 @@ type OperationStep struct {
 	State       string `json:"state"`
 	Message     string `json:"message"`
 	OccurredAt  string `json:"occurred_at"`
+}
+
+type PortReservation struct {
+	ID          string `json:"id"`
+	ProjectID   string `json:"project_id"`
+	ProjectName string `json:"project_name"`
+	ServiceID   string `json:"service_id"`
+	PortID      string `json:"port_id"`
+	Host        string `json:"host"`
+	Port        int64  `json:"port"`
+	Target      int64  `json:"target"`
+	Protocol    string `json:"protocol"`
+	Source      string `json:"source"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type Project struct {

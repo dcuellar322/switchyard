@@ -19,6 +19,72 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for ActionDefinitionRisk.
+const (
+	ActionDefinitionRiskDestructive ActionDefinitionRisk = "destructive"
+	ActionDefinitionRiskInteractive ActionDefinitionRisk = "interactive"
+	ActionDefinitionRiskMutating    ActionDefinitionRisk = "mutating"
+	ActionDefinitionRiskNetworked   ActionDefinitionRisk = "networked"
+	ActionDefinitionRiskReadOnly    ActionDefinitionRisk = "read_only"
+)
+
+// Valid indicates whether the value is a known member of the ActionDefinitionRisk enum.
+func (e ActionDefinitionRisk) Valid() bool {
+	switch e {
+	case ActionDefinitionRiskDestructive:
+		return true
+	case ActionDefinitionRiskInteractive:
+		return true
+	case ActionDefinitionRiskMutating:
+		return true
+	case ActionDefinitionRiskNetworked:
+		return true
+	case ActionDefinitionRiskReadOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GitRemoteKind.
+const (
+	Fetch GitRemoteKind = "fetch"
+	Push  GitRemoteKind = "push"
+)
+
+// Valid indicates whether the value is a known member of the GitRemoteKind enum.
+func (e GitRemoteKind) Valid() bool {
+	switch e {
+	case Fetch:
+		return true
+	case Push:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GitStateOperationState.
+const (
+	GitStateOperationStateMerge   GitStateOperationState = "merge"
+	GitStateOperationStateRebase  GitStateOperationState = "rebase"
+	GitStateOperationStateUnknown GitStateOperationState = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the GitStateOperationState enum.
+func (e GitStateOperationState) Valid() bool {
+	switch e {
+	case GitStateOperationStateMerge:
+		return true
+	case GitStateOperationStateRebase:
+		return true
+	case GitStateOperationStateUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for HealthResultSeverity.
 const (
 	Critical HealthResultSeverity = "critical"
@@ -145,6 +211,150 @@ func (e OperationState) Valid() bool {
 	}
 }
 
+// Defines values for PortConflictType.
+const (
+	BOUNDBYUNKNOWNPROCESS PortConflictType = "BOUND_BY_UNKNOWN_PROCESS"
+	DECLAREDVSBOUND       PortConflictType = "DECLARED_VS_BOUND"
+	DECLAREDVSDECLARED    PortConflictType = "DECLARED_VS_DECLARED"
+	DECLAREDVSRESERVED    PortConflictType = "DECLARED_VS_RESERVED"
+	HOSTADDRESSOVERLAP    PortConflictType = "HOST_ADDRESS_OVERLAP"
+	PROTOCOLMISMATCH      PortConflictType = "PROTOCOL_MISMATCH"
+	RESERVEDVSRESERVED    PortConflictType = "RESERVED_VS_RESERVED"
+)
+
+// Valid indicates whether the value is a known member of the PortConflictType enum.
+func (e PortConflictType) Valid() bool {
+	switch e {
+	case BOUNDBYUNKNOWNPROCESS:
+		return true
+	case DECLAREDVSBOUND:
+		return true
+	case DECLAREDVSDECLARED:
+		return true
+	case DECLAREDVSRESERVED:
+		return true
+	case HOSTADDRESSOVERLAP:
+		return true
+	case PROTOCOLMISMATCH:
+		return true
+	case RESERVEDVSRESERVED:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortFactKind.
+const (
+	Binding     PortFactKind = "binding"
+	Declaration PortFactKind = "declaration"
+	Reservation PortFactKind = "reservation"
+)
+
+// Valid indicates whether the value is a known member of the PortFactKind enum.
+func (e PortFactKind) Valid() bool {
+	switch e {
+	case Binding:
+		return true
+	case Declaration:
+		return true
+	case Reservation:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortFactProtocol.
+const (
+	PortFactProtocolTcp PortFactProtocol = "tcp"
+	PortFactProtocolUdp PortFactProtocol = "udp"
+)
+
+// Valid indicates whether the value is a known member of the PortFactProtocol enum.
+func (e PortFactProtocol) Valid() bool {
+	switch e {
+	case PortFactProtocolTcp:
+		return true
+	case PortFactProtocolUdp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortFactSource.
+const (
+	PortFactSourceCompose    PortFactSource = "compose"
+	PortFactSourceDocker     PortFactSource = "docker"
+	PortFactSourceManifest   PortFactSource = "manifest"
+	PortFactSourceManual     PortFactSource = "manual"
+	PortFactSourceOs         PortFactSource = "os"
+	PortFactSourceProcess    PortFactSource = "process"
+	PortFactSourceSwitchyard PortFactSource = "switchyard"
+	PortFactSourceWorktree   PortFactSource = "worktree"
+)
+
+// Valid indicates whether the value is a known member of the PortFactSource enum.
+func (e PortFactSource) Valid() bool {
+	switch e {
+	case PortFactSourceCompose:
+		return true
+	case PortFactSourceDocker:
+		return true
+	case PortFactSourceManifest:
+		return true
+	case PortFactSourceManual:
+		return true
+	case PortFactSourceOs:
+		return true
+	case PortFactSourceProcess:
+		return true
+	case PortFactSourceSwitchyard:
+		return true
+	case PortFactSourceWorktree:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortSuggestionProtocol.
+const (
+	PortSuggestionProtocolTcp PortSuggestionProtocol = "tcp"
+	PortSuggestionProtocolUdp PortSuggestionProtocol = "udp"
+)
+
+// Valid indicates whether the value is a known member of the PortSuggestionProtocol enum.
+func (e PortSuggestionProtocol) Valid() bool {
+	switch e {
+	case PortSuggestionProtocolTcp:
+		return true
+	case PortSuggestionProtocolUdp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PortSuggestionRequestProtocol.
+const (
+	PortSuggestionRequestProtocolTcp PortSuggestionRequestProtocol = "tcp"
+	PortSuggestionRequestProtocolUdp PortSuggestionRequestProtocol = "udp"
+)
+
+// Valid indicates whether the value is a known member of the PortSuggestionRequestProtocol enum.
+func (e PortSuggestionRequestProtocol) Valid() bool {
+	switch e {
+	case PortSuggestionRequestProtocolTcp:
+		return true
+	case PortSuggestionRequestProtocolUdp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ProjectTrustState.
 const (
 	ProjectTrustStatePending  ProjectTrustState = "pending"
@@ -189,19 +399,19 @@ func (e ProjectHealthObserverState) Valid() bool {
 
 // Defines values for ProjectHealthStatus.
 const (
-	ProjectHealthStatusHealthy   ProjectHealthStatus = "healthy"
-	ProjectHealthStatusUnhealthy ProjectHealthStatus = "unhealthy"
-	ProjectHealthStatusUnknown   ProjectHealthStatus = "unknown"
+	Healthy   ProjectHealthStatus = "healthy"
+	Unhealthy ProjectHealthStatus = "unhealthy"
+	Unknown   ProjectHealthStatus = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the ProjectHealthStatus enum.
 func (e ProjectHealthStatus) Valid() bool {
 	switch e {
-	case ProjectHealthStatusHealthy:
+	case Healthy:
 		return true
-	case ProjectHealthStatusUnhealthy:
+	case Unhealthy:
 		return true
-	case ProjectHealthStatusUnknown:
+	case Unknown:
 		return true
 	default:
 		return false
@@ -210,19 +420,19 @@ func (e ProjectHealthStatus) Valid() bool {
 
 // Defines values for PublishedPortProtocol.
 const (
-	PublishedPortProtocolSctp PublishedPortProtocol = "sctp"
-	PublishedPortProtocolTcp  PublishedPortProtocol = "tcp"
-	PublishedPortProtocolUdp  PublishedPortProtocol = "udp"
+	Sctp PublishedPortProtocol = "sctp"
+	Tcp  PublishedPortProtocol = "tcp"
+	Udp  PublishedPortProtocol = "udp"
 )
 
 // Valid indicates whether the value is a known member of the PublishedPortProtocol enum.
 func (e PublishedPortProtocol) Valid() bool {
 	switch e {
-	case PublishedPortProtocolSctp:
+	case Sctp:
 		return true
-	case PublishedPortProtocolTcp:
+	case Tcp:
 		return true
-	case PublishedPortProtocolUdp:
+	case Udp:
 		return true
 	default:
 		return false
@@ -378,16 +588,16 @@ func (e RuntimeObservationState) Valid() bool {
 
 // Defines values for RuntimePlanDriver.
 const (
-	Compose RuntimePlanDriver = "compose"
-	Process RuntimePlanDriver = "process"
+	RuntimePlanDriverCompose RuntimePlanDriver = "compose"
+	RuntimePlanDriverProcess RuntimePlanDriver = "process"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanDriver enum.
 func (e RuntimePlanDriver) Valid() bool {
 	switch e {
-	case Compose:
+	case RuntimePlanDriverCompose:
 		return true
-	case Process:
+	case RuntimePlanDriverProcess:
 		return true
 	default:
 		return false
@@ -396,19 +606,19 @@ func (e RuntimePlanDriver) Valid() bool {
 
 // Defines values for RuntimePlanRisk.
 const (
-	Caution     RuntimePlanRisk = "caution"
-	Destructive RuntimePlanRisk = "destructive"
-	Safe        RuntimePlanRisk = "safe"
+	RuntimePlanRiskCaution     RuntimePlanRisk = "caution"
+	RuntimePlanRiskDestructive RuntimePlanRisk = "destructive"
+	RuntimePlanRiskSafe        RuntimePlanRisk = "safe"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
 func (e RuntimePlanRisk) Valid() bool {
 	switch e {
-	case Caution:
+	case RuntimePlanRiskCaution:
 		return true
-	case Destructive:
+	case RuntimePlanRiskDestructive:
 		return true
-	case Safe:
+	case RuntimePlanRiskSafe:
 		return true
 	default:
 		return false
@@ -452,6 +662,30 @@ func (e ExportProjectLogsParamsFormat) Valid() bool {
 type AcceptedManifestProposal struct {
 	Project  Project          `json:"project"`
 	Proposal ManifestProposal `json:"proposal"`
+}
+
+// ActionDefinition defines model for ActionDefinition.
+type ActionDefinition struct {
+	CaptureOutput    bool                 `json:"captureOutput"`
+	Command          []string             `json:"command"`
+	Id               string               `json:"id"`
+	Name             string               `json:"name"`
+	Provider         *string              `json:"provider,omitempty"`
+	Risk             ActionDefinitionRisk `json:"risk"`
+	Shell            bool                 `json:"shell"`
+	Target           *string              `json:"target,omitempty"`
+	TimeoutSeconds   int                  `json:"timeoutSeconds"`
+	Type             string               `json:"type"`
+	WorkingDirectory string               `json:"workingDirectory"`
+}
+
+// ActionDefinitionRisk defines model for ActionDefinition.Risk.
+type ActionDefinitionRisk string
+
+// ActionExecutionRequest defines model for ActionExecutionRequest.
+type ActionExecutionRequest struct {
+	AllowOutsideRoot *bool `json:"allowOutsideRoot,omitempty"`
+	ConfirmRisk      *bool `json:"confirmRisk,omitempty"`
 }
 
 // BrowserBootstrap defines model for BrowserBootstrap.
@@ -505,6 +739,65 @@ type EffectiveManifest struct {
 	Manifest   map[string]interface{} `json:"manifest"`
 	Provenance map[string]string      `json:"provenance"`
 	Sources    []ManifestSource       `json:"sources"`
+}
+
+// GitChangeCounts defines model for GitChangeCounts.
+type GitChangeCounts struct {
+	Conflicted int `json:"conflicted"`
+	Modified   int `json:"modified"`
+	Staged     int `json:"staged"`
+	Untracked  int `json:"untracked"`
+}
+
+// GitCommit defines model for GitCommit.
+type GitCommit struct {
+	Author      string    `json:"author"`
+	CommittedAt time.Time `json:"committedAt"`
+	Hash        string    `json:"hash"`
+	ShortHash   string    `json:"shortHash"`
+	Subject     string    `json:"subject"`
+}
+
+// GitRemote defines model for GitRemote.
+type GitRemote struct {
+	Kind GitRemoteKind `json:"kind"`
+	Name string        `json:"name"`
+	Url  string        `json:"url"`
+}
+
+// GitRemoteKind defines model for GitRemote.Kind.
+type GitRemoteKind string
+
+// GitState defines model for GitState.
+type GitState struct {
+	Ahead          int                     `json:"ahead"`
+	Behind         int                     `json:"behind"`
+	Branch         *string                 `json:"branch,omitempty"`
+	Changes        GitChangeCounts         `json:"changes"`
+	Detached       bool                    `json:"detached"`
+	Head           *string                 `json:"head,omitempty"`
+	LastCommit     *GitCommit              `json:"lastCommit,omitempty"`
+	ObservedAt     time.Time               `json:"observedAt"`
+	OperationState *GitStateOperationState `json:"operationState,omitempty"`
+	ProjectId      string                  `json:"projectId"`
+	Remotes        []GitRemote             `json:"remotes"`
+	Repository     bool                    `json:"repository"`
+	Stashes        int                     `json:"stashes"`
+	Upstream       *string                 `json:"upstream,omitempty"`
+	Worktrees      []GitWorktree           `json:"worktrees"`
+}
+
+// GitStateOperationState defines model for GitState.OperationState.
+type GitStateOperationState string
+
+// GitWorktree defines model for GitWorktree.
+type GitWorktree struct {
+	Bare     bool    `json:"bare"`
+	Branch   *string `json:"branch,omitempty"`
+	Detached bool    `json:"detached"`
+	Head     string  `json:"head"`
+	Locked   bool    `json:"locked"`
+	Path     string  `json:"path"`
 }
 
 // HealthResult defines model for HealthResult.
@@ -586,6 +879,77 @@ type Operation struct {
 // OperationState defines model for OperationState.
 type OperationState string
 
+// PortConflict defines model for PortConflict.
+type PortConflict struct {
+	Facts   []PortFact       `json:"facts"`
+	Id      string           `json:"id"`
+	Port    int              `json:"port"`
+	Summary string           `json:"summary"`
+	Type    PortConflictType `json:"type"`
+}
+
+// PortConflictType defines model for PortConflict.Type.
+type PortConflictType string
+
+// PortFact defines model for PortFact.
+type PortFact struct {
+	Evidence    string           `json:"evidence"`
+	Host        string           `json:"host"`
+	Id          string           `json:"id"`
+	Kind        PortFactKind     `json:"kind"`
+	ObservedAt  time.Time        `json:"observedAt"`
+	Port        int              `json:"port"`
+	PortId      *string          `json:"portId,omitempty"`
+	ProcessId   *int             `json:"processId,omitempty"`
+	ProjectId   *string          `json:"projectId,omitempty"`
+	ProjectName *string          `json:"projectName,omitempty"`
+	Protocol    PortFactProtocol `json:"protocol"`
+	ServiceId   *string          `json:"serviceId,omitempty"`
+	Source      PortFactSource   `json:"source"`
+	Target      *int             `json:"target,omitempty"`
+}
+
+// PortFactKind defines model for PortFact.Kind.
+type PortFactKind string
+
+// PortFactProtocol defines model for PortFact.Protocol.
+type PortFactProtocol string
+
+// PortFactSource defines model for PortFact.Source.
+type PortFactSource string
+
+// PortRegistry defines model for PortRegistry.
+type PortRegistry struct {
+	Conflicts  []PortConflict `json:"conflicts"`
+	Facts      []PortFact     `json:"facts"`
+	ObservedAt time.Time      `json:"observedAt"`
+	Warnings   []string       `json:"warnings"`
+}
+
+// PortSuggestion defines model for PortSuggestion.
+type PortSuggestion struct {
+	ObservedAt time.Time              `json:"observedAt"`
+	Port       int                    `json:"port"`
+	Protocol   PortSuggestionProtocol `json:"protocol"`
+	RangeEnd   int                    `json:"rangeEnd"`
+	RangeStart int                    `json:"rangeStart"`
+}
+
+// PortSuggestionProtocol defines model for PortSuggestion.Protocol.
+type PortSuggestionProtocol string
+
+// PortSuggestionRequest defines model for PortSuggestionRequest.
+type PortSuggestionRequest struct {
+	Excluded   *[]int                        `json:"excluded,omitempty"`
+	ProjectId  *string                       `json:"projectId,omitempty"`
+	Protocol   PortSuggestionRequestProtocol `json:"protocol"`
+	RangeEnd   int                           `json:"rangeEnd"`
+	RangeStart int                           `json:"rangeStart"`
+}
+
+// PortSuggestionRequestProtocol defines model for PortSuggestionRequest.Protocol.
+type PortSuggestionRequestProtocol string
+
 // ProblemDetails defines model for ProblemDetails.
 type ProblemDetails struct {
 	Code          string  `json:"code"`
@@ -626,6 +990,13 @@ type Project struct {
 
 // ProjectTrustState defines model for Project.TrustState.
 type ProjectTrustState string
+
+// ProjectActions defines model for ProjectActions.
+type ProjectActions struct {
+	Actions     []ActionDefinition `json:"actions"`
+	ProjectId   string             `json:"projectId"`
+	ProjectName string             `json:"projectName"`
+}
 
 // ProjectHealth defines model for ProjectHealth.
 type ProjectHealth struct {
@@ -784,6 +1155,9 @@ type SystemInfo struct {
 // SystemInfoStatus defines model for SystemInfo.Status.
 type SystemInfoStatus string
 
+// ActionId defines model for ActionId.
+type ActionId = string
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
@@ -825,8 +1199,18 @@ type CancelOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// CreatePortSuggestionParams defines parameters for CreatePortSuggestion.
+type CreatePortSuggestionParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // RemoveProjectParams defines parameters for RemoveProject.
 type RemoveProjectParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// CreateActionOperationParams defines parameters for CreateActionOperation.
+type CreateActionOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
@@ -870,6 +1254,12 @@ type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
 
 // CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
 type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
+
+// CreatePortSuggestionJSONRequestBody defines body for CreatePortSuggestion for application/json ContentType.
+type CreatePortSuggestionJSONRequestBody = PortSuggestionRequest
+
+// CreateActionOperationJSONRequestBody defines body for CreateActionOperation for application/json ContentType.
+type CreateActionOperationJSONRequestBody = ActionExecutionRequest
 
 // CreateProjectOperationJSONRequestBody defines body for CreateProjectOperation for application/json ContentType.
 type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
@@ -981,6 +1371,14 @@ type ClientInterface interface {
 	// CancelOperation request
 	CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPortRegistry request
+	GetPortRegistry(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreatePortSuggestionWithBody request with any body
+	CreatePortSuggestionWithBody(ctx context.Context, params *CreatePortSuggestionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePortSuggestion(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListProjects request
 	ListProjects(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -989,6 +1387,17 @@ type ClientInterface interface {
 
 	// GetProject request
 	GetProject(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListProjectActions request
+	ListProjectActions(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateActionOperationWithBody request with any body
+	CreateActionOperationWithBody(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateActionOperation(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProjectGit request
+	GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetProjectHealth request
 	GetProjectHealth(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1163,6 +1572,42 @@ func (c *Client) CancelOperation(ctx context.Context, operationId OperationId, p
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetPortRegistry(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPortRegistryRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePortSuggestionWithBody(ctx context.Context, params *CreatePortSuggestionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePortSuggestionRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePortSuggestion(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePortSuggestionRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListProjects(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListProjectsRequest(c.Server)
 	if err != nil {
@@ -1189,6 +1634,54 @@ func (c *Client) RemoveProject(ctx context.Context, projectId ProjectId, params 
 
 func (c *Client) GetProject(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProjectRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListProjectActions(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectActionsRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateActionOperationWithBody(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateActionOperationRequestWithBody(c.Server, projectId, actionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateActionOperation(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateActionOperationRequest(c.Server, projectId, actionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectGitRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -1762,6 +2255,86 @@ func NewCancelOperationRequest(server string, operationId OperationId, params *C
 	return req, nil
 }
 
+// NewGetPortRegistryRequest generates requests for GetPortRegistry
+func NewGetPortRegistryRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/ports")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreatePortSuggestionRequest calls the generic CreatePortSuggestion builder with application/json body
+func NewCreatePortSuggestionRequest(server string, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePortSuggestionRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreatePortSuggestionRequestWithBody generates requests for CreatePortSuggestion with any type of body
+func NewCreatePortSuggestionRequestWithBody(server string, params *CreatePortSuggestionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/ports/suggestions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewListProjectsRequest generates requests for ListProjects
 func NewListProjectsRequest(server string) (*http.Request, error) {
 	var err error
@@ -1853,6 +2426,141 @@ func NewGetProjectRequest(server string, projectId ProjectId) (*http.Request, er
 	}
 
 	operationPath := fmt.Sprintf("/projects/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListProjectActionsRequest generates requests for ListProjectActions
+func NewListProjectActionsRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/actions", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateActionOperationRequest calls the generic CreateActionOperation builder with application/json body
+func NewCreateActionOperationRequest(server string, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateActionOperationRequestWithBody(server, projectId, actionId, params, "application/json", bodyReader)
+}
+
+// NewCreateActionOperationRequestWithBody generates requests for CreateActionOperation with any type of body
+func NewCreateActionOperationRequestWithBody(server string, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "actionId", actionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/actions/%s/operations", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetProjectGitRequest generates requests for GetProjectGit
+func NewGetProjectGitRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/git", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2558,6 +3266,14 @@ type ClientWithResponsesInterface interface {
 	// CancelOperationWithResponse request
 	CancelOperationWithResponse(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*CancelOperationResponse, error)
 
+	// GetPortRegistryWithResponse request
+	GetPortRegistryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPortRegistryResponse, error)
+
+	// CreatePortSuggestionWithBodyWithResponse request with any body
+	CreatePortSuggestionWithBodyWithResponse(ctx context.Context, params *CreatePortSuggestionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePortSuggestionResponse, error)
+
+	CreatePortSuggestionWithResponse(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePortSuggestionResponse, error)
+
 	// ListProjectsWithResponse request
 	ListProjectsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectsResponse, error)
 
@@ -2566,6 +3282,17 @@ type ClientWithResponsesInterface interface {
 
 	// GetProjectWithResponse request
 	GetProjectWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectResponse, error)
+
+	// ListProjectActionsWithResponse request
+	ListProjectActionsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListProjectActionsResponse, error)
+
+	// CreateActionOperationWithBodyWithResponse request with any body
+	CreateActionOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error)
+
+	CreateActionOperationWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error)
+
+	// GetProjectGitWithResponse request
+	GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error)
 
 	// GetProjectHealthWithResponse request
 	GetProjectHealthWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectHealthResponse, error)
@@ -2887,6 +3614,68 @@ func (r CancelOperationResponse) ContentType() string {
 	return ""
 }
 
+type GetPortRegistryResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PortRegistry
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPortRegistryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPortRegistryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetPortRegistryResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreatePortSuggestionResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *PortSuggestion
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePortSuggestionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePortSuggestionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreatePortSuggestionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListProjectsResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -2973,6 +3762,99 @@ func (r GetProjectResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetProjectResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListProjectActionsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ProjectActions
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProjectActionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProjectActionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListProjectActionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateActionOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateActionOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateActionOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateActionOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetProjectGitResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *GitState
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectGitResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectGitResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectGitResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -3447,6 +4329,32 @@ func (c *ClientWithResponses) CancelOperationWithResponse(ctx context.Context, o
 	return ParseCancelOperationResponse(rsp)
 }
 
+// GetPortRegistryWithResponse request returning *GetPortRegistryResponse
+func (c *ClientWithResponses) GetPortRegistryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPortRegistryResponse, error) {
+	rsp, err := c.GetPortRegistry(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPortRegistryResponse(rsp)
+}
+
+// CreatePortSuggestionWithBodyWithResponse request with arbitrary body returning *CreatePortSuggestionResponse
+func (c *ClientWithResponses) CreatePortSuggestionWithBodyWithResponse(ctx context.Context, params *CreatePortSuggestionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePortSuggestionResponse, error) {
+	rsp, err := c.CreatePortSuggestionWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePortSuggestionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePortSuggestionWithResponse(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePortSuggestionResponse, error) {
+	rsp, err := c.CreatePortSuggestion(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePortSuggestionResponse(rsp)
+}
+
 // ListProjectsWithResponse request returning *ListProjectsResponse
 func (c *ClientWithResponses) ListProjectsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectsResponse, error) {
 	rsp, err := c.ListProjects(ctx, reqEditors...)
@@ -3472,6 +4380,41 @@ func (c *ClientWithResponses) GetProjectWithResponse(ctx context.Context, projec
 		return nil, err
 	}
 	return ParseGetProjectResponse(rsp)
+}
+
+// ListProjectActionsWithResponse request returning *ListProjectActionsResponse
+func (c *ClientWithResponses) ListProjectActionsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListProjectActionsResponse, error) {
+	rsp, err := c.ListProjectActions(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProjectActionsResponse(rsp)
+}
+
+// CreateActionOperationWithBodyWithResponse request with arbitrary body returning *CreateActionOperationResponse
+func (c *ClientWithResponses) CreateActionOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error) {
+	rsp, err := c.CreateActionOperationWithBody(ctx, projectId, actionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateActionOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateActionOperationWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error) {
+	rsp, err := c.CreateActionOperation(ctx, projectId, actionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateActionOperationResponse(rsp)
+}
+
+// GetProjectGitWithResponse request returning *GetProjectGitResponse
+func (c *ClientWithResponses) GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error) {
+	rsp, err := c.GetProjectGit(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectGitResponse(rsp)
 }
 
 // GetProjectHealthWithResponse request returning *GetProjectHealthResponse
@@ -3895,6 +4838,72 @@ func ParseCancelOperationResponse(rsp *http.Response) (*CancelOperationResponse,
 	return response, nil
 }
 
+// ParseGetPortRegistryResponse parses an HTTP response from a GetPortRegistryWithResponse call
+func ParseGetPortRegistryResponse(rsp *http.Response) (*GetPortRegistryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPortRegistryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PortRegistry
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreatePortSuggestionResponse parses an HTTP response from a CreatePortSuggestionWithResponse call
+func ParseCreatePortSuggestionResponse(rsp *http.Response) (*CreatePortSuggestionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePortSuggestionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PortSuggestion
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListProjectsResponse parses an HTTP response from a ListProjectsWithResponse call
 func ParseListProjectsResponse(rsp *http.Response) (*ListProjectsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3970,6 +4979,105 @@ func ParseGetProjectResponse(rsp *http.Response) (*GetProjectResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Project
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListProjectActionsResponse parses an HTTP response from a ListProjectActionsWithResponse call
+func ParseListProjectActionsResponse(rsp *http.Response) (*ListProjectActionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProjectActionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProjectActions
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateActionOperationResponse parses an HTTP response from a CreateActionOperationWithResponse call
+func ParseCreateActionOperationResponse(rsp *http.Response) (*CreateActionOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateActionOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProjectGitResponse parses an HTTP response from a GetProjectGitWithResponse call
+func ParseGetProjectGitResponse(rsp *http.Response) (*GetProjectGitResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectGitResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GitState
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -4405,6 +5513,12 @@ type ServerInterface interface {
 	// Request idempotent operation cancellation
 	// (POST /operations/{operationId}/cancel)
 	CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams)
+	// Reconcile declared, reserved, and bound local ports
+	// (GET /ports)
+	GetPortRegistry(w http.ResponseWriter, r *http.Request)
+	// Suggest the first free port in an explicit preferred range
+	// (POST /ports/suggestions)
+	CreatePortSuggestion(w http.ResponseWriter, r *http.Request, params CreatePortSuggestionParams)
 	// List registered projects
 	// (GET /projects)
 	ListProjects(w http.ResponseWriter, r *http.Request)
@@ -4414,6 +5528,15 @@ type ServerInterface interface {
 	// Read one registered project
 	// (GET /projects/{projectId})
 	GetProject(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// List trusted declarative and built-in quick actions
+	// (GET /projects/{projectId}/actions)
+	ListProjectActions(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Queue a durable audited project action
+	// (POST /projects/{projectId}/actions/{actionId}/operations)
+	CreateActionOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, actionId ActionId, params CreateActionOperationParams)
+	// Read a fresh Git porcelain snapshot for a trusted project
+	// (GET /projects/{projectId}/git)
+	GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// Read current persisted health diagnostics
 	// (GET /projects/{projectId}/health)
 	GetProjectHealth(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -4510,6 +5633,18 @@ func (_ Unimplemented) CancelOperation(w http.ResponseWriter, r *http.Request, o
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// Reconcile declared, reserved, and bound local ports
+// (GET /ports)
+func (_ Unimplemented) GetPortRegistry(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Suggest the first free port in an explicit preferred range
+// (POST /ports/suggestions)
+func (_ Unimplemented) CreatePortSuggestion(w http.ResponseWriter, r *http.Request, params CreatePortSuggestionParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // List registered projects
 // (GET /projects)
 func (_ Unimplemented) ListProjects(w http.ResponseWriter, r *http.Request) {
@@ -4525,6 +5660,24 @@ func (_ Unimplemented) RemoveProject(w http.ResponseWriter, r *http.Request, pro
 // Read one registered project
 // (GET /projects/{projectId})
 func (_ Unimplemented) GetProject(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List trusted declarative and built-in quick actions
+// (GET /projects/{projectId}/actions)
+func (_ Unimplemented) ListProjectActions(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue a durable audited project action
+// (POST /projects/{projectId}/actions/{actionId}/operations)
+func (_ Unimplemented) CreateActionOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, actionId ActionId, params CreateActionOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read a fresh Git porcelain snapshot for a trusted project
+// (GET /projects/{projectId}/git)
+func (_ Unimplemented) GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -4942,6 +6095,65 @@ func (siw *ServerInterfaceWrapper) CancelOperation(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r)
 }
 
+// GetPortRegistry operation middleware
+func (siw *ServerInterfaceWrapper) GetPortRegistry(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPortRegistry(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreatePortSuggestion operation middleware
+func (siw *ServerInterfaceWrapper) CreatePortSuggestion(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreatePortSuggestionParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePortSuggestion(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListProjects operation middleware
 func (siw *ServerInterfaceWrapper) ListProjects(w http.ResponseWriter, r *http.Request) {
 
@@ -5027,6 +6239,121 @@ func (siw *ServerInterfaceWrapper) GetProject(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetProject(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListProjectActions operation middleware
+func (siw *ServerInterfaceWrapper) ListProjectActions(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjectActions(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateActionOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreateActionOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "actionId" -------------
+	var actionId ActionId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "actionId", chi.URLParam(r, "actionId"), &actionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "actionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateActionOperationParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateActionOperation(w, r, projectId, actionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectGit operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectGit(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectGit(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -5672,6 +6999,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/operations/{operationId}/cancel", wrapper.CancelOperation)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/ports", wrapper.GetPortRegistry)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/ports/suggestions", wrapper.CreatePortSuggestion)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects", wrapper.ListProjects)
 	})
 	r.Group(func(r chi.Router) {
@@ -5679,6 +7012,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}", wrapper.GetProject)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/actions", wrapper.ListProjectActions)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/actions/{actionId}/operations", wrapper.CreateActionOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/git", wrapper.GetProjectGit)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/health", wrapper.GetProjectHealth)

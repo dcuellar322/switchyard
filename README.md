@@ -94,6 +94,13 @@ disconnected observer states, rotating bounded log history, cursor-resumable
 live logs, and operation-correlated export. See the
 [observability architecture](docs/architecture/observability.md).
 
+The developer workflow layer combines provenance-bearing declared, reserved,
+and bound ports; preferred-range suggestions; fresh porcelain-v2 Git state;
+and durable, risk-classified project actions. Built-in terminal, VS Code,
+Codex, Claude Code, Git, and endpoint actions remain confined to trusted roots
+and produce redaction-safe audits. See the
+[developer workflows architecture](docs/architecture/developer-workflows.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,
