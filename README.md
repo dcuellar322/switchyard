@@ -1,0 +1,67 @@
+# Switchyard
+
+Switchyard is a local, project-oriented development command center. A single Go
+control plane owns project state and local capabilities; the CLI, browser UI,
+Tauri desktop shell, and MCP server are adapters over the same application
+services.
+
+The repository is being built from the phased
+[implementation plan](SWITCHYARD_IMPLEMENTATION_PLAN.md). Current implementation
+evidence is recorded under [`docs/progress`](docs/progress/).
+
+## Architecture at a glance
+
+```text
+CLI / HTTP / WebSocket / MCP / Tauri adapters
+                      |
+                      v
+              application use cases
+                      |
+                      v
+                  domain model
+
+infrastructure adapters -- implement --> application ports
+```
+
+Switchyard is a modular monolith. Domain packages own their invariants and do
+not import transports, databases, Docker, operating-system commands, desktop
+concepts, or AI-provider SDKs. Cross-domain work uses explicit application
+interfaces or typed events. See the
+[architecture overview](docs/architecture/README.md) and
+[repository policy](AGENTS.md).
+
+## Process topology
+
+The `switchyard` binary hosts the daemon, CLI, REST/WebSocket API, and MCP
+façade. It talks to local infrastructure through focused adapters and stores
+durable state in SQLite. The Vue application and thin Tauri shell never own
+runtime orchestration rules.
+
+## Project vocabulary
+
+The canonical meanings of project, service, runtime, run, operation, action,
+workspace, declaration, reservation, and binding are in the
+[product glossary](docs/glossary.md).
+
+## Architecture decisions
+
+Accepted and planned decisions are indexed in [`docs/adr`](docs/adr/README.md).
+The foundational accepted ADRs cover the modular monolith, Go control plane,
+single binary, REST/WebSocket contracts, SQLite persistence, thin Tauri shell,
+MCP-first agents, and platform order.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) before making
+changes. Feature work follows one roadmap phase or one approved vertical slice
+at a time and includes tests and progress evidence.
+
+## Security
+
+Switchyard treats repositories, local processes, Docker, browser clients,
+coding agents, AI providers, and plugins as separate trust boundaries. See
+[SECURITY.md](SECURITY.md) for reporting and baseline security rules.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

@@ -1,0 +1,8 @@
+{
+  "name": "switchyard-implementation-package",
+  "generated_at": "2026-07-16",
+  "primary_document": "SWITCHYARD_IMPLEMENTATION_PLAN.md",
+  "design_reference": "design/switchyard-interactive-mockup.html",
+  "agent_policy": "AGENTS.md",
+  "codex_bootstrap": "CODEX_START_HERE.md"
+}
