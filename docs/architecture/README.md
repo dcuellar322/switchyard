@@ -22,6 +22,8 @@ derivation introduced by Phase 7.
 The [ports, source control, and trusted actions](developer-workflows.md) note
 defines Phase 8 port provenance and reservations, read-only Git observation,
 action authorization, working-directory containment, and audit recovery.
+The [dashboard alpha](dashboard-alpha.md) note defines Phase 9 routes, server
+state ownership, command boundaries, degraded behavior, and browser evidence.
 
 ## Process topology
 

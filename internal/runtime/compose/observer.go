@@ -26,6 +26,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	observation.Engine.Connected = true
 	observation.Engine.APIVersion = ping.APIVersion
 	observation.Engine.ServerVersion = version.Version
+	ownership := d.managed.OwnershipToken(config.ProjectName)
 	containers, err := engine.ContainerList(ctx, client.ContainerListOptions{All: true, Filters: projectFilters(config.ProjectName)})
 	if err != nil {
 		return disconnectedObservation(project, config, err), nil
@@ -42,7 +43,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 		}
 		observation.Services = append(observation.Services, service)
 	}
-	d.managed.Reconcile(config.ProjectName, ids)
+	d.managed.Reconcile(config.ProjectName, ids, len(config.Services), ownership)
 	if allOwned || allContainersOwned(d.managed, config.ProjectName, items) {
 		observation.Origin = domain.OriginSwitchyard
 	}

@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 
-export function browserBootstrapPath(): string {
+export function browserBootstrapPath(pathname = '/'): string {
   const output = execFileSync(
     '../.cache/switchyard-e2e',
     ['--data-dir', '../.switchyard-data/e2e', 'ui'],
@@ -8,5 +8,5 @@ export function browserBootstrapPath(): string {
   ).trim()
   const token = new URL(output).searchParams.get('bootstrap')
   if (!token) throw new Error('switchyard ui did not return a browser bootstrap token')
-  return `/?bootstrap=${encodeURIComponent(token)}`
+  return `${pathname}?bootstrap=${encodeURIComponent(token)}`
 }

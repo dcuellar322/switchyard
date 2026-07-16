@@ -1,25 +1,32 @@
 import {
   acceptManifestProposal,
+  createActionOperation,
   createManifestProposal,
+  createProjectOperation,
+  explainProjectManifest,
+  getProject,
+  getProjectGit,
   getProjectHealth,
   getProjectLogs,
+  getProjectMetrics,
   getProjectRuntime,
-  getProjectGit,
   listProjectActions,
-  createActionOperation,
   listProjects,
   validateManifestProposal,
 } from '../../api/generated/sdk.gen'
 import type {
   AcceptedManifestProposal,
-  ManifestProposal,
-  Project,
-  ProjectHealth,
-  RuntimeLogEntry,
-  RuntimeObservation,
+  EffectiveManifest,
   GitState,
-  ProjectActions,
+  ManifestProposal,
   Operation,
+  Project,
+  ProjectActions,
+  ProjectHealth,
+  RuntimeAction,
+  RuntimeLogEntry,
+  RuntimeMetricSample,
+  RuntimeObservation,
 } from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
@@ -30,6 +37,12 @@ function requestKey(): string {
 export async function loadProjects(): Promise<Array<Project>> {
   const result = await listProjects()
   if (result.error || !result.data) throw new Error('The project catalog could not be loaded.')
+  return result.data
+}
+
+export async function loadProject(projectId: string): Promise<Project> {
+  const result = await getProject({ path: { projectId } })
+  if (result.error || !result.data) throw new Error('The project could not be loaded.')
   return result.data
 }
 
@@ -72,9 +85,21 @@ export async function loadProjectHealth(projectId: string): Promise<ProjectHealt
   return result.data
 }
 
-export async function loadProjectLogs(projectId: string): Promise<Array<RuntimeLogEntry>> {
-  const result = await getProjectLogs({ path: { projectId }, query: { tail: 200 } })
+export async function loadProjectLogs(projectId: string, tail = 200): Promise<Array<RuntimeLogEntry>> {
+  const result = await getProjectLogs({ path: { projectId }, query: { tail } })
   if (result.error || !result.data) throw new Error('Persisted logs are unavailable.')
+  return result.data
+}
+
+export async function loadProjectMetrics(projectId: string): Promise<Array<RuntimeMetricSample>> {
+  const result = await getProjectMetrics({ path: { projectId } })
+  if (result.error || !result.data) throw new Error('Project resource samples are unavailable.')
+  return result.data
+}
+
+export async function loadEffectiveManifest(projectId: string): Promise<EffectiveManifest> {
+  const result = await explainProjectManifest({ path: { projectId } })
+  if (result.error || !result.data) throw new Error('The effective manifest is unavailable.')
   return result.data
 }
 
@@ -96,5 +121,14 @@ export async function runProjectAction(projectId: string, actionId: string, conf
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) throw new Error('The project action could not be queued.')
+  return result.data
+}
+
+export async function runRuntimeAction(projectId: string, action: RuntimeAction): Promise<Operation> {
+  const result = await createProjectOperation({
+    path: { projectId }, body: { action, removeVolumes: false },
+    headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data) throw new Error(`The ${action} operation could not be queued.`)
   return result.data
 }

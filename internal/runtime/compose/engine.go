@@ -61,13 +61,24 @@ func projectFilters(projectName string) client.Filters {
 type managedContainers struct {
 	mu         sync.RWMutex
 	owned      map[string]map[string]struct{}
-	pending    map[string]domain.Action
+	pending    map[string]ownershipIntent
 	operations map[string]string
+	next       uint64
+}
+
+type ownershipIntent struct {
+	generation uint64
+	ready      bool
+}
+
+type ownershipToken struct {
+	generation uint64
+	ready      bool
 }
 
 func newManagedContainers() *managedContainers {
 	return &managedContainers{
-		owned: make(map[string]map[string]struct{}), pending: make(map[string]domain.Action), operations: make(map[string]string),
+		owned: make(map[string]map[string]struct{}), pending: make(map[string]ownershipIntent), operations: make(map[string]string),
 	}
 }
 
@@ -80,10 +91,31 @@ func (m *managedContainers) RecordAction(project string, action domain.Action, o
 		delete(m.pending, project)
 		delete(m.operations, project)
 	case domain.ActionStart, domain.ActionRestart, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
-		m.pending[project] = action
+		m.next++
+		m.pending[project] = ownershipIntent{generation: m.next}
 		if operationID != "" {
 			m.operations[project] = operationID
 		}
+	}
+}
+
+func (m *managedContainers) CompletePending(project, operationID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	intent, ok := m.pending[project]
+	if !ok || m.operations[project] != operationID {
+		return
+	}
+	intent.ready = true
+	m.pending[project] = intent
+}
+
+func (m *managedContainers) DiscardPending(project, operationID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.pending, project)
+	if m.operations[project] == operationID {
+		delete(m.operations, project)
 	}
 }
 
@@ -93,10 +125,21 @@ func (m *managedContainers) Operation(project string) string {
 	return m.operations[project]
 }
 
-func (m *managedContainers) Reconcile(project string, containerIDs []string) {
+func (m *managedContainers) OwnershipToken(project string) ownershipToken {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	intent := m.pending[project]
+	return ownershipToken(intent)
+}
+
+func (m *managedContainers) Reconcile(project string, containerIDs []string, expected int, token ownershipToken) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if _, ok := m.pending[project]; !ok {
+	intent, ok := m.pending[project]
+	if !ok || !token.ready || intent.generation != token.generation || intent.ready != token.ready {
+		return
+	}
+	if len(containerIDs) == 0 {
 		return
 	}
 	owned := make(map[string]struct{}, len(containerIDs))
@@ -104,7 +147,9 @@ func (m *managedContainers) Reconcile(project string, containerIDs []string) {
 		owned[id] = struct{}{}
 	}
 	m.owned[project] = owned
-	delete(m.pending, project)
+	if expected <= 0 || len(owned) >= expected {
+		delete(m.pending, project)
+	}
 }
 
 func (m *managedContainers) Owns(project, containerID string) bool {

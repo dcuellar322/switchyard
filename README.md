@@ -101,6 +101,12 @@ Codex, Claude Code, Git, and endpoint actions remain confined to trusted roots
 and produce redaction-safe audits. See the
 [developer workflows architecture](docs/architecture/developer-workflows.md).
 
+The browser dashboard provides the responsive project command center, bounded
+logs and resources, operation progress, keyboard command palette, and honest
+partial or Docker-disconnected states. It remains a generated-contract adapter
+and never constructs runtime commands. See the
+[dashboard alpha architecture](docs/architecture/dashboard-alpha.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

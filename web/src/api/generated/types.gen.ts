@@ -391,6 +391,22 @@ export type SystemInfo = {
     startedAt: string;
 };
 
+export type DockerHostObservation = {
+    connected: boolean;
+    storageBytes?: number;
+    reclaimableBytes?: number;
+    attribution: 'shared' | 'unknown';
+};
+
+export type HostObservation = {
+    cpuPercent: number;
+    memoryUsedBytes: number;
+    memoryTotalBytes: number;
+    docker: DockerHostObservation;
+    observedAt: string;
+    warnings: Array<string>;
+};
+
 export type ProblemDetails = {
     type: string;
     title: string;
@@ -434,6 +450,31 @@ export type GetSystemResponses = {
 };
 
 export type GetSystemResponse = GetSystemResponses[keyof GetSystemResponses];
+
+export type GetHostData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/host';
+};
+
+export type GetHostErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetHostError = GetHostErrors[keyof GetHostErrors];
+
+export type GetHostResponses = {
+    /**
+     * Current explicitly partial host observation
+     */
+    200: HostObservation;
+};
+
+export type GetHostResponse = GetHostResponses[keyof GetHostResponses];
 
 export type CreateBrowserBootstrapTokenData = {
     body?: never;

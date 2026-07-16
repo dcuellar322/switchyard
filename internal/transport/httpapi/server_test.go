@@ -26,6 +26,10 @@ type systemStub struct {
 
 func (s systemStub) Get(context.Context) (application.Info, error) { return s.info, nil }
 
+type hostStub struct{ observation application.HostObservation }
+
+func (s hostStub) Get(context.Context) application.HostObservation { return s.observation }
+
 func TestGetSystemReturnsGeneratedContract(t *testing.T) {
 	t.Parallel()
 
@@ -52,6 +56,34 @@ func TestGetSystemReturnsGeneratedContract(t *testing.T) {
 	}
 	if response.Header().Get(correlationHeader) == "" {
 		t.Fatal("missing correlation response header")
+	}
+}
+
+func TestGetHostReturnsPartialGeneratedContract(t *testing.T) {
+	t.Parallel()
+	at := time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)
+	storage := int64(42)
+	handler := NewIPC(Dependencies{
+		System: systemStub{},
+		Host: hostStub{observation: application.HostObservation{
+			CPUPercent: 12.5, MemoryUsedBytes: 8 << 30, MemoryTotalBytes: 32 << 30,
+			Docker:     application.DockerObservation{Connected: true, StorageBytes: &storage, Attribution: "shared"},
+			ObservedAt: at, Warnings: []string{},
+		}},
+		Sessions: session.NewManager(), Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/host", nil)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	var observation generated.HostObservation
+	if err := json.NewDecoder(response.Body).Decode(&observation); err != nil {
+		t.Fatal(err)
+	}
+	if observation.CpuPercent != 12.5 || !observation.Docker.Connected || observation.Docker.StorageBytes == nil || *observation.Docker.StorageBytes != 42 {
+		t.Fatalf("observation = %#v", observation)
 	}
 }
 

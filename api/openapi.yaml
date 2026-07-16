@@ -19,6 +19,19 @@ paths:
                 $ref: "#/components/schemas/SystemInfo"
         default:
           $ref: "#/components/responses/Problem"
+  /host:
+    get:
+      operationId: getHost
+      summary: Read current host CPU, memory, and aggregate Docker storage
+      responses:
+        "200":
+          description: Current explicitly partial host observation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostObservation"
+        default:
+          $ref: "#/components/responses/Problem"
   /auth/bootstrap-tokens:
     post:
       operationId: createBrowserBootstrapToken
@@ -1125,6 +1138,28 @@ components:
         startedAt:
           type: string
           format: date-time
+    DockerHostObservation:
+      type: object
+      additionalProperties: false
+      required: [connected, attribution]
+      properties:
+        connected: { type: boolean }
+        storageBytes: { type: integer, format: int64, minimum: 0 }
+        reclaimableBytes: { type: integer, format: int64, minimum: 0 }
+        attribution: { type: string, enum: [shared, unknown] }
+    HostObservation:
+      type: object
+      additionalProperties: false
+      required: [cpuPercent, memoryUsedBytes, memoryTotalBytes, docker, observedAt, warnings]
+      properties:
+        cpuPercent: { type: number, format: double, minimum: 0 }
+        memoryUsedBytes: { type: integer, format: int64, minimum: 0 }
+        memoryTotalBytes: { type: integer, format: int64, minimum: 0 }
+        docker: { $ref: "#/components/schemas/DockerHostObservation" }
+        observedAt: { type: string, format: date-time }
+        warnings:
+          type: array
+          items: { type: string }
     ProblemDetails:
       type: object
       additionalProperties: false

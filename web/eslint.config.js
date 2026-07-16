@@ -12,7 +12,12 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         document: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLElement: 'readonly',
+        KeyboardEvent: 'readonly',
+        localStorage: 'readonly',
         process: 'readonly',
+        requestAnimationFrame: 'readonly',
         Response: 'readonly',
         WebSocket: 'readonly',
         window: 'readonly',

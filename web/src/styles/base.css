@@ -7,14 +7,20 @@
   --border: #253044;
   --text: #edf3fb;
   --muted: #91a0b5;
-  --soft: #65748a;
+  --soft: #8796aa;
   --accent: #78a6ff;
   --accent-2: #9e7bff;
   --green: #54d49a;
   --yellow: #f1c75b;
   --red: #ff7373;
   --cyan: #63d7e7;
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -33,16 +39,39 @@ body,
 body {
   min-width: 320px;
   background:
-    radial-gradient(circle at 85% -10%, rgba(120, 166, 255, 0.11), transparent 30%),
-    radial-gradient(circle at -10% 100%, rgba(158, 123, 255, 0.08), transparent 30%),
+    radial-gradient(
+      circle at 85% -10%,
+      rgba(120, 166, 255, 0.11),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at -10% 100%,
+      rgba(158, 123, 255, 0.08),
+      transparent 30%
+    ),
     var(--bg);
   color: var(--text);
   font-size: 14px;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(120, 166, 255, 0.28);
 }
 
 :focus-visible {

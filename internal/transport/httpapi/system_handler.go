@@ -25,8 +25,13 @@ type systemQuery interface {
 	Get(ctx context.Context) (application.Info, error)
 }
 
+type hostQuery interface {
+	Get(context.Context) application.HostObservation
+}
+
 type handler struct {
 	system     systemQuery
+	host       hostQuery
 	operations operationService
 	sessions   sessionService
 	catalog    catalogService
@@ -36,6 +41,24 @@ type handler struct {
 	ports      portService
 	git        gitService
 	actions    actionService
+}
+
+func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
+	observation := h.host.Get(r.Context())
+	warnings := observation.Warnings
+	if warnings == nil {
+		warnings = []string{}
+	}
+	response := generated.HostObservation{
+		CpuPercent: observation.CPUPercent, MemoryUsedBytes: int64(observation.MemoryUsedBytes),
+		MemoryTotalBytes: int64(observation.MemoryTotalBytes), ObservedAt: observation.ObservedAt, Warnings: warnings,
+		Docker: generated.DockerHostObservation{
+			Connected: observation.Docker.Connected, StorageBytes: observation.Docker.StorageBytes,
+			ReclaimableBytes: observation.Docker.ReclaimableBytes,
+			Attribution:      generated.DockerHostObservationAttribution(observation.Docker.Attribution),
+		},
+	}
+	writeJSON(w, http.StatusOK, response)
 }
 
 type catalogService interface {

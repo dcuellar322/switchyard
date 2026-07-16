@@ -1,16 +1,18 @@
 <script setup lang="ts">
+import { useQueryClient } from '@tanstack/vue-query'
 import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 
 import type { ManifestProposal, Project } from '../../../api/generated/types.gen'
-import ProjectDiagnostics from '../components/ProjectDiagnostics.vue'
 import { approveProposal, loadProjects, revalidateProposal, scanRepository } from '../api'
 
+const router = useRouter()
+const queryClient = useQueryClient()
 const repositoryPath = ref('')
 const projects = ref<Array<Project>>([])
 const proposal = ref<ManifestProposal>()
 const pending = ref(false)
 const error = ref('')
-const selectedProject = ref<Project>()
 
 type Candidate = {
   metadata?: { name?: string; tags?: Array<string> }
@@ -24,7 +26,6 @@ const candidate = computed(() => (proposal.value?.candidate ?? {}) as Candidate)
 
 onMounted(async () => {
   projects.value = await loadProjects().catch(() => [])
-  selectedProject.value = projects.value[0]
 })
 
 async function scan() {
@@ -52,7 +53,11 @@ async function accept() {
     const accepted = await approveProposal(proposal.value.id)
     proposal.value = accepted.proposal
     projects.value = await loadProjects()
-    selectedProject.value = projects.value.find((project) => project.id === accepted.project.id) ?? projects.value[0]
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['projects'] }),
+      queryClient.invalidateQueries({ queryKey: ['ports'] }),
+    ])
+    await router.push({ name: 'project', params: { projectId: accepted.project.id } })
   } finally {
     pending.value = false
   }
@@ -145,9 +150,8 @@ async function accept() {
     <article v-if="projects.length" class="existing-projects">
       <p class="eyebrow">Already registered</p>
       <h2>Your local projects</h2>
-      <ul><li v-for="project in projects" :key="project.id" :class="{ 'project-selected': selectedProject?.id === project.id }"><button type="button" class="project-choice" @click="selectedProject = project"><strong>{{ project.displayName }}</strong><span>{{ project.primaryLocation }}</span><em>{{ project.trustState }}</em></button></li></ul>
+      <ul><li v-for="project in projects" :key="project.id"><RouterLink class="project-choice" :to="{ name: 'project', params: { projectId: project.id } }"><strong>{{ project.displayName }}</strong><span>{{ project.primaryLocation }}</span><em>{{ project.trustState }}</em></RouterLink></li></ul>
     </article>
-    <ProjectDiagnostics v-if="selectedProject" :key="selectedProject.id" :project="selectedProject" />
   </section>
 </template>
 
@@ -179,7 +183,7 @@ button:disabled { opacity:.48; cursor:not-allowed; }
 .review-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
 .detected-list,.command-list,.existing-projects ul { list-style:none; padding:0; margin:0; display:grid; gap:8px; }
 .detected-list li,.command-list li,.existing-projects li { display:flex; align-items:center; justify-content:space-between; gap:12px; border-radius:8px; background:#0d1219; }
-.detected-list li,.command-list li{padding:10px 12px}.project-choice{width:100%;display:grid;grid-template-columns:1fr 2fr auto;gap:12px;text-align:left;color:var(--text);background:transparent}.project-choice span{text-align:left;overflow:hidden;text-overflow:ellipsis}.project-selected{box-shadow:inset 2px 0 var(--accent);background:rgba(120,166,255,.08)!important}
+.detected-list li,.command-list li{padding:10px 12px}.project-choice{width:100%;display:grid;grid-template-columns:1fr 2fr auto;gap:12px;padding:10px 15px;text-align:left;color:var(--text);background:transparent;text-decoration:none}.project-choice span{text-align:left;overflow:hidden;text-overflow:ellipsis}
 .detected-list span,.detected-list .empty,.existing-projects span { color:var(--muted); font-size:12px; }
 .evidence-table { display:grid; border:1px solid var(--border); border-radius:9px; overflow:hidden; }
 .evidence-row { display:grid; grid-template-columns:1fr 1.4fr 100px; gap:14px; align-items:center; padding:11px 13px; border-top:1px solid var(--border); }.evidence-row:first-child{border-top:0}.evidence-row--header{color:var(--soft);background:#0d1219;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.evidence-row span:first-child{display:grid;gap:2px}.evidence-row small{color:var(--soft)}

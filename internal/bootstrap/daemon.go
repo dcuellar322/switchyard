@@ -21,6 +21,7 @@ import (
 	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
+	hostPlatform "switchyard.dev/switchyard/internal/platform/host"
 	"switchyard.dev/switchyard/internal/platform/sqlite"
 	portsAdapters "switchyard.dev/switchyard/internal/ports/adapters"
 	portsApplication "switchyard.dev/switchyard/internal/ports/application"
@@ -142,8 +143,9 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}()
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
+	host := application.NewHostQuery(hostPlatform.NewObserver())
 	dependencies := httpapi.Dependencies{
-		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
+		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
 		Web: web.Handler(), Logger: config.Logger,

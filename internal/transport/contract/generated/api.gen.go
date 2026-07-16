@@ -46,6 +46,24 @@ func (e ActionDefinitionRisk) Valid() bool {
 	}
 }
 
+// Defines values for DockerHostObservationAttribution.
+const (
+	DockerHostObservationAttributionShared  DockerHostObservationAttribution = "shared"
+	DockerHostObservationAttributionUnknown DockerHostObservationAttribution = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the DockerHostObservationAttribution enum.
+func (e DockerHostObservationAttribution) Valid() bool {
+	switch e {
+	case DockerHostObservationAttributionShared:
+		return true
+	case DockerHostObservationAttributionUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GitRemoteKind.
 const (
 	Fetch GitRemoteKind = "fetch"
@@ -399,19 +417,19 @@ func (e ProjectHealthObserverState) Valid() bool {
 
 // Defines values for ProjectHealthStatus.
 const (
-	Healthy   ProjectHealthStatus = "healthy"
-	Unhealthy ProjectHealthStatus = "unhealthy"
-	Unknown   ProjectHealthStatus = "unknown"
+	ProjectHealthStatusHealthy   ProjectHealthStatus = "healthy"
+	ProjectHealthStatusUnhealthy ProjectHealthStatus = "unhealthy"
+	ProjectHealthStatusUnknown   ProjectHealthStatus = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the ProjectHealthStatus enum.
 func (e ProjectHealthStatus) Valid() bool {
 	switch e {
-	case Healthy:
+	case ProjectHealthStatusHealthy:
 		return true
-	case Unhealthy:
+	case ProjectHealthStatusUnhealthy:
 		return true
-	case Unknown:
+	case ProjectHealthStatusUnknown:
 		return true
 	default:
 		return false
@@ -734,6 +752,17 @@ type DiscoveryEvidence struct {
 	Warnings   []string               `json:"warnings"`
 }
 
+// DockerHostObservation defines model for DockerHostObservation.
+type DockerHostObservation struct {
+	Attribution      DockerHostObservationAttribution `json:"attribution"`
+	Connected        bool                             `json:"connected"`
+	ReclaimableBytes *int64                           `json:"reclaimableBytes,omitempty"`
+	StorageBytes     *int64                           `json:"storageBytes,omitempty"`
+}
+
+// DockerHostObservationAttribution defines model for DockerHostObservation.Attribution.
+type DockerHostObservationAttribution string
+
 // EffectiveManifest defines model for EffectiveManifest.
 type EffectiveManifest struct {
 	Manifest   map[string]interface{} `json:"manifest"`
@@ -822,6 +851,16 @@ type HealthResultStatus string
 
 // HealthResultType defines model for HealthResult.Type.
 type HealthResultType string
+
+// HostObservation defines model for HostObservation.
+type HostObservation struct {
+	CpuPercent       float64               `json:"cpuPercent"`
+	Docker           DockerHostObservation `json:"docker"`
+	MemoryTotalBytes int64                 `json:"memoryTotalBytes"`
+	MemoryUsedBytes  int64                 `json:"memoryUsedBytes"`
+	ObservedAt       time.Time             `json:"observedAt"`
+	Warnings         []string              `json:"warnings"`
+}
 
 // ManifestDiff defines model for ManifestDiff.
 type ManifestDiff struct {
@@ -1348,6 +1387,9 @@ type ClientInterface interface {
 
 	CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetHost request
+	GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateManifestProposalWithBody request with any body
 	CreateManifestProposalWithBody(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1466,6 +1508,18 @@ func (c *Client) CreateBrowserSessionWithBody(ctx context.Context, contentType s
 
 func (c *Client) CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateBrowserSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHostRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1923,6 +1977,33 @@ func NewCreateBrowserSessionRequestWithBody(server string, contentType string, b
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetHostRequest generates requests for GetHost
+func NewGetHostRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/host")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -3243,6 +3324,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateBrowserSessionWithResponse(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBrowserSessionResponse, error)
 
+	// GetHostWithResponse request
+	GetHostWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHostResponse, error)
+
 	// CreateManifestProposalWithBodyWithResponse request with any body
 	CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error)
 
@@ -3391,6 +3475,37 @@ func (r CreateBrowserSessionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateBrowserSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetHostResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *HostObservation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetHostResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -4258,6 +4373,15 @@ func (c *ClientWithResponses) CreateBrowserSessionWithResponse(ctx context.Conte
 	return ParseCreateBrowserSessionResponse(rsp)
 }
 
+// GetHostWithResponse request returning *GetHostResponse
+func (c *ClientWithResponses) GetHostWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHostResponse, error) {
+	rsp, err := c.GetHost(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHostResponse(rsp)
+}
+
 // CreateManifestProposalWithBodyWithResponse request with arbitrary body returning *CreateManifestProposalResponse
 func (c *ClientWithResponses) CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error) {
 	rsp, err := c.CreateManifestProposalWithBody(ctx, params, contentType, body, reqEditors...)
@@ -4594,6 +4718,39 @@ func ParseCreateBrowserSessionResponse(rsp *http.Response) (*CreateBrowserSessio
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetHostResponse parses an HTTP response from a GetHostWithResponse call
+func ParseGetHostResponse(rsp *http.Response) (*GetHostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HostObservation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
@@ -5492,6 +5649,9 @@ type ServerInterface interface {
 	// Exchange a one-time bootstrap token for a same-origin session
 	// (POST /auth/sessions)
 	CreateBrowserSession(w http.ResponseWriter, r *http.Request)
+	// Read current host CPU, memory, and aggregate Docker storage
+	// (GET /host)
+	GetHost(w http.ResponseWriter, r *http.Request)
 	// Scan a selected repository into an untrusted manifest proposal
 	// (POST /manifest-proposals)
 	CreateManifestProposal(w http.ResponseWriter, r *http.Request, params CreateManifestProposalParams)
@@ -5588,6 +5748,12 @@ func (_ Unimplemented) CreateBrowserBootstrapToken(w http.ResponseWriter, r *htt
 // Exchange a one-time bootstrap token for a same-origin session
 // (POST /auth/sessions)
 func (_ Unimplemented) CreateBrowserSession(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read current host CPU, memory, and aggregate Docker storage
+// (GET /host)
+func (_ Unimplemented) GetHost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -5781,6 +5947,20 @@ func (siw *ServerInterfaceWrapper) CreateBrowserSession(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateBrowserSession(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetHost operation middleware
+func (siw *ServerInterfaceWrapper) GetHost(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetHost(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -6976,6 +7156,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/auth/sessions", wrapper.CreateBrowserSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/host", wrapper.GetHost)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/manifest-proposals", wrapper.CreateManifestProposal)

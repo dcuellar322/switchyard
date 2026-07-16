@@ -13,6 +13,7 @@ import (
 // Dependencies are the application ports exposed through local transports.
 type Dependencies struct {
 	System     systemQuery
+	Host       hostQuery
 	Operations operationService
 	Sessions   sessionService
 	Catalog    catalogService
@@ -50,7 +51,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 
 	api := chi.NewRouter()
 	generated.HandlerFromMux(&handler{
-		system: dependencies.System, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
+		system: dependencies.System, host: dependencies.Host, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
 		runtime: dependencies.Runtime, health: dependencies.Health, logs: dependencies.LogService,
 		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions,
 	}, api)
