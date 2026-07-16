@@ -2,8 +2,8 @@ use semver::Version;
 
 use crate::model::{BuildInfo, SystemInfo};
 
-pub const API_VERSION: &str = "switchyard.api/v1";
-pub const DATABASE_SCHEMA_VERSION: i64 = 13;
+pub const API_VERSION: &str = "v1";
+pub const MIN_DATABASE_SCHEMA_VERSION: i64 = 13;
 
 pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
     let desktop = Version::parse(env!("CARGO_PKG_VERSION"))
@@ -17,9 +17,9 @@ pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
             sidecar.version, desktop
         ));
     }
-    if desktop != daemon_version {
+    if desktop.major != daemon_version.major {
         return Err(format!(
-            "Running daemon {} is incompatible with desktop {}. Quit the older daemon or use its matching client.",
+            "Running daemon {} is incompatible with desktop {}. Install a daemon with the same major version.",
             daemon.version, desktop
         ));
     }
@@ -29,10 +29,10 @@ pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
             daemon.api_version
         ));
     }
-    if daemon.database_schema_version != DATABASE_SCHEMA_VERSION {
+    if daemon.database_schema_version < MIN_DATABASE_SCHEMA_VERSION {
         return Err(format!(
-            "Database schema {} is not supported; expected {}. No mutation was attempted.",
-            daemon.database_schema_version, DATABASE_SCHEMA_VERSION
+            "Database schema {} is not supported; expected at least {}. No mutation was attempted.",
+            daemon.database_schema_version, MIN_DATABASE_SCHEMA_VERSION
         ));
     }
     Ok(())
@@ -56,7 +56,7 @@ mod tests {
     fn system(version: &str) -> SystemInfo {
         SystemInfo {
             api_version: API_VERSION.into(),
-            database_schema_version: DATABASE_SCHEMA_VERSION,
+            database_schema_version: MIN_DATABASE_SCHEMA_VERSION,
             status: "ready".into(),
             version: version.into(),
         }
@@ -77,7 +77,14 @@ mod tests {
     fn rejects_daemon_before_any_native_mutation() {
         assert!(verify(&build(env!("CARGO_PKG_VERSION")), &system("9.0.0")).is_err());
         let mut wrong_schema = system(env!("CARGO_PKG_VERSION"));
-        wrong_schema.database_schema_version += 1;
+        wrong_schema.database_schema_version = MIN_DATABASE_SCHEMA_VERSION - 1;
         assert!(verify(&build(env!("CARGO_PKG_VERSION")), &wrong_schema).is_err());
+    }
+
+    #[test]
+    fn accepts_compatible_v1_daemon_and_additive_schema() {
+        let mut daemon = system("1.9.0");
+        daemon.database_schema_version = MIN_DATABASE_SCHEMA_VERSION + 2;
+        assert!(verify(&build(env!("CARGO_PKG_VERSION")), &daemon).is_ok());
     }
 }

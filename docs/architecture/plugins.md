@@ -24,7 +24,7 @@ new review.
 
 Every method call starts a new bounded process in the plugin package directory
 with an argument array and a minimal environment containing no provider keys or
-repository secrets. Switchyard negotiates `switchyard.plugin/v1alpha1`, then
+repository secrets. Switchyard negotiates `switchyard.plugin/v1`, then
 verifies that the running ID, version, capabilities, requested scopes, and
 grants exactly match the trusted package. Messages are capped at 1 MiB and
 unknown response fields are rejected.

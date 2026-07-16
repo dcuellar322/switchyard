@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "switchyard.plugin-manifest/v1alpha1",
+  "schemaVersion": "switchyard.plugin-manifest/v1",
   "id": "fixture-inspector",
   "name": "Fixture inspector",
   "version": "1.0.0",
-  "protocolVersion": "switchyard.plugin/v1alpha1",
+  "protocolVersion": "switchyard.plugin/v1",
   "executable": "switchyard-fixture-plugin",
   "arguments": [],
   "capabilities": ["project.inspect", "project.operate"],

@@ -1,0 +1,33 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: compose-example
+  name: Compose example
+  tags: [example]
+repository:
+  root: .
+runtime:
+  driver: compose
+  compose:
+    files: [compose.yml]
+services:
+  - id: web
+    displayName: Web
+    source:
+      composeService: web
+    healthChecks:
+      - id: ready
+        type: http
+        url: http://127.0.0.1:8080/health
+        expectedStatus: 200
+        required: true
+ports:
+  - id: web
+    service: web
+    host: 8080
+    target: 8080
+    protocol: tcp
+endpoints:
+  - id: web
+    name: Web
+    url: http://127.0.0.1:8080

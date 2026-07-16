@@ -1,0 +1,56 @@
+version: 2
+project_name: switchyard
+
+builds:
+  - id: switchyard
+    main: ./cmd/switchyard
+    binary: switchyard
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    ldflags:
+      - >-
+        -s -w
+        -X switchyard.dev/switchyard/internal/foundation/buildinfo.version={{.Version}}
+        -X switchyard.dev/switchyard/internal/foundation/buildinfo.commit={{.ShortCommit}}
+        -X switchyard.dev/switchyard/internal/foundation/buildinfo.builtAt={{.Date}}
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - id: switchyard
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - docs/cli.md
+      - docs/compatibility.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+sboms:
+  - id: archive-sboms
+    artifacts: archive
+    disable: false
+    documents:
+      - "{{ .ArtifactName }}.cyclonedx.json"
+    args: ["$artifact", "--output", "cyclonedx-json=$document"]
+
+source:
+  enabled: true
+
+changelog:
+  use: git
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+
+release:
+  disable: true

@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/OWNER/switchyard/security/advisories/new
-    about: Report vulnerabilities privately. Repository ownership will replace this placeholder before public launch.
+    url: https://github.com/switchyard-dev/switchyard/security/advisories/new
+    about: Report vulnerabilities privately through GitHub Security Advisories.
+  - name: Usage and integration support
+    url: https://github.com/switchyard-dev/switchyard/discussions
+    about: Ask questions without opening a defect report.

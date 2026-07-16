@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os/exec"
 	"path/filepath"
 	"sync"
 	"time"
@@ -285,7 +284,7 @@ func (s *Service) wait(managed *managedSession) {
 		}
 	}
 	exitCode := 0
-	var exitErr *exec.ExitError
+	var exitErr interface{ ExitCode() int }
 	if errors.As(err, &exitErr) {
 		exitCode = exitErr.ExitCode()
 	} else if err != nil {

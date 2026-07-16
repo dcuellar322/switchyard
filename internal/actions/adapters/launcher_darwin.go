@@ -5,20 +5,8 @@ package adapters
 import (
 	"context"
 	"errors"
-	"net/url"
-	"os/exec"
 	"strings"
 )
-
-type launchExecutor interface {
-	Run(context.Context, string, ...string) error
-}
-
-type installedLauncher struct{}
-
-func (installedLauncher) Run(ctx context.Context, executable string, arguments ...string) error {
-	return exec.CommandContext(ctx, executable, arguments...).Run()
-}
 
 type platformLauncher struct{ executor launchExecutor }
 
@@ -42,9 +30,8 @@ func (l platformLauncher) OpenEditor(ctx context.Context, workingDirectory, prov
 }
 
 func (l platformLauncher) OpenBrowser(ctx context.Context, target string) error {
-	parsed, err := url.Parse(target)
-	if err != nil || parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return errors.New("browser action requires an HTTP or HTTPS URL")
+	if err := validateBrowserTarget(target); err != nil {
+		return err
 	}
 	return l.executor.Run(ctx, "open", target)
 }

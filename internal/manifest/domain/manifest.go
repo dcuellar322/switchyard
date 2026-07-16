@@ -12,8 +12,10 @@ import (
 )
 
 const (
-	// SchemaVersion is the first portable manifest contract.
-	SchemaVersion = "switchyard.dev/v1alpha1"
+	// SchemaVersion is the stable v1 portable manifest contract.
+	SchemaVersion = "switchyard.dev/v1"
+	// LegacySchemaVersion identifies manifests written by alpha and beta builds.
+	LegacySchemaVersion = "switchyard.dev/v1alpha1"
 	// KindProject is the only Phase 3 document kind.
 	KindProject = "Project"
 )
@@ -22,7 +24,7 @@ var manifestID = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 
 // Manifest is the canonical portable project declaration.
 type Manifest struct {
-	SchemaVersion  string         `json:"schemaVersion" yaml:"schemaVersion" jsonschema:"required,enum=switchyard.dev/v1alpha1"`
+	SchemaVersion  string         `json:"schemaVersion" yaml:"schemaVersion" jsonschema:"required,enum=switchyard.dev/v1"`
 	Kind           string         `json:"kind" yaml:"kind" jsonschema:"required,enum=Project"`
 	Metadata       Metadata       `json:"metadata" yaml:"metadata" jsonschema:"required"`
 	Repository     Repository     `json:"repository" yaml:"repository" jsonschema:"required"`

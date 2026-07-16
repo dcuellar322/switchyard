@@ -4,6 +4,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -22,6 +23,16 @@ type Database struct {
 	connection *sql.DB
 	queries    *generated.Queries
 	path       string
+}
+
+// MigrationStatus is the side-effect-free compatibility view used by the v1
+// data migration command.
+type MigrationStatus struct {
+	Path               string `json:"path"`
+	CurrentVersion     int64  `json:"currentVersion"`
+	TargetVersion      int64  `json:"targetVersion"`
+	MigrationRequired  bool   `json:"migrationRequired"`
+	PreMigrationBackup string `json:"preMigrationBackup,omitempty"`
 }
 
 // Open connects to path, enables local safety pragmas, and applies migrations.
@@ -63,12 +74,7 @@ func (d *Database) initialize(ctx context.Context) error {
 	if err := d.connection.PingContext(ctx); err != nil {
 		return fmt.Errorf("ping sqlite database: %w", err)
 	}
-	provider, err := goose.NewProvider(
-		goose.DialectSQLite3,
-		d.connection,
-		migrations.FS,
-		goose.WithDisableGlobalRegistry(true),
-	)
+	provider, err := migrationProvider(d.connection)
 	if err != nil {
 		return fmt.Errorf("create migration provider: %w", err)
 	}
@@ -83,10 +89,123 @@ func (d *Database) initialize(ctx context.Context) error {
 			targetVersion,
 		)
 	}
+	if currentVersion > 0 && currentVersion < targetVersion {
+		backupPath := preMigrationBackupPath(d.path, currentVersion, targetVersion)
+		if err := backupConnection(ctx, d.connection, backupPath); err != nil {
+			return fmt.Errorf("create pre-migration backup: %w", err)
+		}
+	}
 	if _, err := provider.Up(ctx); err != nil {
 		return fmt.Errorf("apply sqlite migrations: %w", err)
 	}
 	return nil
+}
+
+func migrationProvider(connection *sql.DB) (*goose.Provider, error) {
+	return goose.NewProvider(
+		goose.DialectSQLite3,
+		connection,
+		migrations.FS,
+		goose.WithDisableGlobalRegistry(true),
+	)
+}
+
+// InspectMigrations reads schema compatibility without applying migrations.
+func InspectMigrations(ctx context.Context, path string) (MigrationStatus, error) {
+	absolute, err := filepath.Abs(path)
+	if err != nil {
+		return MigrationStatus{}, fmt.Errorf("resolve database path: %w", err)
+	}
+	if _, err := os.Stat(absolute); err != nil {
+		return MigrationStatus{}, fmt.Errorf("inspect database: %w", err)
+	}
+	connection, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"}).String())
+	if err != nil {
+		return MigrationStatus{}, err
+	}
+	defer func() { _ = connection.Close() }()
+	provider, err := migrationProvider(connection)
+	if err != nil {
+		return MigrationStatus{}, err
+	}
+	current, target, err := provider.GetVersions(ctx)
+	if err != nil {
+		return MigrationStatus{}, err
+	}
+	status := MigrationStatus{Path: absolute, CurrentVersion: current, TargetVersion: target, MigrationRequired: current < target}
+	if current > 0 && current < target {
+		status.PreMigrationBackup = preMigrationBackupPath(absolute, current, target)
+	}
+	return status, nil
+}
+
+// Migrate upgrades an existing alpha/beta database through the embedded,
+// ordered migrations. Open creates and verifies the pre-migration backup.
+func Migrate(ctx context.Context, path string) (MigrationStatus, error) {
+	database, err := Open(ctx, path)
+	if err != nil {
+		return MigrationStatus{}, err
+	}
+	if err := database.Close(); err != nil {
+		return MigrationStatus{}, err
+	}
+	return InspectMigrations(ctx, path)
+}
+
+// Backup creates a verified SQLite-consistent backup without changing source data.
+func Backup(ctx context.Context, source, destination string) error {
+	absolute, err := filepath.Abs(source)
+	if err != nil {
+		return err
+	}
+	connection, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"}).String())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = connection.Close() }()
+	return backupConnection(ctx, connection, destination)
+}
+
+func backupConnection(ctx context.Context, connection *sql.DB, destination string) error {
+	if err := integrityCheck(ctx, connection); err != nil {
+		return fmt.Errorf("source integrity check: %w", err)
+	}
+	absolute, err := filepath.Abs(destination)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(absolute); err == nil {
+		return fmt.Errorf("backup destination already exists: %s", absolute)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if _, err := connection.ExecContext(ctx, "VACUUM INTO ?", absolute); err != nil {
+		return err
+	}
+	if err := os.Chmod(absolute, 0o600); err != nil {
+		return err
+	}
+	backup, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro"}).String())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = backup.Close() }()
+	return integrityCheck(ctx, backup)
+}
+
+func integrityCheck(ctx context.Context, connection *sql.DB) error {
+	var result string
+	if err := connection.QueryRowContext(ctx, "PRAGMA quick_check").Scan(&result); err != nil {
+		return err
+	}
+	if result != "ok" {
+		return fmt.Errorf("SQLite quick_check returned %q", result)
+	}
+	return nil
+}
+
+func preMigrationBackupPath(path string, current, target int64) string {
+	return fmt.Sprintf("%s.v%d.pre-v%d.bak", path, current, target)
 }
 
 // SchemaVersion returns the application schema version recorded by migration.

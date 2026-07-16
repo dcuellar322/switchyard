@@ -23,7 +23,7 @@ func (d *Driver) monitor(managed *managedRun, command *exec.Cmd, environment []s
 	if stopping || !current {
 		return
 	}
-	if d.groupStillRunning(context.Background(), managed.group) {
+	if d.managedGroupStillRunning(context.Background(), managed, managed.group) {
 		d.waitForOrphanedGroup(managed, exitCode)
 		return
 	}
@@ -59,19 +59,24 @@ func (d *Driver) restartAfterCrash(managed *managedRun, environment []string, pr
 		d.finishManaged(managed, &priorExit, "restart_persistence_failed")
 		return
 	}
-	command, identity, err := d.launch(d.ctx, managed, environment)
+	managed.mu.Lock()
+	priorOwnership := managed.ownership
+	managed.mu.Unlock()
+	closeOwnership(priorOwnership)
+	command, identity, ownership, err := d.launch(d.ctx, managed, environment)
 	if err != nil {
 		d.finishManaged(managed, &priorExit, "restart_failed")
 		return
 	}
 	if err := d.store.RecordProcess(context.Background(), identity); err != nil {
-		d.abortLaunch(command, identity.ProcessGroup)
+		abortOwnedProcess(command, ownership, identity.ProcessGroup)
 		d.finishManaged(managed, &priorExit, "restart_persistence_failed")
 		return
 	}
 	managed.mu.Lock()
 	managed.command = command
 	managed.group = identity.ProcessGroup
+	managed.ownership = ownership
 	managed.run.Processes = append(managed.run.Processes, identity)
 	managed.mu.Unlock()
 	d.emit(managed.project.ProjectID, domain.RuntimeEvent{
@@ -92,7 +97,7 @@ func (d *Driver) waitForOrphanedGroup(managed *managedRun, exitCode int) {
 		if stopping {
 			return
 		}
-		if !d.groupStillRunning(context.Background(), managed.group) {
+		if !d.managedGroupStillRunning(context.Background(), managed, managed.group) {
 			d.finishManaged(managed, &exitCode, "process_tree_exited")
 			return
 		}
@@ -155,6 +160,19 @@ func (d *Driver) groupStillRunning(ctx context.Context, group int32) bool {
 	return err == nil && len(members) > 0
 }
 
+func (d *Driver) managedGroupStillRunning(ctx context.Context, managed *managedRun, group int32) bool {
+	if managed != nil {
+		managed.mu.Lock()
+		ownership := managed.ownership
+		managedGroup := managed.group
+		managed.mu.Unlock()
+		if ownership != nil && managedGroup == group {
+			return ownership.Running()
+		}
+	}
+	return d.groupStillRunning(ctx, group)
+}
+
 func (d *Driver) finishManaged(managed *managedRun, exitCode *int, reason string) {
 	managed.mu.Lock()
 	if managed.run.EndedAt != nil {
@@ -165,7 +183,10 @@ func (d *Driver) finishManaged(managed *managedRun, exitCode *int, reason string
 	managed.run.EndedAt = &endedAt
 	managed.run.ExitCode = exitCode
 	managed.run.TerminationReason = reason
+	ownership := managed.ownership
+	managed.ownership = nil
 	managed.mu.Unlock()
+	closeOwnership(ownership)
 	_ = d.store.FinishRun(context.Background(), managed.run.ID, endedAt, exitCode, reason)
 	d.mu.Lock()
 	delete(d.managed, serviceKey(managed.project.ProjectID, managed.service.service.ID))

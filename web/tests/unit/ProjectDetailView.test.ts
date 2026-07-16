@@ -105,7 +105,7 @@ vi.mock("../../src/domains/projects/api", () => ({
   loadEffectiveManifest: vi
     .fn()
     .mockResolvedValue({
-      manifest: { schemaVersion: "switchyard.dev/v1alpha1" },
+      manifest: { schemaVersion: "switchyard.dev/v1" },
       provenance: {},
       sources: [{ name: "accepted" }],
     }),

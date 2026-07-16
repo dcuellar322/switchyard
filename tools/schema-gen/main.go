@@ -17,7 +17,7 @@ func main() {
 		RequiredFromJSONSchemaTags: true,
 	}
 	schema := reflector.Reflect(&domain.Manifest{})
-	schema.ID = jsonschema.ID("https://switchyard.dev/schema/project.v1alpha1.json")
+	schema.ID = jsonschema.ID("https://switchyard.dev/schema/project.v1.json")
 	contents, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
 		fatal("encode manifest schema", err)

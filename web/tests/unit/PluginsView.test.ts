@@ -10,7 +10,7 @@ vi.mock('../../src/domains/plugins/api', () => api)
 import PluginsView from '../../src/domains/plugins/views/PluginsView.vue'
 
 const plugin = {
-  id: 'fixture-inspector', name: 'Fixture inspector', version: '1.0.0', protocolVersion: 'switchyard.plugin/v1alpha1',
+  id: 'fixture-inspector', name: 'Fixture inspector', version: '1.0.0', protocolVersion: 'switchyard.plugin/v1',
   manifestPath: '/plugins/fixture/plugin.json', fingerprint: 'a'.repeat(64), capabilities: ['project.inspect', 'project.operate'],
   requestedScopes: ['project.metadata.read', 'project.files.read', 'project.operate'], grantedScopes: [],
   available: true, enabled: false, trust: 'untrusted', health: 'unknown', discoveredAt: new Date().toISOString(), updatedAt: new Date().toISOString(),

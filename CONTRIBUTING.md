@@ -35,6 +35,12 @@ clean after generation.
 Every completed phase updates `docs/progress/phase-XX.md` with commands,
 results, acceptance-criteria status, limitations, and manual verification.
 
+New contributors can follow [getting started](docs/getting-started.md). Adapter
+changes must also follow [adapter development](docs/adapter-development.md) and
+run `make platform-check`. Public contract changes update
+[compatibility](docs/compatibility.md), generated clients/schemas, and migration
+guidance in the same pull request.
+
 ## Pull requests
 
 Explain the user-visible and architectural outcome, link the phase or issue,

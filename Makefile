@@ -4,7 +4,7 @@ GO ?= go
 PNPM ?= pnpm
 CARGO ?= cargo
 GOCACHE ?= $(CURDIR)/.cache/go-build
-VERSION ?= 0.1.0-alpha.0
+VERSION ?= 1.0.0
 COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || printf unknown)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 LDFLAGS := -X switchyard.dev/switchyard/internal/foundation/buildinfo.version=$(VERSION) -X switchyard.dev/switchyard/internal/foundation/buildinfo.commit=$(COMMIT) -X switchyard.dev/switchyard/internal/foundation/buildinfo.builtAt=$(BUILD_TIME)
@@ -13,7 +13,7 @@ SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
 
 bootstrap: frontend-install generate
 
@@ -107,7 +107,11 @@ test-plugin-sdk:
 migrate-check:
 	GOCACHE=$(GOCACHE) $(GO) test ./internal/platform/sqlite -run TestOpenMigratesEmptyDatabase -count=1
 
+platform-check:
+	GOOS=linux GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
+	GOOS=windows GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
+
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...
 
-quality: generate-check lint typecheck test test-race migrate-check vuln test-e2e test-visual build desktop-quality desktop-build
+quality: generate-check lint typecheck test test-race migrate-check platform-check vuln test-e2e test-visual build desktop-quality desktop-build

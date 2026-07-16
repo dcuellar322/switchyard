@@ -78,7 +78,7 @@ func runCommand(ctx context.Context, workingDirectory string, action domain.Defi
 		if containsEscalation(arguments[0]) {
 			return ErrPrivilegeEscalation
 		}
-		command = exec.CommandContext(ctx, "/bin/sh", "-lc", arguments[0])
+		command = platformShellCommand(ctx, arguments[0])
 	} else {
 		if arguments[0] == "sudo" || arguments[0] == "doas" {
 			return ErrPrivilegeEscalation
@@ -107,7 +107,10 @@ var escalationPattern = regexp.MustCompile(`(^|[;&|[:space:]])(sudo|doas)([[:spa
 func containsEscalation(command string) bool { return escalationPattern.MatchString(command) }
 
 func actionEnvironment(overlay map[string]string) []string {
-	allowed := map[string]bool{"PATH": true, "HOME": true, "TMPDIR": true, "USER": true, "SHELL": true, "LANG": true, "LC_ALL": true, "TERM": true}
+	allowed := map[string]bool{
+		"PATH": true, "HOME": true, "TMPDIR": true, "USER": true, "SHELL": true, "LANG": true, "LC_ALL": true, "TERM": true,
+		"SystemRoot": true, "ComSpec": true, "USERPROFILE": true, "PATHEXT": true, "TEMP": true, "TMP": true, "LOCALAPPDATA": true,
+	}
 	values := make(map[string]string, len(allowed)+len(overlay))
 	for _, entry := range os.Environ() {
 		key, value, found := strings.Cut(entry, "=")

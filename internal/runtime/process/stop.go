@@ -59,11 +59,16 @@ func (d *Driver) stopRun(ctx context.Context, run domain.RunRecord, timeout time
 	}
 	groups := uniqueGroups(verified)
 	for _, group := range groups {
-		if err := signalProcessGroup(group, false); err != nil && d.groupStillRunning(ctx, group) {
+		if err := signalManagedGroup(managed, group, false); err != nil && d.managedGroupStillRunning(ctx, managed, group) {
 			return fmt.Errorf("gracefully stop process group %d: %w", group, err)
 		}
 	}
-	forced, err := d.waitForGroups(ctx, groups, timeout)
+	running := func(group int32) bool {
+		return d.managedGroupStillRunning(context.Background(), managed, group)
+	}
+	forced, err := d.waitForGroups(ctx, groups, timeout, running, func(group int32) error {
+		return signalManagedGroup(managed, group, true)
+	})
 	if err != nil {
 		return err
 	}
@@ -78,7 +83,10 @@ func (d *Driver) stopRun(ctx context.Context, run domain.RunRecord, timeout time
 		managed.mu.Lock()
 		managed.run.EndedAt = &endedAt
 		managed.run.TerminationReason = reason
+		ownership := managed.ownership
+		managed.ownership = nil
 		managed.mu.Unlock()
+		closeOwnership(ownership)
 	}
 	d.mu.Lock()
 	delete(d.managed, serviceKey(run.ProjectID, run.ServiceID))
@@ -122,13 +130,19 @@ func (d *Driver) verifiedMembersWithGrace(
 	}
 }
 
-func (d *Driver) waitForGroups(ctx context.Context, groups []int32, timeout time.Duration) (bool, error) {
+func (d *Driver) waitForGroups(
+	ctx context.Context,
+	groups []int32,
+	timeout time.Duration,
+	running func(int32) bool,
+	force func(int32) error,
+) (bool, error) {
 	deadline := time.NewTimer(timeout)
 	defer deadline.Stop()
 	ticker := time.NewTicker(50 * time.Millisecond)
 	defer ticker.Stop()
 	for {
-		if !d.anyGroupRunning(ctx, groups) {
+		if !anyGroupRunning(groups, running) {
 			return false, nil
 		}
 		select {
@@ -136,13 +150,13 @@ func (d *Driver) waitForGroups(ctx context.Context, groups []int32, timeout time
 			return false, ctx.Err()
 		case <-deadline.C:
 			for _, group := range groups {
-				if d.groupStillRunning(context.Background(), group) {
-					_ = signalProcessGroup(group, true)
+				if running(group) {
+					_ = force(group)
 				}
 			}
 			killCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
-			for d.anyGroupRunning(killCtx, groups) {
+			for anyGroupRunning(groups, running) {
 				select {
 				case <-killCtx.Done():
 					return true, fmt.Errorf("process group did not terminate after escalation: %w", killCtx.Err())
@@ -155,9 +169,22 @@ func (d *Driver) waitForGroups(ctx context.Context, groups []int32, timeout time
 	}
 }
 
-func (d *Driver) anyGroupRunning(ctx context.Context, groups []int32) bool {
+func signalManagedGroup(managed *managedRun, group int32, force bool) error {
+	if managed != nil {
+		managed.mu.Lock()
+		ownership := managed.ownership
+		managedGroup := managed.group
+		managed.mu.Unlock()
+		if ownership != nil && managedGroup == group {
+			return ownership.Signal(force)
+		}
+	}
+	return signalProcessGroup(group, force)
+}
+
+func anyGroupRunning(groups []int32, running func(int32) bool) bool {
 	for _, group := range groups {
-		if d.groupStillRunning(ctx, group) {
+		if running(group) {
 			return true
 		}
 	}

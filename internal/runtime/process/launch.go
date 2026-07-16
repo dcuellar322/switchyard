@@ -58,7 +58,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 		},
 		project: project, service: service, logs: buffer,
 	}
-	command, identity, err := d.launch(ctx, managed, environment)
+	command, identity, ownership, err := d.launch(ctx, managed, environment)
 	if err != nil {
 		return nil, false, err
 	}
@@ -67,12 +67,13 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	managed.run.Processes = []domain.ProcessIdentity{identity}
 	managed.command = command
 	managed.group = identity.ProcessGroup
+	managed.ownership = ownership
 	if err := d.store.CreateRun(ctx, managed.run); err != nil {
-		d.abortLaunch(command, identity.ProcessGroup)
+		abortOwnedProcess(command, ownership, identity.ProcessGroup)
 		return nil, false, err
 	}
 	if err := d.store.RecordProcess(ctx, identity); err != nil {
-		d.abortLaunch(command, identity.ProcessGroup)
+		abortOwnedProcess(command, ownership, identity.ProcessGroup)
 		_ = d.store.FinishRun(context.Background(), runID, d.now().UTC(), nil, "persistence_failed")
 		return nil, false, err
 	}
@@ -88,7 +89,11 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	return managed, true, nil
 }
 
-func (d *Driver) launch(ctx context.Context, managed *managedRun, environment []string) (*exec.Cmd, domain.ProcessIdentity, error) {
+func (d *Driver) launch(
+	ctx context.Context,
+	managed *managedRun,
+	environment []string,
+) (*exec.Cmd, domain.ProcessIdentity, processOwnership, error) {
 	preview := previewCommand(managed.project.Root, managed.service.definition)
 	command := exec.Command(preview.Executable, preview.Arguments...)
 	command.Dir = preview.WorkingDirectory
@@ -96,33 +101,41 @@ func (d *Driver) launch(ctx context.Context, managed *managedRun, environment []
 	configureProcessGroup(command)
 	stdoutReader, stdoutWriter, err := os.Pipe()
 	if err != nil {
-		return nil, domain.ProcessIdentity{}, err
+		return nil, domain.ProcessIdentity{}, nil, err
 	}
 	stderrReader, stderrWriter, err := os.Pipe()
 	if err != nil {
 		_ = stdoutReader.Close()
 		_ = stdoutWriter.Close()
-		return nil, domain.ProcessIdentity{}, err
+		return nil, domain.ProcessIdentity{}, nil, err
 	}
 	command.Stdout = stdoutWriter
 	command.Stderr = stderrWriter
 	if err := command.Start(); err != nil {
 		closeProcessPipes(stdoutReader, stdoutWriter, stderrReader, stderrWriter)
-		return nil, domain.ProcessIdentity{}, fmt.Errorf("start %s: %w", managed.service.service.ID, err)
+		return nil, domain.ProcessIdentity{}, nil, fmt.Errorf("start %s: %w", managed.service.service.ID, err)
 	}
 	_ = stdoutWriter.Close()
 	_ = stderrWriter.Close()
+	ownership, err := newProcessOwnership(command)
+	if err != nil {
+		_ = stdoutReader.Close()
+		_ = stderrReader.Close()
+		abortOwnedProcess(command, nil, int32(command.Process.Pid))
+		return nil, domain.ProcessIdentity{}, nil, fmt.Errorf("establish process-tree ownership: %w", err)
+	}
 	identity, err := d.snapshotStartedProcess(ctx, int32(command.Process.Pid))
 	if err != nil {
 		_ = stdoutReader.Close()
 		_ = stderrReader.Close()
-		d.abortLaunch(command, int32(command.Process.Pid))
-		return nil, domain.ProcessIdentity{}, err
+		abortOwnedProcess(command, ownership, int32(command.Process.Pid))
+		return nil, domain.ProcessIdentity{}, nil, err
 	}
+	identity.ProcessGroup = ownership.Group()
 	identity.RunID = managed.run.ID
 	go d.captureLogs(stdoutReader, managed, "stdout")
 	go d.captureLogs(stderrReader, managed, "stderr")
-	return command, identity, nil
+	return command, identity, ownership, nil
 }
 
 func (d *Driver) snapshotStartedProcess(ctx context.Context, pid int32) (domain.ProcessIdentity, error) {
@@ -143,11 +156,6 @@ func (d *Driver) snapshotStartedProcess(ctx context.Context, pid int32) (domain.
 		case <-time.After(20 * time.Millisecond):
 		}
 	}
-}
-
-func (d *Driver) abortLaunch(command *exec.Cmd, group int32) {
-	_ = signalProcessGroup(group, true)
-	_, _ = command.Process.Wait()
 }
 
 func closeProcessPipes(values ...*os.File) {

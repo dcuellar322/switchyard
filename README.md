@@ -5,9 +5,14 @@ control plane owns project state and local capabilities; the CLI, browser UI,
 Tauri desktop shell, and MCP server are adapters over the same application
 services.
 
-The repository is being built from the phased
-[implementation plan](SWITCHYARD_IMPLEMENTATION_PLAN.md). Current implementation
-evidence is recorded under [`docs/progress`](docs/progress/).
+Switchyard v1 is implemented from the phased
+[implementation plan](SWITCHYARD_IMPLEMENTATION_PLAN.md). Implementation and
+verification evidence is recorded under [`docs/progress`](docs/progress/).
+
+Start with the [getting-started guide](docs/getting-started.md), then review
+[platform support](docs/platform-support.md), the
+[v1 compatibility policy](docs/compatibility.md), and
+[security model](docs/security/threat-model.md).
 
 ## Architecture at a glance
 
@@ -77,11 +82,12 @@ codes, shell completions, and automation rules. Run `make quality` for the
 complete local quality gate or the focused Make targets documented by
 `make -n quality`.
 
-On macOS, `make desktop-build` produces a native `.app` and DMG containing the
-same Go control plane. `pnpm desktop:dev` runs the shell locally. The shell
+On macOS, Linux, and Windows, `make desktop-build` produces native bundles
+containing the same Go control plane. `pnpm desktop:dev` runs the shell locally. The shell
 adds a tray, native notifications, optional launch-at-login, deep links, and
 signed updates without moving product policy into Rust. See the
-[desktop installation guide](docs/desktop-installation.md) and
+[desktop installation guide](docs/desktop-installation.md),
+[release engineering guide](docs/release.md), and
 [desktop architecture](docs/architecture/desktop-shell.md). The standalone Go
 binary remains the supported headless/server installation.
 
@@ -169,6 +175,9 @@ hidden reasoning. See the
 Switchyard treats repositories, local processes, Docker, browser clients,
 coding agents, AI providers, and plugins as separate trust boundaries. See
 [SECURITY.md](SECURITY.md) for reporting and baseline security rules.
+Switchyard collects no required telemetry; optional provider and support-bundle
+behavior is documented in the [privacy statement](docs/privacy.md). Usage help
+and report boundaries are in [SUPPORT.md](SUPPORT.md).
 
 ## License
 

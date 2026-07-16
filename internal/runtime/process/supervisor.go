@@ -11,14 +11,15 @@ import (
 )
 
 type managedRun struct {
-	mu       sync.Mutex
-	run      domain.RunRecord
-	project  domain.ProjectRuntime
-	service  servicePlan
-	command  *exec.Cmd
-	group    int32
-	stopping bool
-	logs     *logBuffer
+	mu        sync.Mutex
+	run       domain.RunRecord
+	project   domain.ProjectRuntime
+	service   servicePlan
+	command   *exec.Cmd
+	group     int32
+	ownership processOwnership
+	stopping  bool
+	logs      *logBuffer
 }
 
 func (d *Driver) startAll(ctx context.Context, plan executionPlan, sink domain.ProgressSink) error {

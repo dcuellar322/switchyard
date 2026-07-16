@@ -9,12 +9,14 @@ import (
 
 	"github.com/spf13/cobra"
 
+	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
 	"switchyard.dev/switchyard/internal/transport/httpclient"
 )
 
 func newManifestCommand(options *rootOptions) *cobra.Command {
 	command := &cobra.Command{Use: "manifest", Short: "Inspect effective project manifests"}
 	command.AddCommand(
+		newManifestMigrateCommand(options),
 		newManifestReadCommand(options, "explain <project>", "Print effective fields and provenance", "manifest.explain", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
 			return client.ExplainManifest(ctx, id)
 		}),
@@ -25,6 +27,34 @@ func newManifestCommand(options *rootOptions) *cobra.Command {
 			return client.ValidateProjectManifest(ctx, id)
 		}),
 	)
+	return command
+}
+
+func newManifestMigrateCommand(options *rootOptions) *cobra.Command {
+	apply := false
+	command := &cobra.Command{
+		Use:   "migrate <path>",
+		Short: "Preview or apply the alpha/beta manifest migration to v1",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			result, err := manifestApplication.MigrateFile(args[0], apply)
+			if err != nil {
+				return err
+			}
+			return writeResult(options, "manifest.migrate", result, func(writer io.Writer) error {
+				switch {
+				case !result.Changed:
+					_, err = fmt.Fprintln(writer, "Manifest already uses the stable v1 schema.")
+				case result.Applied:
+					_, err = fmt.Fprintf(writer, "Migrated %s; backup: %s\n", result.Path, result.BackupPath)
+				default:
+					_, err = fmt.Fprint(writer, result.Preview)
+				}
+				return err
+			})
+		},
+	}
+	command.Flags().BoolVar(&apply, "write", false, "apply migration after creating a non-overwriting backup")
 	return command
 }
 

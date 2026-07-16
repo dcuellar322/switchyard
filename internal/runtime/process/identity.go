@@ -79,12 +79,13 @@ func (inspector gopsutilInspector) GroupMembers(ctx context.Context, group int32
 	}
 	result := []domain.ProcessIdentity{}
 	for _, process := range processes {
-		candidateGroup, groupErr := processGroupID(process.Pid)
-		if groupErr != nil || candidateGroup != group {
+		parent, _ := process.PpidWithContext(ctx)
+		if !isProcessGroupMember(parent, process.Pid, group) {
 			continue
 		}
 		identity, snapshotErr := inspector.Snapshot(ctx, process.Pid)
 		if snapshotErr == nil {
+			identity.ProcessGroup = group
 			result = append(result, identity)
 		}
 	}
@@ -190,7 +191,7 @@ func canonicalPath(value string) string {
 }
 
 func identityMatches(stored, current domain.ProcessIdentity) bool {
-	return stored.PID == current.PID && stored.ProcessGroup == current.ProcessGroup &&
+	return stored.PID == current.PID && processGroupMatches(stored.ProcessGroup, current.ProcessGroup) &&
 		stored.Fingerprint != "" && stored.Fingerprint == current.Fingerprint
 }
 
@@ -212,6 +213,7 @@ func verifiedRunMembers(ctx context.Context, inspector processInspector, run dom
 		}
 		if identityMatches(stored, current) {
 			current.RunID = run.ID
+			current.ProcessGroup = stored.ProcessGroup
 			verified = append(verified, current)
 		}
 	}

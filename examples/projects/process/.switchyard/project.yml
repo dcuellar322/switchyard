@@ -1,0 +1,39 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: process-example
+  name: Process example
+  tags: [example]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: web
+        command: [go, run, ./cmd/server]
+        workingDirectory: .
+        stopTimeoutSeconds: 10
+services:
+  - id: web
+    displayName: Web
+    source:
+      process: web
+    healthChecks:
+      - id: listener
+        type: tcp
+        address: 127.0.0.1:8080
+        required: true
+ports:
+  - id: web
+    service: web
+    host: 8080
+    target: 8080
+    protocol: tcp
+actions:
+  - id: test
+    name: Run tests
+    type: tests.run
+    command: [go, test, ./...]
+    risk: read_only
+    timeoutSeconds: 300

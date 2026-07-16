@@ -14,9 +14,9 @@ import (
 
 const (
 	// ProtocolVersion is negotiated before any plugin capability may be used.
-	ProtocolVersion = "switchyard.plugin/v1alpha1"
+	ProtocolVersion = "switchyard.plugin/v1"
 	// ManifestVersion identifies the on-disk plugin capability manifest.
-	ManifestVersion = "switchyard.plugin-manifest/v1alpha1"
+	ManifestVersion = "switchyard.plugin-manifest/v1"
 	// MaxMessageBytes is the maximum JSON-RPC request or response size.
 	MaxMessageBytes = 1 << 20
 )

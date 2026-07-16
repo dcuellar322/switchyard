@@ -267,3 +267,15 @@ completion bash|zsh|fish|powershell` to generate shell completion.
 Command packages only resolve input and render output. Catalog, manifest, and
 operation behavior remains in application services behind the generated local
 API.
+## Offline data and manifest migration
+
+`switchyard data inspect`, `data backup`, and `data migrate` operate directly
+on the configured data directory without starting the daemon. Inspection and
+migration preview are read-only. `data migrate --write` requires the daemon to
+be stopped and creates a verified non-overwriting pre-migration backup before
+changing schema. `data backup --output <path>` refuses to overwrite its output.
+
+`switchyard manifest migrate <path>` previews the stable v1 YAML. `--write`
+creates a `.v1alpha1.bak` copy and atomically replaces the source. These
+commands follow the same JSON envelope and semantic error behavior as other
+CLI groups.

@@ -39,6 +39,65 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	}
 }
 
+func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	path := filepath.Join(t.TempDir(), "switchyard.db")
+	connection, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	provider, err := migrationProvider(connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := provider.UpTo(ctx, 3); err != nil {
+		t.Fatal(err)
+	}
+	_, err = connection.Exec(`
+		INSERT INTO projects (id, slug, display_name, trust_state, primary_location, created_at, updated_at)
+		VALUES ('project-1','fixture','Fixture','trusted','/tmp/fixture','2026-01-01T00:00:00Z','2026-01-01T00:00:00Z');
+		INSERT INTO manifest_proposals (id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
+		VALUES ('proposal-1','project-1','deterministic/v1','switchyard.dev/v1alpha1','{}','{}','[]','{}','accepted','2026-01-01T00:00:00Z');
+		INSERT INTO manifest_snapshots (project_id, revision, proposal_id, manifest_json, created_at)
+		VALUES ('project-1',1,'proposal-1','{"schemaVersion":"switchyard.dev/v1alpha1"}','2026-01-01T00:00:00Z');
+		INSERT INTO audit_events (event_type, actor_type, actor_id, project_id, detail_json, occurred_at)
+		VALUES ('project.accepted','user','fixture','project-1','{}','2026-01-01T00:00:00Z');
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := connection.Close(); err != nil {
+		t.Fatal(err)
+	}
+	database, err := Open(ctx, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := database.Close(); err != nil {
+		t.Fatal(err)
+	}
+	backupPath := preMigrationBackupPath(path, 3, 13)
+	for _, candidate := range []string{path, backupPath} {
+		check, err := sql.Open("sqlite", candidate)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, table := range []string{"projects", "manifest_snapshots", "audit_events"} {
+			var count int
+			if err := check.QueryRow("SELECT COUNT(*) FROM " + table).Scan(&count); err != nil || count != 1 {
+				_ = check.Close()
+				t.Fatalf("%s %s count=%d error=%v", candidate, table, count, err)
+			}
+		}
+		_ = check.Close()
+	}
+	status, err := InspectMigrations(ctx, path)
+	if err != nil || status.CurrentVersion != 13 || status.MigrationRequired {
+		t.Fatalf("status=%#v error=%v", status, err)
+	}
+}
+
 func TestOpenRejectsDatabaseFromNewerBinary(t *testing.T) {
 	t.Parallel()
 

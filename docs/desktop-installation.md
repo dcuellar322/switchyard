@@ -28,6 +28,41 @@ switchyard://workspace/<workspace-id>
 An already running instance receives the link, verifies daemon compatibility,
 opens the corresponding local route, and focuses the existing window.
 
+## Linux desktop
+
+Stable releases provide AppImage, deb, and rpm bundles. Use the native package
+for integration with the desktop application menu and updater; make an
+AppImage executable before launching it. WebKitGTK 4.1 and a supported Secret
+Service implementation must be available. Native notifications and autostart
+use the desktop environment's standard APIs through Tauri; a headless session
+may report those capabilities unavailable while the Go control plane remains
+usable.
+
+External terminal handoff checks `TERMINAL`, then
+`x-terminal-emulator`, GNOME Terminal, Konsole, and kitty. Embedded terminals
+use a real PTY and do not depend on an external emulator.
+
+## Windows desktop
+
+Stable releases provide signed MSI and NSIS installers. Verify the publisher
+with `Get-AuthenticodeSignature` before installation. The daemon uses an
+owner-only named pipe for privileged local clients, Job Objects for managed
+process trees, and ConPTY for embedded sessions. Windows Terminal (`wt.exe`)
+is required only for external terminal handoff; embedded ConPTY sessions do not
+require it. VS Code handoff uses `code.cmd` when the VS Code shell command is
+installed.
+
+The updater verifies its independent Tauri signature in addition to Windows
+package signing. Launch at login uses the per-user startup integration and does
+not require administrator privileges.
+
+## WSL2
+
+Run the Linux binary inside WSL and use the browser UI it prints. Windows and
+WSL local IPC endpoints are intentionally separate. See
+[platform support](platform-support.md#wsl2-behavior) for Docker, filesystem,
+notification, and autostart behavior.
+
 ## Build from source
 
 Install the pinned Go, Node/pnpm, and Rust toolchains, then run:
@@ -41,9 +76,9 @@ make desktop-build
 The native bundles are written under
 `desktop/src-tauri/target/debug/bundle/`. A source build is intentionally
 unsigned and has no update authority. Maintainers use the protected
-`desktop-release` GitHub environment to supply Apple signing/notarization and
-Minisign updater credentials; secrets are never committed or placed in an
-application config file.
+`desktop-release` GitHub environment to supply Apple signing/notarization,
+Windows signing, and Tauri updater credentials; secrets are never committed or
+placed in an application config file.
 
 ## Headless or CLI-only use
 
@@ -66,10 +101,12 @@ Removing `Switchyard.app` removes only the desktop adapter. It does not delete
 repositories, containers, volumes, project state, logs, or the daemon database.
 This is the safe default and allows a later reinstall or continued CLI use.
 
-On macOS, durable control-plane data is under:
+Default durable control-plane data locations are:
 
 ```text
-~/Library/Application Support/Switchyard/
+macOS:   ~/Library/Application Support/Switchyard/
+Linux:  ~/.config/Switchyard/
+Windows: %AppData%\Switchyard\
 ```
 
 Desktop-only preferences are under the per-application Tauri config directory
@@ -89,3 +126,16 @@ the `switchyard daemon` process from Activity Monitor), then choose one of:
 Never remove the data directory while the daemon is running. A newer database
 is rejected by an older binary rather than being silently downgraded or
 mutated.
+
+## Upgrade, downgrade, and reinstall
+
+An upgrade verifies the existing schema, makes a non-overwriting consistent
+backup before the first migration, and preserves projects, manifest snapshots,
+audit history, operations, workspaces, plugins, diagnostics, and settings.
+Use `switchyard data inspect` before and after the upgrade.
+
+Downgrade is restore-based: keep the current database, copy a pre-migration
+backup to a separate data directory, and run the matching old binary against
+that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
+retained daemon data. See [v1 migration](migration-v1.md) for the exact safe
+procedure and [release engineering](release.md) for the tested matrix.

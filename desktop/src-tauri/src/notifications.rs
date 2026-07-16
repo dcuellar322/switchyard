@@ -169,7 +169,7 @@ mod tests {
     fn snapshot() -> DesktopSnapshot {
         DesktopSnapshot {
             system: SystemInfo {
-                api_version: "switchyard.api/v1".into(),
+                api_version: "v1".into(),
                 database_schema_version: 13,
                 status: "ready".into(),
                 version: env!("CARGO_PKG_VERSION").into(),

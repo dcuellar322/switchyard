@@ -1,6 +1,6 @@
 {
   "name": "switchyard",
-  "version": "0.1.0-alpha.0",
+  "version": "1.0.0",
   "private": true,
   "description": "A local, project-oriented development command center",
   "license": "Apache-2.0",
@@ -11,7 +11,7 @@
   "scripts": {
     "build": "pnpm --filter @switchyard/web build",
     "desktop": "tauri",
-    "desktop:prepare": "pnpm --dir web build && ./desktop/scripts/build-sidecar.sh",
+    "desktop:prepare": "pnpm --dir web build && node desktop/scripts/build-sidecar.mjs",
     "desktop:dev": "cd desktop/src-tauri && pnpm -C ../.. exec tauri dev",
     "desktop:build": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --debug",
     "desktop:release": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --config tauri.release.conf.json --ci",

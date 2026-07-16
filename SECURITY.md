@@ -10,8 +10,10 @@ practical and coordinate disclosure after a fix is available.
 
 ## Supported versions
 
-Switchyard has not released a stable version. Security fixes apply to the
-current development branch until release channels are published.
+Security fixes are published for the latest stable v1 minor release. The main
+branch receives fixes first; older alpha/beta builds are unsupported and should
+be migrated to v1. Critical fixes may require disabling an affected optional
+capability until an update is installed.
 
 ## Security baseline
 
@@ -28,5 +30,7 @@ current development branch until release channels are published.
   audited. Switchyard does not expose a generic shell MCP tool.
 - Destructive operations require preview and explicit authorization.
 
-The complete trust model is normative in Section 18 of
+The reviewed v1 boundaries, threats, controls, residual risks, and findings are
+in [docs/security/threat-model.md](docs/security/threat-model.md). The complete
+design baseline remains normative in Section 18 of
 `SWITCHYARD_IMPLEMENTATION_PLAN.md`.

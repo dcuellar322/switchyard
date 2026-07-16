@@ -361,7 +361,7 @@ export async function installAlphaMocks(page: Page, empty = false) {
     if (suffix === "manifest/explain")
       return json(route, {
         manifest: {
-          schemaVersion: "switchyard.dev/v1alpha1",
+          schemaVersion: "switchyard.dev/v1",
           kind: "Project",
           metadata: { id: projectId },
           runtime: { driver: runtime(projectId).driver },

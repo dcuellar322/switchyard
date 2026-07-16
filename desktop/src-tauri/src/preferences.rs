@@ -49,3 +49,18 @@ fn path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
         .map(|directory| directory.join("desktop.json"))
         .map_err(|error| format!("cannot resolve desktop preferences: {error}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn preserves_v1_preferences_and_defaults_future_fields() {
+        let value: Preferences =
+            serde_json::from_str(r#"{"keepRunning":false,"unknownFromNewerCompatibleBuild":true}"#)
+                .expect("preferences should remain forward-readable");
+        assert!(!value.keep_running);
+        let encoded = serde_json::to_string(&value).expect("preferences should serialize");
+        assert!(encoded.contains(r#""keepRunning":false"#));
+    }
+}

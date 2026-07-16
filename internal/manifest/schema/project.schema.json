@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://switchyard.dev/schema/project.v1alpha1.json",
+  "$id": "https://switchyard.dev/schema/project.v1.json",
   "$ref": "#/$defs/Manifest",
   "$defs": {
     "Action": {
@@ -262,7 +262,7 @@
         "schemaVersion": {
           "type": "string",
           "enum": [
-            "switchyard.dev/v1alpha1"
+            "switchyard.dev/v1"
           ]
         },
         "kind": {

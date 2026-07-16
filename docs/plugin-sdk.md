@@ -47,12 +47,12 @@ actions, health, or operation receipts rather than terminal text.
 
 ## Versions and deprecation
 
-`switchyard.plugin/v1alpha1` requires an exact match. There is no compatibility
+`switchyard.plugin/v1` requires an exact match. There is no compatibility
 guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
-Before Switchyard 1.0, alpha protocol changes may be breaking and use a new
-protocol identifier. After the first stable plugin protocol:
+Alpha protocol identifiers are unsupported by the v1 host and must be rebuilt
+with the stable SDK. For the stable plugin protocol:
 
 - fields may be added only when older peers can safely ignore or default them;
 - methods, required fields, capabilities, and scopes are not repurposed;

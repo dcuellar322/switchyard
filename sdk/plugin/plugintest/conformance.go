@@ -17,7 +17,7 @@ func RunConformance(t *testing.T, manifest plugin.Manifest, handler plugin.Handl
 	t.Helper()
 	t.Run("declared inspection", func(t *testing.T) {
 		input := strings.NewReader(
-			`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"switchyard.plugin/v1alpha1","hostVersion":"test","grantedScopes":["project.metadata.read"]}}` + "\n" +
+			`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"switchyard.plugin/v1","hostVersion":"test","grantedScopes":["project.metadata.read"]}}` + "\n" +
 				`{"jsonrpc":"2.0","id":2,"method":"project.inspect","params":{"project":{"id":"fixture","displayName":"Fixture"}}}` + "\n",
 		)
 		var output bytes.Buffer
@@ -31,7 +31,7 @@ func RunConformance(t *testing.T, manifest plugin.Manifest, handler plugin.Handl
 	})
 	t.Run("undeclared mutation denied", func(t *testing.T) {
 		input := strings.NewReader(
-			`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"switchyard.plugin/v1alpha1","hostVersion":"test","grantedScopes":["project.metadata.read"]}}` + "\n" +
+			`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"switchyard.plugin/v1","hostVersion":"test","grantedScopes":["project.metadata.read"]}}` + "\n" +
 				`{"jsonrpc":"2.0","id":2,"method":"project.operate","params":{"project":{"id":"fixture","displayName":"Fixture"},"action":"echo","input":{}}}` + "\n",
 		)
 		var output bytes.Buffer

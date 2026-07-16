@@ -1,0 +1,150 @@
+name: Release v1 artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  cli:
+    name: CLI archives, checksums, and SBOMs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir web build
+      - uses: anchore/sbom-action/download-syft@v0
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean --skip=publish
+      - uses: sigstore/cosign-installer@v4
+      - run: cosign sign-blob --yes --bundle dist/checksums.txt.sigstore.json dist/checksums.txt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: switchyard-cli
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/*.cyclonedx.json
+            dist/*.json
+            dist/checksums.txt
+            dist/switchyard-*.tar.gz
+          if-no-files-found: error
+
+  desktop:
+    name: ${{ matrix.name }} desktop bundles
+    runs-on: ${{ matrix.os }}
+    environment: desktop-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-latest
+            bundles: app,dmg
+          - name: Linux
+            os: ubuntu-latest
+            bundles: appimage,deb,rpm
+          - name: Windows
+            os: windows-latest
+            bundles: msi,nsis
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: pnpm install --frozen-lockfile
+      - run: rustup show
+      - id: windows-signing
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $path = Join-Path $env:RUNNER_TEMP switchyard-signing.pfx
+          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+          $certificate = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $password
+          "thumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_OUTPUT
+      - uses: crazy-max/ghaction-import-gpg@v6
+        if: runner.os == 'Linux'
+        with:
+          gpg_private_key: ${{ secrets.LINUX_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.LINUX_GPG_PASSPHRASE }}
+      - run: pnpm -C ../.. exec tauri build --config tauri.release.conf.json --bundles ${{ matrix.bundles }} --ci
+        working-directory: desktop/src-tauri
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          SWITCHYARD_UPDATER_PUBLIC_KEY: ${{ secrets.SWITCHYARD_UPDATER_PUBLIC_KEY }}
+          SWITCHYARD_UPDATER_ENDPOINT: ${{ secrets.SWITCHYARD_UPDATER_ENDPOINT }}
+          TAURI_CONFIG: ${{ runner.os == 'Windows' && format('{"bundle":{"windows":{"certificateThumbprint":"{0}","digestAlgorithm":"sha256","timestampUrl":"http://timestamp.digicert.com"}}}', steps.windows-signing.outputs.thumbprint) || '' }}
+          SIGN: ${{ runner.os == 'Linux' && '1' || '' }}
+          SIGN_KEY: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_KEY_ID || '' }}
+          APPIMAGETOOL_SIGN_PASSPHRASE: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_PASSPHRASE || '' }}
+          APPIMAGETOOL_FORCE_SIGN: ${{ runner.os == 'Linux' && '1' || '' }}
+      - uses: anchore/sbom-action@v0
+        with:
+          path: desktop/src-tauri/target/release/bundle
+          format: cyclonedx-json
+          output-file: desktop-${{ runner.os }}.cyclonedx.json
+          artifact-name: desktop-${{ runner.os }}-sbom
+      - uses: actions/upload-artifact@v6
+        with:
+          name: switchyard-desktop-${{ runner.os }}
+          path: |
+            desktop/src-tauri/target/release/bundle/**/*
+            desktop-${{ runner.os }}.cyclonedx.json
+          if-no-files-found: error
+
+  publish:
+    name: Attest and draft release
+    needs: [cli, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: switchyard-*
+          path: release
+          merge-multiple: true
+      - uses: actions/attest@v4
+        with:
+          subject-path: release/**/*
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: release/**/*
