@@ -112,6 +112,31 @@ type ProjectTag struct {
 	Tag       string `json:"tag"`
 }
 
+type Run struct {
+	ID                  string         `json:"id"`
+	ProjectID           string         `json:"project_id"`
+	ServiceID           string         `json:"service_id"`
+	RuntimeDriver       string         `json:"runtime_driver"`
+	Origin              string         `json:"origin"`
+	StartedAt           string         `json:"started_at"`
+	EndedAt             sql.NullString `json:"ended_at"`
+	ExitCode            sql.NullInt64  `json:"exit_code"`
+	TerminationReason   string         `json:"termination_reason"`
+	IdentityFingerprint string         `json:"identity_fingerprint"`
+	RestartCount        int64          `json:"restart_count"`
+}
+
+type RunProcess struct {
+	RunID               string `json:"run_id"`
+	Pid                 int64  `json:"pid"`
+	ProcessGroupID      int64  `json:"process_group_id"`
+	Executable          string `json:"executable"`
+	StartedAt           string `json:"started_at"`
+	WorkingDirectory    string `json:"working_directory"`
+	IdentityFingerprint string `json:"identity_fingerprint"`
+	ObservedAt          string `json:"observed_at"`
+}
+
 type SystemHealth struct {
 	Singleton     int64  `json:"singleton"`
 	SchemaVersion int64  `json:"schema_version"`

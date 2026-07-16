@@ -124,7 +124,7 @@ export type RuntimeCommand = {
 
 export type RuntimePlan = {
     projectId: string;
-    driver: 'compose';
+    driver: 'compose' | 'process';
     action: RuntimeAction;
     risk: 'safe' | 'caution' | 'destructive';
     summary: string;
@@ -151,12 +151,26 @@ export type ContainerMetadata = {
     restartCount: number;
 };
 
+export type ProcessMetadata = {
+    runId?: string;
+    pid: number;
+    processGroup?: number;
+    executable: string;
+    workingDirectory?: string;
+    startedAt?: string;
+    finishedAt?: string;
+    exitCode?: number;
+    restartCount: number;
+    fingerprint?: string;
+};
+
 export type RuntimeServiceObservation = {
     id: string;
     runtimeName: string;
     state: string;
     health: string;
-    container: ContainerMetadata;
+    container?: ContainerMetadata;
+    process?: ProcessMetadata;
     ports: Array<PublishedPort>;
     observedAt: string;
 };
@@ -172,11 +186,11 @@ export type RuntimeEngineObservation = {
 
 export type RuntimeObservation = {
     projectId: string;
-    driver: 'compose';
+    driver: 'compose' | 'process';
     projectIdentity: string;
     state: 'unknown' | 'stopped' | 'starting' | 'running' | 'running_external' | 'partially_running' | 'degraded' | 'paused' | 'stopping' | 'failed';
     origin: 'switchyard' | 'external';
-    engine: RuntimeEngineObservation;
+    engine?: RuntimeEngineObservation;
     services: Array<RuntimeServiceObservation>;
     observedAt: string;
 };
@@ -186,7 +200,7 @@ export type RuntimeLogEntry = {
     projectId: string;
     serviceId: string;
     runId: string;
-    source: 'docker';
+    source: 'docker' | 'process';
     stream: 'stdout' | 'stderr';
     level: string;
     message: string;

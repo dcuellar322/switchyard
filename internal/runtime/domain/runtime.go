@@ -13,6 +13,8 @@ type Kind string
 const (
 	// KindCompose selects Docker Compose.
 	KindCompose Kind = "compose"
+	// KindProcess selects native host processes.
+	KindProcess Kind = "process"
 )
 
 // Action is a standard runtime lifecycle mutation.
@@ -54,8 +56,42 @@ type ProjectRuntime struct {
 	Root         string
 	Kind         Kind
 	Compose      *ComposeRuntime
+	Process      *ProcessRuntime
 	Services     []ServiceDeclaration
 	ManifestHash string
+}
+
+// ProcessRuntime contains resolved native process declarations.
+type ProcessRuntime struct {
+	Environment map[string]string
+	Secrets     map[string]SecretReference
+	Processes   []ProcessDefinition
+}
+
+// ProcessDefinition is one executable process template referenced by a service.
+type ProcessDefinition struct {
+	ID                 string
+	Command            []string
+	WorkingDirectory   string
+	Shell              bool
+	Environment        map[string]string
+	Secrets            map[string]SecretReference
+	Restart            RestartPolicy
+	StopTimeoutSeconds int
+}
+
+// SecretReference identifies a credential-store value without carrying the secret.
+type SecretReference struct {
+	Provider string
+	Key      string
+	Account  string
+}
+
+// RestartPolicy is an explicit bounded crash-restart policy.
+type RestartPolicy struct {
+	Mode           string
+	MaxRetries     int
+	BackoffSeconds int
 }
 
 // ComposeRuntime identifies Compose inputs and Docker context.
@@ -67,8 +103,10 @@ type ComposeRuntime struct {
 
 // ServiceDeclaration maps a product service to a driver-native service.
 type ServiceDeclaration struct {
-	ID          string
-	RuntimeName string
+	ID           string
+	RuntimeName  string
+	Dependencies []string
+	HostPorts    []int
 }
 
 // PlanRequest asks a driver to preview an action.
@@ -141,7 +179,7 @@ type Observation struct {
 	ProjectIdentity string               `json:"projectIdentity"`
 	State           ProjectState         `json:"state"`
 	Origin          Origin               `json:"origin"`
-	Engine          EngineObservation    `json:"engine"`
+	Engine          *EngineObservation   `json:"engine,omitempty"`
 	Services        []ServiceObservation `json:"services"`
 	ObservedAt      time.Time            `json:"observedAt"`
 }
@@ -158,13 +196,28 @@ type EngineObservation struct {
 
 // ServiceObservation is a product-level view of one Compose service/container.
 type ServiceObservation struct {
-	ID          string            `json:"id"`
-	RuntimeName string            `json:"runtimeName"`
-	State       string            `json:"state"`
-	Health      string            `json:"health"`
-	Container   ContainerMetadata `json:"container"`
-	Ports       []PublishedPort   `json:"ports"`
-	ObservedAt  time.Time         `json:"observedAt"`
+	ID          string             `json:"id"`
+	RuntimeName string             `json:"runtimeName"`
+	State       string             `json:"state"`
+	Health      string             `json:"health"`
+	Container   *ContainerMetadata `json:"container,omitempty"`
+	Process     *ProcessMetadata   `json:"process,omitempty"`
+	Ports       []PublishedPort    `json:"ports"`
+	ObservedAt  time.Time          `json:"observedAt"`
+}
+
+// ProcessMetadata exposes verified process identity without environment values.
+type ProcessMetadata struct {
+	RunID            string     `json:"runId,omitempty"`
+	PID              int32      `json:"pid"`
+	ProcessGroup     int32      `json:"processGroup,omitempty"`
+	Executable       string     `json:"executable"`
+	WorkingDirectory string     `json:"workingDirectory,omitempty"`
+	StartedAt        *time.Time `json:"startedAt,omitempty"`
+	FinishedAt       *time.Time `json:"finishedAt,omitempty"`
+	ExitCode         *int       `json:"exitCode,omitempty"`
+	RestartCount     int        `json:"restartCount"`
+	Fingerprint      string     `json:"fingerprint,omitempty"`
 }
 
 // ContainerMetadata exposes useful, non-secret container facts.
@@ -234,8 +287,37 @@ type RuntimeEvent struct {
 	ProjectIdentity string    `json:"projectIdentity"`
 	ServiceIdentity string    `json:"serviceIdentity"`
 	ContainerID     string    `json:"containerId"`
+	RunID           string    `json:"runId,omitempty"`
 	Action          string    `json:"action"`
 	OccurredAt      time.Time `json:"occurredAt"`
+}
+
+// RunRecord is the durable ownership record for one managed native service run.
+type RunRecord struct {
+	ID                  string
+	ProjectID           string
+	ServiceID           string
+	RuntimeDriver       Kind
+	Origin              Origin
+	StartedAt           time.Time
+	EndedAt             *time.Time
+	ExitCode            *int
+	TerminationReason   string
+	IdentityFingerprint string
+	RestartCount        int
+	Processes           []ProcessIdentity
+}
+
+// ProcessIdentity is the PID-reuse-resistant evidence for one process-group member.
+type ProcessIdentity struct {
+	RunID            string
+	PID              int32
+	ProcessGroup     int32
+	Executable       string
+	StartedAt        time.Time
+	WorkingDirectory string
+	Fingerprint      string
+	ObservedAt       time.Time
 }
 
 // ProgressSink receives lifecycle execution progress.

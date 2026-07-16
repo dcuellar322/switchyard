@@ -82,6 +82,12 @@ start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,
 and current resource metrics. See the
 [Compose runtime architecture](docs/architecture/docker-compose-runtime.md).
 
+Trusted native-process projects support shell-free uv/npm/script/Make-style
+commands, dependency-ordered multi-service lifecycle, durable process-tree
+fingerprints, crash outcomes, bounded opt-in restart, stdout/stderr capture,
+metrics, and honest external-listener recognition. See the
+[native process runtime architecture](docs/architecture/native-process-runtime.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

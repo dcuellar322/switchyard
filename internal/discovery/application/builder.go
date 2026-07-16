@@ -17,6 +17,13 @@ var nonSlug = regexp.MustCompile(`[^a-z0-9]+`)
 
 // BuildProposal combines evidence by documented deterministic rules.
 func BuildProposal(root Root, projectID, proposalID string, items []domain.Evidence) domain.Proposal {
+	if candidate, ok := explicitManifest(items); ok {
+		return domain.Proposal{
+			ID: proposalID, ProjectID: projectID, ScannerVersion: domain.ScannerVersion,
+			SchemaVersion: manifest.SchemaVersion, Candidate: candidate, Evidence: items,
+			ConfidenceByField: map[string]float64{"/": 1}, Unresolved: unresolvedFields(candidate), Status: domain.StatusProposed,
+		}
+	}
 	name := filepath.Base(root.Path)
 	slug := slugify(name)
 	candidate := manifest.Manifest{
@@ -64,6 +71,19 @@ func BuildProposal(root Root, projectID, proposalID string, items []domain.Evide
 		SchemaVersion: manifest.SchemaVersion, Candidate: candidate, Evidence: items,
 		ConfidenceByField: confidence, Unresolved: unresolved, Status: domain.StatusProposed,
 	}
+}
+
+func explicitManifest(items []domain.Evidence) (manifest.Manifest, bool) {
+	for _, item := range items {
+		if item.Kind != "switchyard.manifest" {
+			continue
+		}
+		var candidate manifest.Manifest
+		if json.Unmarshal(item.Data, &candidate) == nil {
+			return candidate, true
+		}
+	}
+	return manifest.Manifest{}, false
 }
 
 func applyEvidence(

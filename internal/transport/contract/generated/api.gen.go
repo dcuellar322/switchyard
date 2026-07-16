@@ -150,13 +150,16 @@ func (e RuntimeAction) Valid() bool {
 
 // Defines values for RuntimeLogEntrySource.
 const (
-	Docker RuntimeLogEntrySource = "docker"
+	RuntimeLogEntrySourceDocker  RuntimeLogEntrySource = "docker"
+	RuntimeLogEntrySourceProcess RuntimeLogEntrySource = "process"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeLogEntrySource enum.
 func (e RuntimeLogEntrySource) Valid() bool {
 	switch e {
-	case Docker:
+	case RuntimeLogEntrySourceDocker:
+		return true
+	case RuntimeLogEntrySourceProcess:
 		return true
 	default:
 		return false
@@ -184,12 +187,15 @@ func (e RuntimeLogEntryStream) Valid() bool {
 // Defines values for RuntimeObservationDriver.
 const (
 	RuntimeObservationDriverCompose RuntimeObservationDriver = "compose"
+	RuntimeObservationDriverProcess RuntimeObservationDriver = "process"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeObservationDriver enum.
 func (e RuntimeObservationDriver) Valid() bool {
 	switch e {
 	case RuntimeObservationDriverCompose:
+		return true
+	case RuntimeObservationDriverProcess:
 		return true
 	default:
 		return false
@@ -258,13 +264,16 @@ func (e RuntimeObservationState) Valid() bool {
 
 // Defines values for RuntimePlanDriver.
 const (
-	RuntimePlanDriverCompose RuntimePlanDriver = "compose"
+	Compose RuntimePlanDriver = "compose"
+	Process RuntimePlanDriver = "process"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanDriver enum.
 func (e RuntimePlanDriver) Valid() bool {
 	switch e {
-	case RuntimePlanDriverCompose:
+	case Compose:
+		return true
+	case Process:
 		return true
 	default:
 		return false
@@ -432,6 +441,20 @@ type ProblemDetails struct {
 	Type          string  `json:"type"`
 }
 
+// ProcessMetadata defines model for ProcessMetadata.
+type ProcessMetadata struct {
+	Executable       string     `json:"executable"`
+	ExitCode         *int       `json:"exitCode,omitempty"`
+	Fingerprint      *string    `json:"fingerprint,omitempty"`
+	FinishedAt       *time.Time `json:"finishedAt,omitempty"`
+	Pid              int32      `json:"pid"`
+	ProcessGroup     *int32     `json:"processGroup,omitempty"`
+	RestartCount     int        `json:"restartCount"`
+	RunId            *string    `json:"runId,omitempty"`
+	StartedAt        *time.Time `json:"startedAt,omitempty"`
+	WorkingDirectory *string    `json:"workingDirectory,omitempty"`
+}
+
 // Project defines model for Project.
 type Project struct {
 	CreatedAt        time.Time         `json:"createdAt"`
@@ -520,7 +543,7 @@ type RuntimeMetricSample struct {
 // RuntimeObservation defines model for RuntimeObservation.
 type RuntimeObservation struct {
 	Driver          RuntimeObservationDriver    `json:"driver"`
-	Engine          RuntimeEngineObservation    `json:"engine"`
+	Engine          *RuntimeEngineObservation   `json:"engine,omitempty"`
 	ObservedAt      time.Time                   `json:"observedAt"`
 	Origin          RuntimeObservationOrigin    `json:"origin"`
 	ProjectId       string                      `json:"projectId"`
@@ -558,13 +581,14 @@ type RuntimePlanRisk string
 
 // RuntimeServiceObservation defines model for RuntimeServiceObservation.
 type RuntimeServiceObservation struct {
-	Container   ContainerMetadata `json:"container"`
-	Health      string            `json:"health"`
-	Id          string            `json:"id"`
-	ObservedAt  time.Time         `json:"observedAt"`
-	Ports       []PublishedPort   `json:"ports"`
-	RuntimeName string            `json:"runtimeName"`
-	State       string            `json:"state"`
+	Container   *ContainerMetadata `json:"container,omitempty"`
+	Health      string             `json:"health"`
+	Id          string             `json:"id"`
+	ObservedAt  time.Time          `json:"observedAt"`
+	Ports       []PublishedPort    `json:"ports"`
+	Process     *ProcessMetadata   `json:"process,omitempty"`
+	RuntimeName string             `json:"runtimeName"`
+	State       string             `json:"state"`
 }
 
 // SourceRange defines model for SourceRange.
@@ -3879,7 +3903,7 @@ type ServerInterface interface {
 	// Read one registered project
 	// (GET /projects/{projectId})
 	GetProject(w http.ResponseWriter, r *http.Request, projectId ProjectId)
-	// Read a bounded snapshot of Docker logs
+	// Read a bounded snapshot of runtime logs
 	// (GET /projects/{projectId}/logs)
 	GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams)
 	// Compare the accepted and effective manifests
@@ -3891,7 +3915,7 @@ type ServerInterface interface {
 	// Validate the fully resolved manifest
 	// (GET /projects/{projectId}/manifest/validate)
 	ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
-	// Read one current resource sample per Compose service
+	// Read one current resource sample per runtime service
 	// (GET /projects/{projectId}/metrics)
 	GetProjectMetrics(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectMetricsParams)
 	// Queue a durable project lifecycle operation
@@ -3987,7 +4011,7 @@ func (_ Unimplemented) GetProject(w http.ResponseWriter, r *http.Request, projec
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// Read a bounded snapshot of Docker logs
+// Read a bounded snapshot of runtime logs
 // (GET /projects/{projectId}/logs)
 func (_ Unimplemented) GetProjectLogs(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectLogsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
@@ -4011,7 +4035,7 @@ func (_ Unimplemented) ValidateProjectManifest(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// Read one current resource sample per Compose service
+// Read one current resource sample per runtime service
 // (GET /projects/{projectId}/metrics)
 func (_ Unimplemented) GetProjectMetrics(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectMetricsParams) {
 	w.WriteHeader(http.StatusNotImplemented)

@@ -89,6 +89,32 @@ func TestReadmeScannerRedactsCredentialLikeTitle(t *testing.T) {
 	}
 }
 
+func TestPortableProcessManifestWinsAsReviewedProposal(t *testing.T) {
+	t.Parallel()
+	fixture, err := filepath.Abs("../../../test/fixtures/uv-single-process")
+	if err != nil {
+		t.Fatal(err)
+	}
+	root, err := application.SelectRoot(fixture)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	proposal := application.BuildProposal(root, "project_process", "proposal_process", items)
+	if proposal.Candidate.Runtime.Driver != "process" || proposal.Candidate.Runtime.Process == nil {
+		t.Fatalf("candidate runtime = %#v", proposal.Candidate.Runtime)
+	}
+	if len(proposal.Unresolved) != 0 || len(proposal.Candidate.Services) != 1 {
+		t.Fatalf("proposal = %#v", proposal)
+	}
+	if proposal.ConfidenceByField["/"] != 1 {
+		t.Fatalf("confidence = %#v", proposal.ConfidenceByField)
+	}
+}
+
 func serviceIDs(services []manifest.Service) []string {
 	result := make([]string, 0, len(services))
 	for _, service := range services {

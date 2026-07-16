@@ -16,7 +16,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	observation := domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindCompose, ProjectIdentity: config.ProjectName,
 		Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
-		Engine: domain.EngineObservation{Context: config.Connection.ContextName},
+		Engine: &domain.EngineObservation{Context: config.Connection.ContextName},
 	}
 	engine, ping, version, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
@@ -64,7 +64,7 @@ func disconnectedObservation(project domain.ProjectRuntime, config normalizedCon
 	return domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindCompose, ProjectIdentity: config.ProjectName,
 		State: domain.StateUnknown, Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
-		Engine: domain.EngineObservation{
+		Engine: &domain.EngineObservation{
 			Connected: false, Context: config.Connection.ContextName,
 			ErrorCode: "DOCKER_ENGINE_UNAVAILABLE", ErrorMessage: message,
 		},
@@ -107,7 +107,7 @@ func serviceObservation(ctx context.Context, engine engineClient, project domain
 	}
 	result := domain.ServiceObservation{
 		ID: serviceID, RuntimeName: runtimeName, State: string(item.State), Health: healthStatus(item), ObservedAt: observedAt,
-		Container: domain.ContainerMetadata{
+		Container: &domain.ContainerMetadata{
 			ID: item.ID, Name: strings.TrimPrefix(inspect.Container.Name, "/"), Image: item.Image,
 			CreatedAt: unixTime(item.Created), RestartCount: inspect.Container.RestartCount,
 		},

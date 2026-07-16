@@ -20,6 +20,7 @@ import (
 	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
 	"switchyard.dev/switchyard/internal/runtime/compose"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	processRuntime "switchyard.dev/switchyard/internal/runtime/process"
 	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
@@ -60,7 +61,11 @@ func RunDaemon(ctx context.Context, config Config) error {
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
-	runtimeService := runtimeApplication.NewService(runtimeApplication.NewCatalogSource(catalogService), compose.NewDriver())
+	runtimeService := runtimeApplication.NewService(
+		runtimeApplication.NewCatalogSource(catalogService),
+		compose.NewDriver(),
+		processRuntime.NewDriver(ctx, sqlite.NewRunRepository(database)),
+	)
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
@@ -72,7 +77,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	go runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
-		config.Logger.Warn("Docker event watcher unavailable", "component", "runtime.compose", "project_id", projectID, "error", watchErr)
+		config.Logger.Warn("runtime event watcher unavailable", "component", "runtime", "project_id", projectID, "error", watchErr)
 	})
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())

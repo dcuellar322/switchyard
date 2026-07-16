@@ -287,6 +287,80 @@
         "protocol"
       ]
     },
+    "ProcessConfig": {
+      "properties": {
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "type": "object"
+        },
+        "processes": {
+          "items": {
+            "$ref": "#/$defs/ProcessDefinition"
+          },
+          "type": "array",
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "processes"
+      ]
+    },
+    "ProcessDefinition": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "minItems": 1
+        },
+        "workingDirectory": {
+          "type": "string"
+        },
+        "shell": {
+          "type": "boolean"
+        },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "type": "object"
+        },
+        "restart": {
+          "$ref": "#/$defs/RestartPolicy"
+        },
+        "stopTimeoutSeconds": {
+          "type": "integer",
+          "maximum": 300,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "command"
+      ]
+    },
     "Repository": {
       "properties": {
         "root": {
@@ -330,6 +404,29 @@
       "additionalProperties": false,
       "type": "object"
     },
+    "RestartPolicy": {
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "never",
+            "on-failure"
+          ]
+        },
+        "maxRetries": {
+          "type": "integer",
+          "maximum": 20,
+          "minimum": 0
+        },
+        "backoffSeconds": {
+          "type": "integer",
+          "maximum": 300,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
     "Runtime": {
       "properties": {
         "driver": {
@@ -342,10 +439,35 @@
         },
         "compose": {
           "$ref": "#/$defs/ComposeConfig"
+        },
+        "process": {
+          "$ref": "#/$defs/ProcessConfig"
         }
       },
       "additionalProperties": false,
       "type": "object"
+    },
+    "SecretRef": {
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "keychain"
+          ]
+        },
+        "key": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "provider",
+        "key"
+      ]
     },
     "Service": {
       "properties": {

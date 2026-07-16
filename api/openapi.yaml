@@ -336,7 +336,7 @@ paths:
       - $ref: "#/components/parameters/ProjectId"
     get:
       operationId: getProjectLogs
-      summary: Read a bounded snapshot of Docker logs
+      summary: Read a bounded snapshot of runtime logs
       parameters:
         - name: service
           in: query
@@ -362,7 +362,7 @@ paths:
       - $ref: "#/components/parameters/ProjectId"
     get:
       operationId: getProjectMetrics
-      summary: Read one current resource sample per Compose service
+      summary: Read one current resource sample per runtime service
       parameters:
         - name: service
           in: query
@@ -597,7 +597,7 @@ components:
       required: [projectId, driver, action, risk, summary, commands, effects, removeVolumes]
       properties:
         projectId: { type: string }
-        driver: { type: string, enum: [compose] }
+        driver: { type: string, enum: [compose, process] }
         action: { $ref: "#/components/schemas/RuntimeAction" }
         risk: { type: string, enum: [safe, caution, destructive] }
         summary: { type: string }
@@ -630,16 +630,32 @@ components:
         finishedAt: { type: string, format: date-time }
         exitCode: { type: integer }
         restartCount: { type: integer, minimum: 0 }
+    ProcessMetadata:
+      type: object
+      additionalProperties: false
+      required: [pid, executable, restartCount]
+      properties:
+        runId: { type: string }
+        pid: { type: integer, format: int32, minimum: 1 }
+        processGroup: { type: integer, format: int32, minimum: 1 }
+        executable: { type: string }
+        workingDirectory: { type: string }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
+        exitCode: { type: integer }
+        restartCount: { type: integer, minimum: 0 }
+        fingerprint: { type: string }
     RuntimeServiceObservation:
       type: object
       additionalProperties: false
-      required: [id, runtimeName, state, health, container, ports, observedAt]
+      required: [id, runtimeName, state, health, ports, observedAt]
       properties:
         id: { type: string }
         runtimeName: { type: string }
         state: { type: string }
         health: { type: string }
         container: { $ref: "#/components/schemas/ContainerMetadata" }
+        process: { $ref: "#/components/schemas/ProcessMetadata" }
         ports:
           type: array
           items: { $ref: "#/components/schemas/PublishedPort" }
@@ -658,10 +674,10 @@ components:
     RuntimeObservation:
       type: object
       additionalProperties: false
-      required: [projectId, driver, projectIdentity, state, origin, engine, services, observedAt]
+      required: [projectId, driver, projectIdentity, state, origin, services, observedAt]
       properties:
         projectId: { type: string }
-        driver: { type: string, enum: [compose] }
+        driver: { type: string, enum: [compose, process] }
         projectIdentity: { type: string }
         state:
           type: string
@@ -681,7 +697,7 @@ components:
         projectId: { type: string }
         serviceId: { type: string }
         runId: { type: string }
-        source: { type: string, enum: [docker] }
+        source: { type: string, enum: [docker, process] }
         stream: { type: string, enum: [stdout, stderr] }
         level: { type: string }
         message: { type: string }

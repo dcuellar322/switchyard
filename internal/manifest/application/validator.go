@@ -85,6 +85,13 @@ func manifestPaths(manifest domain.Manifest) []string {
 	if manifest.Runtime.Compose != nil {
 		paths = append(paths, manifest.Runtime.Compose.Files...)
 	}
+	if manifest.Runtime.Process != nil {
+		for _, process := range manifest.Runtime.Process.Processes {
+			if process.WorkingDirectory != "" {
+				paths = append(paths, process.WorkingDirectory)
+			}
+		}
+	}
 	for _, action := range manifest.Actions {
 		if action.WorkingDirectory != "" {
 			paths = append(paths, action.WorkingDirectory)

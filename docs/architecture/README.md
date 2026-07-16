@@ -13,6 +13,10 @@ The [project onboarding and manifest resolution](project-onboarding.md) note
 defines the Phase 3 repository trust boundary, evidence pipeline, approval
 transaction, generated schema, and configuration precedence.
 
+The [Docker Compose runtime](docker-compose-runtime.md) and
+[native process runtime](native-process-runtime.md) notes describe the two
+initial lifecycle drivers, their evidence models, and their ownership limits.
+
 ## Process topology
 
 ```text

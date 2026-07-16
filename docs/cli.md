@@ -35,8 +35,8 @@ mode.
 
 ## Runtime commands
 
-Trusted Compose projects expose live runtime queries and durable lifecycle
-operations:
+Trusted Compose and native-process projects expose live runtime queries and
+durable lifecycle operations:
 
 ```text
 switchyard status <project>
@@ -53,10 +53,17 @@ preserves containers and volumes. `teardown` is destructive, requires `--yes`,
 and removes volumes only when the reviewed plan and operation include
 `--volumes`.
 
-`status` includes the resolved Docker context, negotiated Engine versions,
-project ownership, health, container metadata, and published ports. Logs support
-JSON Lines and retain stdout/stderr plus project, service, and container-run
-identity. Metrics return current CPU, memory, and network samples.
+Native process runtimes support `start`, `stop`, and `restart`. They reject
+container-only pause, unpause, rebuild, teardown, and volume semantics. Start
+plans show executable, argument array, working directory, environment-key
+count, and keychain-reference count without revealing environment values.
+
+`status` includes project ownership, service state, ports, and container or
+process identity. Compose observations also include Docker context and Engine
+versions. Process observations include verified PID/run fingerprints, restart
+count, exit code, and last-known process identity. Logs support JSON Lines and
+retain stdout/stderr plus project, service, source, and run identity. Metrics
+return current CPU and memory samples; Docker also reports network counters.
 
 ## Automation modes
 

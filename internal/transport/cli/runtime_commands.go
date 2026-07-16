@@ -30,7 +30,7 @@ func newStatusCommand(options *rootOptions) *cobra.Command {
 			if _, err := fmt.Fprintf(w, "%s: %s (%s)\n", project.Slug, observation.State, observation.Origin); err != nil {
 				return err
 			}
-			if !observation.Engine.Connected {
+			if observation.Engine != nil && !observation.Engine.Connected {
 				message := "Docker Engine is unavailable"
 				if observation.Engine.ErrorMessage != nil {
 					message = *observation.Engine.ErrorMessage
@@ -40,9 +40,9 @@ func newStatusCommand(options *rootOptions) *cobra.Command {
 			}
 			rows := make([][]string, 0, len(observation.Services))
 			for _, service := range observation.Services {
-				rows = append(rows, []string{service.Id, service.State, service.Health, publishedPorts(service.Ports), shortContainerID(service.Container.Id)})
+				rows = append(rows, []string{service.Id, service.State, service.Health, publishedPorts(service.Ports), runtimeIdentity(service)})
 			}
-			return humanList(w, []string{"SERVICE", "STATE", "HEALTH", "PORTS", "CONTAINER"}, rows)
+			return humanList(w, []string{"SERVICE", "STATE", "HEALTH", "PORTS", "RUNTIME"}, rows)
 		})
 	}}
 }
@@ -111,7 +111,7 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 
 func newLogsCommand(options *rootOptions) *cobra.Command {
 	service, since, tail := "", "", 200
-	command := &cobra.Command{Use: "logs <project>", Short: "Read a bounded Docker log snapshot", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
+	command := &cobra.Command{Use: "logs <project>", Short: "Read a bounded runtime log snapshot", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
 			return err
@@ -133,15 +133,15 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 			return nil
 		})
 	}}
-	command.Flags().StringVar(&service, "service", "", "limit to a Compose service")
-	command.Flags().StringVar(&since, "since", "", "Docker timestamp or duration boundary")
-	command.Flags().IntVar(&tail, "tail", 200, "maximum lines per selected container")
+	command.Flags().StringVar(&service, "service", "", "limit to a runtime service")
+	command.Flags().StringVar(&since, "since", "", "runtime timestamp or duration boundary")
+	command.Flags().IntVar(&tail, "tail", 200, "maximum lines across selected runtimes")
 	return command
 }
 
 func newMetricsCommand(options *rootOptions) *cobra.Command {
 	service := ""
-	command := &cobra.Command{Use: "metrics <project>", Short: "Read current Docker resource samples", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
+	command := &cobra.Command{Use: "metrics <project>", Short: "Read current runtime resource samples", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
 			return err
@@ -162,7 +162,7 @@ func newMetricsCommand(options *rootOptions) *cobra.Command {
 			return humanList(w, []string{"SERVICE", "CPU", "MEMORY", "NET RX", "NET TX"}, rows)
 		})
 	}}
-	command.Flags().StringVar(&service, "service", "", "limit to a Compose service")
+	command.Flags().StringVar(&service, "service", "", "limit to a runtime service")
 	return command
 }
 
@@ -212,6 +212,20 @@ func shortContainerID(value string) string {
 		return value[:12]
 	}
 	return value
+}
+
+func runtimeIdentity(service generated.RuntimeServiceObservation) string {
+	if service.Container != nil {
+		return shortContainerID(service.Container.Id)
+	}
+	if service.Process != nil {
+		identity := "pid:" + strconv.FormatInt(int64(service.Process.Pid), 10)
+		if service.State != "running" && service.State != "starting" {
+			identity += " (last)"
+		}
+		return identity
+	}
+	return "-"
 }
 
 func lifecycleSummary(action string) string {

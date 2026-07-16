@@ -1,0 +1,34 @@
+schemaVersion: switchyard.dev/v1alpha1
+kind: Project
+metadata:
+  id: node-single-process
+  name: npm single-process fixture
+  tags: [node, npm]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    environment:
+      PORT: "19862"
+    processes:
+      - id: web
+        command: [npm, --silent, run, start]
+        workingDirectory: .
+        stopTimeoutSeconds: 2
+services:
+  - id: web
+    source:
+      process: web
+ports:
+  - id: web
+    service: web
+    host: 19862
+    target: 19862
+    protocol: tcp
+endpoints:
+  - id: web
+    name: Fixture
+    url: http://127.0.0.1:${ports.web}
+    primary: true
+

@@ -147,11 +147,11 @@ export const createProjectOperation = <ThrowOnError extends boolean = false>(opt
 });
 
 /**
- * Read a bounded snapshot of Docker logs
+ * Read a bounded snapshot of runtime logs
  */
 export const getProjectLogs = <ThrowOnError extends boolean = false>(options: Options<GetProjectLogsData, ThrowOnError>): RequestResult<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectLogsResponses, GetProjectLogsErrors, ThrowOnError>({ url: '/projects/{projectId}/logs', ...options });
 
 /**
- * Read one current resource sample per Compose service
+ * Read one current resource sample per runtime service
  */
 export const getProjectMetrics = <ThrowOnError extends boolean = false>(options: Options<GetProjectMetricsData, ThrowOnError>): RequestResult<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError> => (options.client ?? client).get<GetProjectMetricsResponses, GetProjectMetricsErrors, ThrowOnError>({ url: '/projects/{projectId}/metrics', ...options });

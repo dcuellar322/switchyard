@@ -20,6 +20,7 @@ import (
 
 	"switchyard.dev/switchyard/internal/discovery/application"
 	"switchyard.dev/switchyard/internal/discovery/domain"
+	manifest "switchyard.dev/switchyard/internal/manifest/application"
 )
 
 // Defaults returns every Phase 3 deterministic scanner in stable order.
@@ -297,12 +298,23 @@ func (readmeScanner) Scan(_ context.Context, root application.Root) ([]domain.Ev
 	return nil, nil
 }
 
-// existingRuntimeScanner is an explicit extension point. Phase 3 does not claim runtime ownership.
 type existingRuntimeScanner struct{}
 
 func (existingRuntimeScanner) Name() string { return "existing-runtime" }
-func (existingRuntimeScanner) Scan(context.Context, application.Root) ([]domain.Evidence, error) {
-	return nil, nil
+func (existingRuntimeScanner) Scan(_ context.Context, root application.Root) ([]domain.Evidence, error) {
+	const path = ".switchyard/project.yml"
+	contents, err := root.ReadFile(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	document, err := manifest.ParseYAML(contents)
+	if err != nil {
+		return nil, fmt.Errorf("parse %s: %w", path, err)
+	}
+	return evidence("switchyard.manifest", path, 1, max(1, len(strings.Split(string(contents), "\n"))), 1, document)
 }
 
 func evidence(kind, path string, start, end int, confidence float64, data any) ([]domain.Evidence, error) {

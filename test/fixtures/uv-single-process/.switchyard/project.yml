@@ -1,0 +1,34 @@
+schemaVersion: switchyard.dev/v1alpha1
+kind: Project
+metadata:
+  id: uv-single-process
+  name: uv single-process fixture
+  tags: [python, uv]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    environment:
+      PORT: "19861"
+    processes:
+      - id: web
+        command: [uv, run, --offline, --no-project, python, server.py]
+        workingDirectory: .
+        stopTimeoutSeconds: 2
+services:
+  - id: web
+    source:
+      process: web
+ports:
+  - id: web
+    service: web
+    host: 19861
+    target: 19861
+    protocol: tcp
+endpoints:
+  - id: web
+    name: Fixture
+    url: http://127.0.0.1:${ports.web}
+    primary: true
+
