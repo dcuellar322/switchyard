@@ -19,6 +19,84 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for AIConflictResolution.
+const (
+	KeptDeterministic AIConflictResolution = "kept_deterministic"
+)
+
+// Valid indicates whether the value is a known member of the AIConflictResolution enum.
+func (e AIConflictResolution) Valid() bool {
+	switch e {
+	case KeptDeterministic:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AIFieldReviewSource.
+const (
+	AIFieldReviewSourceAi            AIFieldReviewSource = "ai"
+	AIFieldReviewSourceDeterministic AIFieldReviewSource = "deterministic"
+	AIFieldReviewSourceRejected      AIFieldReviewSource = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the AIFieldReviewSource enum.
+func (e AIFieldReviewSource) Valid() bool {
+	switch e {
+	case AIFieldReviewSourceAi:
+		return true
+	case AIFieldReviewSourceDeterministic:
+		return true
+	case AIFieldReviewSourceRejected:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AIManifestEnhancementState.
+const (
+	AIManifestEnhancementStateCancelled AIManifestEnhancementState = "cancelled"
+	AIManifestEnhancementStateFailed    AIManifestEnhancementState = "failed"
+	AIManifestEnhancementStateRunning   AIManifestEnhancementState = "running"
+	AIManifestEnhancementStateSucceeded AIManifestEnhancementState = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the AIManifestEnhancementState enum.
+func (e AIManifestEnhancementState) Valid() bool {
+	switch e {
+	case AIManifestEnhancementStateCancelled:
+		return true
+	case AIManifestEnhancementStateFailed:
+		return true
+	case AIManifestEnhancementStateRunning:
+		return true
+	case AIManifestEnhancementStateSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AIProviderDescriptorKind.
+const (
+	AIProviderDescriptorKindCli  AIProviderDescriptorKind = "cli"
+	AIProviderDescriptorKindHttp AIProviderDescriptorKind = "http"
+)
+
+// Valid indicates whether the value is a known member of the AIProviderDescriptorKind enum.
+func (e AIProviderDescriptorKind) Valid() bool {
+	switch e {
+	case AIProviderDescriptorKindCli:
+		return true
+	case AIProviderDescriptorKindHttp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ActionDefinitionRisk.
 const (
 	ActionDefinitionRiskDestructive ActionDefinitionRisk = "destructive"
@@ -375,19 +453,19 @@ func (e PortSuggestionRequestProtocol) Valid() bool {
 
 // Defines values for ProjectTrustState.
 const (
-	ProjectTrustStatePending  ProjectTrustState = "pending"
-	ProjectTrustStateRejected ProjectTrustState = "rejected"
-	ProjectTrustStateTrusted  ProjectTrustState = "trusted"
+	Pending  ProjectTrustState = "pending"
+	Rejected ProjectTrustState = "rejected"
+	Trusted  ProjectTrustState = "trusted"
 )
 
 // Valid indicates whether the value is a known member of the ProjectTrustState enum.
 func (e ProjectTrustState) Valid() bool {
 	switch e {
-	case ProjectTrustStatePending:
+	case Pending:
 		return true
-	case ProjectTrustStateRejected:
+	case Rejected:
 		return true
-	case ProjectTrustStateTrusted:
+	case Trusted:
 		return true
 	default:
 		return false
@@ -438,19 +516,19 @@ func (e ProjectHealthStatus) Valid() bool {
 
 // Defines values for PublishedPortProtocol.
 const (
-	Sctp PublishedPortProtocol = "sctp"
-	Tcp  PublishedPortProtocol = "tcp"
-	Udp  PublishedPortProtocol = "udp"
+	PublishedPortProtocolSctp PublishedPortProtocol = "sctp"
+	PublishedPortProtocolTcp  PublishedPortProtocol = "tcp"
+	PublishedPortProtocolUdp  PublishedPortProtocol = "udp"
 )
 
 // Valid indicates whether the value is a known member of the PublishedPortProtocol enum.
 func (e PublishedPortProtocol) Valid() bool {
 	switch e {
-	case Sctp:
+	case PublishedPortProtocolSctp:
 		return true
-	case Tcp:
+	case PublishedPortProtocolTcp:
 		return true
-	case Udp:
+	case PublishedPortProtocolUdp:
 		return true
 	default:
 		return false
@@ -564,40 +642,40 @@ func (e RuntimeObservationOrigin) Valid() bool {
 
 // Defines values for RuntimeObservationState.
 const (
-	RuntimeObservationStateDegraded         RuntimeObservationState = "degraded"
-	RuntimeObservationStateFailed           RuntimeObservationState = "failed"
-	RuntimeObservationStatePartiallyRunning RuntimeObservationState = "partially_running"
-	RuntimeObservationStatePaused           RuntimeObservationState = "paused"
-	RuntimeObservationStateRunning          RuntimeObservationState = "running"
-	RuntimeObservationStateRunningExternal  RuntimeObservationState = "running_external"
-	RuntimeObservationStateStarting         RuntimeObservationState = "starting"
-	RuntimeObservationStateStopped          RuntimeObservationState = "stopped"
-	RuntimeObservationStateStopping         RuntimeObservationState = "stopping"
-	RuntimeObservationStateUnknown          RuntimeObservationState = "unknown"
+	Degraded         RuntimeObservationState = "degraded"
+	Failed           RuntimeObservationState = "failed"
+	PartiallyRunning RuntimeObservationState = "partially_running"
+	Paused           RuntimeObservationState = "paused"
+	Running          RuntimeObservationState = "running"
+	RunningExternal  RuntimeObservationState = "running_external"
+	Starting         RuntimeObservationState = "starting"
+	Stopped          RuntimeObservationState = "stopped"
+	Stopping         RuntimeObservationState = "stopping"
+	Unknown          RuntimeObservationState = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeObservationState enum.
 func (e RuntimeObservationState) Valid() bool {
 	switch e {
-	case RuntimeObservationStateDegraded:
+	case Degraded:
 		return true
-	case RuntimeObservationStateFailed:
+	case Failed:
 		return true
-	case RuntimeObservationStatePartiallyRunning:
+	case PartiallyRunning:
 		return true
-	case RuntimeObservationStatePaused:
+	case Paused:
 		return true
-	case RuntimeObservationStateRunning:
+	case Running:
 		return true
-	case RuntimeObservationStateRunningExternal:
+	case RunningExternal:
 		return true
-	case RuntimeObservationStateStarting:
+	case Starting:
 		return true
-	case RuntimeObservationStateStopped:
+	case Stopped:
 		return true
-	case RuntimeObservationStateStopping:
+	case Stopping:
 		return true
-	case RuntimeObservationStateUnknown:
+	case Unknown:
 		return true
 	default:
 		return false
@@ -676,6 +754,132 @@ func (e ExportProjectLogsParamsFormat) Valid() bool {
 	}
 }
 
+// AIConflict defines model for AIConflict.
+type AIConflict struct {
+	DeterministicValue interface{}          `json:"deterministicValue"`
+	Path               string               `json:"path"`
+	ProposedValue      interface{}          `json:"proposedValue"`
+	Resolution         AIConflictResolution `json:"resolution"`
+}
+
+// AIConflictResolution defines model for AIConflict.Resolution.
+type AIConflictResolution string
+
+// AIDryRun defines model for AIDryRun.
+type AIDryRun struct {
+	Errors         []string `json:"errors"`
+	EvidenceBacked bool     `json:"evidenceBacked"`
+	RepositorySafe bool     `json:"repositorySafe"`
+	SchemaValid    bool     `json:"schemaValid"`
+	Valid          bool     `json:"valid"`
+	Warnings       []string `json:"warnings"`
+}
+
+// AIEvidenceBundle defines model for AIEvidenceBundle.
+type AIEvidenceBundle struct {
+	ConfidenceByField      map[string]float64     `json:"confidenceByField"`
+	DeterministicCandidate map[string]interface{} `json:"deterministicCandidate"`
+	EncodedBytes           int                    `json:"encodedBytes"`
+	Evidence               []AIEvidenceItem       `json:"evidence"`
+	ProjectId              string                 `json:"projectId"`
+	ProposalId             string                 `json:"proposalId"`
+	RedactionCount         int                    `json:"redactionCount"`
+	Truncated              bool                   `json:"truncated"`
+	Unresolved             []string               `json:"unresolved"`
+	Version                string                 `json:"version"`
+}
+
+// AIEvidenceItem defines model for AIEvidenceItem.
+type AIEvidenceItem struct {
+	Confidence float64                `json:"confidence"`
+	Data       map[string]interface{} `json:"data"`
+	Excerpt    *string                `json:"excerpt,omitempty"`
+	Id         string                 `json:"id"`
+	Kind       string                 `json:"kind"`
+	Location   SourceRange            `json:"location"`
+	SourcePath string                 `json:"sourcePath"`
+	Truncated  bool                   `json:"truncated"`
+	Warnings   []string               `json:"warnings"`
+}
+
+// AIEvidencePreview defines model for AIEvidencePreview.
+type AIEvidencePreview struct {
+	Bundle  AIEvidenceBundle       `json:"bundle"`
+	Encoded map[string]interface{} `json:"encoded"`
+	Limits  AIGenerationLimits     `json:"limits"`
+	Sha256  string                 `json:"sha256"`
+}
+
+// AIFieldReview defines model for AIFieldReview.
+type AIFieldReview struct {
+	Confidence  float64             `json:"confidence"`
+	EvidenceIds []string            `json:"evidenceIds"`
+	Path        string              `json:"path"`
+	Rationale   string              `json:"rationale"`
+	Source      AIFieldReviewSource `json:"source"`
+	Warnings    []string            `json:"warnings"`
+}
+
+// AIFieldReviewSource defines model for AIFieldReview.Source.
+type AIFieldReviewSource string
+
+// AIGenerationLimits defines model for AIGenerationLimits.
+type AIGenerationLimits struct {
+	EvidenceBytes   *int64   `json:"evidenceBytes,omitempty"`
+	MaxBudgetUsd    *float64 `json:"maxBudgetUsd,omitempty"`
+	MaxOutputTokens *int     `json:"maxOutputTokens,omitempty"`
+	MaxTurns        *int     `json:"maxTurns,omitempty"`
+	OutputBytes     *int64   `json:"outputBytes,omitempty"`
+	TimeoutSeconds  *int     `json:"timeoutSeconds,omitempty"`
+}
+
+// AIManifestEnhancement defines model for AIManifestEnhancement.
+type AIManifestEnhancement struct {
+	Bundle           map[string]interface{}     `json:"bundle"`
+	BundleSha256     string                     `json:"bundleSha256"`
+	Conflicts        []AIConflict               `json:"conflicts"`
+	DryRun           AIDryRun                   `json:"dryRun"`
+	ErrorCode        *string                    `json:"errorCode,omitempty"`
+	ErrorMessage     *string                    `json:"errorMessage,omitempty"`
+	Fields           []AIFieldReview            `json:"fields"`
+	FinishedAt       *time.Time                 `json:"finishedAt,omitempty"`
+	Limits           AIGenerationLimits         `json:"limits"`
+	Model            *string                    `json:"model,omitempty"`
+	OperationId      string                     `json:"operationId"`
+	ProjectId        string                     `json:"projectId"`
+	Provider         string                     `json:"provider"`
+	ResultProposalId *string                    `json:"resultProposalId,omitempty"`
+	SourceProposalId string                     `json:"sourceProposalId"`
+	StartedAt        time.Time                  `json:"startedAt"`
+	State            AIManifestEnhancementState `json:"state"`
+	Usage            AIUsage                    `json:"usage"`
+	Warnings         []string                   `json:"warnings"`
+}
+
+// AIManifestEnhancementState defines model for AIManifestEnhancement.State.
+type AIManifestEnhancementState string
+
+// AIProviderDescriptor defines model for AIProviderDescriptor.
+type AIProviderDescriptor struct {
+	Available            bool                     `json:"available"`
+	Id                   string                   `json:"id"`
+	Kind                 AIProviderDescriptorKind `json:"kind"`
+	Model                *string                  `json:"model,omitempty"`
+	Name                 string                   `json:"name"`
+	Reason               *string                  `json:"reason,omitempty"`
+	SupportedBudgetKinds []string                 `json:"supportedBudgetKinds"`
+}
+
+// AIProviderDescriptorKind defines model for AIProviderDescriptor.Kind.
+type AIProviderDescriptorKind string
+
+// AIUsage defines model for AIUsage.
+type AIUsage struct {
+	CostUsd      *float64 `json:"costUsd,omitempty"`
+	InputTokens  *int     `json:"inputTokens,omitempty"`
+	OutputTokens *int     `json:"outputTokens,omitempty"`
+}
+
 // AcceptedManifestProposal defines model for AcceptedManifestProposal.
 type AcceptedManifestProposal struct {
 	Project  Project          `json:"project"`
@@ -728,6 +932,12 @@ type ContainerMetadata struct {
 	Name         string     `json:"name"`
 	RestartCount int        `json:"restartCount"`
 	StartedAt    *time.Time `json:"startedAt,omitempty"`
+}
+
+// CreateAIManifestEnhancementRequest defines model for CreateAIManifestEnhancementRequest.
+type CreateAIManifestEnhancementRequest struct {
+	Limits   AIGenerationLimits `json:"limits"`
+	Provider string             `json:"provider"`
 }
 
 // CreateBrowserSessionRequest defines model for CreateBrowserSessionRequest.
@@ -1224,6 +1434,16 @@ type AcceptManifestProposalParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// CreateAIManifestEnhancementParams defines parameters for CreateAIManifestEnhancement.
+type CreateAIManifestEnhancementParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// PreviewAIManifestEvidenceParams defines parameters for PreviewAIManifestEvidence.
+type PreviewAIManifestEvidenceParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // ValidateManifestProposalParams defines parameters for ValidateManifestProposal.
 type ValidateManifestProposalParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
@@ -1295,6 +1515,12 @@ type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
 
 // CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
 type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
+
+// CreateAIManifestEnhancementJSONRequestBody defines body for CreateAIManifestEnhancement for application/json ContentType.
+type CreateAIManifestEnhancementJSONRequestBody = CreateAIManifestEnhancementRequest
+
+// PreviewAIManifestEvidenceJSONRequestBody defines body for PreviewAIManifestEvidence for application/json ContentType.
+type PreviewAIManifestEvidenceJSONRequestBody = AIGenerationLimits
 
 // CreatePortSuggestionJSONRequestBody defines body for CreatePortSuggestion for application/json ContentType.
 type CreatePortSuggestionJSONRequestBody = PortSuggestionRequest
@@ -1381,6 +1607,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ListAIProposalProviders request
+	ListAIProposalProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateBrowserBootstrapToken request
 	CreateBrowserBootstrapToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1402,6 +1631,19 @@ type ClientInterface interface {
 
 	// AcceptManifestProposal request
 	AcceptManifestProposal(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAIManifestEnhancementWithBody request with any body
+	CreateAIManifestEnhancementWithBody(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAIManifestEnhancement(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, body CreateAIManifestEnhancementJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAIManifestEnhancement request
+	GetAIManifestEnhancement(ctx context.Context, proposalId ProposalId, operationId OperationId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PreviewAIManifestEvidenceWithBody request with any body
+	PreviewAIManifestEvidenceWithBody(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PreviewAIManifestEvidence(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, body PreviewAIManifestEvidenceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ValidateManifestProposal request
 	ValidateManifestProposal(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1482,6 +1724,18 @@ type ClientInterface interface {
 
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ListAIProposalProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAIProposalProvidersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) CreateBrowserBootstrapToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1570,6 +1824,66 @@ func (c *Client) GetManifestProposal(ctx context.Context, proposalId ProposalId,
 
 func (c *Client) AcceptManifestProposal(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAcceptManifestProposalRequest(c.Server, proposalId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAIManifestEnhancementWithBody(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAIManifestEnhancementRequestWithBody(c.Server, proposalId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAIManifestEnhancement(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, body CreateAIManifestEnhancementJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAIManifestEnhancementRequest(c.Server, proposalId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAIManifestEnhancement(ctx context.Context, proposalId ProposalId, operationId OperationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAIManifestEnhancementRequest(c.Server, proposalId, operationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PreviewAIManifestEvidenceWithBody(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPreviewAIManifestEvidenceRequestWithBody(c.Server, proposalId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PreviewAIManifestEvidence(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, body PreviewAIManifestEvidenceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPreviewAIManifestEvidenceRequest(c.Server, proposalId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1916,6 +2230,33 @@ func (c *Client) GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (
 	return c.Client.Do(req)
 }
 
+// NewListAIProposalProvidersRequest generates requests for ListAIProposalProviders
+func NewListAIProposalProvidersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/ai-providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateBrowserBootstrapTokenRequest generates requests for CreateBrowserBootstrapToken
 func NewCreateBrowserBootstrapTokenRequest(server string) (*http.Request, error) {
 	var err error
@@ -2127,6 +2468,167 @@ func NewAcceptManifestProposalRequest(server string, proposalId ProposalId, para
 	if err != nil {
 		return nil, err
 	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewCreateAIManifestEnhancementRequest calls the generic CreateAIManifestEnhancement builder with application/json body
+func NewCreateAIManifestEnhancementRequest(server string, proposalId ProposalId, params *CreateAIManifestEnhancementParams, body CreateAIManifestEnhancementJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAIManifestEnhancementRequestWithBody(server, proposalId, params, "application/json", bodyReader)
+}
+
+// NewCreateAIManifestEnhancementRequestWithBody generates requests for CreateAIManifestEnhancement with any type of body
+func NewCreateAIManifestEnhancementRequestWithBody(server string, proposalId ProposalId, params *CreateAIManifestEnhancementParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s/ai-enhancements", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetAIManifestEnhancementRequest generates requests for GetAIManifestEnhancement
+func NewGetAIManifestEnhancementRequest(server string, proposalId ProposalId, operationId OperationId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "operationId", operationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s/ai-enhancements/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPreviewAIManifestEvidenceRequest calls the generic PreviewAIManifestEvidence builder with application/json body
+func NewPreviewAIManifestEvidenceRequest(server string, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, body PreviewAIManifestEvidenceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPreviewAIManifestEvidenceRequestWithBody(server, proposalId, params, "application/json", bodyReader)
+}
+
+// NewPreviewAIManifestEvidenceRequestWithBody generates requests for PreviewAIManifestEvidence with any type of body
+func NewPreviewAIManifestEvidenceRequestWithBody(server string, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s/ai-preview", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	if params != nil {
 
@@ -3318,6 +3820,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ListAIProposalProvidersWithResponse request
+	ListAIProposalProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAIProposalProvidersResponse, error)
+
 	// CreateBrowserBootstrapTokenWithResponse request
 	CreateBrowserBootstrapTokenWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateBrowserBootstrapTokenResponse, error)
 
@@ -3339,6 +3844,19 @@ type ClientWithResponsesInterface interface {
 
 	// AcceptManifestProposalWithResponse request
 	AcceptManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*AcceptManifestProposalResponse, error)
+
+	// CreateAIManifestEnhancementWithBodyWithResponse request with any body
+	CreateAIManifestEnhancementWithBodyWithResponse(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAIManifestEnhancementResponse, error)
+
+	CreateAIManifestEnhancementWithResponse(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, body CreateAIManifestEnhancementJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAIManifestEnhancementResponse, error)
+
+	// GetAIManifestEnhancementWithResponse request
+	GetAIManifestEnhancementWithResponse(ctx context.Context, proposalId ProposalId, operationId OperationId, reqEditors ...RequestEditorFn) (*GetAIManifestEnhancementResponse, error)
+
+	// PreviewAIManifestEvidenceWithBodyWithResponse request with any body
+	PreviewAIManifestEvidenceWithBodyWithResponse(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewAIManifestEvidenceResponse, error)
+
+	PreviewAIManifestEvidenceWithResponse(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, body PreviewAIManifestEvidenceJSONRequestBody, reqEditors ...RequestEditorFn) (*PreviewAIManifestEvidenceResponse, error)
 
 	// ValidateManifestProposalWithResponse request
 	ValidateManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*ValidateManifestProposalResponse, error)
@@ -3419,6 +3937,37 @@ type ClientWithResponsesInterface interface {
 
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
+}
+
+type ListAIProposalProvidersResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]AIProviderDescriptor
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAIProposalProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAIProposalProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAIProposalProvidersResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
 }
 
 type CreateBrowserBootstrapTokenResponse struct {
@@ -3601,6 +4150,99 @@ func (r AcceptManifestProposalResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r AcceptManifestProposalResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAIManifestEnhancementResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAIManifestEnhancementResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAIManifestEnhancementResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAIManifestEnhancementResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetAIManifestEnhancementResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *AIManifestEnhancement
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAIManifestEnhancementResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAIManifestEnhancementResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetAIManifestEnhancementResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PreviewAIManifestEvidenceResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *AIEvidencePreview
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r PreviewAIManifestEvidenceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PreviewAIManifestEvidenceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PreviewAIManifestEvidenceResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -4349,6 +4991,15 @@ func (r GetSystemResponse) ContentType() string {
 	return ""
 }
 
+// ListAIProposalProvidersWithResponse request returning *ListAIProposalProvidersResponse
+func (c *ClientWithResponses) ListAIProposalProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAIProposalProvidersResponse, error) {
+	rsp, err := c.ListAIProposalProviders(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAIProposalProvidersResponse(rsp)
+}
+
 // CreateBrowserBootstrapTokenWithResponse request returning *CreateBrowserBootstrapTokenResponse
 func (c *ClientWithResponses) CreateBrowserBootstrapTokenWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateBrowserBootstrapTokenResponse, error) {
 	rsp, err := c.CreateBrowserBootstrapToken(ctx, reqEditors...)
@@ -4417,6 +5068,49 @@ func (c *ClientWithResponses) AcceptManifestProposalWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseAcceptManifestProposalResponse(rsp)
+}
+
+// CreateAIManifestEnhancementWithBodyWithResponse request with arbitrary body returning *CreateAIManifestEnhancementResponse
+func (c *ClientWithResponses) CreateAIManifestEnhancementWithBodyWithResponse(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAIManifestEnhancementResponse, error) {
+	rsp, err := c.CreateAIManifestEnhancementWithBody(ctx, proposalId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAIManifestEnhancementResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAIManifestEnhancementWithResponse(ctx context.Context, proposalId ProposalId, params *CreateAIManifestEnhancementParams, body CreateAIManifestEnhancementJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAIManifestEnhancementResponse, error) {
+	rsp, err := c.CreateAIManifestEnhancement(ctx, proposalId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAIManifestEnhancementResponse(rsp)
+}
+
+// GetAIManifestEnhancementWithResponse request returning *GetAIManifestEnhancementResponse
+func (c *ClientWithResponses) GetAIManifestEnhancementWithResponse(ctx context.Context, proposalId ProposalId, operationId OperationId, reqEditors ...RequestEditorFn) (*GetAIManifestEnhancementResponse, error) {
+	rsp, err := c.GetAIManifestEnhancement(ctx, proposalId, operationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAIManifestEnhancementResponse(rsp)
+}
+
+// PreviewAIManifestEvidenceWithBodyWithResponse request with arbitrary body returning *PreviewAIManifestEvidenceResponse
+func (c *ClientWithResponses) PreviewAIManifestEvidenceWithBodyWithResponse(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewAIManifestEvidenceResponse, error) {
+	rsp, err := c.PreviewAIManifestEvidenceWithBody(ctx, proposalId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePreviewAIManifestEvidenceResponse(rsp)
+}
+
+func (c *ClientWithResponses) PreviewAIManifestEvidenceWithResponse(ctx context.Context, proposalId ProposalId, params *PreviewAIManifestEvidenceParams, body PreviewAIManifestEvidenceJSONRequestBody, reqEditors ...RequestEditorFn) (*PreviewAIManifestEvidenceResponse, error) {
+	rsp, err := c.PreviewAIManifestEvidence(ctx, proposalId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePreviewAIManifestEvidenceResponse(rsp)
 }
 
 // ValidateManifestProposalWithResponse request returning *ValidateManifestProposalResponse
@@ -4667,6 +5361,39 @@ func (c *ClientWithResponses) GetSystemWithResponse(ctx context.Context, reqEdit
 	return ParseGetSystemResponse(rsp)
 }
 
+// ParseListAIProposalProvidersResponse parses an HTTP response from a ListAIProposalProvidersWithResponse call
+func ParseListAIProposalProvidersResponse(rsp *http.Response) (*ListAIProposalProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAIProposalProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AIProviderDescriptor
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateBrowserBootstrapTokenResponse parses an HTTP response from a CreateBrowserBootstrapTokenWithResponse call
 func ParseCreateBrowserBootstrapTokenResponse(rsp *http.Response) (*CreateBrowserBootstrapTokenResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -4848,6 +5575,105 @@ func ParseAcceptManifestProposalResponse(rsp *http.Response) (*AcceptManifestPro
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest AcceptedManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAIManifestEnhancementResponse parses an HTTP response from a CreateAIManifestEnhancementWithResponse call
+func ParseCreateAIManifestEnhancementResponse(rsp *http.Response) (*CreateAIManifestEnhancementResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAIManifestEnhancementResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAIManifestEnhancementResponse parses an HTTP response from a GetAIManifestEnhancementWithResponse call
+func ParseGetAIManifestEnhancementResponse(rsp *http.Response) (*GetAIManifestEnhancementResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAIManifestEnhancementResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AIManifestEnhancement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePreviewAIManifestEvidenceResponse parses an HTTP response from a PreviewAIManifestEvidenceWithResponse call
+func ParsePreviewAIManifestEvidenceResponse(rsp *http.Response) (*PreviewAIManifestEvidenceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PreviewAIManifestEvidenceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AIEvidencePreview
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -5645,6 +6471,9 @@ func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// List configured assisted-onboarding providers and current availability
+	// (GET /ai-providers)
+	ListAIProposalProviders(w http.ResponseWriter, r *http.Request)
 	// Create a one-time browser bootstrap token over privileged local IPC
 	// (POST /auth/bootstrap-tokens)
 	CreateBrowserBootstrapToken(w http.ResponseWriter, r *http.Request)
@@ -5663,6 +6492,15 @@ type ServerInterface interface {
 	// Approve the proposal and trust its project
 	// (POST /manifest-proposals/{proposalId}/accept)
 	AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params AcceptManifestProposalParams)
+	// Queue a cancellable assisted-onboarding operation
+	// (POST /manifest-proposals/{proposalId}/ai-enhancements)
+	CreateAIManifestEnhancement(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params CreateAIManifestEnhancementParams)
+	// Read an assisted-onboarding evidence and review receipt
+	// (GET /manifest-proposals/{proposalId}/ai-enhancements/{operationId})
+	GetAIManifestEnhancement(w http.ResponseWriter, r *http.Request, proposalId ProposalId, operationId OperationId)
+	// Preview the exact redacted evidence payload for provider consent
+	// (POST /manifest-proposals/{proposalId}/ai-preview)
+	PreviewAIManifestEvidence(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params PreviewAIManifestEvidenceParams)
 	// Revalidate an untrusted proposal against the selected root
 	// (POST /manifest-proposals/{proposalId}/validate)
 	ValidateManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params ValidateManifestProposalParams)
@@ -5741,6 +6579,12 @@ type ServerInterface interface {
 
 type Unimplemented struct{}
 
+// List configured assisted-onboarding providers and current availability
+// (GET /ai-providers)
+func (_ Unimplemented) ListAIProposalProviders(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Create a one-time browser bootstrap token over privileged local IPC
 // (POST /auth/bootstrap-tokens)
 func (_ Unimplemented) CreateBrowserBootstrapToken(w http.ResponseWriter, r *http.Request) {
@@ -5774,6 +6618,24 @@ func (_ Unimplemented) GetManifestProposal(w http.ResponseWriter, r *http.Reques
 // Approve the proposal and trust its project
 // (POST /manifest-proposals/{proposalId}/accept)
 func (_ Unimplemented) AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params AcceptManifestProposalParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue a cancellable assisted-onboarding operation
+// (POST /manifest-proposals/{proposalId}/ai-enhancements)
+func (_ Unimplemented) CreateAIManifestEnhancement(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params CreateAIManifestEnhancementParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read an assisted-onboarding evidence and review receipt
+// (GET /manifest-proposals/{proposalId}/ai-enhancements/{operationId})
+func (_ Unimplemented) GetAIManifestEnhancement(w http.ResponseWriter, r *http.Request, proposalId ProposalId, operationId OperationId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Preview the exact redacted evidence payload for provider consent
+// (POST /manifest-proposals/{proposalId}/ai-preview)
+func (_ Unimplemented) PreviewAIManifestEvidence(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params PreviewAIManifestEvidenceParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -5929,6 +6791,20 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// ListAIProposalProviders operation middleware
+func (siw *ServerInterfaceWrapper) ListAIProposalProviders(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAIProposalProviders(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // CreateBrowserBootstrapToken operation middleware
 func (siw *ServerInterfaceWrapper) CreateBrowserBootstrapToken(w http.ResponseWriter, r *http.Request) {
@@ -6088,6 +6964,149 @@ func (siw *ServerInterfaceWrapper) AcceptManifestProposal(w http.ResponseWriter,
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AcceptManifestProposal(w, r, proposalId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAIManifestEnhancement operation middleware
+func (siw *ServerInterfaceWrapper) CreateAIManifestEnhancement(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateAIManifestEnhancementParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAIManifestEnhancement(w, r, proposalId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAIManifestEnhancement operation middleware
+func (siw *ServerInterfaceWrapper) GetAIManifestEnhancement(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "operationId" -------------
+	var operationId OperationId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "operationId", chi.URLParam(r, "operationId"), &operationId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "operationId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAIManifestEnhancement(w, r, proposalId, operationId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PreviewAIManifestEvidence operation middleware
+func (siw *ServerInterfaceWrapper) PreviewAIManifestEvidence(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PreviewAIManifestEvidenceParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PreviewAIManifestEvidence(w, r, proposalId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -7154,6 +8173,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/ai-providers", wrapper.ListAIProposalProviders)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/auth/bootstrap-tokens", wrapper.CreateBrowserBootstrapToken)
 	})
 	r.Group(func(r chi.Router) {
@@ -7170,6 +8192,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/accept", wrapper.AcceptManifestProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/ai-enhancements", wrapper.CreateAIManifestEnhancement)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/manifest-proposals/{proposalId}/ai-enhancements/{operationId}", wrapper.GetAIManifestEnhancement)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/ai-preview", wrapper.PreviewAIManifestEvidence)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/validate", wrapper.ValidateManifestProposal)

@@ -1,0 +1,10 @@
+{
+  "name": "ambiguous-yard-fixture",
+  "private": true,
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4317",
+    "test": "vitest run",
+    "build": "vite build"
+  }
+}

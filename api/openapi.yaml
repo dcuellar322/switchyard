@@ -191,6 +191,77 @@ paths:
                 $ref: "#/components/schemas/AcceptedManifestProposal"
         default:
           $ref: "#/components/responses/Problem"
+  /ai-providers:
+    get:
+      operationId: listAIProposalProviders
+      summary: List configured assisted-onboarding providers and current availability
+      responses:
+        "200":
+          description: Provider capabilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AIProviderDescriptor" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}/ai-preview:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+    post:
+      operationId: previewAIManifestEvidence
+      summary: Preview the exact redacted evidence payload for provider consent
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AIGenerationLimits" }
+      responses:
+        "200":
+          description: Exact provider evidence receipt
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AIEvidencePreview" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}/ai-enhancements:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+    post:
+      operationId: createAIManifestEnhancement
+      summary: Queue a cancellable assisted-onboarding operation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateAIManifestEnhancementRequest" }
+      responses:
+        "202":
+          description: Durable provider operation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}/ai-enhancements/{operationId}:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+      - $ref: "#/components/parameters/OperationId"
+    get:
+      operationId: getAIManifestEnhancement
+      summary: Read an assisted-onboarding evidence and review receipt
+      responses:
+        "200":
+          description: Assisted proposal run
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AIManifestEnhancement" }
+        default:
+          $ref: "#/components/responses/Problem"
   /projects:
     get:
       operationId: listProjects
@@ -836,6 +907,137 @@ components:
       properties:
         project: { $ref: "#/components/schemas/Project" }
         proposal: { $ref: "#/components/schemas/ManifestProposal" }
+    AIGenerationLimits:
+      type: object
+      additionalProperties: false
+      properties:
+        evidenceBytes: { type: integer, format: int64, minimum: 4096, maximum: 262144, default: 65536 }
+        outputBytes: { type: integer, format: int64, minimum: 4096, maximum: 1048576, default: 262144 }
+        timeoutSeconds: { type: integer, minimum: 5, maximum: 600, default: 90 }
+        maxTurns: { type: integer, minimum: 1, maximum: 8, default: 1 }
+        maxOutputTokens: { type: integer, minimum: 256, maximum: 32768, default: 4096 }
+        maxBudgetUsd: { type: number, format: double, minimum: 0, maximum: 25, default: 0 }
+    AIProviderDescriptor:
+      type: object
+      additionalProperties: false
+      required: [id, name, kind, available, supportedBudgetKinds]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        kind: { type: string, enum: [cli, http] }
+        model: { type: string }
+        available: { type: boolean }
+        reason: { type: string }
+        supportedBudgetKinds:
+          type: array
+          items: { type: string }
+    AIEvidenceItem:
+      type: object
+      additionalProperties: false
+      required: [id, kind, sourcePath, location, confidence, data, warnings, truncated]
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        sourcePath: { type: string }
+        location: { $ref: "#/components/schemas/SourceRange" }
+        confidence: { type: number, format: double, minimum: 0, maximum: 1 }
+        data: { type: object, additionalProperties: true }
+        warnings: { type: array, items: { type: string } }
+        excerpt: { type: string }
+        truncated: { type: boolean }
+    AIEvidenceBundle:
+      type: object
+      additionalProperties: false
+      required: [version, projectId, proposalId, deterministicCandidate, confidenceByField, unresolved, evidence, redactionCount, truncated, encodedBytes]
+      properties:
+        version: { type: string }
+        projectId: { type: string }
+        proposalId: { type: string }
+        deterministicCandidate: { type: object, additionalProperties: true }
+        confidenceByField: { type: object, additionalProperties: { type: number, format: double } }
+        unresolved: { type: array, items: { type: string } }
+        evidence: { type: array, items: { $ref: "#/components/schemas/AIEvidenceItem" } }
+        redactionCount: { type: integer, minimum: 0 }
+        truncated: { type: boolean }
+        encodedBytes: { type: integer, minimum: 0 }
+    AIEvidencePreview:
+      type: object
+      additionalProperties: false
+      required: [bundle, encoded, sha256, limits]
+      properties:
+        bundle: { $ref: "#/components/schemas/AIEvidenceBundle" }
+        encoded: { type: object, additionalProperties: true }
+        sha256: { type: string, minLength: 64, maxLength: 64 }
+        limits: { $ref: "#/components/schemas/AIGenerationLimits" }
+    CreateAIManifestEnhancementRequest:
+      type: object
+      additionalProperties: false
+      required: [provider, limits]
+      properties:
+        provider: { type: string, minLength: 1, maxLength: 64 }
+        limits: { $ref: "#/components/schemas/AIGenerationLimits" }
+    AIFieldReview:
+      type: object
+      additionalProperties: false
+      required: [path, source, confidence, evidenceIds, rationale, warnings]
+      properties:
+        path: { type: string }
+        source: { type: string, enum: [deterministic, ai, rejected] }
+        confidence: { type: number, format: double, minimum: 0, maximum: 1 }
+        evidenceIds: { type: array, items: { type: string } }
+        rationale: { type: string }
+        warnings: { type: array, items: { type: string } }
+    AIConflict:
+      type: object
+      additionalProperties: false
+      required: [path, deterministicValue, proposedValue, resolution]
+      properties:
+        path: { type: string }
+        deterministicValue: {}
+        proposedValue: {}
+        resolution: { type: string, enum: [kept_deterministic] }
+    AIDryRun:
+      type: object
+      additionalProperties: false
+      required: [valid, schemaValid, evidenceBacked, repositorySafe, errors, warnings]
+      properties:
+        valid: { type: boolean }
+        schemaValid: { type: boolean }
+        evidenceBacked: { type: boolean }
+        repositorySafe: { type: boolean }
+        errors: { type: array, items: { type: string } }
+        warnings: { type: array, items: { type: string } }
+    AIUsage:
+      type: object
+      additionalProperties: false
+      properties:
+        inputTokens: { type: integer, minimum: 0 }
+        outputTokens: { type: integer, minimum: 0 }
+        costUsd: { type: number, format: double, minimum: 0 }
+    AIManifestEnhancement:
+      type: object
+      additionalProperties: false
+      required: [operationId, projectId, sourceProposalId, provider, state, bundle, bundleSha256, limits, fields, conflicts, warnings, dryRun, usage, startedAt]
+      properties:
+        operationId: { type: string }
+        projectId: { type: string }
+        sourceProposalId: { type: string }
+        resultProposalId: { type: string }
+        provider: { type: string }
+        model: { type: string }
+        state: { type: string, enum: [running, succeeded, failed, cancelled] }
+        bundle: { type: object, additionalProperties: true }
+        bundleSha256: { type: string }
+        limits: { $ref: "#/components/schemas/AIGenerationLimits" }
+        fields: { type: array, items: { $ref: "#/components/schemas/AIFieldReview" } }
+        conflicts: { type: array, items: { $ref: "#/components/schemas/AIConflict" } }
+        warnings: { type: array, items: { type: string } }
+        dryRun: { $ref: "#/components/schemas/AIDryRun" }
+        usage: { $ref: "#/components/schemas/AIUsage" }
+        errorCode: { type: string }
+        errorMessage: { type: string }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
     ManifestSource:
       type: object
       additionalProperties: false

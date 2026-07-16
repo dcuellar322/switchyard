@@ -27,6 +27,9 @@ state ownership, command boundaries, degraded behavior, and browser evidence.
 The [agent integration](agent-integration.md) note defines Phase 10 MCP
 topology, least-privilege discovery, audit identity, provider installers, and
 failure isolation.
+The [AI-assisted onboarding](ai-assisted-onboarding.md) note defines Phase 11
+evidence consent, provider isolation, schema-constrained output, deterministic
+merge authority, dry-run review, and human-only trust transitions.
 
 ## Process topology
 

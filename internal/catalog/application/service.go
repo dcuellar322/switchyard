@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 
 	catalog "switchyard.dev/switchyard/internal/catalog/domain"
@@ -24,11 +25,14 @@ var (
 	ErrInvalidProposal = errors.New("manifest proposal is invalid")
 	// ErrAlreadyReviewed prevents a second trust transition.
 	ErrAlreadyReviewed = errors.New("manifest proposal has already been reviewed")
+	// ErrHumanApprovalRequired prevents an AI or MCP agent from self-approving an assisted proposal.
+	ErrHumanApprovalRequired = errors.New("assisted manifest proposals require human approval")
 )
 
 // Repository persists projects, proposals, evidence, and accepted snapshots.
 type Repository interface {
 	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal, MutationActor) error
+	CreateRevision(context.Context, string, discoveryDomain.Proposal, MutationActor) error
 	FindProposalByLocation(context.Context, string) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
 	LatestProposal(context.Context, string) (discoveryDomain.Proposal, error)
@@ -108,6 +112,53 @@ func (s *Service) GetProposal(ctx context.Context, id string) (discoveryDomain.P
 	return s.repository.GetProposal(ctx, id)
 }
 
+// CreateRevisionAs stores an immutable assisted candidate without trusting it.
+func (s *Service) CreateRevisionAs(
+	ctx context.Context,
+	sourceID string,
+	candidate manifestDomain.Manifest,
+	confidence map[string]float64,
+	unresolved []string,
+	actorType, actorID string,
+) (discoveryDomain.Proposal, error) {
+	source, err := s.repository.GetProposal(ctx, sourceID)
+	if err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	if source.Status != discoveryDomain.StatusProposed {
+		return discoveryDomain.Proposal{}, ErrAlreadyReviewed
+	}
+	project, err := s.repository.GetProject(ctx, source.ProjectID)
+	if err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	proposalID, err := identifier.New("proposal")
+	if err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	evidence := make([]discoveryDomain.Evidence, 0, len(source.Evidence))
+	for _, item := range source.Evidence {
+		item.ID, err = identifier.New("evidence")
+		if err != nil {
+			return discoveryDomain.Proposal{}, err
+		}
+		evidence = append(evidence, item)
+	}
+	createdAt := s.now().UTC()
+	validation := manifest.Validate(project.PrimaryLocation, candidate)
+	proposal := discoveryDomain.Proposal{
+		ID: proposalID, ProjectID: source.ProjectID, ScannerVersion: source.ScannerVersion + "+ai/" + actorID,
+		SchemaVersion: manifestDomain.SchemaVersion, Candidate: candidate, Evidence: evidence,
+		ConfidenceByField: confidence, Unresolved: append([]string(nil), unresolved...),
+		Validation: discoveryDomain.Validation(validation), Status: discoveryDomain.StatusProposed, CreatedAt: createdAt,
+	}
+	actor := normalizedActor(MutationActor{Type: actorType, ID: actorID})
+	if err := s.repository.CreateRevision(ctx, sourceID, proposal, actor); err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	return proposal, nil
+}
+
 // Validate reruns validation against the current selected root.
 func (s *Service) Validate(ctx context.Context, id string) (discoveryDomain.Proposal, error) {
 	proposal, err := s.repository.GetProposal(ctx, id)
@@ -136,6 +187,9 @@ func (s *Service) AcceptAs(ctx context.Context, id string, actor MutationActor) 
 	}
 	if proposal.Status != discoveryDomain.StatusProposed {
 		return catalog.Project{}, discoveryDomain.Proposal{}, ErrAlreadyReviewed
+	}
+	if strings.Contains(proposal.ScannerVersion, "+ai/") && actor.Type == "agent" {
+		return catalog.Project{}, discoveryDomain.Proposal{}, ErrHumanApprovalRequired
 	}
 	if !proposal.Validation.Valid || len(proposal.Unresolved) > 0 {
 		return catalog.Project{}, discoveryDomain.Proposal{}, fmt.Errorf("%w: %v", ErrInvalidProposal, proposal.Validation.Errors)

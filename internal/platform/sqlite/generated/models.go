@@ -103,6 +103,28 @@ type LogSegment struct {
 	Sha256         sql.NullString `json:"sha256"`
 }
 
+type ManifestAiRun struct {
+	OperationID      string         `json:"operation_id"`
+	ProjectID        string         `json:"project_id"`
+	SourceProposalID string         `json:"source_proposal_id"`
+	ResultProposalID sql.NullString `json:"result_proposal_id"`
+	Provider         string         `json:"provider"`
+	Model            string         `json:"model"`
+	State            string         `json:"state"`
+	BundleJson       string         `json:"bundle_json"`
+	BundleSha256     string         `json:"bundle_sha256"`
+	LimitsJson       string         `json:"limits_json"`
+	FieldsJson       string         `json:"fields_json"`
+	ConflictsJson    string         `json:"conflicts_json"`
+	WarningsJson     string         `json:"warnings_json"`
+	DryRunJson       string         `json:"dry_run_json"`
+	UsageJson        string         `json:"usage_json"`
+	ErrorCode        sql.NullString `json:"error_code"`
+	ErrorMessage     sql.NullString `json:"error_message"`
+	StartedAt        string         `json:"started_at"`
+	FinishedAt       sql.NullString `json:"finished_at"`
+}
+
 type ManifestProposal struct {
 	ID             string `json:"id"`
 	ProjectID      string `json:"project_id"`

@@ -61,6 +61,11 @@ func (r *Redactor) RedactLog(entry runtime.LogEntry) runtime.LogEntry {
 	return entry
 }
 
+// RedactText applies the canonical credential policy to provider evidence and diagnostic text.
+func (r *Redactor) RedactText(value string) (string, bool) {
+	return r.redact(value)
+}
+
 func (r *Redactor) redact(value string) (string, bool) {
 	result := value
 	for _, secret := range r.secrets {

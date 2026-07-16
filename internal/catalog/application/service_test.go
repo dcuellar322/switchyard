@@ -69,3 +69,28 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 		t.Fatalf("GetProject() after removal error = %v", err)
 	}
 }
+
+func TestAssistedProposalRequiresHumanApproval(t *testing.T) {
+	ctx := context.Background()
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = database.Close() })
+	service := application.NewService(sqlite.NewCatalogRepository(database), adapters.Defaults())
+	fixture, _ := filepath.Abs("../../../test/fixtures/mixed-project")
+	_, proposal, err := service.Scan(ctx, fixture)
+	if err != nil {
+		t.Fatal(err)
+	}
+	revision, err := service.CreateRevisionAs(ctx, proposal.ID, proposal.Candidate, proposal.ConfidenceByField, proposal.Unresolved, "ai-provider", "fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := service.AcceptAs(ctx, revision.ID, application.MutationActor{Type: "agent", ID: "fixture/agent"}); !errors.Is(err, application.ErrHumanApprovalRequired) {
+		t.Fatalf("agent acceptance error = %v", err)
+	}
+	if _, accepted, err := service.AcceptAs(ctx, revision.ID, application.MutationActor{Type: "browser", ID: "human-session"}); err != nil || accepted.Status != discoveryDomain.StatusAccepted {
+		t.Fatalf("human acceptance = %#v error=%v", accepted, err)
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
+	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
 	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
@@ -42,6 +43,7 @@ type handler struct {
 	ports      portService
 	git        gitService
 	actions    actionService
+	ai         aiOnboardingService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -114,6 +116,12 @@ type gitService interface {
 
 type actionService interface {
 	List(context.Context, string) (actionsDomain.ProjectActions, error)
+}
+
+type aiOnboardingService interface {
+	Providers(context.Context) []agentsApplication.ProviderDescriptor
+	Preview(context.Context, string, agentsApplication.Limits) (agentsApplication.BundlePreview, error)
+	GetRun(context.Context, string) (agentsApplication.Run, error)
 }
 
 type sessionService interface {

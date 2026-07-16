@@ -18,20 +18,27 @@ import (
 )
 
 type rootOptions struct {
-	address           string
-	dataDir           string
-	ipcAddr           string
-	json              bool
-	jsonl             bool
-	nonInteractive    bool
-	noColor           bool
-	stdout            io.Writer
-	stderr            io.Writer
-	logRingCapacity   int
-	logSegmentBytes   int64
-	logRetentionAge   time.Duration
-	logRetentionBytes int64
-	redactionPatterns []string
+	address            string
+	dataDir            string
+	ipcAddr            string
+	json               bool
+	jsonl              bool
+	nonInteractive     bool
+	noColor            bool
+	stdout             io.Writer
+	stderr             io.Writer
+	logRingCapacity    int
+	logSegmentBytes    int64
+	logRetentionAge    time.Duration
+	logRetentionBytes  int64
+	redactionPatterns  []string
+	aiCodexExecutable  string
+	aiCodexModel       string
+	aiClaudeExecutable string
+	aiClaudeModel      string
+	aiOpenAIEndpoint   string
+	aiOpenAIModel      string
+	aiOpenAIAPIKeyEnv  string
 }
 
 // Execute runs the CLI with explicit process dependencies.
@@ -43,6 +50,9 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	options := &rootOptions{address: config.HTTPAddr, dataDir: config.DataDir, stdout: stdout, stderr: stderr,
 		logRingCapacity: config.LogRingCapacity, logSegmentBytes: config.LogSegmentBytes,
 		logRetentionAge: config.LogRetentionAge, logRetentionBytes: config.LogRetentionBytes,
+		aiCodexExecutable: config.AICodexExecutable, aiCodexModel: config.AICodexModel,
+		aiClaudeExecutable: config.AIClaudeExecutable, aiClaudeModel: config.AIClaudeModel,
+		aiOpenAIEndpoint: config.AIOpenAIEndpoint, aiOpenAIModel: config.AIOpenAIModel, aiOpenAIAPIKeyEnv: config.AIOpenAIAPIKeyEnv,
 	}
 	command := newRootCommand(options)
 	command.SetArgs(args)
@@ -101,6 +111,9 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 			LogRingCapacity: options.logRingCapacity, LogSegmentBytes: options.logSegmentBytes,
 			LogRetentionAge: options.logRetentionAge, LogRetentionBytes: options.logRetentionBytes,
 			RedactionPatterns: options.redactionPatterns,
+			AICodexExecutable: options.aiCodexExecutable, AICodexModel: options.aiCodexModel,
+			AIClaudeExecutable: options.aiClaudeExecutable, AIClaudeModel: options.aiClaudeModel,
+			AIOpenAIEndpoint: options.aiOpenAIEndpoint, AIOpenAIModel: options.aiOpenAIModel, AIOpenAIAPIKeyEnv: options.aiOpenAIAPIKeyEnv,
 		})
 	}}
 	command.Flags().IntVar(&options.logRingCapacity, "log-ring-entries", options.logRingCapacity, "redacted in-memory log entries per service")
@@ -108,6 +121,13 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 	command.Flags().DurationVar(&options.logRetentionAge, "log-retention-age", options.logRetentionAge, "maximum retained log age")
 	command.Flags().Int64Var(&options.logRetentionBytes, "log-retention-bytes", options.logRetentionBytes, "maximum retained log bytes")
 	command.Flags().StringSliceVar(&options.redactionPatterns, "redact-pattern", nil, "additional regular expression to redact (repeatable)")
+	command.Flags().StringVar(&options.aiCodexExecutable, "ai-codex-executable", options.aiCodexExecutable, "Codex CLI executable or absolute path")
+	command.Flags().StringVar(&options.aiCodexModel, "ai-codex-model", options.aiCodexModel, "optional Codex model override")
+	command.Flags().StringVar(&options.aiClaudeExecutable, "ai-claude-executable", options.aiClaudeExecutable, "Claude Code executable or absolute path")
+	command.Flags().StringVar(&options.aiClaudeModel, "ai-claude-model", options.aiClaudeModel, "optional Claude Code model override")
+	command.Flags().StringVar(&options.aiOpenAIEndpoint, "ai-openai-endpoint", options.aiOpenAIEndpoint, "configured OpenAI-compatible endpoint base URL")
+	command.Flags().StringVar(&options.aiOpenAIModel, "ai-openai-model", options.aiOpenAIModel, "configured OpenAI-compatible model")
+	command.Flags().StringVar(&options.aiOpenAIAPIKeyEnv, "ai-openai-api-key-env", options.aiOpenAIAPIKeyEnv, "environment variable containing the endpoint API key")
 	return command
 }
 

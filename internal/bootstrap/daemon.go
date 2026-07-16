@@ -14,6 +14,11 @@ import (
 
 	actionsAdapters "switchyard.dev/switchyard/internal/actions/adapters"
 	actionsApplication "switchyard.dev/switchyard/internal/actions/application"
+	agentsAdapters "switchyard.dev/switchyard/internal/agents/adapters"
+	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
+	claudeProvider "switchyard.dev/switchyard/internal/agents/providers/claude"
+	codexProvider "switchyard.dev/switchyard/internal/agents/providers/codex"
+	openAIProvider "switchyard.dev/switchyard/internal/agents/providers/openai"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
@@ -111,10 +116,24 @@ func RunDaemon(ctx context.Context, config Config) error {
 		actionsAdapters.NewRunner(actionsAdapters.NewLauncher()),
 		actionAudits,
 	)
+	providerRegistry, err := agentsApplication.NewRegistry(
+		codexProvider.NewProposalProvider(codexProvider.ProposalConfig{Executable: config.AICodexExecutable, Model: config.AICodexModel, Redactor: redactor}),
+		claudeProvider.NewProposalProvider(claudeProvider.ProposalConfig{Executable: config.AIClaudeExecutable, Model: config.AIClaudeModel, Redactor: redactor}),
+		openAIProvider.NewProposalProvider(openAIProvider.ProposalConfig{Endpoint: config.AIOpenAIEndpoint, Model: config.AIOpenAIModel, APIKey: os.Getenv(config.AIOpenAIAPIKeyEnv), Redactor: redactor}),
+	)
+	if err != nil {
+		return err
+	}
+	aiService, err := agentsApplication.NewEnhancementService(
+		catalogService, sqlite.NewAgentRunRepository(database), agentsAdapters.RepositoryReader{}, redactor, agentsAdapters.ManifestValidator{}, providerRegistry,
+	)
+	if err != nil {
+		return err
+	}
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
-			return executeOperation(operationCtx, runtimeService, healthService, actionService, operation, progress)
+			return executeOperation(operationCtx, runtimeService, healthService, actionService, aiService, operation, progress)
 		},
 	))
 	if err := coordinator.Recover(ctx); err != nil {
@@ -148,6 +167,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
+		AI:  aiService,
 		Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)
@@ -171,10 +191,27 @@ func executeOperation(
 	runtimeService *runtimeApplication.Service,
 	health requiredHealthWaiter,
 	actions *actionsApplication.Service,
+	ai *agentsApplication.EnhancementService,
 	operation domain.Operation,
 	progress operations.Progress,
 ) error {
 	switch operation.Kind {
+	case "manifest.enhance":
+		var input struct {
+			ProposalID string                   `json:"proposalId"`
+			Provider   string                   `json:"provider"`
+			Limits     agentsApplication.Limits `json:"limits"`
+		}
+		if err := json.Unmarshal(operation.Input, &input); err != nil || input.ProposalID == "" || input.Provider == "" {
+			return fmt.Errorf("decode manifest enhancement operation")
+		}
+		_ = progress.Step(ctx, "manifest.evidence", "succeeded", "redacted evidence bundle prepared")
+		_ = progress.Step(ctx, "manifest.provider", "running", "provider proposal requested")
+		err := ai.Execute(ctx, operation.ID, input.ProposalID, input.Provider, input.Limits)
+		if err == nil {
+			_ = progress.Step(ctx, "manifest.provider", "succeeded", "provider proposal validated and merged")
+		}
+		return err
 	case "action.run":
 		var input struct {
 			ActionID         string `json:"actionId"`

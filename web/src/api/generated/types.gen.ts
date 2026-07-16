@@ -192,6 +192,125 @@ export type AcceptedManifestProposal = {
     proposal: ManifestProposal;
 };
 
+export type AiGenerationLimits = {
+    evidenceBytes?: number;
+    outputBytes?: number;
+    timeoutSeconds?: number;
+    maxTurns?: number;
+    maxOutputTokens?: number;
+    maxBudgetUsd?: number;
+};
+
+export type AiProviderDescriptor = {
+    id: string;
+    name: string;
+    kind: 'cli' | 'http';
+    model?: string;
+    available: boolean;
+    reason?: string;
+    supportedBudgetKinds: Array<string>;
+};
+
+export type AiEvidenceItem = {
+    id: string;
+    kind: string;
+    sourcePath: string;
+    location: SourceRange;
+    confidence: number;
+    data: {
+        [key: string]: unknown;
+    };
+    warnings: Array<string>;
+    excerpt?: string;
+    truncated: boolean;
+};
+
+export type AiEvidenceBundle = {
+    version: string;
+    projectId: string;
+    proposalId: string;
+    deterministicCandidate: {
+        [key: string]: unknown;
+    };
+    confidenceByField: {
+        [key: string]: number;
+    };
+    unresolved: Array<string>;
+    evidence: Array<AiEvidenceItem>;
+    redactionCount: number;
+    truncated: boolean;
+    encodedBytes: number;
+};
+
+export type AiEvidencePreview = {
+    bundle: AiEvidenceBundle;
+    encoded: {
+        [key: string]: unknown;
+    };
+    sha256: string;
+    limits: AiGenerationLimits;
+};
+
+export type CreateAiManifestEnhancementRequest = {
+    provider: string;
+    limits: AiGenerationLimits;
+};
+
+export type AiFieldReview = {
+    path: string;
+    source: 'deterministic' | 'ai' | 'rejected';
+    confidence: number;
+    evidenceIds: Array<string>;
+    rationale: string;
+    warnings: Array<string>;
+};
+
+export type AiConflict = {
+    path: string;
+    deterministicValue: unknown;
+    proposedValue: unknown;
+    resolution: 'kept_deterministic';
+};
+
+export type AiDryRun = {
+    valid: boolean;
+    schemaValid: boolean;
+    evidenceBacked: boolean;
+    repositorySafe: boolean;
+    errors: Array<string>;
+    warnings: Array<string>;
+};
+
+export type AiUsage = {
+    inputTokens?: number;
+    outputTokens?: number;
+    costUsd?: number;
+};
+
+export type AiManifestEnhancement = {
+    operationId: string;
+    projectId: string;
+    sourceProposalId: string;
+    resultProposalId?: string;
+    provider: string;
+    model?: string;
+    state: 'running' | 'succeeded' | 'failed' | 'cancelled';
+    bundle: {
+        [key: string]: unknown;
+    };
+    bundleSha256: string;
+    limits: AiGenerationLimits;
+    fields: Array<AiFieldReview>;
+    conflicts: Array<AiConflict>;
+    warnings: Array<string>;
+    dryRun: AiDryRun;
+    usage: AiUsage;
+    errorCode?: string;
+    errorMessage?: string;
+    startedAt: string;
+    finishedAt?: string;
+};
+
 export type ManifestSource = {
     name: string;
     path?: string;
@@ -727,6 +846,119 @@ export type AcceptManifestProposalResponses = {
 };
 
 export type AcceptManifestProposalResponse = AcceptManifestProposalResponses[keyof AcceptManifestProposalResponses];
+
+export type ListAiProposalProvidersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/ai-providers';
+};
+
+export type ListAiProposalProvidersErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListAiProposalProvidersError = ListAiProposalProvidersErrors[keyof ListAiProposalProvidersErrors];
+
+export type ListAiProposalProvidersResponses = {
+    /**
+     * Provider capabilities
+     */
+    200: Array<AiProviderDescriptor>;
+};
+
+export type ListAiProposalProvidersResponse = ListAiProposalProvidersResponses[keyof ListAiProposalProvidersResponses];
+
+export type PreviewAiManifestEvidenceData = {
+    body: AiGenerationLimits;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        proposalId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}/ai-preview';
+};
+
+export type PreviewAiManifestEvidenceErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type PreviewAiManifestEvidenceError = PreviewAiManifestEvidenceErrors[keyof PreviewAiManifestEvidenceErrors];
+
+export type PreviewAiManifestEvidenceResponses = {
+    /**
+     * Exact provider evidence receipt
+     */
+    200: AiEvidencePreview;
+};
+
+export type PreviewAiManifestEvidenceResponse = PreviewAiManifestEvidenceResponses[keyof PreviewAiManifestEvidenceResponses];
+
+export type CreateAiManifestEnhancementData = {
+    body: CreateAiManifestEnhancementRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        proposalId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}/ai-enhancements';
+};
+
+export type CreateAiManifestEnhancementErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateAiManifestEnhancementError = CreateAiManifestEnhancementErrors[keyof CreateAiManifestEnhancementErrors];
+
+export type CreateAiManifestEnhancementResponses = {
+    /**
+     * Durable provider operation
+     */
+    202: Operation;
+};
+
+export type CreateAiManifestEnhancementResponse = CreateAiManifestEnhancementResponses[keyof CreateAiManifestEnhancementResponses];
+
+export type GetAiManifestEnhancementData = {
+    body?: never;
+    path: {
+        proposalId: string;
+        operationId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}/ai-enhancements/{operationId}';
+};
+
+export type GetAiManifestEnhancementErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetAiManifestEnhancementError = GetAiManifestEnhancementErrors[keyof GetAiManifestEnhancementErrors];
+
+export type GetAiManifestEnhancementResponses = {
+    /**
+     * Assisted proposal run
+     */
+    200: AiManifestEnhancement;
+};
+
+export type GetAiManifestEnhancementResponse = GetAiManifestEnhancementResponses[keyof GetAiManifestEnhancementResponses];
 
 export type ListProjectsData = {
     body?: never;

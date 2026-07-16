@@ -115,6 +115,15 @@ with `switchyard agent install codex` or `switchyard agent install claude`.
 See the [MCP reference](docs/mcp.md) and
 [agent integration architecture](docs/architecture/agent-integration.md).
 
+Ambiguous onboarding can optionally use Codex CLI, Claude Code, or one
+explicitly configured OpenAI-compatible endpoint. Switchyard previews and
+persists the exact redacted evidence payload, runs CLI providers outside the
+repository, schema-validates and evidence-checks every suggestion, retains
+high-confidence deterministic facts, and requires human approval of the
+resulting untrusted revision. Provider absence never affects deterministic
+onboarding. See the
+[AI-assisted onboarding architecture](docs/architecture/ai-assisted-onboarding.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

@@ -23,6 +23,7 @@ type Dependencies struct {
 	Ports      portService
 	Git        gitService
 	Actions    actionService
+	AI         aiOnboardingService
 	Events     http.Handler
 	Logs       http.Handler
 	Web        http.Handler
@@ -53,7 +54,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 	generated.HandlerFromMux(&handler{
 		system: dependencies.System, host: dependencies.Host, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
 		runtime: dependencies.Runtime, health: dependencies.Health, logs: dependencies.LogService,
-		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions,
+		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {

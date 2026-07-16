@@ -1,9 +1,14 @@
 import {
   acceptManifestProposal,
+  cancelOperation,
+  createAiManifestEnhancement,
   createActionOperation,
   createManifestProposal,
   createProjectOperation,
   explainProjectManifest,
+  getAiManifestEnhancement,
+  getManifestProposal,
+  getOperation,
   getProject,
   getProjectGit,
   getProjectHealth,
@@ -11,11 +16,17 @@ import {
   getProjectMetrics,
   getProjectRuntime,
   listProjectActions,
+  listAiProposalProviders,
   listProjects,
   validateManifestProposal,
+  previewAiManifestEvidence,
 } from '../../api/generated/sdk.gen'
 import type {
   AcceptedManifestProposal,
+  AiEvidencePreview,
+  AiGenerationLimits,
+  AiManifestEnhancement,
+  AiProviderDescriptor,
   EffectiveManifest,
   GitState,
   ManifestProposal,
@@ -70,6 +81,56 @@ export async function approveProposal(proposalId: string): Promise<AcceptedManif
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) throw new Error('The proposal could not be approved.')
+  return result.data
+}
+
+export async function loadAIProviders(): Promise<Array<AiProviderDescriptor>> {
+  const result = await listAiProposalProviders()
+  if (result.error || !result.data) throw new Error('Assisted-onboarding providers could not be loaded.')
+  return result.data
+}
+
+export async function previewAIEvidence(proposalId: string, limits: AiGenerationLimits): Promise<AiEvidencePreview> {
+  const result = await previewAiManifestEvidence({
+    path: { proposalId }, body: limits,
+    headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data) throw new Error('The provider evidence preview could not be prepared.')
+  return result.data
+}
+
+export async function startAIEnhancement(proposalId: string, provider: string, limits: AiGenerationLimits): Promise<Operation> {
+  const result = await createAiManifestEnhancement({
+    path: { proposalId }, body: { provider, limits },
+    headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data) throw new Error('The assisted-onboarding operation could not be queued.')
+  return result.data
+}
+
+export async function loadOperation(operationId: string): Promise<Operation> {
+  const result = await getOperation({ path: { operationId } })
+  if (result.error || !result.data) throw new Error('The assisted-onboarding operation became unavailable.')
+  return result.data
+}
+
+export async function stopOperation(operationId: string): Promise<Operation> {
+  const result = await cancelOperation({
+    path: { operationId }, headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data) throw new Error('The cancellation request could not be recorded.')
+  return result.data
+}
+
+export async function loadAIEnhancement(proposalId: string, operationId: string): Promise<AiManifestEnhancement> {
+  const result = await getAiManifestEnhancement({ path: { proposalId, operationId } })
+  if (result.error || !result.data) throw new Error('The assisted-onboarding receipt could not be loaded.')
+  return result.data
+}
+
+export async function loadManifestProposal(proposalId: string): Promise<ManifestProposal> {
+  const result = await getManifestProposal({ path: { proposalId } })
+  if (result.error || !result.data) throw new Error('The generated manifest proposal could not be loaded.')
   return result.data
 }
 

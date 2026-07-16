@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	actions "switchyard.dev/switchyard/internal/actions/application"
+	agents "switchyard.dev/switchyard/internal/agents/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	operations "switchyard.dev/switchyard/internal/operations/application"
@@ -39,6 +40,9 @@ func writeProblem(w http.ResponseWriter, r *http.Request, status int, code, titl
 }
 
 func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
+	if writeAgentError(w, r, err) {
+		return
+	}
 	switch {
 	case errors.Is(err, catalog.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "CATALOG_NOT_FOUND", "Catalog entity not found", "No project or proposal exists for this identifier.")
@@ -46,6 +50,8 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusUnprocessableEntity, "PROPOSAL_INVALID", "Manifest proposal invalid", err.Error())
 	case errors.Is(err, catalog.ErrAlreadyReviewed):
 		writeProblem(w, r, http.StatusConflict, "PROPOSAL_REVIEWED", "Manifest proposal already reviewed", "Create a new proposal before making another trust decision.")
+	case errors.Is(err, catalog.ErrHumanApprovalRequired):
+		writeProblem(w, r, http.StatusForbidden, "HUMAN_APPROVAL_REQUIRED", "Human approval required", "Assisted manifest proposals cannot be accepted by an agent identity.")
 	case errors.Is(err, operations.ErrInvalidRequest):
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request invalid", "One or more request parameters are outside their supported range.")
 	case errors.Is(err, operations.ErrNotFound):
@@ -77,4 +83,20 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 	default:
 		writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error", "The request could not be completed.")
 	}
+}
+
+func writeAgentError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, agents.ErrProviderUnavailable):
+		writeProblem(w, r, http.StatusServiceUnavailable, "AI_PROVIDER_UNAVAILABLE", "AI provider unavailable", err.Error())
+	case errors.Is(err, agents.ErrProviderOutput):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "AI_PROVIDER_OUTPUT_REJECTED", "AI provider output rejected", err.Error())
+	case errors.Is(err, agents.ErrRunNotFound):
+		writeProblem(w, r, http.StatusNotFound, "AI_RUN_NOT_FOUND", "Assisted onboarding run not found", "No assisted onboarding receipt exists for this operation.")
+	case errors.Is(err, agents.ErrInvalidLimits):
+		writeProblem(w, r, http.StatusBadRequest, "AI_LIMITS_INVALID", "AI generation limits invalid", "Use supported byte, timeout, turn, token, and cost ceilings.")
+	default:
+		return false
+	}
+	return true
 }

@@ -96,6 +96,54 @@ func (r *CatalogRepository) CreateProposal(ctx context.Context, project catalog.
 	return nil
 }
 
+// CreateRevision atomically supersedes one pending proposal and stores its untrusted replacement.
+func (r *CatalogRepository) CreateRevision(ctx context.Context, sourceID string, proposal discovery.Proposal, actor application.MutationActor) error {
+	tx, err := r.database.connection.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin proposal revision: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	result, err := tx.ExecContext(ctx, `UPDATE manifest_proposals SET status = 'superseded'
+		WHERE id = ? AND project_id = ? AND status = 'proposed'`, sourceID, proposal.ProjectID)
+	if err != nil {
+		return fmt.Errorf("supersede source proposal: %w", err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		return application.ErrAlreadyReviewed
+	}
+	candidate, _ := json.Marshal(proposal.Candidate)
+	confidence, _ := json.Marshal(proposal.ConfidenceByField)
+	unresolved, _ := json.Marshal(proposal.Unresolved)
+	validation, _ := json.Marshal(proposal.Validation)
+	_, err = tx.ExecContext(ctx, `INSERT INTO manifest_proposals
+		(id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, proposal.ID, proposal.ProjectID, proposal.ScannerVersion,
+		proposal.SchemaVersion, candidate, confidence, unresolved, validation, proposal.Status, formatTime(proposal.CreatedAt))
+	if err != nil {
+		return fmt.Errorf("insert proposal revision: %w", err)
+	}
+	for _, item := range proposal.Evidence {
+		warnings, _ := json.Marshal(item.Warnings)
+		if _, err = tx.ExecContext(ctx, `INSERT INTO discovery_evidence
+			(id, proposal_id, scanner, kind, source_path, start_line, end_line, confidence, data_json, warnings_json)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, item.ID, proposal.ID, item.Scanner, item.Kind, item.SourcePath,
+			item.Location.StartLine, item.Location.EndLine, item.Confidence, item.Data, warnings); err != nil {
+			return fmt.Errorf("insert revision evidence: %w", err)
+		}
+	}
+	detail, _ := json.Marshal(map[string]string{"sourceProposalId": sourceID})
+	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
+		(event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
+		VALUES ('manifest.proposal.assisted', ?, ?, ?, ?, ?, ?)`, actor.Type, actor.ID, proposal.ProjectID, proposal.ID, detail, formatTime(proposal.CreatedAt)); err != nil {
+		return fmt.Errorf("audit proposal revision: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("commit proposal revision: %w", err)
+	}
+	return nil
+}
+
 // GetProposal rehydrates a proposal aggregate with normalized evidence.
 func (r *CatalogRepository) GetProposal(ctx context.Context, id string) (discovery.Proposal, error) {
 	row := r.database.connection.QueryRowContext(ctx, `SELECT id, project_id, scanner_version, schema_version,

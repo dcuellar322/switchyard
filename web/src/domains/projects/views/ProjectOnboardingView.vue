@@ -4,7 +4,15 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import type { ManifestProposal, Project } from '../../../api/generated/types.gen'
-import { approveProposal, loadProjects, revalidateProposal, scanRepository } from '../api'
+import AIFieldReview from '../components/AIFieldReview.vue'
+import AIEvidenceConsent from '../components/AIEvidenceConsent.vue'
+import { useAssistedOnboarding } from '../composables/useAssistedOnboarding'
+import {
+  approveProposal,
+  loadProjects,
+  revalidateProposal,
+  scanRepository,
+} from '../api'
 
 const router = useRouter()
 const queryClient = useQueryClient()
@@ -13,19 +21,24 @@ const projects = ref<Array<Project>>([])
 const proposal = ref<ManifestProposal>()
 const pending = ref(false)
 const error = ref('')
+const assisted = useAssistedOnboarding(proposal)
+const busy = computed(() => pending.value || assisted.pending.value)
+const displayedError = computed(() => error.value || assisted.error.value)
 
-type Candidate = {
-  metadata?: { name?: string; tags?: Array<string> }
-  runtime?: { driver?: string }
-  services?: Array<{ id?: string; displayName?: string }>
-  ports?: Array<{ id?: string; host?: number; target?: number; service?: string }>
-  actions?: Array<{ id?: string; name?: string; command?: Array<string> }>
-}
-
-const candidate = computed(() => (proposal.value?.candidate ?? {}) as Candidate)
+type JSONObject = Record<string, unknown>
+const objectValue = (value: unknown): JSONObject => typeof value === 'object' && value !== null && !Array.isArray(value) ? value as JSONObject : {}
+const objectArray = (value: unknown): Array<JSONObject> => Array.isArray(value) ? value.map(objectValue) : []
+const candidate = computed(() => objectValue(proposal.value?.candidate))
+const metadata = computed(() => objectValue(candidate.value.metadata))
+const runtime = computed(() => objectValue(candidate.value.runtime))
+const services = computed(() => objectArray(candidate.value.services))
+const ports = computed(() => objectArray(candidate.value.ports))
+const actions = computed(() => objectArray(candidate.value.actions))
+const command = (action: JSONObject): string => Array.isArray(action.command) ? action.command.join(' ') : ''
 
 onMounted(async () => {
-  projects.value = await loadProjects().catch(() => [])
+  const [loadedProjects] = await Promise.all([loadProjects().catch(() => []), assisted.initializeProviders()])
+  projects.value = loadedProjects
 })
 
 async function scan() {
@@ -33,6 +46,7 @@ async function scan() {
   error.value = ''
   try {
     proposal.value = await scanRepository(repositoryPath.value)
+    assisted.reset()
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Repository scan failed.'
   } finally {
@@ -79,9 +93,9 @@ async function accept() {
       <label for="repository-path">Repository path</label>
       <div class="scan-form__controls">
         <input id="repository-path" v-model="repositoryPath" required autocomplete="off" placeholder="/Users/you/dev/project" />
-        <button type="submit" :disabled="pending">{{ pending ? 'Scanning…' : 'Scan repository' }}</button>
+        <button type="submit" :disabled="busy">{{ busy ? 'Scanning…' : 'Scan repository' }}</button>
       </div>
-      <p v-if="error" class="message message--error" role="alert">{{ error }}</p>
+      <p v-if="displayedError" class="message message--error" role="alert">{{ displayedError }}</p>
     </form>
 
     <div v-if="proposal" class="review-grid">
@@ -89,16 +103,16 @@ async function accept() {
         <div class="review-card__heading">
           <div>
             <p class="eyebrow">Candidate manifest</p>
-            <h2>{{ candidate.metadata?.name ?? 'Unnamed project' }}</h2>
+            <h2>{{ metadata.name ?? 'Unnamed project' }}</h2>
           </div>
           <span class="status" :class="{ 'status--ready': proposal.validation.valid }">
             {{ proposal.status === 'accepted' ? 'Trusted' : proposal.validation.valid ? 'Ready for review' : 'Needs attention' }}
           </span>
         </div>
         <dl class="facts">
-          <div><dt>Runtime</dt><dd>{{ candidate.runtime?.driver ?? 'Unresolved' }}</dd></div>
-          <div><dt>Services</dt><dd>{{ candidate.services?.length ?? 0 }}</dd></div>
-          <div><dt>Ports</dt><dd>{{ candidate.ports?.length ?? 0 }}</dd></div>
+          <div><dt>Runtime</dt><dd>{{ runtime.driver ?? 'Unresolved' }}</dd></div>
+          <div><dt>Services</dt><dd>{{ services.length }}</dd></div>
+          <div><dt>Ports</dt><dd>{{ ports.length }}</dd></div>
           <div><dt>Evidence</dt><dd>{{ proposal.evidence.length }}</dd></div>
         </dl>
         <div v-if="proposal.unresolved.length" class="message">
@@ -108,8 +122,8 @@ async function accept() {
           {{ validationError }}
         </div>
         <div class="review-actions">
-          <button class="button--secondary" type="button" :disabled="pending" @click="validate">Validate again</button>
-          <button type="button" :disabled="pending || !proposal.validation.valid || proposal.unresolved.length > 0 || proposal.status !== 'proposed'" @click="accept">
+          <button class="button--secondary" type="button" :disabled="busy" @click="validate">Validate again</button>
+          <button type="button" :disabled="busy || !proposal.validation.valid || proposal.unresolved.length > 0 || proposal.status !== 'proposed'" @click="accept">
             Approve and trust project
           </button>
         </div>
@@ -119,9 +133,9 @@ async function accept() {
         <p class="eyebrow">Detected runtime</p>
         <h2>Services and ports</h2>
         <ul class="detected-list">
-          <li v-for="service in candidate.services" :key="service.id"><strong>{{ service.displayName || service.id }}</strong><span>Compose service</span></li>
-          <li v-for="port in candidate.ports" :key="port.id"><strong>{{ port.host }} → {{ port.target }}</strong><span>{{ port.service }} · {{ port.id }}</span></li>
-          <li v-if="!candidate.services?.length && !candidate.ports?.length" class="empty">No runtime declarations were resolved.</li>
+          <li v-for="service in services" :key="String(service.id)"><strong>{{ service.displayName || service.id }}</strong><span>Declared service</span></li>
+          <li v-for="port in ports" :key="String(port.id)"><strong>{{ port.host }} → {{ port.target }}</strong><span>{{ port.service }} · {{ port.id }}</span></li>
+          <li v-if="services.length === 0 && ports.length === 0" class="empty">No runtime declarations were resolved.</li>
         </ul>
       </article>
 
@@ -138,11 +152,24 @@ async function accept() {
         </div>
       </article>
 
-      <article v-if="candidate.actions?.length" class="review-card review-card--wide">
+      <AIEvidenceConsent
+        v-if="proposal.status === 'proposed'"
+        v-model:selected-provider="assisted.selectedProvider.value"
+        v-model:consented="assisted.evidenceConsented.value"
+        :providers="assisted.providers.value"
+        :preview="assisted.evidencePreview.value"
+        :pending="busy"
+        @preview="assisted.previewEvidence"
+        @start="assisted.enhance"
+      />
+
+      <AIFieldReview :operation="assisted.operation.value" :run="assisted.run.value" :cancelling="assisted.cancelling.value" @cancel="assisted.cancel" />
+
+      <article v-if="actions.length" class="review-card review-card--wide">
         <p class="eyebrow">Executable review</p>
         <h2>Proposed commands</h2>
         <ul class="command-list">
-          <li v-for="action in candidate.actions" :key="action.id"><span>{{ action.name }}</span><code>{{ action.command?.join(' ') }}</code></li>
+          <li v-for="action in actions" :key="String(action.id)"><span>{{ action.name }}</span><code>{{ command(action) }}</code></li>
         </ul>
       </article>
     </div>

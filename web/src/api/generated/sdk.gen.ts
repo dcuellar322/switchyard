@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetHostData, GetHostErrors, GetHostResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateAiManifestEnhancementData, CreateAiManifestEnhancementErrors, CreateAiManifestEnhancementResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetAiManifestEnhancementData, GetAiManifestEnhancementErrors, GetAiManifestEnhancementResponses, GetHostData, GetHostErrors, GetHostResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListAiProposalProvidersData, ListAiProposalProvidersErrors, ListAiProposalProvidersResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, PreviewAiManifestEvidenceData, PreviewAiManifestEvidenceErrors, PreviewAiManifestEvidenceResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -86,6 +86,40 @@ export const validateManifestProposal = <ThrowOnError extends boolean = false>(o
  * Approve the proposal and trust its project
  */
 export const acceptManifestProposal = <ThrowOnError extends boolean = false>(options: Options<AcceptManifestProposalData, ThrowOnError>): RequestResult<AcceptManifestProposalResponses, AcceptManifestProposalErrors, ThrowOnError> => (options.client ?? client).post<AcceptManifestProposalResponses, AcceptManifestProposalErrors, ThrowOnError>({ url: '/manifest-proposals/{proposalId}/accept', ...options });
+
+/**
+ * List configured assisted-onboarding providers and current availability
+ */
+export const listAiProposalProviders = <ThrowOnError extends boolean = false>(options?: Options<ListAiProposalProvidersData, ThrowOnError>): RequestResult<ListAiProposalProvidersResponses, ListAiProposalProvidersErrors, ThrowOnError> => (options?.client ?? client).get<ListAiProposalProvidersResponses, ListAiProposalProvidersErrors, ThrowOnError>({ url: '/ai-providers', ...options });
+
+/**
+ * Preview the exact redacted evidence payload for provider consent
+ */
+export const previewAiManifestEvidence = <ThrowOnError extends boolean = false>(options: Options<PreviewAiManifestEvidenceData, ThrowOnError>): RequestResult<PreviewAiManifestEvidenceResponses, PreviewAiManifestEvidenceErrors, ThrowOnError> => (options.client ?? client).post<PreviewAiManifestEvidenceResponses, PreviewAiManifestEvidenceErrors, ThrowOnError>({
+    url: '/manifest-proposals/{proposalId}/ai-preview',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Queue a cancellable assisted-onboarding operation
+ */
+export const createAiManifestEnhancement = <ThrowOnError extends boolean = false>(options: Options<CreateAiManifestEnhancementData, ThrowOnError>): RequestResult<CreateAiManifestEnhancementResponses, CreateAiManifestEnhancementErrors, ThrowOnError> => (options.client ?? client).post<CreateAiManifestEnhancementResponses, CreateAiManifestEnhancementErrors, ThrowOnError>({
+    url: '/manifest-proposals/{proposalId}/ai-enhancements',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read an assisted-onboarding evidence and review receipt
+ */
+export const getAiManifestEnhancement = <ThrowOnError extends boolean = false>(options: Options<GetAiManifestEnhancementData, ThrowOnError>): RequestResult<GetAiManifestEnhancementResponses, GetAiManifestEnhancementErrors, ThrowOnError> => (options.client ?? client).get<GetAiManifestEnhancementResponses, GetAiManifestEnhancementErrors, ThrowOnError>({ url: '/manifest-proposals/{proposalId}/ai-enhancements/{operationId}', ...options });
 
 /**
  * List registered projects
