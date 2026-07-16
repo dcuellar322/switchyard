@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Switchyard</title>
+  <rect width="512" height="512" rx="112" fill="#101725"/>
+  <path d="M156 104v304" fill="none" stroke="#55a8ff" stroke-linecap="round" stroke-width="52"/>
+  <path d="M156 256h78c70 0 80-98 151-98h15" fill="none" stroke="#78dba9" stroke-linecap="round" stroke-width="44"/>
+  <path d="M156 256h78c70 0 80 98 151 98h15" fill="none" stroke="#55a8ff" stroke-linecap="round" stroke-width="44"/>
+  <circle cx="156" cy="256" r="25" fill="#f6f9ff"/>
+</svg>

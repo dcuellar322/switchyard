@@ -7,6 +7,10 @@
 
 # Frontend
 node_modules/
+desktop/src-tauri/binaries/*
+!desktop/src-tauri/binaries/.gitkeep
+desktop/src-tauri/gen/schemas/
+desktop/src-tauri/target/
 web/node_modules/
 .pnpm-store/
 web/dist/*
@@ -21,6 +25,7 @@ web/test-results/
 *.db-shm
 *.db-wal
 *.lock
+!desktop/src-tauri/Cargo.lock
 !test/fixtures/**/uv.lock
 
 # Editors and operating systems

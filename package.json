@@ -10,11 +10,19 @@
   },
   "scripts": {
     "build": "pnpm --filter @switchyard/web build",
+    "desktop": "tauri",
+    "desktop:prepare": "pnpm --dir web build && ./desktop/scripts/build-sidecar.sh",
+    "desktop:dev": "cd desktop/src-tauri && pnpm -C ../.. exec tauri dev",
+    "desktop:build": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --debug",
+    "desktop:release": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --config tauri.release.conf.json --ci",
     "generate": "pnpm --filter @switchyard/web generate",
     "lint": "pnpm --filter @switchyard/web lint",
     "typecheck": "pnpm --filter @switchyard/web typecheck",
     "test": "pnpm --filter @switchyard/web test",
     "test:e2e": "pnpm --filter @switchyard/web test:e2e",
     "test:visual": "pnpm --filter @switchyard/web test:visual"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4"
   }
 }

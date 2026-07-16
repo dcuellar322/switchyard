@@ -58,9 +58,9 @@ at a time and includes tests and progress evidence.
 
 ## Development
 
-Prerequisites are Go 1.26.5, Node 22.13 or newer, and pnpm 11.13.1. Toolchain
-versions are pinned in `.go-version`, `.node-version`, `go.mod`, and the root
-`package.json`.
+Prerequisites are Go 1.26.5, Node 22.13 or newer, pnpm 11.13.1, and Rust 1.97.1
+for the optional native shell. Toolchain versions are pinned in `.go-version`,
+`.node-version`, `rust-toolchain.toml`, `go.mod`, and the root `package.json`.
 
 ```bash
 make bootstrap
@@ -76,6 +76,14 @@ one-time browser URL; direct unauthenticated API requests are rejected. The
 codes, shell completions, and automation rules. Run `make quality` for the
 complete local quality gate or the focused Make targets documented by
 `make -n quality`.
+
+On macOS, `make desktop-build` produces a native `.app` and DMG containing the
+same Go control plane. `pnpm desktop:dev` runs the shell locally. The shell
+adds a tray, native notifications, optional launch-at-login, deep links, and
+signed updates without moving product policy into Rust. See the
+[desktop installation guide](docs/desktop-installation.md) and
+[desktop architecture](docs/architecture/desktop-shell.md). The standalone Go
+binary remains the supported headless/server installation.
 
 Trusted Docker Compose projects support reviewable lifecycle plans, durable
 start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,

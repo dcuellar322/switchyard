@@ -38,6 +38,9 @@ The [embedded terminal and agent sessions](terminal-sessions.md) note defines
 Phase 14 PTY ownership, typed launch resolution, authenticated binary streams,
 detach persistence, bounded scrollback, and the user-visible agent metadata
 boundary.
+The [native desktop shell](desktop-shell.md) note defines Phase 15 sidecar
+attachment, compatibility gates, native adapter ownership, capability
+isolation, notification transitions, and signed update behavior.
 
 ## Process topology
 

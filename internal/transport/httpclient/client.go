@@ -105,6 +105,18 @@ func (c *Client) System(ctx context.Context) (generated.SystemInfo, error) {
 	return *response.JSON200, nil
 }
 
+// Host returns the bounded aggregate host observation used by native adapters.
+func (c *Client) Host(ctx context.Context) (generated.HostObservation, error) {
+	response, err := c.generated.GetHostWithResponse(ctx)
+	if err != nil {
+		return generated.HostObservation{}, fmt.Errorf("request host observation: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.HostObservation{}, apiError("request host observation", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
 // BrowserBootstrap requests a one-time browser credential over local IPC.
 func (c *Client) BrowserBootstrap(ctx context.Context) (generated.BrowserBootstrap, error) {
 	response, err := c.generated.CreateBrowserBootstrapTokenWithResponse(ctx)

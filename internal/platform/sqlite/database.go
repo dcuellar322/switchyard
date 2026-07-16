@@ -72,6 +72,17 @@ func (d *Database) initialize(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("create migration provider: %w", err)
 	}
+	currentVersion, targetVersion, err := provider.GetVersions(ctx)
+	if err != nil {
+		return fmt.Errorf("read sqlite migration compatibility: %w", err)
+	}
+	if currentVersion > targetVersion {
+		return fmt.Errorf(
+			"database schema version %d is newer than this binary supports (%d); install a compatible Switchyard version before opening this data",
+			currentVersion,
+			targetVersion,
+		)
+	}
 	if _, err := provider.Up(ctx); err != nil {
 		return fmt.Errorf("apply sqlite migrations: %w", err)
 	}

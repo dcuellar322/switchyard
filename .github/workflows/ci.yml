@@ -93,10 +93,38 @@ jobs:
           path: web/playwright-report
           retention-days: 7
 
+  desktop:
+    name: macOS desktop
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: rustup show
+      - run: make desktop-quality
+      - run: make desktop-build
+      - run: codesign --force --deep --sign - desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
+      - run: codesign --verify --deep --strict desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
+      - uses: actions/upload-artifact@v6
+        with:
+          name: switchyard-desktop-debug
+          path: |
+            desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
+            desktop/src-tauri/target/debug/bundle/dmg/*.dmg
+          retention-days: 7
+
   release-build:
     name: Embedded release build
     runs-on: ubuntu-latest
-    needs: [go, go-lint, frontend]
+    needs: [go, go-lint, frontend, desktop]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6

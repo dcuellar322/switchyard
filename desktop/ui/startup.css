@@ -1,0 +1,39 @@
+:root {
+  color: #e9f1ff;
+  background: #0b101b;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  margin: 0;
+  place-items: center;
+}
+
+main {
+  max-width: 40rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+h1 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+p {
+  color: #9eacc3;
+}
+
+pre {
+  overflow-wrap: anywhere;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #5c2931;
+  border-radius: 0.5rem;
+  color: #ffd4d8;
+  background: #241318;
+  text-align: left;
+  white-space: pre-wrap;
+}

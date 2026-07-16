@@ -91,6 +91,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 	root.PersistentFlags().BoolVar(&options.noColor, "no-color", false, "disable ANSI color output")
 	root.AddCommand(
 		newVersionCommand(options), newDaemonCommand(options), newUICommand(options), newDoctorCommand(options),
+		newDesktopCommand(options),
 		newAddCommand(options), newListAliasCommand(options), newProjectCommand(options), newOperationCommand(options),
 		newManifestCommand(options), newOpenCommand(options), newCompletionCommand(root), newSchemaCommand(options),
 		newStatusCommand(options), newPlanCommand(options), newLogsCommand(options), newMetricsCommand(options),
@@ -151,7 +152,12 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 }
 
 func newUICommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{Use: "ui", Short: "Print the local browser UI address", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+	uiPath := "/"
+	command := &cobra.Command{Use: "ui", Short: "Print the local browser UI address", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+		validatedPath, err := validateUIPath(uiPath)
+		if err != nil {
+			return err
+		}
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
 			return err
@@ -160,9 +166,15 @@ func newUICommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		address := "http://" + options.address + "/?bootstrap=" + url.QueryEscape(credential.Token)
+		separator := "?"
+		if strings.Contains(validatedPath, "?") {
+			separator = "&"
+		}
+		address := "http://" + options.address + validatedPath + separator + "bootstrap=" + url.QueryEscape(credential.Token)
 		return writeResult(options, "ui", map[string]any{"url": address, "expiresAt": credential.ExpiresAt}, func(w io.Writer) error { _, err := fmt.Fprintln(w, address); return err })
 	}}
+	command.Flags().StringVar(&uiPath, "path", uiPath, "relative application route to open")
+	return command
 }
 
 func newDoctorCommand(options *rootOptions) *cobra.Command {

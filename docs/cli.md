@@ -24,6 +24,7 @@ switchyard manifest explain <project>
 switchyard manifest diff <project>
 switchyard manifest validate <project>
 switchyard open <project> [--print]
+switchyard ui [--path /projects/<id>]
 switchyard doctor
 ```
 
@@ -32,6 +33,19 @@ repository path. Missing and ambiguous selections fail instead of guessing.
 Catalog removal never changes repository files. Trust and removal require
 `--yes`; Switchyard does not hide an interactive confirmation inside automation
 mode.
+
+`ui` starts or attaches to the local daemon and prints a short-lived,
+authenticated loopback URL. `--path` accepts only a local application route;
+remote origins, fragments, dot segments, backslashes, and caller-supplied
+bootstrap credentials are rejected. The native desktop adapter uses the same
+command after its compatibility preflight.
+
+`switchyard desktop snapshot --json` is a versioned, bounded native-adapter
+contract containing daemon identity, project runtime/health summaries,
+workspaces, recent operations, host pressure, and port-conflict count. It is
+read-only except that normal CLI attachment may start the bundled daemon when
+none is running. It is not intended as a replacement for the richer public
+query commands.
 
 ## Runtime commands
 

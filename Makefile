@@ -2,6 +2,7 @@ SHELL := /bin/sh
 
 GO ?= go
 PNPM ?= pnpm
+CARGO ?= cargo
 GOCACHE ?= $(CURDIR)/.cache/go-build
 VERSION ?= 0.1.0-alpha.0
 COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || printf unknown)
@@ -12,7 +13,7 @@ SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector migrate-check vuln quality frontend-install frontend-build
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector migrate-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
 
 bootstrap: frontend-install generate
 
@@ -35,6 +36,26 @@ generate-check:
 
 frontend-build:
 	$(PNPM) --dir web build
+
+desktop-prepare:
+	RUSTC="$$(rustup which rustc)" $(PNPM) desktop:prepare
+
+desktop-fmt:
+	$(CARGO) fmt --manifest-path desktop/src-tauri/Cargo.toml
+
+desktop-fmt-check:
+	$(CARGO) fmt --manifest-path desktop/src-tauri/Cargo.toml -- --check
+
+desktop-lint: desktop-prepare desktop-fmt-check
+	$(CARGO) clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+
+desktop-test: desktop-prepare
+	$(CARGO) test --manifest-path desktop/src-tauri/Cargo.toml
+
+desktop-build:
+	RUSTC="$$(rustup which rustc)" $(PNPM) desktop:build
+
+desktop-quality: desktop-lint desktop-test
 
 build: frontend-build
 	mkdir -p bin
@@ -86,4 +107,4 @@ migrate-check:
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...
 
-quality: generate-check lint typecheck test test-race migrate-check vuln test-e2e test-visual build
+quality: generate-check lint typecheck test test-race migrate-check vuln test-e2e test-visual build desktop-quality desktop-build

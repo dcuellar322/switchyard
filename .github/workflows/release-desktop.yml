@@ -1,0 +1,49 @@
+name: Release desktop
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    name: Sign, notarize, and publish macOS
+    runs-on: macos-latest
+    environment: desktop-release
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: rustup show
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          SWITCHYARD_UPDATER_PUBLIC_KEY: ${{ secrets.SWITCHYARD_UPDATER_PUBLIC_KEY }}
+          SWITCHYARD_UPDATER_ENDPOINT: ${{ secrets.SWITCHYARD_UPDATER_ENDPOINT }}
+        with:
+          projectPath: desktop/src-tauri
+          tauriScript: pnpm -C ../.. exec tauri
+          args: --config tauri.release.conf.json --ci
+          tagName: v__VERSION__
+          releaseName: Switchyard v__VERSION__
+          releaseBody: Signed and notarized Switchyard desktop release. See the repository changelog for details.
+          releaseDraft: true
+          prerelease: true
