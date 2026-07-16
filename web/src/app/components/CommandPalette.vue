@@ -248,7 +248,6 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
     </section>
   </div>
 </template>
-
 <style scoped>
 .palette-backdrop {
   position: fixed;
