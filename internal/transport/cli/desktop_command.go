@@ -10,13 +10,14 @@ import (
 )
 
 type desktopSnapshot struct {
-	System            generated.SystemInfo       `json:"system"`
-	Host              *generated.HostObservation `json:"host,omitempty"`
-	Projects          []desktopProjectSnapshot   `json:"projects"`
-	Workspaces        []generated.Workspace      `json:"workspaces"`
-	Operations        []generated.Operation      `json:"operations"`
-	PortConflictCount int                        `json:"portConflictCount"`
-	Warnings          []string                   `json:"warnings"`
+	System            generated.SystemInfo               `json:"system"`
+	Host              *generated.HostObservation         `json:"host,omitempty"`
+	Projects          []desktopProjectSnapshot           `json:"projects"`
+	Workspaces        []generated.Workspace              `json:"workspaces"`
+	Operations        []generated.Operation              `json:"operations"`
+	Notifications     []generated.DiagnosticNotification `json:"diagnosticNotifications"`
+	PortConflictCount int                                `json:"portConflictCount"`
+	Warnings          []string                           `json:"warnings"`
 }
 
 type desktopProjectSnapshot struct {
@@ -53,7 +54,8 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 
 			snapshot := desktopSnapshot{
 				System: system, Projects: make([]desktopProjectSnapshot, 0, len(projects)),
-				Workspaces: []generated.Workspace{}, Operations: []generated.Operation{}, Warnings: []string{},
+				Workspaces: []generated.Workspace{}, Operations: []generated.Operation{},
+				Notifications: []generated.DiagnosticNotification{}, Warnings: []string{},
 			}
 			if host, hostErr := client.Host(command.Context()); hostErr == nil {
 				snapshot.Host = &host
@@ -69,6 +71,11 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 				snapshot.Operations = operations
 			} else {
 				snapshot.Warnings = append(snapshot.Warnings, "operation snapshot unavailable")
+			}
+			if notifications, notificationErr := client.DiagnosticNotifications(command.Context(), "", false); notificationErr == nil {
+				snapshot.Notifications = notifications
+			} else {
+				snapshot.Warnings = append(snapshot.Warnings, "diagnostic notification snapshot unavailable")
 			}
 			if ports, portErr := client.PortRegistry(command.Context()); portErr == nil {
 				snapshot.PortConflictCount = len(ports.Conflicts)

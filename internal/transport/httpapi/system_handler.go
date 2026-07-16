@@ -11,6 +11,7 @@ import (
 	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
 	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
+	diagnosticsDomain "switchyard.dev/switchyard/internal/diagnostics/domain"
 	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
 	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
 	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
@@ -56,6 +57,8 @@ type handler struct {
 	ai                      aiOnboardingService
 	resources               resourceService
 	plugins                 pluginService
+	diagnostics             diagnosticService
+	automations             automationService
 	workspaces              workspaceService
 	environments            environmentService
 	environmentRegistration environmentRegistrationService
@@ -158,6 +161,23 @@ type pluginService interface {
 	Logs(context.Context, string, int) ([]pluginsDomain.LogEntry, error)
 	Inspect(context.Context, string, string) (pluginsdk.InspectResult, error)
 	ValidateOperation(context.Context, string, string) error
+}
+
+type diagnosticService interface {
+	Diagnose(context.Context, string, string) (diagnosticsDomain.Diagnosis, error)
+	Get(context.Context, string) (diagnosticsDomain.Diagnosis, error)
+	Latest(context.Context, string) (diagnosticsDomain.Diagnosis, error)
+	RecordFeedback(context.Context, string, string, string, string) (diagnosticsDomain.Feedback, error)
+	AuthorizeAction(context.Context, string, string) (diagnosticsDomain.Diagnosis, error)
+	Notifications(context.Context, string, bool, int) ([]diagnosticsDomain.Notification, error)
+	Acknowledge(context.Context, string) (diagnosticsDomain.Notification, error)
+}
+
+type automationService interface {
+	Save(context.Context, string, string, string, string, int, int) (diagnosticsDomain.Recipe, error)
+	List(context.Context, string) ([]diagnosticsDomain.Recipe, error)
+	SetEnabled(context.Context, string, bool) (diagnosticsDomain.Recipe, error)
+	Evaluate(context.Context, string) ([]string, error)
 }
 
 type workspaceService interface {

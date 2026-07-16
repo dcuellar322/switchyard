@@ -8,6 +8,7 @@ import (
 	actions "switchyard.dev/switchyard/internal/actions/application"
 	agents "switchyard.dev/switchyard/internal/agents/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
+	diagnostics "switchyard.dev/switchyard/internal/diagnostics/application"
 	environments "switchyard.dev/switchyard/internal/environments/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	resources "switchyard.dev/switchyard/internal/observability/application"
@@ -93,7 +94,25 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeDiagnosticError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, diagnostics.ErrDiagnosisNotFound):
+		writeProblem(w, r, http.StatusNotFound, "DIAGNOSIS_NOT_FOUND", "Diagnosis not found", "Run a fresh project diagnosis or verify the local identifier.")
+	case errors.Is(err, diagnostics.ErrInvalidFeedback):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "DIAGNOSTIC_FEEDBACK_INVALID", "Diagnostic feedback invalid", "Review an existing hypothesis with accurate or false_positive.")
+	case errors.Is(err, diagnostics.ErrActionNotSuggested):
+		writeProblem(w, r, http.StatusForbidden, "DIAGNOSTIC_ACTION_DENIED", "Diagnostic action denied", "Only an existing approved action cited by this diagnosis can run.")
+	case errors.Is(err, diagnostics.ErrInvalidRecipe):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "AUTOMATION_RECIPE_INVALID", "Automation recipe invalid", err.Error())
+	case errors.Is(err, diagnostics.ErrRecipeNotFound):
+		writeProblem(w, r, http.StatusNotFound, "AUTOMATION_RECIPE_NOT_FOUND", "Automation recipe not found", "No saved recipe exists for this identifier.")
+	default:
+		return false
+	}
+	return true
 }
 
 func writePluginError(w http.ResponseWriter, r *http.Request, err error) bool {

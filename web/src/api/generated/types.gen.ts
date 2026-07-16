@@ -4,6 +4,127 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type DiagnosticEvidence = {
+    id: string;
+    kind: string;
+    summary: string;
+    source: string;
+    data: unknown;
+    untrusted: boolean;
+    redacted: boolean;
+    truncated: boolean;
+    observedAt: string;
+};
+
+export type DiagnosticSuggestedAction = {
+    actionId: string;
+    name: string;
+    risk: 'read_only' | 'mutating';
+    reason: string;
+};
+
+export type DiagnosticHypothesis = {
+    id: string;
+    code: string;
+    title: string;
+    summary: string;
+    severity: 'info' | 'warning' | 'error';
+    confidence: number;
+    source: 'deterministic' | 'ai';
+    evidenceIds: Array<string>;
+    suggestedActions: Array<DiagnosticSuggestedAction>;
+    notifies: boolean;
+};
+
+export type Diagnosis = {
+    id: string;
+    version: string;
+    projectId: string;
+    provider?: string;
+    model?: string;
+    bundleSha256: string;
+    bundleBytes: number;
+    evidence: Array<DiagnosticEvidence>;
+    hypotheses: Array<DiagnosticHypothesis>;
+    warnings: Array<string>;
+    generatedAt: string;
+    deterministic: boolean;
+    cleanupPreview: DiagnosticCleanupPreview;
+};
+
+export type DiagnosticCleanupPreview = {
+    estimatedBytes: number;
+    candidates: number;
+    unknownSizes: number;
+    executable: false;
+};
+
+export type CreateDiagnosisRequest = {
+    provider?: string;
+};
+
+export type DiagnosticFeedbackRequest = {
+    hypothesisId: string;
+    verdict: 'accurate' | 'false_positive';
+    note?: string;
+};
+
+export type DiagnosticFeedback = {
+    id: string;
+    diagnosisId: string;
+    hypothesisId: string;
+    verdict: 'accurate' | 'false_positive';
+    note?: string;
+    createdAt: string;
+};
+
+export type AutomationTrigger = 'REPEATED_CRASH' | 'PORT_CONFLICT' | 'PORT_BIND_FAILED' | 'RESOURCE_PRESSURE' | 'RESOURCE_EXHAUSTED' | 'UNHEALTHY_DEPENDENCY' | 'DEPENDENCY_UNREACHABLE';
+
+export type AutomationRecipe = {
+    id: string;
+    projectId: string;
+    name: string;
+    triggerCode: AutomationTrigger;
+    actionId: string;
+    enabled: boolean;
+    cooldownSeconds: number;
+    maxRunsPerDay: number;
+    lastRunAt?: string;
+    runsToday: number;
+    runsDay?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type CreateAutomationRecipeRequest = {
+    projectId: string;
+    name: string;
+    triggerCode: AutomationTrigger;
+    actionId: string;
+    cooldownSeconds: number;
+    maxRunsPerDay: number;
+};
+
+export type UpdateAutomationRecipeRequest = {
+    enabled: boolean;
+};
+
+export type AutomationEvaluation = {
+    operationIds: Array<string>;
+};
+
+export type DiagnosticNotification = {
+    id: string;
+    projectId: string;
+    code: string;
+    title: string;
+    detail: string;
+    occurrences: number;
+    firstSeenAt: string;
+    lastSeenAt: string;
+    acknowledgedAt?: string;
+};
+
 export type PluginRegistration = {
     id: string;
     name: string;
@@ -1013,6 +1134,12 @@ export type ActionId = string;
 export type WorkspaceId = string;
 
 export type PluginId = string;
+
+export type DiagnosisId = string;
+
+export type RecipeId = string;
+
+export type NotificationId = string;
 
 export type GetSystemData = {
     body?: never;
@@ -2794,3 +2921,304 @@ export type CreatePluginOperationResponses = {
 };
 
 export type CreatePluginOperationResponse = CreatePluginOperationResponses[keyof CreatePluginOperationResponses];
+
+export type GetLatestProjectDiagnosisData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/diagnoses';
+};
+
+export type GetLatestProjectDiagnosisErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetLatestProjectDiagnosisError = GetLatestProjectDiagnosisErrors[keyof GetLatestProjectDiagnosisErrors];
+
+export type GetLatestProjectDiagnosisResponses = {
+    /**
+     * Latest diagnosis
+     */
+    200: Diagnosis;
+};
+
+export type GetLatestProjectDiagnosisResponse = GetLatestProjectDiagnosisResponses[keyof GetLatestProjectDiagnosisResponses];
+
+export type CreateProjectDiagnosisData = {
+    body: CreateDiagnosisRequest;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/diagnoses';
+};
+
+export type CreateProjectDiagnosisErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateProjectDiagnosisError = CreateProjectDiagnosisErrors[keyof CreateProjectDiagnosisErrors];
+
+export type CreateProjectDiagnosisResponses = {
+    /**
+     * Durable diagnosis
+     */
+    201: Diagnosis;
+};
+
+export type CreateProjectDiagnosisResponse = CreateProjectDiagnosisResponses[keyof CreateProjectDiagnosisResponses];
+
+export type GetDiagnosisData = {
+    body?: never;
+    path: {
+        diagnosisId: string;
+    };
+    query?: never;
+    url: '/diagnoses/{diagnosisId}';
+};
+
+export type GetDiagnosisErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetDiagnosisError = GetDiagnosisErrors[keyof GetDiagnosisErrors];
+
+export type GetDiagnosisResponses = {
+    /**
+     * Durable diagnosis
+     */
+    200: Diagnosis;
+};
+
+export type GetDiagnosisResponse = GetDiagnosisResponses[keyof GetDiagnosisResponses];
+
+export type CreateDiagnosticFeedbackData = {
+    body: DiagnosticFeedbackRequest;
+    path: {
+        diagnosisId: string;
+    };
+    query?: never;
+    url: '/diagnoses/{diagnosisId}/feedback';
+};
+
+export type CreateDiagnosticFeedbackErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateDiagnosticFeedbackError = CreateDiagnosticFeedbackErrors[keyof CreateDiagnosticFeedbackErrors];
+
+export type CreateDiagnosticFeedbackResponses = {
+    /**
+     * Local feedback receipt
+     */
+    201: DiagnosticFeedback;
+};
+
+export type CreateDiagnosticFeedbackResponse = CreateDiagnosticFeedbackResponses[keyof CreateDiagnosticFeedbackResponses];
+
+export type CreateDiagnosticActionOperationData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        diagnosisId: string;
+        actionId: string;
+    };
+    query?: never;
+    url: '/diagnoses/{diagnosisId}/actions/{actionId}';
+};
+
+export type CreateDiagnosticActionOperationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateDiagnosticActionOperationError = CreateDiagnosticActionOperationErrors[keyof CreateDiagnosticActionOperationErrors];
+
+export type CreateDiagnosticActionOperationResponses = {
+    /**
+     * Durable action operation
+     */
+    202: Operation;
+};
+
+export type CreateDiagnosticActionOperationResponse = CreateDiagnosticActionOperationResponses[keyof CreateDiagnosticActionOperationResponses];
+
+export type ListAutomationRecipesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+    };
+    url: '/automation-recipes';
+};
+
+export type ListAutomationRecipesErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListAutomationRecipesError = ListAutomationRecipesErrors[keyof ListAutomationRecipesErrors];
+
+export type ListAutomationRecipesResponses = {
+    /**
+     * Saved recipes
+     */
+    200: Array<AutomationRecipe>;
+};
+
+export type ListAutomationRecipesResponse = ListAutomationRecipesResponses[keyof ListAutomationRecipesResponses];
+
+export type CreateAutomationRecipeData = {
+    body: CreateAutomationRecipeRequest;
+    path?: never;
+    query?: never;
+    url: '/automation-recipes';
+};
+
+export type CreateAutomationRecipeErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateAutomationRecipeError = CreateAutomationRecipeErrors[keyof CreateAutomationRecipeErrors];
+
+export type CreateAutomationRecipeResponses = {
+    /**
+     * Saved disabled recipe
+     */
+    201: AutomationRecipe;
+};
+
+export type CreateAutomationRecipeResponse = CreateAutomationRecipeResponses[keyof CreateAutomationRecipeResponses];
+
+export type UpdateAutomationRecipeData = {
+    body: UpdateAutomationRecipeRequest;
+    path: {
+        recipeId: string;
+    };
+    query?: never;
+    url: '/automation-recipes/{recipeId}';
+};
+
+export type UpdateAutomationRecipeErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateAutomationRecipeError = UpdateAutomationRecipeErrors[keyof UpdateAutomationRecipeErrors];
+
+export type UpdateAutomationRecipeResponses = {
+    /**
+     * Updated recipe
+     */
+    200: AutomationRecipe;
+};
+
+export type UpdateAutomationRecipeResponse = UpdateAutomationRecipeResponses[keyof UpdateAutomationRecipeResponses];
+
+export type CreateAutomationEvaluationData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/automation-evaluations';
+};
+
+export type CreateAutomationEvaluationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateAutomationEvaluationError = CreateAutomationEvaluationErrors[keyof CreateAutomationEvaluationErrors];
+
+export type CreateAutomationEvaluationResponses = {
+    /**
+     * Durable operation identifiers dispatched by this evaluation
+     */
+    200: AutomationEvaluation;
+};
+
+export type CreateAutomationEvaluationResponse = CreateAutomationEvaluationResponses[keyof CreateAutomationEvaluationResponses];
+
+export type ListDiagnosticNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+        includeAcknowledged?: boolean;
+        limit?: number;
+    };
+    url: '/diagnostic-notifications';
+};
+
+export type ListDiagnosticNotificationsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListDiagnosticNotificationsError = ListDiagnosticNotificationsErrors[keyof ListDiagnosticNotificationsErrors];
+
+export type ListDiagnosticNotificationsResponses = {
+    /**
+     * Local notifications
+     */
+    200: Array<DiagnosticNotification>;
+};
+
+export type ListDiagnosticNotificationsResponse = ListDiagnosticNotificationsResponses[keyof ListDiagnosticNotificationsResponses];
+
+export type AcknowledgeDiagnosticNotificationData = {
+    body?: never;
+    path: {
+        notificationId: string;
+    };
+    query?: never;
+    url: '/diagnostic-notifications/{notificationId}/acknowledgment';
+};
+
+export type AcknowledgeDiagnosticNotificationErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type AcknowledgeDiagnosticNotificationError = AcknowledgeDiagnosticNotificationErrors[keyof AcknowledgeDiagnosticNotificationErrors];
+
+export type AcknowledgeDiagnosticNotificationResponses = {
+    /**
+     * Acknowledged notification
+     */
+    200: DiagnosticNotification;
+};
+
+export type AcknowledgeDiagnosticNotificationResponse = AcknowledgeDiagnosticNotificationResponses[keyof AcknowledgeDiagnosticNotificationResponses];

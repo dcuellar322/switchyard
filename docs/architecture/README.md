@@ -45,6 +45,10 @@ The [out-of-process plugin architecture](plugins.md) note defines Phase 16
 discovery, executable trust, JSON-RPC negotiation, capability enforcement,
 supervision, and local-user security boundaries. The public
 [plugin SDK guide](../plugin-sdk.md) documents authoring and compatibility.
+The [intelligent diagnostics and safe automation](intelligent-diagnostics.md)
+note defines Phase 17 bounded evidence, deterministic-first evaluation,
+provider validation, prompt-injection resistance, action authorization,
+rate-limited recipes, local feedback, and notification retention.
 
 ## Process topology
 
@@ -95,6 +99,7 @@ application interface or a typed event.
 | `actions` | Typed, risk-classified project actions |
 | `workspace` | Multi-project graphs and coordinated lifecycle |
 | `agents` | MCP, provider adapters, proposals, sessions, and agent audit |
+| `diagnostics` | Bounded evidence, deterministic findings, reviewed suggestions, local feedback, alerts, and automation policy |
 | `terminal` | Owned PTYs, bounded streams, typed interactive launches, and session audit |
 | `platform` | OS capabilities without product policy |
 

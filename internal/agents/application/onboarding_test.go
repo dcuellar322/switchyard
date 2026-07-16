@@ -271,6 +271,11 @@ func (f *providerFake) ProposeManifest(_ context.Context, request ProviderReques
 	f.request = request
 	return ProviderResult{Output: f.output, Model: "fixture-model"}, nil
 }
+func (f *providerFake) Diagnose(_ context.Context, request ProviderRequest) (ProviderResult, error) {
+	f.calls++
+	f.request = request
+	return ProviderResult{Output: f.output, Model: "fixture-model"}, nil
+}
 
 type blockingProvider struct{ started chan struct{} }
 
@@ -281,4 +286,7 @@ func (p *blockingProvider) ProposeManifest(ctx context.Context, _ ProviderReques
 	close(p.started)
 	<-ctx.Done()
 	return ProviderResult{}, ctx.Err()
+}
+func (p *blockingProvider) Diagnose(ctx context.Context, request ProviderRequest) (ProviderResult, error) {
+	return p.ProposeManifest(ctx, request)
 }

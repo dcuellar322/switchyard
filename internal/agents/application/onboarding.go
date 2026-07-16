@@ -26,13 +26,13 @@ const (
 
 var (
 	// ErrProviderUnavailable identifies a configured provider that cannot currently run.
-	ErrProviderUnavailable = errors.New("proposal provider unavailable")
+	ErrProviderUnavailable = errors.New("structured provider unavailable")
 	// ErrProviderOutput identifies malformed or unsafe provider output.
 	ErrProviderOutput = errors.New("proposal provider output rejected")
 	// ErrRunNotFound identifies an unknown assisted-onboarding run.
 	ErrRunNotFound = errors.New("assisted onboarding run not found")
 	// ErrInvalidLimits identifies unsupported generation budgets.
-	ErrInvalidLimits = errors.New("invalid proposal generation limits")
+	ErrInvalidLimits = errors.New("invalid provider generation limits")
 )
 
 // Limits are provider-neutral hard ceilings. Provider adapters may enforce stricter limits.
@@ -148,10 +148,11 @@ type Usage struct {
 	CostUSD      float64 `json:"costUsd,omitempty"`
 }
 
-// ProposalProvider is the provider-neutral assisted-onboarding boundary.
+// ProposalProvider is the provider-neutral structured-generation boundary.
 type ProposalProvider interface {
 	Descriptor(context.Context) ProviderDescriptor
 	ProposeManifest(context.Context, ProviderRequest) (ProviderResult, error)
+	Diagnose(context.Context, ProviderRequest) (ProviderResult, error)
 }
 
 // ProposalCatalog is the explicit application boundary to catalog onboarding state.
@@ -295,4 +296,13 @@ func (r *Registry) provider(ctx context.Context, id string) (ProposalProvider, P
 		return nil, descriptor, fmt.Errorf("%w: %s", ErrProviderUnavailable, descriptor.Reason)
 	}
 	return provider, descriptor, nil
+}
+
+// Diagnose invokes one configured provider through the same bounded structured-output contract.
+func (r *Registry) Diagnose(ctx context.Context, id string, request ProviderRequest) (ProviderResult, error) {
+	provider, _, err := r.provider(ctx, id)
+	if err != nil {
+		return ProviderResult{}, err
+	}
+	return provider.Diagnose(ctx, request)
 }

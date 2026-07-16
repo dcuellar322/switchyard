@@ -37,6 +37,52 @@ type AuditEvent struct {
 	WorkspaceID    sql.NullString `json:"workspace_id"`
 }
 
+type AutomationRecipe struct {
+	ID              string         `json:"id"`
+	ProjectID       string         `json:"project_id"`
+	Name            string         `json:"name"`
+	TriggerCode     string         `json:"trigger_code"`
+	ActionID        string         `json:"action_id"`
+	Enabled         int64          `json:"enabled"`
+	CooldownSeconds int64          `json:"cooldown_seconds"`
+	MaxRunsPerDay   int64          `json:"max_runs_per_day"`
+	LastRunAt       sql.NullString `json:"last_run_at"`
+	RunsToday       int64          `json:"runs_today"`
+	RunsDay         string         `json:"runs_day"`
+	CreatedAt       string         `json:"created_at"`
+	UpdatedAt       string         `json:"updated_at"`
+}
+
+type Diagnosis struct {
+	ID            string `json:"id"`
+	ProjectID     string `json:"project_id"`
+	Provider      string `json:"provider"`
+	BundleSha256  string `json:"bundle_sha256"`
+	DiagnosisJson string `json:"diagnosis_json"`
+	GeneratedAt   string `json:"generated_at"`
+}
+
+type DiagnosticFeedback struct {
+	ID           string `json:"id"`
+	DiagnosisID  string `json:"diagnosis_id"`
+	HypothesisID string `json:"hypothesis_id"`
+	Verdict      string `json:"verdict"`
+	Note         string `json:"note"`
+	CreatedAt    string `json:"created_at"`
+}
+
+type DiagnosticNotification struct {
+	ID             string         `json:"id"`
+	ProjectID      string         `json:"project_id"`
+	Code           string         `json:"code"`
+	Title          string         `json:"title"`
+	Detail         string         `json:"detail"`
+	Occurrences    int64          `json:"occurrences"`
+	FirstSeenAt    string         `json:"first_seen_at"`
+	LastSeenAt     string         `json:"last_seen_at"`
+	AcknowledgedAt sql.NullString `json:"acknowledged_at"`
+}
+
 type DiscoveryEvidence struct {
 	ID           string  `json:"id"`
 	ProposalID   string  `json:"proposal_id"`

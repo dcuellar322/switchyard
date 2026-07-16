@@ -22,6 +22,8 @@ import (
 	codexProvider "switchyard.dev/switchyard/internal/agents/providers/codex"
 	openAIProvider "switchyard.dev/switchyard/internal/agents/providers/openai"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
+	diagnosticsAdapters "switchyard.dev/switchyard/internal/diagnostics/adapters"
+	diagnosticsApplication "switchyard.dev/switchyard/internal/diagnostics/application"
 	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	environmentsAdapters "switchyard.dev/switchyard/internal/environments/adapters"
 	environmentsApplication "switchyard.dev/switchyard/internal/environments/application"
@@ -68,21 +70,13 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err := lock.release(); err != nil {
-			config.Logger.Error("release daemon lock", "component", "bootstrap", "error", err)
-		}
-	}()
+	defer releaseDaemonLock(config.Logger, lock)
 
 	database, err := sqlite.Open(ctx, filepath.Join(config.DataDir, "switchyard.db"))
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err := database.Close(); err != nil {
-			config.Logger.Error("close database", "component", "bootstrap", "error", err)
-		}
-	}()
+	defer closeDatabase(config.Logger, database)
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
@@ -108,11 +102,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err := logStore.Close(context.Background()); err != nil {
-			config.Logger.Error("close log store", "component", "observability", "error", err)
-		}
-	}()
+	defer closeLogStore(config.Logger, logStore)
 	logService := observabilityApplication.NewLogService(runtimeService, logStore)
 	healthService := observabilityApplication.NewHealthService(runtimeSource, runtimeService, sqlite.NewHealthRepository(database), observabilityAdapters.NewHealthEvaluator())
 	resourceService, err := observabilityApplication.NewResourceService(
@@ -191,6 +181,16 @@ func RunDaemon(ctx context.Context, config Config) error {
 		return err
 	}
 	operationRepository := sqlite.NewOperationRepository(database)
+	diagnosticRepository := sqlite.NewDiagnosticRepository(database)
+	diagnosticCollector := diagnosticsAdapters.NewCollector(
+		catalogService, runtimeService, healthService, logService, portService, gitService, actionService, resourceService, operationRepository,
+	)
+	diagnosticService, err := diagnosticsApplication.NewService(
+		diagnosticCollector, diagnosticsAdapters.NewStructuredProvider(providerRegistry), diagnosticRepository,
+	)
+	if err != nil {
+		return err
+	}
 	launcher := actionsAdapters.NewLauncher()
 	var workspaceService *workspaceApplication.Service
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
@@ -205,6 +205,12 @@ func RunDaemon(ctx context.Context, config Config) error {
 		sqlite.NewWorkspaceRepository(database), &workspaceProjectOperator{operations: coordinator},
 		workspaceHealthGate{health: healthService}, workspaceMemberValidator{runtime: runtimeSource},
 	)
+	automationService, err := diagnosticsApplication.NewAutomationService(
+		diagnosticRepository, diagnosticCollector, diagnosticService, diagnosticCollector, diagnosticsAdapters.NewActionSubmitter(coordinator),
+	)
+	if err != nil {
+		return err
+	}
 	if err := workspaceService.Recover(ctx); err != nil {
 		return err
 	}
@@ -213,7 +219,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	var background sync.WaitGroup
-	background.Add(5)
+	background.Add(6)
 	go func() {
 		defer background.Done()
 		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
@@ -242,6 +248,12 @@ func RunDaemon(ctx context.Context, config Config) error {
 		defer background.Done()
 		pluginService.RunHealth(ctx, 30*time.Second)
 	}()
+	go func() {
+		defer background.Done()
+		automationService.Run(ctx, 5*time.Minute, func(projectID string, automationErr error) {
+			config.Logger.Warn("automation evaluation unavailable", "component", "diagnostics", "project_id", projectID, "error", automationErr)
+		})
+	}()
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	host := application.NewHostQuery(hostPlatform.NewObserver())
@@ -249,7 +261,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
-		AI: aiService, Resources: resourceService, Plugins: pluginService,
+		AI: aiService, Resources: resourceService, Plugins: pluginService, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
 		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
 			actorType, actorID := httpapi.RequestActor(actorContext)
@@ -279,6 +291,24 @@ func daemonLogger(logger *slog.Logger) *slog.Logger {
 		return slog.Default()
 	}
 	return logger
+}
+
+func releaseDaemonLock(logger *slog.Logger, lock *lockFile) {
+	if err := lock.release(); err != nil {
+		logger.Error("release daemon lock", "component", "bootstrap", "error", err)
+	}
+}
+
+func closeDatabase(logger *slog.Logger, database *sqlite.Database) {
+	if err := database.Close(); err != nil {
+		logger.Error("close database", "component", "bootstrap", "error", err)
+	}
+}
+
+func closeLogStore(logger *slog.Logger, store *sqlite.LogStore) {
+	if err := store.Close(context.Background()); err != nil {
+		logger.Error("close log store", "component", "observability", "error", err)
+	}
 }
 
 func closeTerminalSessions(logger *slog.Logger, service *terminalApplication.Service) {

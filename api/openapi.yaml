@@ -1087,6 +1087,190 @@ paths:
               schema: { $ref: "#/components/schemas/Operation" }
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/diagnoses:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getLatestProjectDiagnosis
+      summary: Read the latest durable diagnosis for a project
+      responses:
+        "200":
+          description: Latest diagnosis
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Diagnosis" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createProjectDiagnosis
+      summary: Run deterministic diagnosis with optional schema-constrained AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDiagnosisRequest" }
+      responses:
+        "201":
+          description: Durable diagnosis
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Diagnosis" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /diagnoses/{diagnosisId}:
+    parameters:
+      - $ref: "#/components/parameters/DiagnosisId"
+    get:
+      operationId: getDiagnosis
+      summary: Read one durable diagnosis and its bounded evidence
+      responses:
+        "200":
+          description: Durable diagnosis
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Diagnosis" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /diagnoses/{diagnosisId}/feedback:
+    parameters:
+      - $ref: "#/components/parameters/DiagnosisId"
+    post:
+      operationId: createDiagnosticFeedback
+      summary: Record local-only accuracy feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DiagnosticFeedbackRequest" }
+      responses:
+        "201":
+          description: Local feedback receipt
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DiagnosticFeedback" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /diagnoses/{diagnosisId}/actions/{actionId}:
+    parameters:
+      - $ref: "#/components/parameters/DiagnosisId"
+      - $ref: "#/components/parameters/ActionId"
+      - $ref: "#/components/parameters/IdempotencyKey"
+    post:
+      operationId: createDiagnosticActionOperation
+      summary: Queue an existing approved action cited by a diagnosis
+      responses:
+        "202":
+          description: Durable action operation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /automation-recipes:
+    get:
+      operationId: listAutomationRecipes
+      summary: List inspectable automation recipes, including disabled recipes
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string, maxLength: 128 }
+      responses:
+        "200":
+          description: Saved recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationRecipe" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createAutomationRecipe
+      summary: Save a disabled bounded automation recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateAutomationRecipeRequest" }
+      responses:
+        "201":
+          description: Saved disabled recipe
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationRecipe" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /automation-recipes/{recipeId}:
+    parameters:
+      - $ref: "#/components/parameters/RecipeId"
+    patch:
+      operationId: updateAutomationRecipe
+      summary: Explicitly enable or disable one saved recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateAutomationRecipeRequest" }
+      responses:
+        "200":
+          description: Updated recipe
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationRecipe" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/automation-evaluations:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: createAutomationEvaluation
+      summary: Evaluate deterministic triggers and dispatch due safe recipes
+      responses:
+        "200":
+          description: Durable operation identifiers dispatched by this evaluation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationEvaluation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /diagnostic-notifications:
+    get:
+      operationId: listDiagnosticNotifications
+      summary: List deduplicated local diagnostic notifications
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string, maxLength: 128 }
+        - name: includeAcknowledged
+          in: query
+          schema: { type: boolean, default: false }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+      responses:
+        "200":
+          description: Local notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DiagnosticNotification" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /diagnostic-notifications/{notificationId}/acknowledgment:
+    parameters:
+      - $ref: "#/components/parameters/NotificationId"
+    post:
+      operationId: acknowledgeDiagnosticNotification
+      summary: Mark one local diagnostic warning reviewed
+      responses:
+        "200":
+          description: Acknowledged notification
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DiagnosticNotification" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -1152,6 +1336,21 @@ components:
       schema:
         type: string
         pattern: "^[a-z][a-z0-9.-]{0,63}$"
+    DiagnosisId:
+      name: diagnosisId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128 }
+    RecipeId:
+      name: recipeId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128 }
+    NotificationId:
+      name: notificationId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 256 }
   responses:
     Problem:
       description: RFC 9457-style problem details
@@ -1160,6 +1359,159 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    DiagnosticEvidence:
+      type: object
+      additionalProperties: false
+      required: [id, kind, summary, source, data, untrusted, redacted, truncated, observedAt]
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        summary: { type: string }
+        source: { type: string }
+        data: {}
+        untrusted: { type: boolean }
+        redacted: { type: boolean }
+        truncated: { type: boolean }
+        observedAt: { type: string, format: date-time }
+    DiagnosticSuggestedAction:
+      type: object
+      additionalProperties: false
+      required: [actionId, name, risk, reason]
+      properties:
+        actionId: { type: string }
+        name: { type: string }
+        risk: { type: string, enum: [read_only, mutating] }
+        reason: { type: string }
+    DiagnosticHypothesis:
+      type: object
+      additionalProperties: false
+      required: [id, code, title, summary, severity, confidence, source, evidenceIds, suggestedActions, notifies]
+      properties:
+        id: { type: string }
+        code: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        severity: { type: string, enum: [info, warning, error] }
+        confidence: { type: number, format: double, minimum: 0, maximum: 1 }
+        source: { type: string, enum: [deterministic, ai] }
+        evidenceIds: { type: array, items: { type: string } }
+        suggestedActions:
+          type: array
+          items: { $ref: "#/components/schemas/DiagnosticSuggestedAction" }
+        notifies: { type: boolean }
+    Diagnosis:
+      type: object
+      additionalProperties: false
+      required: [id, version, projectId, bundleSha256, bundleBytes, evidence, hypotheses, warnings, generatedAt, deterministic, cleanupPreview]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        projectId: { type: string }
+        provider: { type: string }
+        model: { type: string }
+        bundleSha256: { type: string, minLength: 64, maxLength: 64 }
+        bundleBytes: { type: integer, minimum: 0 }
+        evidence:
+          type: array
+          items: { $ref: "#/components/schemas/DiagnosticEvidence" }
+        hypotheses:
+          type: array
+          items: { $ref: "#/components/schemas/DiagnosticHypothesis" }
+        warnings: { type: array, items: { type: string } }
+        generatedAt: { type: string, format: date-time }
+        deterministic: { type: boolean }
+        cleanupPreview: { $ref: "#/components/schemas/DiagnosticCleanupPreview" }
+    DiagnosticCleanupPreview:
+      type: object
+      additionalProperties: false
+      required: [estimatedBytes, candidates, unknownSizes, executable]
+      properties:
+        estimatedBytes: { type: integer, format: int64, minimum: 0 }
+        candidates: { type: integer, minimum: 0 }
+        unknownSizes: { type: integer, minimum: 0 }
+        executable: { type: boolean, enum: [false] }
+    CreateDiagnosisRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        provider: { type: string, maxLength: 64 }
+    DiagnosticFeedbackRequest:
+      type: object
+      additionalProperties: false
+      required: [hypothesisId, verdict]
+      properties:
+        hypothesisId: { type: string, minLength: 1, maxLength: 128 }
+        verdict: { type: string, enum: [accurate, false_positive] }
+        note: { type: string, maxLength: 500 }
+    DiagnosticFeedback:
+      type: object
+      additionalProperties: false
+      required: [id, diagnosisId, hypothesisId, verdict, createdAt]
+      properties:
+        id: { type: string }
+        diagnosisId: { type: string }
+        hypothesisId: { type: string }
+        verdict: { type: string, enum: [accurate, false_positive] }
+        note: { type: string }
+        createdAt: { type: string, format: date-time }
+    AutomationTrigger:
+      type: string
+      enum: [REPEATED_CRASH, PORT_CONFLICT, PORT_BIND_FAILED, RESOURCE_PRESSURE, RESOURCE_EXHAUSTED, UNHEALTHY_DEPENDENCY, DEPENDENCY_UNREACHABLE]
+    AutomationRecipe:
+      type: object
+      additionalProperties: false
+      required: [id, projectId, name, triggerCode, actionId, enabled, cooldownSeconds, maxRunsPerDay, runsToday, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        name: { type: string }
+        triggerCode: { $ref: "#/components/schemas/AutomationTrigger" }
+        actionId: { type: string }
+        enabled: { type: boolean }
+        cooldownSeconds: { type: integer, minimum: 60, maximum: 86400 }
+        maxRunsPerDay: { type: integer, minimum: 1, maximum: 20 }
+        lastRunAt: { type: string, format: date-time }
+        runsToday: { type: integer, minimum: 0 }
+        runsDay: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateAutomationRecipeRequest:
+      type: object
+      additionalProperties: false
+      required: [projectId, name, triggerCode, actionId, cooldownSeconds, maxRunsPerDay]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        triggerCode: { $ref: "#/components/schemas/AutomationTrigger" }
+        actionId: { type: string, minLength: 1, maxLength: 128 }
+        cooldownSeconds: { type: integer, minimum: 60, maximum: 86400 }
+        maxRunsPerDay: { type: integer, minimum: 1, maximum: 20 }
+    UpdateAutomationRecipeRequest:
+      type: object
+      additionalProperties: false
+      required: [enabled]
+      properties:
+        enabled: { type: boolean }
+    AutomationEvaluation:
+      type: object
+      additionalProperties: false
+      required: [operationIds]
+      properties:
+        operationIds: { type: array, items: { type: string } }
+    DiagnosticNotification:
+      type: object
+      additionalProperties: false
+      required: [id, projectId, code, title, detail, occurrences, firstSeenAt, lastSeenAt]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        code: { type: string }
+        title: { type: string }
+        detail: { type: string }
+        occurrences: { type: integer, minimum: 1 }
+        firstSeenAt: { type: string, format: date-time }
+        lastSeenAt: { type: string, format: date-time }
+        acknowledgedAt: { type: string, format: date-time }
     PluginRegistration:
       type: object
       additionalProperties: false

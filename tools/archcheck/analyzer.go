@@ -113,7 +113,7 @@ func domainName(module, importPath string) string {
 	}
 	name, _, _ := strings.Cut(relative, "/")
 	switch name {
-	case "catalog", "manifest", "operations", "runtime", "observability", "ports", "sourcecontrol", "actions", "workspace", "agents", "plugins":
+	case "actions", "agents", "catalog", "diagnostics", "discovery", "environments", "manifest", "observability", "operations", "plugins", "ports", "routing", "runtime", "sourcecontrol", "terminal", "workspace":
 		return name
 	default:
 		return ""

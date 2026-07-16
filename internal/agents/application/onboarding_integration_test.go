@@ -112,6 +112,9 @@ func (*bundleAwareProvider) ProposeManifest(_ context.Context, request agents.Pr
 	output, err := json.Marshal(agents.ProposalOutput{Version: agents.OutputVersion, Candidate: candidate, Claims: []agents.FieldClaim{{Path: "/runtime", EvidenceIDs: []string{evidenceID}, Rationale: "Node dev script"}, {Path: "/services", EvidenceIDs: []string{evidenceID}, Rationale: "Node process"}}, Warnings: []string{}})
 	return agents.ProviderResult{Output: output, Model: "hermetic"}, err
 }
+func (p *bundleAwareProvider) Diagnose(ctx context.Context, request agents.ProviderRequest) (agents.ProviderResult, error) {
+	return p.ProposeManifest(ctx, request)
+}
 
 type memoryRuns struct{ value agents.Run }
 

@@ -26,6 +26,8 @@ type Dependencies struct {
 	AI                      aiOnboardingService
 	Resources               resourceService
 	Plugins                 pluginService
+	Diagnostics             diagnosticService
+	Automations             automationService
 	Workspaces              workspaceService
 	Environments            environmentService
 	EnvironmentRegistration environmentRegistrationService
@@ -63,6 +65,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 		system: dependencies.System, host: dependencies.Host, operations: dependencies.Operations, sessions: dependencies.Sessions, catalog: dependencies.Catalog,
 		runtime: dependencies.Runtime, health: dependencies.Health, logs: dependencies.LogService,
 		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI, resources: dependencies.Resources, plugins: dependencies.Plugins,
+		diagnostics: dependencies.Diagnostics, automations: dependencies.Automations,
 		workspaces:   dependencies.Workspaces,
 		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
 		terminals: dependencies.Terminals,

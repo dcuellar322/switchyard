@@ -15,6 +15,16 @@ func TestAnalyzeRejectsDomainAdapterImport(t *testing.T) {
 	}
 }
 
+func TestAnalyzeRecognizesEveryProductDomain(t *testing.T) {
+	t.Parallel()
+
+	for _, name := range []string{"actions", "agents", "catalog", "diagnostics", "discovery", "environments", "manifest", "observability", "operations", "plugins", "ports", "routing", "runtime", "sourcecontrol", "terminal", "workspace"} {
+		if got := domainName(modulePath, modulePath+"/internal/"+name+"/application"); got != name {
+			t.Errorf("domainName(%q) = %q", name, got)
+		}
+	}
+}
+
 func TestAnalyzeAllowsApplicationPort(t *testing.T) {
 	t.Parallel()
 

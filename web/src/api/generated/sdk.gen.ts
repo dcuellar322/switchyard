@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CheckPluginHealthData, CheckPluginHealthErrors, CheckPluginHealthResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateAgentSessionData, CreateAgentSessionErrors, CreateAgentSessionResponses, CreateAiManifestEnhancementData, CreateAiManifestEnhancementErrors, CreateAiManifestEnhancementResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePluginOperationData, CreatePluginOperationErrors, CreatePluginOperationResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, CreateTerminalSessionData, CreateTerminalSessionErrors, CreateTerminalSessionResponses, CreateWorkspaceData, CreateWorkspaceErrors, CreateWorkspaceOperationData, CreateWorkspaceOperationErrors, CreateWorkspaceOperationResponses, CreateWorkspaceResponses, DeleteWorkspaceData, DeleteWorkspaceErrors, DeleteWorkspaceResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, DisablePluginData, DisablePluginErrors, DisablePluginResponses, EnablePluginData, EnablePluginErrors, EnablePluginResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetAiManifestEnhancementData, GetAiManifestEnhancementErrors, GetAiManifestEnhancementResponses, GetCleanupPreviewData, GetCleanupPreviewErrors, GetCleanupPreviewResponses, GetEnvironmentData, GetEnvironmentErrors, GetEnvironmentResponses, GetHostData, GetHostErrors, GetHostResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetMetricHistoryData, GetMetricHistoryErrors, GetMetricHistoryResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetResourceOverviewData, GetResourceOverviewErrors, GetResourceOverviewResponses, GetStorageInventoryData, GetStorageInventoryErrors, GetStorageInventoryResponses, GetSystemData, GetSystemErrors, GetSystemResponses, GetTerminalSessionData, GetTerminalSessionErrors, GetTerminalSessionResponses, GetWorkspaceData, GetWorkspaceErrors, GetWorkspaceResponses, InspectProjectWithPluginData, InspectProjectWithPluginErrors, InspectProjectWithPluginResponses, ListAgentSessionsData, ListAgentSessionsErrors, ListAgentSessionsResponses, ListAiProposalProvidersData, ListAiProposalProvidersErrors, ListAiProposalProvidersResponses, ListLocalRoutesData, ListLocalRoutesErrors, ListLocalRoutesResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListPluginLogsData, ListPluginLogsErrors, ListPluginLogsResponses, ListPluginsData, ListPluginsErrors, ListPluginsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectEnvironmentsData, ListProjectEnvironmentsErrors, ListProjectEnvironmentsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListTerminalSessionsData, ListTerminalSessionsErrors, ListTerminalSessionsResponses, ListWorkspacesData, ListWorkspacesErrors, ListWorkspacesResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, PreviewAiManifestEvidenceData, PreviewAiManifestEvidenceErrors, PreviewAiManifestEvidenceResponses, RefreshPluginsData, RefreshPluginsErrors, RefreshPluginsResponses, RegisterProjectEnvironmentsData, RegisterProjectEnvironmentsErrors, RegisterProjectEnvironmentsResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TerminateTerminalSessionData, TerminateTerminalSessionErrors, TerminateTerminalSessionResponses, TrustPluginData, TrustPluginErrors, TrustPluginResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, UpdateEnvironmentData, UpdateEnvironmentErrors, UpdateEnvironmentResponses, UpdateWorkspaceData, UpdateWorkspaceErrors, UpdateWorkspaceResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, AcknowledgeDiagnosticNotificationData, AcknowledgeDiagnosticNotificationErrors, AcknowledgeDiagnosticNotificationResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CheckPluginHealthData, CheckPluginHealthErrors, CheckPluginHealthResponses, CreateActionOperationData, CreateActionOperationErrors, CreateActionOperationResponses, CreateAgentSessionData, CreateAgentSessionErrors, CreateAgentSessionResponses, CreateAiManifestEnhancementData, CreateAiManifestEnhancementErrors, CreateAiManifestEnhancementResponses, CreateAutomationEvaluationData, CreateAutomationEvaluationErrors, CreateAutomationEvaluationResponses, CreateAutomationRecipeData, CreateAutomationRecipeErrors, CreateAutomationRecipeResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateDiagnosticActionOperationData, CreateDiagnosticActionOperationErrors, CreateDiagnosticActionOperationResponses, CreateDiagnosticFeedbackData, CreateDiagnosticFeedbackErrors, CreateDiagnosticFeedbackResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, CreatePluginOperationData, CreatePluginOperationErrors, CreatePluginOperationResponses, CreatePortSuggestionData, CreatePortSuggestionErrors, CreatePortSuggestionResponses, CreateProjectDiagnosisData, CreateProjectDiagnosisErrors, CreateProjectDiagnosisResponses, CreateProjectOperationData, CreateProjectOperationErrors, CreateProjectOperationResponses, CreateTerminalSessionData, CreateTerminalSessionErrors, CreateTerminalSessionResponses, CreateWorkspaceData, CreateWorkspaceErrors, CreateWorkspaceOperationData, CreateWorkspaceOperationErrors, CreateWorkspaceOperationResponses, CreateWorkspaceResponses, DeleteWorkspaceData, DeleteWorkspaceErrors, DeleteWorkspaceResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, DisablePluginData, DisablePluginErrors, DisablePluginResponses, EnablePluginData, EnablePluginErrors, EnablePluginResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, ExportProjectLogsData, ExportProjectLogsErrors, ExportProjectLogsResponses, GetAiManifestEnhancementData, GetAiManifestEnhancementErrors, GetAiManifestEnhancementResponses, GetCleanupPreviewData, GetCleanupPreviewErrors, GetCleanupPreviewResponses, GetDiagnosisData, GetDiagnosisErrors, GetDiagnosisResponses, GetEnvironmentData, GetEnvironmentErrors, GetEnvironmentResponses, GetHostData, GetHostErrors, GetHostResponses, GetLatestProjectDiagnosisData, GetLatestProjectDiagnosisErrors, GetLatestProjectDiagnosisResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetMetricHistoryData, GetMetricHistoryErrors, GetMetricHistoryResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetPortRegistryData, GetPortRegistryErrors, GetPortRegistryResponses, GetProjectData, GetProjectErrors, GetProjectGitData, GetProjectGitErrors, GetProjectGitResponses, GetProjectHealthData, GetProjectHealthErrors, GetProjectHealthResponses, GetProjectLogsData, GetProjectLogsErrors, GetProjectLogsResponses, GetProjectMetricsData, GetProjectMetricsErrors, GetProjectMetricsResponses, GetProjectResponses, GetProjectRuntimeData, GetProjectRuntimeErrors, GetProjectRuntimeResponses, GetResourceOverviewData, GetResourceOverviewErrors, GetResourceOverviewResponses, GetStorageInventoryData, GetStorageInventoryErrors, GetStorageInventoryResponses, GetSystemData, GetSystemErrors, GetSystemResponses, GetTerminalSessionData, GetTerminalSessionErrors, GetTerminalSessionResponses, GetWorkspaceData, GetWorkspaceErrors, GetWorkspaceResponses, InspectProjectWithPluginData, InspectProjectWithPluginErrors, InspectProjectWithPluginResponses, ListAgentSessionsData, ListAgentSessionsErrors, ListAgentSessionsResponses, ListAiProposalProvidersData, ListAiProposalProvidersErrors, ListAiProposalProvidersResponses, ListAutomationRecipesData, ListAutomationRecipesErrors, ListAutomationRecipesResponses, ListDiagnosticNotificationsData, ListDiagnosticNotificationsErrors, ListDiagnosticNotificationsResponses, ListLocalRoutesData, ListLocalRoutesErrors, ListLocalRoutesResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListPluginLogsData, ListPluginLogsErrors, ListPluginLogsResponses, ListPluginsData, ListPluginsErrors, ListPluginsResponses, ListProjectActionsData, ListProjectActionsErrors, ListProjectActionsResponses, ListProjectEnvironmentsData, ListProjectEnvironmentsErrors, ListProjectEnvironmentsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListTerminalSessionsData, ListTerminalSessionsErrors, ListTerminalSessionsResponses, ListWorkspacesData, ListWorkspacesErrors, ListWorkspacesResponses, PlanProjectRuntimeData, PlanProjectRuntimeErrors, PlanProjectRuntimeResponses, PreviewAiManifestEvidenceData, PreviewAiManifestEvidenceErrors, PreviewAiManifestEvidenceResponses, RefreshPluginsData, RefreshPluginsErrors, RefreshPluginsResponses, RegisterProjectEnvironmentsData, RegisterProjectEnvironmentsErrors, RegisterProjectEnvironmentsResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TerminateTerminalSessionData, TerminateTerminalSessionErrors, TerminateTerminalSessionResponses, TrustPluginData, TrustPluginErrors, TrustPluginResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, UpdateAutomationRecipeData, UpdateAutomationRecipeErrors, UpdateAutomationRecipeResponses, UpdateEnvironmentData, UpdateEnvironmentErrors, UpdateEnvironmentResponses, UpdateWorkspaceData, UpdateWorkspaceErrors, UpdateWorkspaceResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -456,3 +456,86 @@ export const createPluginOperation = <ThrowOnError extends boolean = false>(opti
         ...options.headers
     }
 });
+
+/**
+ * Read the latest durable diagnosis for a project
+ */
+export const getLatestProjectDiagnosis = <ThrowOnError extends boolean = false>(options: Options<GetLatestProjectDiagnosisData, ThrowOnError>): RequestResult<GetLatestProjectDiagnosisResponses, GetLatestProjectDiagnosisErrors, ThrowOnError> => (options.client ?? client).get<GetLatestProjectDiagnosisResponses, GetLatestProjectDiagnosisErrors, ThrowOnError>({ url: '/projects/{projectId}/diagnoses', ...options });
+
+/**
+ * Run deterministic diagnosis with optional schema-constrained AI
+ */
+export const createProjectDiagnosis = <ThrowOnError extends boolean = false>(options: Options<CreateProjectDiagnosisData, ThrowOnError>): RequestResult<CreateProjectDiagnosisResponses, CreateProjectDiagnosisErrors, ThrowOnError> => (options.client ?? client).post<CreateProjectDiagnosisResponses, CreateProjectDiagnosisErrors, ThrowOnError>({
+    url: '/projects/{projectId}/diagnoses',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read one durable diagnosis and its bounded evidence
+ */
+export const getDiagnosis = <ThrowOnError extends boolean = false>(options: Options<GetDiagnosisData, ThrowOnError>): RequestResult<GetDiagnosisResponses, GetDiagnosisErrors, ThrowOnError> => (options.client ?? client).get<GetDiagnosisResponses, GetDiagnosisErrors, ThrowOnError>({ url: '/diagnoses/{diagnosisId}', ...options });
+
+/**
+ * Record local-only accuracy feedback
+ */
+export const createDiagnosticFeedback = <ThrowOnError extends boolean = false>(options: Options<CreateDiagnosticFeedbackData, ThrowOnError>): RequestResult<CreateDiagnosticFeedbackResponses, CreateDiagnosticFeedbackErrors, ThrowOnError> => (options.client ?? client).post<CreateDiagnosticFeedbackResponses, CreateDiagnosticFeedbackErrors, ThrowOnError>({
+    url: '/diagnoses/{diagnosisId}/feedback',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Queue an existing approved action cited by a diagnosis
+ */
+export const createDiagnosticActionOperation = <ThrowOnError extends boolean = false>(options: Options<CreateDiagnosticActionOperationData, ThrowOnError>): RequestResult<CreateDiagnosticActionOperationResponses, CreateDiagnosticActionOperationErrors, ThrowOnError> => (options.client ?? client).post<CreateDiagnosticActionOperationResponses, CreateDiagnosticActionOperationErrors, ThrowOnError>({ url: '/diagnoses/{diagnosisId}/actions/{actionId}', ...options });
+
+/**
+ * List inspectable automation recipes, including disabled recipes
+ */
+export const listAutomationRecipes = <ThrowOnError extends boolean = false>(options?: Options<ListAutomationRecipesData, ThrowOnError>): RequestResult<ListAutomationRecipesResponses, ListAutomationRecipesErrors, ThrowOnError> => (options?.client ?? client).get<ListAutomationRecipesResponses, ListAutomationRecipesErrors, ThrowOnError>({ url: '/automation-recipes', ...options });
+
+/**
+ * Save a disabled bounded automation recipe
+ */
+export const createAutomationRecipe = <ThrowOnError extends boolean = false>(options: Options<CreateAutomationRecipeData, ThrowOnError>): RequestResult<CreateAutomationRecipeResponses, CreateAutomationRecipeErrors, ThrowOnError> => (options.client ?? client).post<CreateAutomationRecipeResponses, CreateAutomationRecipeErrors, ThrowOnError>({
+    url: '/automation-recipes',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Explicitly enable or disable one saved recipe
+ */
+export const updateAutomationRecipe = <ThrowOnError extends boolean = false>(options: Options<UpdateAutomationRecipeData, ThrowOnError>): RequestResult<UpdateAutomationRecipeResponses, UpdateAutomationRecipeErrors, ThrowOnError> => (options.client ?? client).patch<UpdateAutomationRecipeResponses, UpdateAutomationRecipeErrors, ThrowOnError>({
+    url: '/automation-recipes/{recipeId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Evaluate deterministic triggers and dispatch due safe recipes
+ */
+export const createAutomationEvaluation = <ThrowOnError extends boolean = false>(options: Options<CreateAutomationEvaluationData, ThrowOnError>): RequestResult<CreateAutomationEvaluationResponses, CreateAutomationEvaluationErrors, ThrowOnError> => (options.client ?? client).post<CreateAutomationEvaluationResponses, CreateAutomationEvaluationErrors, ThrowOnError>({ url: '/projects/{projectId}/automation-evaluations', ...options });
+
+/**
+ * List deduplicated local diagnostic notifications
+ */
+export const listDiagnosticNotifications = <ThrowOnError extends boolean = false>(options?: Options<ListDiagnosticNotificationsData, ThrowOnError>): RequestResult<ListDiagnosticNotificationsResponses, ListDiagnosticNotificationsErrors, ThrowOnError> => (options?.client ?? client).get<ListDiagnosticNotificationsResponses, ListDiagnosticNotificationsErrors, ThrowOnError>({ url: '/diagnostic-notifications', ...options });
+
+/**
+ * Mark one local diagnostic warning reviewed
+ */
+export const acknowledgeDiagnosticNotification = <ThrowOnError extends boolean = false>(options: Options<AcknowledgeDiagnosticNotificationData, ThrowOnError>): RequestResult<AcknowledgeDiagnosticNotificationResponses, AcknowledgeDiagnosticNotificationErrors, ThrowOnError> => (options.client ?? client).post<AcknowledgeDiagnosticNotificationResponses, AcknowledgeDiagnosticNotificationErrors, ThrowOnError>({ url: '/diagnostic-notifications/{notificationId}/acknowledgment', ...options });

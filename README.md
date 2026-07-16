@@ -91,6 +91,14 @@ execution, trusted by exact executable fingerprint, enabled with explicit
 scopes, supervised per call, and automatically disabled after identity changes.
 See the [plugin SDK and compatibility policy](docs/plugin-sdk.md).
 
+Troubleshooting is deterministic first: Switchyard builds bounded redacted
+diagnostic receipts from current project facts, recognizes common failures,
+and optionally asks an isolated provider for schema-constrained hypotheses that
+must cite local evidence. Suggested actions remain existing accepted actions;
+saved recipes are created disabled, rate-limited, inspectable, and audited.
+Feedback and deduplicated alerts stay local, and cleanup remains preview-only.
+See the [diagnostics and safe automation architecture](docs/architecture/intelligent-diagnostics.md).
+
 Trusted Docker Compose projects support reviewable lifecycle plans, durable
 start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,
 and current resource metrics. See the

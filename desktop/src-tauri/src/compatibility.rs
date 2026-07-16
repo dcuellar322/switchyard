@@ -3,7 +3,7 @@ use semver::Version;
 use crate::model::{BuildInfo, SystemInfo};
 
 pub const API_VERSION: &str = "switchyard.api/v1";
-pub const DATABASE_SCHEMA_VERSION: i64 = 12;
+pub const DATABASE_SCHEMA_VERSION: i64 = 13;
 
 pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
     let desktop = Version::parse(env!("CARGO_PKG_VERSION"))

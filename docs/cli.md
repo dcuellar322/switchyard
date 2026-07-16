@@ -44,7 +44,8 @@ command after its compatibility preflight.
 
 `switchyard desktop snapshot --json` is a versioned, bounded native-adapter
 contract containing daemon identity, project runtime/health summaries,
-workspaces, recent operations, host pressure, and port-conflict count. It is
+workspaces, recent operations, diagnostic alerts, host pressure, and
+port-conflict count. It is
 read-only except that normal CLI attachment may start the bundled daemon when
 none is running. It is not intended as a replacement for the richer public
 query commands.
@@ -56,6 +57,43 @@ revokes every grant. `plugin health`, `plugin logs`, and `plugin inspect` expose
 bounded supervision and structured observations. `plugin run` accepts one
 advertised typed action, a JSON object, and `--yes`, then queues a durable
 audited operation. No plugin command exposes an arbitrary shell.
+
+## Diagnosis and safe automation
+
+```text
+switchyard diagnose <project> [--provider <configured-provider>]
+switchyard diagnose latest <project>
+switchyard diagnose feedback <diagnosis> <hypothesis>
+  --verdict accurate|false_positive [--note <local-note>]
+switchyard diagnose run <diagnosis> <action> --yes
+switchyard diagnose notifications [project] [--all]
+switchyard diagnose notifications acknowledge <notification>
+
+switchyard automation list [project]
+switchyard automation create <project> <action>
+  --name <name> --trigger <deterministic-code>
+  [--cooldown 3600] [--max-per-day 3]
+switchyard automation enable <recipe> --yes
+switchyard automation disable <recipe>
+switchyard automation evaluate <project>
+```
+
+Diagnosis always collects a bounded redacted bundle and runs deterministic
+rules before an optional provider. Provider output can cite only evidence and
+accepted non-destructive actions present in that bundle. `diagnose run` reloads
+the durable result and queues only a cited accepted action through the normal
+operation kernel; it cannot be used as an arbitrary action or shell launcher.
+
+Feedback is stored locally and is never sent as telemetry. Notifications are
+deduplicated local records for crashes, ports, resource pressure, and unhealthy
+dependencies. Cleanup findings are previews only.
+
+Automation recipes are created disabled. Enabling requires a separate `--yes`
+review, and evaluation reacts only to deterministic trigger codes. Every recipe
+has a cooldown and UTC daily limit, can be listed or disabled at any time, and
+may run only read-only or declared test/check/inspect actions. Operation IDs are
+returned for every dispatched action so outcomes remain inspectable and
+audited.
 
 ## Runtime commands
 

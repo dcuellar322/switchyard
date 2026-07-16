@@ -22,6 +22,8 @@ pub struct DesktopSnapshot {
     pub projects: Vec<ProjectSnapshot>,
     pub workspaces: Vec<Workspace>,
     pub operations: Vec<Operation>,
+    #[serde(default)]
+    pub diagnostic_notifications: Vec<DiagnosticNotification>,
     pub port_conflict_count: usize,
 }
 
@@ -89,6 +91,15 @@ pub struct Operation {
     pub id: String,
     pub kind: String,
     pub state: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiagnosticNotification {
+    pub id: String,
+    pub title: String,
+    pub detail: String,
+    pub occurrences: usize,
 }
 
 #[derive(Debug, Deserialize)]

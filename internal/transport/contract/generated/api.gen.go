@@ -142,15 +142,48 @@ func (e AgentSessionCreateProvider) Valid() bool {
 	}
 }
 
+// Defines values for AutomationTrigger.
+const (
+	DEPENDENCYUNREACHABLE AutomationTrigger = "DEPENDENCY_UNREACHABLE"
+	PORTBINDFAILED        AutomationTrigger = "PORT_BIND_FAILED"
+	PORTCONFLICT          AutomationTrigger = "PORT_CONFLICT"
+	REPEATEDCRASH         AutomationTrigger = "REPEATED_CRASH"
+	RESOURCEEXHAUSTED     AutomationTrigger = "RESOURCE_EXHAUSTED"
+	RESOURCEPRESSURE      AutomationTrigger = "RESOURCE_PRESSURE"
+	UNHEALTHYDEPENDENCY   AutomationTrigger = "UNHEALTHY_DEPENDENCY"
+)
+
+// Valid indicates whether the value is a known member of the AutomationTrigger enum.
+func (e AutomationTrigger) Valid() bool {
+	switch e {
+	case DEPENDENCYUNREACHABLE:
+		return true
+	case PORTBINDFAILED:
+		return true
+	case PORTCONFLICT:
+		return true
+	case REPEATEDCRASH:
+		return true
+	case RESOURCEEXHAUSTED:
+		return true
+	case RESOURCEPRESSURE:
+		return true
+	case UNHEALTHYDEPENDENCY:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CleanupPreviewExecutable.
 const (
-	False CleanupPreviewExecutable = false
+	CleanupPreviewExecutableFalse CleanupPreviewExecutable = false
 )
 
 // Valid indicates whether the value is a known member of the CleanupPreviewExecutable enum.
 func (e CleanupPreviewExecutable) Valid() bool {
 	switch e {
-	case False:
+	case CleanupPreviewExecutableFalse:
 		return true
 	default:
 		return false
@@ -166,6 +199,114 @@ const (
 func (e CleanupPreviewRisk) Valid() bool {
 	switch e {
 	case CleanupPreviewRiskDestructive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticCleanupPreviewExecutable.
+const (
+	DiagnosticCleanupPreviewExecutableFalse DiagnosticCleanupPreviewExecutable = false
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticCleanupPreviewExecutable enum.
+func (e DiagnosticCleanupPreviewExecutable) Valid() bool {
+	switch e {
+	case DiagnosticCleanupPreviewExecutableFalse:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticFeedbackVerdict.
+const (
+	DiagnosticFeedbackVerdictAccurate      DiagnosticFeedbackVerdict = "accurate"
+	DiagnosticFeedbackVerdictFalsePositive DiagnosticFeedbackVerdict = "false_positive"
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticFeedbackVerdict enum.
+func (e DiagnosticFeedbackVerdict) Valid() bool {
+	switch e {
+	case DiagnosticFeedbackVerdictAccurate:
+		return true
+	case DiagnosticFeedbackVerdictFalsePositive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticFeedbackRequestVerdict.
+const (
+	DiagnosticFeedbackRequestVerdictAccurate      DiagnosticFeedbackRequestVerdict = "accurate"
+	DiagnosticFeedbackRequestVerdictFalsePositive DiagnosticFeedbackRequestVerdict = "false_positive"
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticFeedbackRequestVerdict enum.
+func (e DiagnosticFeedbackRequestVerdict) Valid() bool {
+	switch e {
+	case DiagnosticFeedbackRequestVerdictAccurate:
+		return true
+	case DiagnosticFeedbackRequestVerdictFalsePositive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticHypothesisSeverity.
+const (
+	DiagnosticHypothesisSeverityError   DiagnosticHypothesisSeverity = "error"
+	DiagnosticHypothesisSeverityInfo    DiagnosticHypothesisSeverity = "info"
+	DiagnosticHypothesisSeverityWarning DiagnosticHypothesisSeverity = "warning"
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticHypothesisSeverity enum.
+func (e DiagnosticHypothesisSeverity) Valid() bool {
+	switch e {
+	case DiagnosticHypothesisSeverityError:
+		return true
+	case DiagnosticHypothesisSeverityInfo:
+		return true
+	case DiagnosticHypothesisSeverityWarning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticHypothesisSource.
+const (
+	DiagnosticHypothesisSourceAi            DiagnosticHypothesisSource = "ai"
+	DiagnosticHypothesisSourceDeterministic DiagnosticHypothesisSource = "deterministic"
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticHypothesisSource enum.
+func (e DiagnosticHypothesisSource) Valid() bool {
+	switch e {
+	case DiagnosticHypothesisSourceAi:
+		return true
+	case DiagnosticHypothesisSourceDeterministic:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiagnosticSuggestedActionRisk.
+const (
+	DiagnosticSuggestedActionRiskMutating DiagnosticSuggestedActionRisk = "mutating"
+	DiagnosticSuggestedActionRiskReadOnly DiagnosticSuggestedActionRisk = "read_only"
+)
+
+// Valid indicates whether the value is a known member of the DiagnosticSuggestedActionRisk enum.
+func (e DiagnosticSuggestedActionRisk) Valid() bool {
+	switch e {
+	case DiagnosticSuggestedActionRiskMutating:
+		return true
+	case DiagnosticSuggestedActionRiskReadOnly:
 		return true
 	default:
 		return false
@@ -444,22 +585,22 @@ func (e PluginEnableRequestGrantedScopes) Valid() bool {
 
 // Defines values for PluginLogEntryLevel.
 const (
-	PluginLogEntryLevelDebug   PluginLogEntryLevel = "debug"
-	PluginLogEntryLevelError   PluginLogEntryLevel = "error"
-	PluginLogEntryLevelInfo    PluginLogEntryLevel = "info"
-	PluginLogEntryLevelWarning PluginLogEntryLevel = "warning"
+	Debug   PluginLogEntryLevel = "debug"
+	Error   PluginLogEntryLevel = "error"
+	Info    PluginLogEntryLevel = "info"
+	Warning PluginLogEntryLevel = "warning"
 )
 
 // Valid indicates whether the value is a known member of the PluginLogEntryLevel enum.
 func (e PluginLogEntryLevel) Valid() bool {
 	switch e {
-	case PluginLogEntryLevelDebug:
+	case Debug:
 		return true
-	case PluginLogEntryLevelError:
+	case Error:
 		return true
-	case PluginLogEntryLevelInfo:
+	case Info:
 		return true
-	case PluginLogEntryLevelWarning:
+	case Warning:
 		return true
 	default:
 		return false
@@ -552,19 +693,19 @@ func (e PluginRegistrationRequestedScopes) Valid() bool {
 
 // Defines values for PluginRegistrationTrust.
 const (
-	PluginRegistrationTrustChanged   PluginRegistrationTrust = "changed"
-	PluginRegistrationTrustTrusted   PluginRegistrationTrust = "trusted"
-	PluginRegistrationTrustUntrusted PluginRegistrationTrust = "untrusted"
+	Changed   PluginRegistrationTrust = "changed"
+	Trusted   PluginRegistrationTrust = "trusted"
+	Untrusted PluginRegistrationTrust = "untrusted"
 )
 
 // Valid indicates whether the value is a known member of the PluginRegistrationTrust enum.
 func (e PluginRegistrationTrust) Valid() bool {
 	switch e {
-	case PluginRegistrationTrustChanged:
+	case Changed:
 		return true
-	case PluginRegistrationTrustTrusted:
+	case Trusted:
 		return true
-	case PluginRegistrationTrustUntrusted:
+	case Untrusted:
 		return true
 	default:
 		return false
@@ -1023,19 +1164,19 @@ func (e RuntimePlanDriver) Valid() bool {
 
 // Defines values for RuntimePlanRisk.
 const (
-	RuntimePlanRiskCaution     RuntimePlanRisk = "caution"
-	RuntimePlanRiskDestructive RuntimePlanRisk = "destructive"
-	RuntimePlanRiskSafe        RuntimePlanRisk = "safe"
+	Caution     RuntimePlanRisk = "caution"
+	Destructive RuntimePlanRisk = "destructive"
+	Safe        RuntimePlanRisk = "safe"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
 func (e RuntimePlanRisk) Valid() bool {
 	switch e {
-	case RuntimePlanRiskCaution:
+	case Caution:
 		return true
-	case RuntimePlanRiskDestructive:
+	case Destructive:
 		return true
-	case RuntimePlanRiskSafe:
+	case Safe:
 		return true
 	default:
 		return false
@@ -1651,6 +1792,31 @@ type AgentSessionCreate struct {
 // AgentSessionCreateProvider defines model for AgentSessionCreate.Provider.
 type AgentSessionCreateProvider string
 
+// AutomationEvaluation defines model for AutomationEvaluation.
+type AutomationEvaluation struct {
+	OperationIds []string `json:"operationIds"`
+}
+
+// AutomationRecipe defines model for AutomationRecipe.
+type AutomationRecipe struct {
+	ActionId        string            `json:"actionId"`
+	CooldownSeconds int               `json:"cooldownSeconds"`
+	CreatedAt       time.Time         `json:"createdAt"`
+	Enabled         bool              `json:"enabled"`
+	Id              string            `json:"id"`
+	LastRunAt       *time.Time        `json:"lastRunAt,omitempty"`
+	MaxRunsPerDay   int               `json:"maxRunsPerDay"`
+	Name            string            `json:"name"`
+	ProjectId       string            `json:"projectId"`
+	RunsDay         *string           `json:"runsDay,omitempty"`
+	RunsToday       int               `json:"runsToday"`
+	TriggerCode     AutomationTrigger `json:"triggerCode"`
+	UpdatedAt       time.Time         `json:"updatedAt"`
+}
+
+// AutomationTrigger defines model for AutomationTrigger.
+type AutomationTrigger string
+
 // BrowserBootstrap defines model for BrowserBootstrap.
 type BrowserBootstrap struct {
 	ExpiresAt time.Time `json:"expiresAt"`
@@ -1711,15 +1877,138 @@ type CreateAIManifestEnhancementRequest struct {
 	Provider string             `json:"provider"`
 }
 
+// CreateAutomationRecipeRequest defines model for CreateAutomationRecipeRequest.
+type CreateAutomationRecipeRequest struct {
+	ActionId        string            `json:"actionId"`
+	CooldownSeconds int               `json:"cooldownSeconds"`
+	MaxRunsPerDay   int               `json:"maxRunsPerDay"`
+	Name            string            `json:"name"`
+	ProjectId       string            `json:"projectId"`
+	TriggerCode     AutomationTrigger `json:"triggerCode"`
+}
+
 // CreateBrowserSessionRequest defines model for CreateBrowserSessionRequest.
 type CreateBrowserSessionRequest struct {
 	BootstrapToken string `json:"bootstrapToken"`
+}
+
+// CreateDiagnosisRequest defines model for CreateDiagnosisRequest.
+type CreateDiagnosisRequest struct {
+	Provider *string `json:"provider,omitempty"`
 }
 
 // CreateManifestProposalRequest defines model for CreateManifestProposalRequest.
 type CreateManifestProposalRequest struct {
 	Path string `json:"path"`
 }
+
+// Diagnosis defines model for Diagnosis.
+type Diagnosis struct {
+	BundleBytes    int                      `json:"bundleBytes"`
+	BundleSha256   string                   `json:"bundleSha256"`
+	CleanupPreview DiagnosticCleanupPreview `json:"cleanupPreview"`
+	Deterministic  bool                     `json:"deterministic"`
+	Evidence       []DiagnosticEvidence     `json:"evidence"`
+	GeneratedAt    time.Time                `json:"generatedAt"`
+	Hypotheses     []DiagnosticHypothesis   `json:"hypotheses"`
+	Id             string                   `json:"id"`
+	Model          *string                  `json:"model,omitempty"`
+	ProjectId      string                   `json:"projectId"`
+	Provider       *string                  `json:"provider,omitempty"`
+	Version        string                   `json:"version"`
+	Warnings       []string                 `json:"warnings"`
+}
+
+// DiagnosticCleanupPreview defines model for DiagnosticCleanupPreview.
+type DiagnosticCleanupPreview struct {
+	Candidates     int                                `json:"candidates"`
+	EstimatedBytes int64                              `json:"estimatedBytes"`
+	Executable     DiagnosticCleanupPreviewExecutable `json:"executable"`
+	UnknownSizes   int                                `json:"unknownSizes"`
+}
+
+// DiagnosticCleanupPreviewExecutable defines model for DiagnosticCleanupPreview.Executable.
+type DiagnosticCleanupPreviewExecutable bool
+
+// DiagnosticEvidence defines model for DiagnosticEvidence.
+type DiagnosticEvidence struct {
+	Data       interface{} `json:"data"`
+	Id         string      `json:"id"`
+	Kind       string      `json:"kind"`
+	ObservedAt time.Time   `json:"observedAt"`
+	Redacted   bool        `json:"redacted"`
+	Source     string      `json:"source"`
+	Summary    string      `json:"summary"`
+	Truncated  bool        `json:"truncated"`
+	Untrusted  bool        `json:"untrusted"`
+}
+
+// DiagnosticFeedback defines model for DiagnosticFeedback.
+type DiagnosticFeedback struct {
+	CreatedAt    time.Time                 `json:"createdAt"`
+	DiagnosisId  string                    `json:"diagnosisId"`
+	HypothesisId string                    `json:"hypothesisId"`
+	Id           string                    `json:"id"`
+	Note         *string                   `json:"note,omitempty"`
+	Verdict      DiagnosticFeedbackVerdict `json:"verdict"`
+}
+
+// DiagnosticFeedbackVerdict defines model for DiagnosticFeedback.Verdict.
+type DiagnosticFeedbackVerdict string
+
+// DiagnosticFeedbackRequest defines model for DiagnosticFeedbackRequest.
+type DiagnosticFeedbackRequest struct {
+	HypothesisId string                           `json:"hypothesisId"`
+	Note         *string                          `json:"note,omitempty"`
+	Verdict      DiagnosticFeedbackRequestVerdict `json:"verdict"`
+}
+
+// DiagnosticFeedbackRequestVerdict defines model for DiagnosticFeedbackRequest.Verdict.
+type DiagnosticFeedbackRequestVerdict string
+
+// DiagnosticHypothesis defines model for DiagnosticHypothesis.
+type DiagnosticHypothesis struct {
+	Code             string                       `json:"code"`
+	Confidence       float64                      `json:"confidence"`
+	EvidenceIds      []string                     `json:"evidenceIds"`
+	Id               string                       `json:"id"`
+	Notifies         bool                         `json:"notifies"`
+	Severity         DiagnosticHypothesisSeverity `json:"severity"`
+	Source           DiagnosticHypothesisSource   `json:"source"`
+	SuggestedActions []DiagnosticSuggestedAction  `json:"suggestedActions"`
+	Summary          string                       `json:"summary"`
+	Title            string                       `json:"title"`
+}
+
+// DiagnosticHypothesisSeverity defines model for DiagnosticHypothesis.Severity.
+type DiagnosticHypothesisSeverity string
+
+// DiagnosticHypothesisSource defines model for DiagnosticHypothesis.Source.
+type DiagnosticHypothesisSource string
+
+// DiagnosticNotification defines model for DiagnosticNotification.
+type DiagnosticNotification struct {
+	AcknowledgedAt *time.Time `json:"acknowledgedAt,omitempty"`
+	Code           string     `json:"code"`
+	Detail         string     `json:"detail"`
+	FirstSeenAt    time.Time  `json:"firstSeenAt"`
+	Id             string     `json:"id"`
+	LastSeenAt     time.Time  `json:"lastSeenAt"`
+	Occurrences    int        `json:"occurrences"`
+	ProjectId      string     `json:"projectId"`
+	Title          string     `json:"title"`
+}
+
+// DiagnosticSuggestedAction defines model for DiagnosticSuggestedAction.
+type DiagnosticSuggestedAction struct {
+	ActionId string                        `json:"actionId"`
+	Name     string                        `json:"name"`
+	Reason   string                        `json:"reason"`
+	Risk     DiagnosticSuggestedActionRisk `json:"risk"`
+}
+
+// DiagnosticSuggestedActionRisk defines model for DiagnosticSuggestedAction.Risk.
+type DiagnosticSuggestedActionRisk string
 
 // DiscoveryEvidence defines model for DiscoveryEvidence.
 type DiscoveryEvidence struct {
@@ -2572,6 +2861,11 @@ type TerminalSessionOwner struct {
 // TerminalSessionStatus defines model for TerminalSessionStatus.
 type TerminalSessionStatus string
 
+// UpdateAutomationRecipeRequest defines model for UpdateAutomationRecipeRequest.
+type UpdateAutomationRecipeRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
 // Workspace defines model for Workspace.
 type Workspace struct {
 	CreatedAt    time.Time              `json:"createdAt"`
@@ -2722,8 +3016,14 @@ type WorkspaceUpdate struct {
 // ActionId defines model for ActionId.
 type ActionId = string
 
+// DiagnosisId defines model for DiagnosisId.
+type DiagnosisId = string
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
+
+// NotificationId defines model for NotificationId.
+type NotificationId = string
 
 // OperationId defines model for OperationId.
 type OperationId = string
@@ -2736,6 +3036,9 @@ type ProjectId = string
 
 // ProposalId defines model for ProposalId.
 type ProposalId = string
+
+// RecipeId defines model for RecipeId.
+type RecipeId = string
 
 // TerminalSessionId defines model for TerminalSessionId.
 type TerminalSessionId = string
@@ -2754,6 +3057,23 @@ type ListAgentSessionsParams struct {
 // CreateAgentSessionParams defines parameters for CreateAgentSession.
 type CreateAgentSessionParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// ListAutomationRecipesParams defines parameters for ListAutomationRecipes.
+type ListAutomationRecipesParams struct {
+	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
+}
+
+// CreateDiagnosticActionOperationParams defines parameters for CreateDiagnosticActionOperation.
+type CreateDiagnosticActionOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// ListDiagnosticNotificationsParams defines parameters for ListDiagnosticNotifications.
+type ListDiagnosticNotificationsParams struct {
+	ProjectId           *string `form:"projectId,omitempty" json:"projectId,omitempty"`
+	IncludeAcknowledged *bool   `form:"includeAcknowledged,omitempty" json:"includeAcknowledged,omitempty"`
+	Limit               *int    `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // UpdateEnvironmentParams defines parameters for UpdateEnvironment.
@@ -2920,6 +3240,15 @@ type CreateAgentSessionJSONRequestBody = AgentSessionCreate
 // CreateBrowserSessionJSONRequestBody defines body for CreateBrowserSession for application/json ContentType.
 type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
 
+// CreateAutomationRecipeJSONRequestBody defines body for CreateAutomationRecipe for application/json ContentType.
+type CreateAutomationRecipeJSONRequestBody = CreateAutomationRecipeRequest
+
+// UpdateAutomationRecipeJSONRequestBody defines body for UpdateAutomationRecipe for application/json ContentType.
+type UpdateAutomationRecipeJSONRequestBody = UpdateAutomationRecipeRequest
+
+// CreateDiagnosticFeedbackJSONRequestBody defines body for CreateDiagnosticFeedback for application/json ContentType.
+type CreateDiagnosticFeedbackJSONRequestBody = DiagnosticFeedbackRequest
+
 // UpdateEnvironmentJSONRequestBody defines body for UpdateEnvironment for application/json ContentType.
 type UpdateEnvironmentJSONRequestBody = EnvironmentUpdate
 
@@ -2946,6 +3275,9 @@ type CreatePortSuggestionJSONRequestBody = PortSuggestionRequest
 
 // CreateActionOperationJSONRequestBody defines body for CreateActionOperation for application/json ContentType.
 type CreateActionOperationJSONRequestBody = ActionExecutionRequest
+
+// CreateProjectDiagnosisJSONRequestBody defines body for CreateProjectDiagnosis for application/json ContentType.
+type CreateProjectDiagnosisJSONRequestBody = CreateDiagnosisRequest
 
 // CreateProjectOperationJSONRequestBody defines body for CreateProjectOperation for application/json ContentType.
 type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
@@ -3057,6 +3389,36 @@ type ClientInterface interface {
 
 	CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAutomationRecipes request
+	ListAutomationRecipes(ctx context.Context, params *ListAutomationRecipesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAutomationRecipeWithBody request with any body
+	CreateAutomationRecipeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAutomationRecipe(ctx context.Context, body CreateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateAutomationRecipeWithBody request with any body
+	UpdateAutomationRecipeWithBody(ctx context.Context, recipeId RecipeId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAutomationRecipe(ctx context.Context, recipeId RecipeId, body UpdateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDiagnosis request
+	GetDiagnosis(ctx context.Context, diagnosisId DiagnosisId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDiagnosticActionOperation request
+	CreateDiagnosticActionOperation(ctx context.Context, diagnosisId DiagnosisId, actionId ActionId, params *CreateDiagnosticActionOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDiagnosticFeedbackWithBody request with any body
+	CreateDiagnosticFeedbackWithBody(ctx context.Context, diagnosisId DiagnosisId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateDiagnosticFeedback(ctx context.Context, diagnosisId DiagnosisId, body CreateDiagnosticFeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDiagnosticNotifications request
+	ListDiagnosticNotifications(ctx context.Context, params *ListDiagnosticNotificationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcknowledgeDiagnosticNotification request
+	AcknowledgeDiagnosticNotification(ctx context.Context, notificationId NotificationId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEnvironment request
 	GetEnvironment(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3161,6 +3523,17 @@ type ClientInterface interface {
 	CreateActionOperationWithBody(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateActionOperation(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAutomationEvaluation request
+	CreateAutomationEvaluation(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetLatestProjectDiagnosis request
+	GetLatestProjectDiagnosis(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProjectDiagnosisWithBody request with any body
+	CreateProjectDiagnosisWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateProjectDiagnosis(ctx context.Context, projectId ProjectId, body CreateProjectDiagnosisJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProjectEnvironments request
 	ListProjectEnvironments(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3339,6 +3712,138 @@ func (c *Client) CreateBrowserSessionWithBody(ctx context.Context, contentType s
 
 func (c *Client) CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateBrowserSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAutomationRecipes(ctx context.Context, params *ListAutomationRecipesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAutomationRecipesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAutomationRecipeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAutomationRecipeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAutomationRecipe(ctx context.Context, body CreateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAutomationRecipeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAutomationRecipeWithBody(ctx context.Context, recipeId RecipeId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAutomationRecipeRequestWithBody(c.Server, recipeId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAutomationRecipe(ctx context.Context, recipeId RecipeId, body UpdateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAutomationRecipeRequest(c.Server, recipeId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDiagnosis(ctx context.Context, diagnosisId DiagnosisId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDiagnosisRequest(c.Server, diagnosisId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDiagnosticActionOperation(ctx context.Context, diagnosisId DiagnosisId, actionId ActionId, params *CreateDiagnosticActionOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDiagnosticActionOperationRequest(c.Server, diagnosisId, actionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDiagnosticFeedbackWithBody(ctx context.Context, diagnosisId DiagnosisId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDiagnosticFeedbackRequestWithBody(c.Server, diagnosisId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDiagnosticFeedback(ctx context.Context, diagnosisId DiagnosisId, body CreateDiagnosticFeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDiagnosticFeedbackRequest(c.Server, diagnosisId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListDiagnosticNotifications(ctx context.Context, params *ListDiagnosticNotificationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDiagnosticNotificationsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcknowledgeDiagnosticNotification(ctx context.Context, notificationId NotificationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcknowledgeDiagnosticNotificationRequest(c.Server, notificationId)
 	if err != nil {
 		return nil, err
 	}
@@ -3795,6 +4300,54 @@ func (c *Client) CreateActionOperationWithBody(ctx context.Context, projectId Pr
 
 func (c *Client) CreateActionOperation(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateActionOperationRequest(c.Server, projectId, actionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAutomationEvaluation(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAutomationEvaluationRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetLatestProjectDiagnosis(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLatestProjectDiagnosisRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProjectDiagnosisWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectDiagnosisRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProjectDiagnosis(ctx context.Context, projectId ProjectId, body CreateProjectDiagnosisJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectDiagnosisRequest(c.Server, projectId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4434,6 +4987,394 @@ func NewCreateBrowserSessionRequestWithBody(server string, contentType string, b
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListAutomationRecipesRequest generates requests for ListAutomationRecipes
+func NewListAutomationRecipesRequest(server string, params *ListAutomationRecipesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/automation-recipes")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", *params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAutomationRecipeRequest calls the generic CreateAutomationRecipe builder with application/json body
+func NewCreateAutomationRecipeRequest(server string, body CreateAutomationRecipeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAutomationRecipeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateAutomationRecipeRequestWithBody generates requests for CreateAutomationRecipe with any type of body
+func NewCreateAutomationRecipeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/automation-recipes")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateAutomationRecipeRequest calls the generic UpdateAutomationRecipe builder with application/json body
+func NewUpdateAutomationRecipeRequest(server string, recipeId RecipeId, body UpdateAutomationRecipeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAutomationRecipeRequestWithBody(server, recipeId, "application/json", bodyReader)
+}
+
+// NewUpdateAutomationRecipeRequestWithBody generates requests for UpdateAutomationRecipe with any type of body
+func NewUpdateAutomationRecipeRequestWithBody(server string, recipeId RecipeId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "recipeId", recipeId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/automation-recipes/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetDiagnosisRequest generates requests for GetDiagnosis
+func NewGetDiagnosisRequest(server string, diagnosisId DiagnosisId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "diagnosisId", diagnosisId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/diagnoses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDiagnosticActionOperationRequest generates requests for CreateDiagnosticActionOperation
+func NewCreateDiagnosticActionOperationRequest(server string, diagnosisId DiagnosisId, actionId ActionId, params *CreateDiagnosticActionOperationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "diagnosisId", diagnosisId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "actionId", actionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/diagnoses/%s/actions/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewCreateDiagnosticFeedbackRequest calls the generic CreateDiagnosticFeedback builder with application/json body
+func NewCreateDiagnosticFeedbackRequest(server string, diagnosisId DiagnosisId, body CreateDiagnosticFeedbackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDiagnosticFeedbackRequestWithBody(server, diagnosisId, "application/json", bodyReader)
+}
+
+// NewCreateDiagnosticFeedbackRequestWithBody generates requests for CreateDiagnosticFeedback with any type of body
+func NewCreateDiagnosticFeedbackRequestWithBody(server string, diagnosisId DiagnosisId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "diagnosisId", diagnosisId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/diagnoses/%s/feedback", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListDiagnosticNotificationsRequest generates requests for ListDiagnosticNotifications
+func NewListDiagnosticNotificationsRequest(server string, params *ListDiagnosticNotificationsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/diagnostic-notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", *params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.IncludeAcknowledged != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "includeAcknowledged", *params.IncludeAcknowledged, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAcknowledgeDiagnosticNotificationRequest generates requests for AcknowledgeDiagnosticNotification
+func NewAcknowledgeDiagnosticNotificationRequest(server string, notificationId NotificationId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "notificationId", notificationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/diagnostic-notifications/%s/acknowledgment", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -5718,6 +6659,121 @@ func NewCreateActionOperationRequestWithBody(server string, projectId ProjectId,
 		req.Header.Set("Idempotency-Key", headerParam0)
 
 	}
+
+	return req, nil
+}
+
+// NewCreateAutomationEvaluationRequest generates requests for CreateAutomationEvaluation
+func NewCreateAutomationEvaluationRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/automation-evaluations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetLatestProjectDiagnosisRequest generates requests for GetLatestProjectDiagnosis
+func NewGetLatestProjectDiagnosisRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/diagnoses", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateProjectDiagnosisRequest calls the generic CreateProjectDiagnosis builder with application/json body
+func NewCreateProjectDiagnosisRequest(server string, projectId ProjectId, body CreateProjectDiagnosisJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateProjectDiagnosisRequestWithBody(server, projectId, "application/json", bodyReader)
+}
+
+// NewCreateProjectDiagnosisRequestWithBody generates requests for CreateProjectDiagnosis with any type of body
+func NewCreateProjectDiagnosisRequestWithBody(server string, projectId ProjectId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/diagnoses", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -7218,6 +8274,36 @@ type ClientWithResponsesInterface interface {
 
 	CreateBrowserSessionWithResponse(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBrowserSessionResponse, error)
 
+	// ListAutomationRecipesWithResponse request
+	ListAutomationRecipesWithResponse(ctx context.Context, params *ListAutomationRecipesParams, reqEditors ...RequestEditorFn) (*ListAutomationRecipesResponse, error)
+
+	// CreateAutomationRecipeWithBodyWithResponse request with any body
+	CreateAutomationRecipeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAutomationRecipeResponse, error)
+
+	CreateAutomationRecipeWithResponse(ctx context.Context, body CreateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAutomationRecipeResponse, error)
+
+	// UpdateAutomationRecipeWithBodyWithResponse request with any body
+	UpdateAutomationRecipeWithBodyWithResponse(ctx context.Context, recipeId RecipeId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAutomationRecipeResponse, error)
+
+	UpdateAutomationRecipeWithResponse(ctx context.Context, recipeId RecipeId, body UpdateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAutomationRecipeResponse, error)
+
+	// GetDiagnosisWithResponse request
+	GetDiagnosisWithResponse(ctx context.Context, diagnosisId DiagnosisId, reqEditors ...RequestEditorFn) (*GetDiagnosisResponse, error)
+
+	// CreateDiagnosticActionOperationWithResponse request
+	CreateDiagnosticActionOperationWithResponse(ctx context.Context, diagnosisId DiagnosisId, actionId ActionId, params *CreateDiagnosticActionOperationParams, reqEditors ...RequestEditorFn) (*CreateDiagnosticActionOperationResponse, error)
+
+	// CreateDiagnosticFeedbackWithBodyWithResponse request with any body
+	CreateDiagnosticFeedbackWithBodyWithResponse(ctx context.Context, diagnosisId DiagnosisId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDiagnosticFeedbackResponse, error)
+
+	CreateDiagnosticFeedbackWithResponse(ctx context.Context, diagnosisId DiagnosisId, body CreateDiagnosticFeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDiagnosticFeedbackResponse, error)
+
+	// ListDiagnosticNotificationsWithResponse request
+	ListDiagnosticNotificationsWithResponse(ctx context.Context, params *ListDiagnosticNotificationsParams, reqEditors ...RequestEditorFn) (*ListDiagnosticNotificationsResponse, error)
+
+	// AcknowledgeDiagnosticNotificationWithResponse request
+	AcknowledgeDiagnosticNotificationWithResponse(ctx context.Context, notificationId NotificationId, reqEditors ...RequestEditorFn) (*AcknowledgeDiagnosticNotificationResponse, error)
+
 	// GetEnvironmentWithResponse request
 	GetEnvironmentWithResponse(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*GetEnvironmentResponse, error)
 
@@ -7322,6 +8408,17 @@ type ClientWithResponsesInterface interface {
 	CreateActionOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error)
 
 	CreateActionOperationWithResponse(ctx context.Context, projectId ProjectId, actionId ActionId, params *CreateActionOperationParams, body CreateActionOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateActionOperationResponse, error)
+
+	// CreateAutomationEvaluationWithResponse request
+	CreateAutomationEvaluationWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*CreateAutomationEvaluationResponse, error)
+
+	// GetLatestProjectDiagnosisWithResponse request
+	GetLatestProjectDiagnosisWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetLatestProjectDiagnosisResponse, error)
+
+	// CreateProjectDiagnosisWithBodyWithResponse request with any body
+	CreateProjectDiagnosisWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectDiagnosisResponse, error)
+
+	CreateProjectDiagnosisWithResponse(ctx context.Context, projectId ProjectId, body CreateProjectDiagnosisJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectDiagnosisResponse, error)
 
 	// ListProjectEnvironmentsWithResponse request
 	ListProjectEnvironmentsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListProjectEnvironmentsResponse, error)
@@ -7575,6 +8672,254 @@ func (r CreateBrowserSessionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateBrowserSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListAutomationRecipesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]AutomationRecipe
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAutomationRecipesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAutomationRecipesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAutomationRecipesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAutomationRecipeResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *AutomationRecipe
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAutomationRecipeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAutomationRecipeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAutomationRecipeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateAutomationRecipeResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *AutomationRecipe
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAutomationRecipeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAutomationRecipeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateAutomationRecipeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDiagnosisResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Diagnosis
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDiagnosisResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDiagnosisResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDiagnosisResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateDiagnosticActionOperationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *Operation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDiagnosticActionOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDiagnosticActionOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateDiagnosticActionOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateDiagnosticFeedbackResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *DiagnosticFeedback
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDiagnosticFeedbackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDiagnosticFeedbackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateDiagnosticFeedbackResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListDiagnosticNotificationsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]DiagnosticNotification
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDiagnosticNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDiagnosticNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListDiagnosticNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AcknowledgeDiagnosticNotificationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *DiagnosticNotification
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r AcknowledgeDiagnosticNotificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcknowledgeDiagnosticNotificationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AcknowledgeDiagnosticNotificationResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -8473,6 +9818,99 @@ func (r CreateActionOperationResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateActionOperationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAutomationEvaluationResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *AutomationEvaluation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAutomationEvaluationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAutomationEvaluationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAutomationEvaluationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetLatestProjectDiagnosisResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *Diagnosis
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLatestProjectDiagnosisResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLatestProjectDiagnosisResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetLatestProjectDiagnosisResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateProjectDiagnosisResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *Diagnosis
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateProjectDiagnosisResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateProjectDiagnosisResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateProjectDiagnosisResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -9468,6 +10906,102 @@ func (c *ClientWithResponses) CreateBrowserSessionWithResponse(ctx context.Conte
 	return ParseCreateBrowserSessionResponse(rsp)
 }
 
+// ListAutomationRecipesWithResponse request returning *ListAutomationRecipesResponse
+func (c *ClientWithResponses) ListAutomationRecipesWithResponse(ctx context.Context, params *ListAutomationRecipesParams, reqEditors ...RequestEditorFn) (*ListAutomationRecipesResponse, error) {
+	rsp, err := c.ListAutomationRecipes(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAutomationRecipesResponse(rsp)
+}
+
+// CreateAutomationRecipeWithBodyWithResponse request with arbitrary body returning *CreateAutomationRecipeResponse
+func (c *ClientWithResponses) CreateAutomationRecipeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAutomationRecipeResponse, error) {
+	rsp, err := c.CreateAutomationRecipeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAutomationRecipeResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAutomationRecipeWithResponse(ctx context.Context, body CreateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAutomationRecipeResponse, error) {
+	rsp, err := c.CreateAutomationRecipe(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAutomationRecipeResponse(rsp)
+}
+
+// UpdateAutomationRecipeWithBodyWithResponse request with arbitrary body returning *UpdateAutomationRecipeResponse
+func (c *ClientWithResponses) UpdateAutomationRecipeWithBodyWithResponse(ctx context.Context, recipeId RecipeId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAutomationRecipeResponse, error) {
+	rsp, err := c.UpdateAutomationRecipeWithBody(ctx, recipeId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAutomationRecipeResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAutomationRecipeWithResponse(ctx context.Context, recipeId RecipeId, body UpdateAutomationRecipeJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAutomationRecipeResponse, error) {
+	rsp, err := c.UpdateAutomationRecipe(ctx, recipeId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAutomationRecipeResponse(rsp)
+}
+
+// GetDiagnosisWithResponse request returning *GetDiagnosisResponse
+func (c *ClientWithResponses) GetDiagnosisWithResponse(ctx context.Context, diagnosisId DiagnosisId, reqEditors ...RequestEditorFn) (*GetDiagnosisResponse, error) {
+	rsp, err := c.GetDiagnosis(ctx, diagnosisId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDiagnosisResponse(rsp)
+}
+
+// CreateDiagnosticActionOperationWithResponse request returning *CreateDiagnosticActionOperationResponse
+func (c *ClientWithResponses) CreateDiagnosticActionOperationWithResponse(ctx context.Context, diagnosisId DiagnosisId, actionId ActionId, params *CreateDiagnosticActionOperationParams, reqEditors ...RequestEditorFn) (*CreateDiagnosticActionOperationResponse, error) {
+	rsp, err := c.CreateDiagnosticActionOperation(ctx, diagnosisId, actionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDiagnosticActionOperationResponse(rsp)
+}
+
+// CreateDiagnosticFeedbackWithBodyWithResponse request with arbitrary body returning *CreateDiagnosticFeedbackResponse
+func (c *ClientWithResponses) CreateDiagnosticFeedbackWithBodyWithResponse(ctx context.Context, diagnosisId DiagnosisId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDiagnosticFeedbackResponse, error) {
+	rsp, err := c.CreateDiagnosticFeedbackWithBody(ctx, diagnosisId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDiagnosticFeedbackResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateDiagnosticFeedbackWithResponse(ctx context.Context, diagnosisId DiagnosisId, body CreateDiagnosticFeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDiagnosticFeedbackResponse, error) {
+	rsp, err := c.CreateDiagnosticFeedback(ctx, diagnosisId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDiagnosticFeedbackResponse(rsp)
+}
+
+// ListDiagnosticNotificationsWithResponse request returning *ListDiagnosticNotificationsResponse
+func (c *ClientWithResponses) ListDiagnosticNotificationsWithResponse(ctx context.Context, params *ListDiagnosticNotificationsParams, reqEditors ...RequestEditorFn) (*ListDiagnosticNotificationsResponse, error) {
+	rsp, err := c.ListDiagnosticNotifications(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDiagnosticNotificationsResponse(rsp)
+}
+
+// AcknowledgeDiagnosticNotificationWithResponse request returning *AcknowledgeDiagnosticNotificationResponse
+func (c *ClientWithResponses) AcknowledgeDiagnosticNotificationWithResponse(ctx context.Context, notificationId NotificationId, reqEditors ...RequestEditorFn) (*AcknowledgeDiagnosticNotificationResponse, error) {
+	rsp, err := c.AcknowledgeDiagnosticNotification(ctx, notificationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcknowledgeDiagnosticNotificationResponse(rsp)
+}
+
 // GetEnvironmentWithResponse request returning *GetEnvironmentResponse
 func (c *ClientWithResponses) GetEnvironmentWithResponse(ctx context.Context, environmentId string, reqEditors ...RequestEditorFn) (*GetEnvironmentResponse, error) {
 	rsp, err := c.GetEnvironment(ctx, environmentId, reqEditors...)
@@ -9799,6 +11333,41 @@ func (c *ClientWithResponses) CreateActionOperationWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseCreateActionOperationResponse(rsp)
+}
+
+// CreateAutomationEvaluationWithResponse request returning *CreateAutomationEvaluationResponse
+func (c *ClientWithResponses) CreateAutomationEvaluationWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*CreateAutomationEvaluationResponse, error) {
+	rsp, err := c.CreateAutomationEvaluation(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAutomationEvaluationResponse(rsp)
+}
+
+// GetLatestProjectDiagnosisWithResponse request returning *GetLatestProjectDiagnosisResponse
+func (c *ClientWithResponses) GetLatestProjectDiagnosisWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetLatestProjectDiagnosisResponse, error) {
+	rsp, err := c.GetLatestProjectDiagnosis(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLatestProjectDiagnosisResponse(rsp)
+}
+
+// CreateProjectDiagnosisWithBodyWithResponse request with arbitrary body returning *CreateProjectDiagnosisResponse
+func (c *ClientWithResponses) CreateProjectDiagnosisWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectDiagnosisResponse, error) {
+	rsp, err := c.CreateProjectDiagnosisWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectDiagnosisResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateProjectDiagnosisWithResponse(ctx context.Context, projectId ProjectId, body CreateProjectDiagnosisJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectDiagnosisResponse, error) {
+	rsp, err := c.CreateProjectDiagnosis(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectDiagnosisResponse(rsp)
 }
 
 // ListProjectEnvironmentsWithResponse request returning *ListProjectEnvironmentsResponse
@@ -10271,6 +11840,270 @@ func ParseCreateBrowserSessionResponse(rsp *http.Response) (*CreateBrowserSessio
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAutomationRecipesResponse parses an HTTP response from a ListAutomationRecipesWithResponse call
+func ParseListAutomationRecipesResponse(rsp *http.Response) (*ListAutomationRecipesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAutomationRecipesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AutomationRecipe
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAutomationRecipeResponse parses an HTTP response from a CreateAutomationRecipeWithResponse call
+func ParseCreateAutomationRecipeResponse(rsp *http.Response) (*CreateAutomationRecipeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAutomationRecipeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest AutomationRecipe
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAutomationRecipeResponse parses an HTTP response from a UpdateAutomationRecipeWithResponse call
+func ParseUpdateAutomationRecipeResponse(rsp *http.Response) (*UpdateAutomationRecipeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAutomationRecipeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AutomationRecipe
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDiagnosisResponse parses an HTTP response from a GetDiagnosisWithResponse call
+func ParseGetDiagnosisResponse(rsp *http.Response) (*GetDiagnosisResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDiagnosisResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Diagnosis
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDiagnosticActionOperationResponse parses an HTTP response from a CreateDiagnosticActionOperationWithResponse call
+func ParseCreateDiagnosticActionOperationResponse(rsp *http.Response) (*CreateDiagnosticActionOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDiagnosticActionOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDiagnosticFeedbackResponse parses an HTTP response from a CreateDiagnosticFeedbackWithResponse call
+func ParseCreateDiagnosticFeedbackResponse(rsp *http.Response) (*CreateDiagnosticFeedbackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDiagnosticFeedbackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest DiagnosticFeedback
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDiagnosticNotificationsResponse parses an HTTP response from a ListDiagnosticNotificationsWithResponse call
+func ParseListDiagnosticNotificationsResponse(rsp *http.Response) (*ListDiagnosticNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDiagnosticNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []DiagnosticNotification
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAcknowledgeDiagnosticNotificationResponse parses an HTTP response from a AcknowledgeDiagnosticNotificationWithResponse call
+func ParseAcknowledgeDiagnosticNotificationResponse(rsp *http.Response) (*AcknowledgeDiagnosticNotificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcknowledgeDiagnosticNotificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DiagnosticNotification
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
@@ -11221,6 +13054,105 @@ func ParseCreateActionOperationResponse(rsp *http.Response) (*CreateActionOperat
 			return nil, err
 		}
 		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAutomationEvaluationResponse parses an HTTP response from a CreateAutomationEvaluationWithResponse call
+func ParseCreateAutomationEvaluationResponse(rsp *http.Response) (*CreateAutomationEvaluationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAutomationEvaluationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AutomationEvaluation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetLatestProjectDiagnosisResponse parses an HTTP response from a GetLatestProjectDiagnosisWithResponse call
+func ParseGetLatestProjectDiagnosisResponse(rsp *http.Response) (*GetLatestProjectDiagnosisResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLatestProjectDiagnosisResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Diagnosis
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateProjectDiagnosisResponse parses an HTTP response from a CreateProjectDiagnosisWithResponse call
+func ParseCreateProjectDiagnosisResponse(rsp *http.Response) (*CreateProjectDiagnosisResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateProjectDiagnosisResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Diagnosis
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
@@ -12227,6 +14159,30 @@ type ServerInterface interface {
 	// Exchange a one-time bootstrap token for a same-origin session
 	// (POST /auth/sessions)
 	CreateBrowserSession(w http.ResponseWriter, r *http.Request)
+	// List inspectable automation recipes, including disabled recipes
+	// (GET /automation-recipes)
+	ListAutomationRecipes(w http.ResponseWriter, r *http.Request, params ListAutomationRecipesParams)
+	// Save a disabled bounded automation recipe
+	// (POST /automation-recipes)
+	CreateAutomationRecipe(w http.ResponseWriter, r *http.Request)
+	// Explicitly enable or disable one saved recipe
+	// (PATCH /automation-recipes/{recipeId})
+	UpdateAutomationRecipe(w http.ResponseWriter, r *http.Request, recipeId RecipeId)
+	// Read one durable diagnosis and its bounded evidence
+	// (GET /diagnoses/{diagnosisId})
+	GetDiagnosis(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId)
+	// Queue an existing approved action cited by a diagnosis
+	// (POST /diagnoses/{diagnosisId}/actions/{actionId})
+	CreateDiagnosticActionOperation(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId, actionId ActionId, params CreateDiagnosticActionOperationParams)
+	// Record local-only accuracy feedback
+	// (POST /diagnoses/{diagnosisId}/feedback)
+	CreateDiagnosticFeedback(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId)
+	// List deduplicated local diagnostic notifications
+	// (GET /diagnostic-notifications)
+	ListDiagnosticNotifications(w http.ResponseWriter, r *http.Request, params ListDiagnosticNotificationsParams)
+	// Mark one local diagnostic warning reviewed
+	// (POST /diagnostic-notifications/{notificationId}/acknowledgment)
+	AcknowledgeDiagnosticNotification(w http.ResponseWriter, r *http.Request, notificationId NotificationId)
 	// Read one registered project environment
 	// (GET /environments/{environmentId})
 	GetEnvironment(w http.ResponseWriter, r *http.Request, environmentId string)
@@ -12314,6 +14270,15 @@ type ServerInterface interface {
 	// Queue a durable audited project action
 	// (POST /projects/{projectId}/actions/{actionId}/operations)
 	CreateActionOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, actionId ActionId, params CreateActionOperationParams)
+	// Evaluate deterministic triggers and dispatch due safe recipes
+	// (POST /projects/{projectId}/automation-evaluations)
+	CreateAutomationEvaluation(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Read the latest durable diagnosis for a project
+	// (GET /projects/{projectId}/diagnoses)
+	GetLatestProjectDiagnosis(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Run deterministic diagnosis with optional schema-constrained AI
+	// (POST /projects/{projectId}/diagnoses)
+	CreateProjectDiagnosis(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// List registered Git worktree environments for a trusted project
 	// (GET /projects/{projectId}/environments)
 	ListProjectEnvironments(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -12437,6 +14402,54 @@ func (_ Unimplemented) CreateBrowserBootstrapToken(w http.ResponseWriter, r *htt
 // Exchange a one-time bootstrap token for a same-origin session
 // (POST /auth/sessions)
 func (_ Unimplemented) CreateBrowserSession(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List inspectable automation recipes, including disabled recipes
+// (GET /automation-recipes)
+func (_ Unimplemented) ListAutomationRecipes(w http.ResponseWriter, r *http.Request, params ListAutomationRecipesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Save a disabled bounded automation recipe
+// (POST /automation-recipes)
+func (_ Unimplemented) CreateAutomationRecipe(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Explicitly enable or disable one saved recipe
+// (PATCH /automation-recipes/{recipeId})
+func (_ Unimplemented) UpdateAutomationRecipe(w http.ResponseWriter, r *http.Request, recipeId RecipeId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read one durable diagnosis and its bounded evidence
+// (GET /diagnoses/{diagnosisId})
+func (_ Unimplemented) GetDiagnosis(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Queue an existing approved action cited by a diagnosis
+// (POST /diagnoses/{diagnosisId}/actions/{actionId})
+func (_ Unimplemented) CreateDiagnosticActionOperation(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId, actionId ActionId, params CreateDiagnosticActionOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Record local-only accuracy feedback
+// (POST /diagnoses/{diagnosisId}/feedback)
+func (_ Unimplemented) CreateDiagnosticFeedback(w http.ResponseWriter, r *http.Request, diagnosisId DiagnosisId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List deduplicated local diagnostic notifications
+// (GET /diagnostic-notifications)
+func (_ Unimplemented) ListDiagnosticNotifications(w http.ResponseWriter, r *http.Request, params ListDiagnosticNotificationsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Mark one local diagnostic warning reviewed
+// (POST /diagnostic-notifications/{notificationId}/acknowledgment)
+func (_ Unimplemented) AcknowledgeDiagnosticNotification(w http.ResponseWriter, r *http.Request, notificationId NotificationId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -12611,6 +14624,24 @@ func (_ Unimplemented) ListProjectActions(w http.ResponseWriter, r *http.Request
 // Queue a durable audited project action
 // (POST /projects/{projectId}/actions/{actionId}/operations)
 func (_ Unimplemented) CreateActionOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, actionId ActionId, params CreateActionOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Evaluate deterministic triggers and dispatch due safe recipes
+// (POST /projects/{projectId}/automation-evaluations)
+func (_ Unimplemented) CreateAutomationEvaluation(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read the latest durable diagnosis for a project
+// (GET /projects/{projectId}/diagnoses)
+func (_ Unimplemented) GetLatestProjectDiagnosis(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Run deterministic diagnosis with optional schema-constrained AI
+// (POST /projects/{projectId}/diagnoses)
+func (_ Unimplemented) CreateProjectDiagnosis(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -12914,6 +14945,279 @@ func (siw *ServerInterfaceWrapper) CreateBrowserSession(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateBrowserSession(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListAutomationRecipes operation middleware
+func (siw *ServerInterfaceWrapper) ListAutomationRecipes(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListAutomationRecipesParams
+
+	// ------------- Optional query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAutomationRecipes(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAutomationRecipe operation middleware
+func (siw *ServerInterfaceWrapper) CreateAutomationRecipe(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAutomationRecipe(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateAutomationRecipe operation middleware
+func (siw *ServerInterfaceWrapper) UpdateAutomationRecipe(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "recipeId" -------------
+	var recipeId RecipeId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "recipeId", chi.URLParam(r, "recipeId"), &recipeId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "recipeId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateAutomationRecipe(w, r, recipeId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetDiagnosis operation middleware
+func (siw *ServerInterfaceWrapper) GetDiagnosis(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "diagnosisId" -------------
+	var diagnosisId DiagnosisId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "diagnosisId", chi.URLParam(r, "diagnosisId"), &diagnosisId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "diagnosisId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetDiagnosis(w, r, diagnosisId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateDiagnosticActionOperation operation middleware
+func (siw *ServerInterfaceWrapper) CreateDiagnosticActionOperation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "diagnosisId" -------------
+	var diagnosisId DiagnosisId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "diagnosisId", chi.URLParam(r, "diagnosisId"), &diagnosisId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "diagnosisId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "actionId" -------------
+	var actionId ActionId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "actionId", chi.URLParam(r, "actionId"), &actionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "actionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateDiagnosticActionOperationParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateDiagnosticActionOperation(w, r, diagnosisId, actionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateDiagnosticFeedback operation middleware
+func (siw *ServerInterfaceWrapper) CreateDiagnosticFeedback(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "diagnosisId" -------------
+	var diagnosisId DiagnosisId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "diagnosisId", chi.URLParam(r, "diagnosisId"), &diagnosisId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "diagnosisId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateDiagnosticFeedback(w, r, diagnosisId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListDiagnosticNotifications operation middleware
+func (siw *ServerInterfaceWrapper) ListDiagnosticNotifications(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListDiagnosticNotificationsParams
+
+	// ------------- Optional query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "includeAcknowledged" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "includeAcknowledged", r.URL.Query(), &params.IncludeAcknowledged, runtime.BindQueryParameterOptions{Type: "boolean", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "includeAcknowledged"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "includeAcknowledged", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListDiagnosticNotifications(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// AcknowledgeDiagnosticNotification operation middleware
+func (siw *ServerInterfaceWrapper) AcknowledgeDiagnosticNotification(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "notificationId" -------------
+	var notificationId NotificationId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "notificationId", chi.URLParam(r, "notificationId"), &notificationId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "notificationId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AcknowledgeDiagnosticNotification(w, r, notificationId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -13970,6 +16274,84 @@ func (siw *ServerInterfaceWrapper) CreateActionOperation(w http.ResponseWriter, 
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateActionOperation(w, r, projectId, actionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAutomationEvaluation operation middleware
+func (siw *ServerInterfaceWrapper) CreateAutomationEvaluation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAutomationEvaluation(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetLatestProjectDiagnosis operation middleware
+func (siw *ServerInterfaceWrapper) GetLatestProjectDiagnosis(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetLatestProjectDiagnosis(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateProjectDiagnosis operation middleware
+func (siw *ServerInterfaceWrapper) CreateProjectDiagnosis(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateProjectDiagnosis(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -15283,6 +17665,30 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/auth/sessions", wrapper.CreateBrowserSession)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/automation-recipes", wrapper.ListAutomationRecipes)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/automation-recipes", wrapper.CreateAutomationRecipe)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/automation-recipes/{recipeId}", wrapper.UpdateAutomationRecipe)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/diagnoses/{diagnosisId}", wrapper.GetDiagnosis)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/diagnoses/{diagnosisId}/actions/{actionId}", wrapper.CreateDiagnosticActionOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/diagnoses/{diagnosisId}/feedback", wrapper.CreateDiagnosticFeedback)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/diagnostic-notifications", wrapper.ListDiagnosticNotifications)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/diagnostic-notifications/{notificationId}/acknowledgment", wrapper.AcknowledgeDiagnosticNotification)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/environments/{environmentId}", wrapper.GetEnvironment)
 	})
 	r.Group(func(r chi.Router) {
@@ -15368,6 +17774,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/projects/{projectId}/actions/{actionId}/operations", wrapper.CreateActionOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/automation-evaluations", wrapper.CreateAutomationEvaluation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/diagnoses", wrapper.GetLatestProjectDiagnosis)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/diagnoses", wrapper.CreateProjectDiagnosis)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/environments", wrapper.ListProjectEnvironments)

@@ -14,6 +14,7 @@ pub struct Tracker {
     operations: HashSet<String>,
     health: HashMap<String, String>,
     active_warnings: HashSet<String>,
+    diagnostics: HashMap<String, usize>,
 }
 
 impl Tracker {
@@ -34,12 +35,18 @@ impl Tracker {
             })
             .collect::<HashMap<_, _>>();
         let warnings = warning_keys(snapshot);
+        let diagnostics = snapshot
+            .diagnostic_notifications
+            .iter()
+            .map(|notification| (notification.id.clone(), notification.occurrences))
+            .collect::<HashMap<_, _>>();
 
         if !self.initialized {
             self.initialized = true;
             self.operations = operation_ids;
             self.health = health;
             self.active_warnings = warnings.keys().cloned().collect();
+            self.diagnostics = diagnostics;
             return Vec::new();
         }
 
@@ -79,10 +86,25 @@ impl Tracker {
                 notices.push(notice.clone());
             }
         }
+        for notification in &snapshot.diagnostic_notifications {
+            if self
+                .diagnostics
+                .get(&notification.id)
+                .copied()
+                .unwrap_or_default()
+                < notification.occurrences
+            {
+                notices.push(Notice {
+                    title: notification.title.clone(),
+                    body: notification.detail.clone(),
+                });
+            }
+        }
 
         self.operations.extend(operation_ids);
         self.health = health;
         self.active_warnings = warnings.keys().cloned().collect();
+        self.diagnostics = diagnostics;
         notices
     }
 }
@@ -138,8 +160,8 @@ fn warning_keys(snapshot: &DesktopSnapshot) -> HashMap<String, Notice> {
 #[cfg(test)]
 mod tests {
     use crate::model::{
-        DesktopSnapshot, DockerObservation, HostObservation, Operation, Project, ProjectHealth,
-        ProjectSnapshot, RuntimeObservation, SystemInfo,
+        DesktopSnapshot, DiagnosticNotification, DockerObservation, HostObservation, Operation,
+        Project, ProjectHealth, ProjectSnapshot, RuntimeObservation, SystemInfo,
     };
 
     use super::*;
@@ -148,7 +170,7 @@ mod tests {
         DesktopSnapshot {
             system: SystemInfo {
                 api_version: "switchyard.api/v1".into(),
-                database_schema_version: 12,
+                database_schema_version: 13,
                 status: "ready".into(),
                 version: env!("CARGO_PKG_VERSION").into(),
             },
@@ -172,6 +194,7 @@ mod tests {
             }],
             workspaces: Vec::new(),
             operations: Vec::new(),
+            diagnostic_notifications: Vec::new(),
             port_conflict_count: 0,
         }
     }
@@ -189,8 +212,19 @@ mod tests {
             state: "failed".into(),
         });
         current.port_conflict_count = 2;
-        assert_eq!(tracker.observe(&current).len(), 3);
+        current
+            .diagnostic_notifications
+            .push(DiagnosticNotification {
+                id: "diagnostic".into(),
+                title: "API is repeatedly crashing".into(),
+                detail: "Four restarts were observed.".into(),
+                occurrences: 1,
+            });
+        assert_eq!(tracker.observe(&current).len(), 4);
         assert!(tracker.observe(&current).is_empty());
+
+        current.diagnostic_notifications[0].occurrences = 2;
+        assert_eq!(tracker.observe(&current).len(), 1);
 
         current.projects[0].health.as_mut().unwrap().status = "healthy".into();
         current.port_conflict_count = 0;
