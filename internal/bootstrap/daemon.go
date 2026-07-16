@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"time"
 
+	catalog "switchyard.dev/switchyard/internal/catalog/application"
+	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	"switchyard.dev/switchyard/internal/operations/domain"
@@ -53,6 +55,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}()
 
 	journal := sqlite.NewJournal(database)
+	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
 	operationRepository := sqlite.NewOperationRepository(database)
 	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
 		func(_ context.Context, operation domain.Operation, _ operations.Progress) error {
@@ -65,7 +68,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	dependencies := httpapi.Dependencies{
-		System: system, Operations: coordinator, Sessions: sessions,
+		System: system, Operations: coordinator, Sessions: sessions, Catalog: catalogService,
 		Events: eventtransport.NewEvents(journal), Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)

@@ -21,6 +21,7 @@ web/test-results/
 *.db-shm
 *.db-wal
 *.lock
+!test/fixtures/**/uv.lock
 
 # Editors and operating systems
 .DS_Store

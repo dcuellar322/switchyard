@@ -1,0 +1,10 @@
+{
+  "name": "switchyard-fixture-web",
+  "private": true,
+  "packageManager": "npm@11.4.2",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "test": "vitest run",
+    "build": "vite build"
+  }
+}

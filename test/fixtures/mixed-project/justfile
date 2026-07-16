@@ -1,0 +1,5 @@
+check:
+    uv run ruff check .
+
+up:
+    docker compose up -d

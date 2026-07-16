@@ -20,6 +20,19 @@ type AuditEvent struct {
 	OccurredAt     string         `json:"occurred_at"`
 }
 
+type DiscoveryEvidence struct {
+	ID           string  `json:"id"`
+	ProposalID   string  `json:"proposal_id"`
+	Scanner      string  `json:"scanner"`
+	Kind         string  `json:"kind"`
+	SourcePath   string  `json:"source_path"`
+	StartLine    int64   `json:"start_line"`
+	EndLine      int64   `json:"end_line"`
+	Confidence   float64 `json:"confidence"`
+	DataJson     string  `json:"data_json"`
+	WarningsJson string  `json:"warnings_json"`
+}
+
 type EventJournal struct {
 	Sequence    int64          `json:"sequence"`
 	ID          string         `json:"id"`
@@ -28,6 +41,27 @@ type EventJournal struct {
 	ProjectID   sql.NullString `json:"project_id"`
 	OperationID sql.NullString `json:"operation_id"`
 	PayloadJson string         `json:"payload_json"`
+}
+
+type ManifestProposal struct {
+	ID             string `json:"id"`
+	ProjectID      string `json:"project_id"`
+	ScannerVersion string `json:"scanner_version"`
+	SchemaVersion  string `json:"schema_version"`
+	CandidateJson  string `json:"candidate_json"`
+	ConfidenceJson string `json:"confidence_json"`
+	UnresolvedJson string `json:"unresolved_json"`
+	ValidationJson string `json:"validation_json"`
+	Status         string `json:"status"`
+	CreatedAt      string `json:"created_at"`
+}
+
+type ManifestSnapshot struct {
+	ProjectID    string `json:"project_id"`
+	Revision     int64  `json:"revision"`
+	ProposalID   string `json:"proposal_id"`
+	ManifestJson string `json:"manifest_json"`
+	CreatedAt    string `json:"created_at"`
 }
 
 type Operation struct {
@@ -53,6 +87,29 @@ type OperationStep struct {
 	State       string `json:"state"`
 	Message     string `json:"message"`
 	OccurredAt  string `json:"occurred_at"`
+}
+
+type Project struct {
+	ID               string `json:"id"`
+	Slug             string `json:"slug"`
+	DisplayName      string `json:"display_name"`
+	Description      string `json:"description"`
+	TrustState       string `json:"trust_state"`
+	PrimaryLocation  string `json:"primary_location"`
+	ManifestRevision int64  `json:"manifest_revision"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
+}
+
+type ProjectLocation struct {
+	ProjectID string `json:"project_id"`
+	Path      string `json:"path"`
+	IsPrimary int64  `json:"is_primary"`
+}
+
+type ProjectTag struct {
+	ProjectID string `json:"project_id"`
+	Tag       string `json:"tag"`
 }
 
 type SystemHealth struct {

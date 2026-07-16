@@ -1,0 +1,87 @@
+package httpapi
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"switchyard.dev/switchyard/internal/transport/contract/generated"
+)
+
+func (h *handler) CreateManifestProposal(w http.ResponseWriter, r *http.Request, _ generated.CreateManifestProposalParams) {
+	var request generated.CreateManifestProposalRequest
+	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<10))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&request); err != nil || request.Path == "" {
+		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide exactly one non-empty repository path.")
+		return
+	}
+	_, proposal, err := h.catalog.Scan(r.Context(), request.Path)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, proposal)
+}
+
+func (h *handler) GetManifestProposal(w http.ResponseWriter, r *http.Request, proposalID generated.ProposalId) {
+	proposal, err := h.catalog.GetProposal(r.Context(), proposalID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, proposal)
+}
+
+func (h *handler) ValidateManifestProposal(w http.ResponseWriter, r *http.Request, proposalID generated.ProposalId, _ generated.ValidateManifestProposalParams) {
+	proposal, err := h.catalog.Validate(r.Context(), proposalID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, proposal)
+}
+
+func (h *handler) AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalID generated.ProposalId, _ generated.AcceptManifestProposalParams) {
+	project, proposal, err := h.catalog.Accept(r.Context(), proposalID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"project": project, "proposal": proposal})
+}
+
+func (h *handler) ListProjects(w http.ResponseWriter, r *http.Request) {
+	projects, err := h.catalog.ListProjects(r.Context())
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, projects)
+}
+
+func (h *handler) ExplainProjectManifest(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	effective, err := h.catalog.EffectiveManifest(r.Context(), projectID, nil)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, effective)
+}
+
+func (h *handler) DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	diff, err := h.catalog.Diff(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, diff)
+}
+
+func (h *handler) ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	validation, err := h.catalog.ValidateProject(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, validation)
+}

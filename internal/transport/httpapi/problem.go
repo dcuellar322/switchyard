@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	session "switchyard.dev/switchyard/internal/session/application"
@@ -34,6 +35,12 @@ func writeProblem(w http.ResponseWriter, r *http.Request, status int, code, titl
 
 func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
+	case errors.Is(err, catalog.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "CATALOG_NOT_FOUND", "Catalog entity not found", "No project or proposal exists for this identifier.")
+	case errors.Is(err, catalog.ErrInvalidProposal):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "PROPOSAL_INVALID", "Manifest proposal invalid", err.Error())
+	case errors.Is(err, catalog.ErrAlreadyReviewed):
+		writeProblem(w, r, http.StatusConflict, "PROPOSAL_REVIEWED", "Manifest proposal already reviewed", "Create a new proposal before making another trust decision.")
 	case errors.Is(err, operations.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "OPERATION_NOT_FOUND", "Operation not found", "No durable operation exists for this identifier.")
 	case errors.Is(err, session.ErrInvalidBootstrap):

@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://switchyard.dev/schema/project.v1alpha1.json",
+  "$ref": "#/$defs/Manifest",
+  "$defs": {
+    "Action": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "workingDirectory": {
+          "type": "string"
+        },
+        "shell": {
+          "type": "boolean"
+        },
+        "captureOutput": {
+          "type": "boolean"
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "type"
+      ]
+    },
+    "ComposeConfig": {
+      "properties": {
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "minItems": 1
+        },
+        "projectName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "files"
+      ]
+    },
+    "Endpoint": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "primary": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "url"
+      ]
+    },
+    "HealthCheck": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "http",
+            "tcp",
+            "command"
+          ]
+        },
+        "url": {
+          "type": "string"
+        },
+        "expectedStatus": {
+          "type": "integer"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "Invocation": {
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "risk": {
+          "type": "string",
+          "enum": [
+            "safe",
+            "caution",
+            "destructive"
+          ]
+        },
+        "options": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "action"
+      ]
+    },
+    "Lifecycle": {
+      "properties": {
+        "start": {
+          "$ref": "#/$defs/Invocation"
+        },
+        "stop": {
+          "$ref": "#/$defs/Invocation"
+        },
+        "restart": {
+          "$ref": "#/$defs/Invocation"
+        },
+        "rebuild": {
+          "$ref": "#/$defs/Invocation"
+        },
+        "teardown": {
+          "$ref": "#/$defs/Invocation"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Manifest": {
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "switchyard.dev/v1alpha1"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "Project"
+          ]
+        },
+        "metadata": {
+          "$ref": "#/$defs/Metadata"
+        },
+        "repository": {
+          "$ref": "#/$defs/Repository"
+        },
+        "runtime": {
+          "$ref": "#/$defs/Runtime"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/Lifecycle"
+        },
+        "services": {
+          "items": {
+            "$ref": "#/$defs/Service"
+          },
+          "type": "array"
+        },
+        "ports": {
+          "items": {
+            "$ref": "#/$defs/Port"
+          },
+          "type": "array"
+        },
+        "endpoints": {
+          "items": {
+            "$ref": "#/$defs/Endpoint"
+          },
+          "type": "array"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "type": "array"
+        },
+        "resourcePolicy": {
+          "$ref": "#/$defs/ResourcePolicy"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "metadata",
+        "repository"
+      ]
+    },
+    "Metadata": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 63,
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 120,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Port": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "service": {
+          "type": "string"
+        },
+        "host": {
+          "type": "integer",
+          "maximum": 65535,
+          "minimum": 1
+        },
+        "target": {
+          "type": "integer",
+          "maximum": 65535,
+          "minimum": 1
+        },
+        "protocol": {
+          "type": "string",
+          "enum": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "host",
+        "target",
+        "protocol"
+      ]
+    },
+    "Repository": {
+      "properties": {
+        "root": {
+          "type": "string"
+        },
+        "defaultBranch": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "root"
+      ]
+    },
+    "ResourcePolicy": {
+      "properties": {
+        "warnings": {
+          "$ref": "#/$defs/ResourceWarnings"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ResourceWarnings": {
+      "properties": {
+        "memoryMiB": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cpuPercent": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "storageGiB": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Runtime": {
+      "properties": {
+        "driver": {
+          "type": "string",
+          "enum": [
+            "compose",
+            "process",
+            "external"
+          ]
+        },
+        "compose": {
+          "$ref": "#/$defs/ComposeConfig"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Service": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/ServiceSource"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "healthChecks": {
+          "items": {
+            "$ref": "#/$defs/HealthCheck"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "source"
+      ]
+    },
+    "ServiceSource": {
+      "properties": {
+        "composeService": {
+          "type": "string"
+        },
+        "process": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

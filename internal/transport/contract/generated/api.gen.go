@@ -18,6 +18,30 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for ManifestProposalStatus.
+const (
+	ManifestProposalStatusAccepted   ManifestProposalStatus = "accepted"
+	ManifestProposalStatusProposed   ManifestProposalStatus = "proposed"
+	ManifestProposalStatusRejected   ManifestProposalStatus = "rejected"
+	ManifestProposalStatusSuperseded ManifestProposalStatus = "superseded"
+)
+
+// Valid indicates whether the value is a known member of the ManifestProposalStatus enum.
+func (e ManifestProposalStatus) Valid() bool {
+	switch e {
+	case ManifestProposalStatusAccepted:
+		return true
+	case ManifestProposalStatusProposed:
+		return true
+	case ManifestProposalStatusRejected:
+		return true
+	case ManifestProposalStatusSuperseded:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OperationState.
 const (
 	Cancelled          OperationState = "cancelled"
@@ -48,6 +72,27 @@ func (e OperationState) Valid() bool {
 	}
 }
 
+// Defines values for ProjectTrustState.
+const (
+	ProjectTrustStatePending  ProjectTrustState = "pending"
+	ProjectTrustStateRejected ProjectTrustState = "rejected"
+	ProjectTrustStateTrusted  ProjectTrustState = "trusted"
+)
+
+// Valid indicates whether the value is a known member of the ProjectTrustState enum.
+func (e ProjectTrustState) Valid() bool {
+	switch e {
+	case ProjectTrustStatePending:
+		return true
+	case ProjectTrustStateRejected:
+		return true
+	case ProjectTrustStateTrusted:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SystemInfoStatus.
 const (
 	Ready SystemInfoStatus = "ready"
@@ -61,6 +106,12 @@ func (e SystemInfoStatus) Valid() bool {
 	default:
 		return false
 	}
+}
+
+// AcceptedManifestProposal defines model for AcceptedManifestProposal.
+type AcceptedManifestProposal struct {
+	Project  Project          `json:"project"`
+	Proposal ManifestProposal `json:"proposal"`
 }
 
 // BrowserBootstrap defines model for BrowserBootstrap.
@@ -78,6 +129,68 @@ type BrowserSession struct {
 // CreateBrowserSessionRequest defines model for CreateBrowserSessionRequest.
 type CreateBrowserSessionRequest struct {
 	BootstrapToken string `json:"bootstrapToken"`
+}
+
+// CreateManifestProposalRequest defines model for CreateManifestProposalRequest.
+type CreateManifestProposalRequest struct {
+	Path string `json:"path"`
+}
+
+// DiscoveryEvidence defines model for DiscoveryEvidence.
+type DiscoveryEvidence struct {
+	Confidence float64                `json:"confidence"`
+	Data       map[string]interface{} `json:"data"`
+	Id         string                 `json:"id"`
+	Kind       string                 `json:"kind"`
+	Location   SourceRange            `json:"location"`
+	Scanner    string                 `json:"scanner"`
+	SourcePath string                 `json:"sourcePath"`
+	Warnings   []string               `json:"warnings"`
+}
+
+// EffectiveManifest defines model for EffectiveManifest.
+type EffectiveManifest struct {
+	Manifest   map[string]interface{} `json:"manifest"`
+	Provenance map[string]string      `json:"provenance"`
+	Sources    []ManifestSource       `json:"sources"`
+}
+
+// ManifestDiff defines model for ManifestDiff.
+type ManifestDiff struct {
+	Accepted  map[string]interface{} `json:"accepted"`
+	Effective map[string]interface{} `json:"effective"`
+}
+
+// ManifestProposal defines model for ManifestProposal.
+type ManifestProposal struct {
+	// Candidate Canonical document governed by internal/manifest/schema/project.schema.json.
+	Candidate         map[string]interface{} `json:"candidate"`
+	ConfidenceByField map[string]float64     `json:"confidenceByField"`
+	CreatedAt         time.Time              `json:"createdAt"`
+	Evidence          []DiscoveryEvidence    `json:"evidence"`
+	Id                string                 `json:"id"`
+	ProjectId         string                 `json:"projectId"`
+	ScannerVersion    string                 `json:"scannerVersion"`
+	SchemaVersion     string                 `json:"schemaVersion"`
+	Status            ManifestProposalStatus `json:"status"`
+	Unresolved        []string               `json:"unresolved"`
+	Validation        ManifestValidation     `json:"validation"`
+}
+
+// ManifestProposalStatus defines model for ManifestProposal.Status.
+type ManifestProposalStatus string
+
+// ManifestSource defines model for ManifestSource.
+type ManifestSource struct {
+	Name string  `json:"name"`
+	Path *string `json:"path,omitempty"`
+}
+
+// ManifestValidation defines model for ManifestValidation.
+type ManifestValidation struct {
+	Errors   []string `json:"errors"`
+	Valid    bool     `json:"valid"`
+	Warnings []string `json:"warnings"`
 }
 
 // Operation defines model for Operation.
@@ -108,6 +221,29 @@ type ProblemDetails struct {
 	Type          string  `json:"type"`
 }
 
+// Project defines model for Project.
+type Project struct {
+	CreatedAt        time.Time         `json:"createdAt"`
+	Description      *string           `json:"description,omitempty"`
+	DisplayName      string            `json:"displayName"`
+	Id               string            `json:"id"`
+	ManifestRevision int64             `json:"manifestRevision"`
+	PrimaryLocation  string            `json:"primaryLocation"`
+	Slug             string            `json:"slug"`
+	Tags             []string          `json:"tags"`
+	TrustState       ProjectTrustState `json:"trustState"`
+	UpdatedAt        time.Time         `json:"updatedAt"`
+}
+
+// ProjectTrustState defines model for Project.TrustState.
+type ProjectTrustState string
+
+// SourceRange defines model for SourceRange.
+type SourceRange struct {
+	EndLine   int `json:"endLine"`
+	StartLine int `json:"startLine"`
+}
+
 // SystemInfo defines model for SystemInfo.
 type SystemInfo struct {
 	ApiVersion            string           `json:"apiVersion"`
@@ -128,8 +264,29 @@ type IdempotencyKey = string
 // OperationId defines model for OperationId.
 type OperationId = string
 
+// ProjectId defines model for ProjectId.
+type ProjectId = string
+
+// ProposalId defines model for ProposalId.
+type ProposalId = string
+
 // Problem defines model for Problem.
 type Problem = ProblemDetails
+
+// CreateManifestProposalParams defines parameters for CreateManifestProposal.
+type CreateManifestProposalParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// AcceptManifestProposalParams defines parameters for AcceptManifestProposal.
+type AcceptManifestProposalParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// ValidateManifestProposalParams defines parameters for ValidateManifestProposal.
+type ValidateManifestProposalParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
 
 // CancelOperationParams defines parameters for CancelOperation.
 type CancelOperationParams struct {
@@ -138,6 +295,9 @@ type CancelOperationParams struct {
 
 // CreateBrowserSessionJSONRequestBody defines body for CreateBrowserSession for application/json ContentType.
 type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
+
+// CreateManifestProposalJSONRequestBody defines body for CreateManifestProposal for application/json ContentType.
+type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -220,11 +380,37 @@ type ClientInterface interface {
 
 	CreateBrowserSession(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateManifestProposalWithBody request with any body
+	CreateManifestProposalWithBody(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateManifestProposal(ctx context.Context, params *CreateManifestProposalParams, body CreateManifestProposalJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetManifestProposal request
+	GetManifestProposal(ctx context.Context, proposalId ProposalId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcceptManifestProposal request
+	AcceptManifestProposal(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ValidateManifestProposal request
+	ValidateManifestProposal(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetOperation request
 	GetOperation(ctx context.Context, operationId OperationId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CancelOperation request
 	CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListProjects request
+	ListProjects(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DiffProjectManifest request
+	DiffProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ExplainProjectManifest request
+	ExplainProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ValidateProjectManifest request
+	ValidateProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -266,6 +452,66 @@ func (c *Client) CreateBrowserSession(ctx context.Context, body CreateBrowserSes
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreateManifestProposalWithBody(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateManifestProposalRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateManifestProposal(ctx context.Context, params *CreateManifestProposalParams, body CreateManifestProposalJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateManifestProposalRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetManifestProposal(ctx context.Context, proposalId ProposalId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetManifestProposalRequest(c.Server, proposalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcceptManifestProposal(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptManifestProposalRequest(c.Server, proposalId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ValidateManifestProposal(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateManifestProposalRequest(c.Server, proposalId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetOperation(ctx context.Context, operationId OperationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOperationRequest(c.Server, operationId)
 	if err != nil {
@@ -280,6 +526,54 @@ func (c *Client) GetOperation(ctx context.Context, operationId OperationId, reqE
 
 func (c *Client) CancelOperation(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCancelOperationRequest(c.Server, operationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListProjects(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DiffProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDiffProjectManifestRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ExplainProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExplainProjectManifestRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ValidateProjectManifest(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateProjectManifestRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -369,6 +663,187 @@ func NewCreateBrowserSessionRequestWithBody(server string, contentType string, b
 	return req, nil
 }
 
+// NewCreateManifestProposalRequest calls the generic CreateManifestProposal builder with application/json body
+func NewCreateManifestProposalRequest(server string, params *CreateManifestProposalParams, body CreateManifestProposalJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateManifestProposalRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateManifestProposalRequestWithBody generates requests for CreateManifestProposal with any type of body
+func NewCreateManifestProposalRequestWithBody(server string, params *CreateManifestProposalParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetManifestProposalRequest generates requests for GetManifestProposal
+func NewGetManifestProposalRequest(server string, proposalId ProposalId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAcceptManifestProposalRequest generates requests for AcceptManifestProposal
+func NewAcceptManifestProposalRequest(server string, proposalId ProposalId, params *AcceptManifestProposalParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s/accept", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewValidateManifestProposalRequest generates requests for ValidateManifestProposal
+func NewValidateManifestProposalRequest(server string, proposalId ProposalId, params *ValidateManifestProposalParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "proposalId", proposalId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/manifest-proposals/%s/validate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewGetOperationRequest generates requests for GetOperation
 func NewGetOperationRequest(server string, operationId OperationId) (*http.Request, error) {
 	var err error
@@ -445,6 +920,135 @@ func NewCancelOperationRequest(server string, operationId OperationId, params *C
 
 		req.Header.Set("Idempotency-Key", headerParam0)
 
+	}
+
+	return req, nil
+}
+
+// NewListProjectsRequest generates requests for ListProjects
+func NewListProjectsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDiffProjectManifestRequest generates requests for DiffProjectManifest
+func NewDiffProjectManifestRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/manifest/diff", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewExplainProjectManifestRequest generates requests for ExplainProjectManifest
+func NewExplainProjectManifestRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/manifest/explain", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewValidateProjectManifestRequest generates requests for ValidateProjectManifest
+func NewValidateProjectManifestRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/manifest/validate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 
 	return req, nil
@@ -528,11 +1132,37 @@ type ClientWithResponsesInterface interface {
 
 	CreateBrowserSessionWithResponse(ctx context.Context, body CreateBrowserSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateBrowserSessionResponse, error)
 
+	// CreateManifestProposalWithBodyWithResponse request with any body
+	CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error)
+
+	CreateManifestProposalWithResponse(ctx context.Context, params *CreateManifestProposalParams, body CreateManifestProposalJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error)
+
+	// GetManifestProposalWithResponse request
+	GetManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, reqEditors ...RequestEditorFn) (*GetManifestProposalResponse, error)
+
+	// AcceptManifestProposalWithResponse request
+	AcceptManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*AcceptManifestProposalResponse, error)
+
+	// ValidateManifestProposalWithResponse request
+	ValidateManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*ValidateManifestProposalResponse, error)
+
 	// GetOperationWithResponse request
 	GetOperationWithResponse(ctx context.Context, operationId OperationId, reqEditors ...RequestEditorFn) (*GetOperationResponse, error)
 
 	// CancelOperationWithResponse request
 	CancelOperationWithResponse(ctx context.Context, operationId OperationId, params *CancelOperationParams, reqEditors ...RequestEditorFn) (*CancelOperationResponse, error)
+
+	// ListProjectsWithResponse request
+	ListProjectsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectsResponse, error)
+
+	// DiffProjectManifestWithResponse request
+	DiffProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*DiffProjectManifestResponse, error)
+
+	// ExplainProjectManifestWithResponse request
+	ExplainProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ExplainProjectManifestResponse, error)
+
+	// ValidateProjectManifestWithResponse request
+	ValidateProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ValidateProjectManifestResponse, error)
 
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
@@ -594,6 +1224,130 @@ func (r CreateBrowserSessionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CreateBrowserSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateManifestProposalResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *ManifestProposal
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateManifestProposalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateManifestProposalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateManifestProposalResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetManifestProposalResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ManifestProposal
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetManifestProposalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetManifestProposalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetManifestProposalResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AcceptManifestProposalResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *AcceptedManifestProposal
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r AcceptManifestProposalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcceptManifestProposalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AcceptManifestProposalResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ValidateManifestProposalResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ManifestProposal
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ValidateManifestProposalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ValidateManifestProposalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ValidateManifestProposalResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -662,6 +1416,130 @@ func (r CancelOperationResponse) ContentType() string {
 	return ""
 }
 
+type ListProjectsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]Project
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProjectsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProjectsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListProjectsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DiffProjectManifestResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ManifestDiff
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r DiffProjectManifestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DiffProjectManifestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DiffProjectManifestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ExplainProjectManifestResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *EffectiveManifest
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ExplainProjectManifestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExplainProjectManifestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ExplainProjectManifestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ValidateProjectManifestResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ManifestValidation
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ValidateProjectManifestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ValidateProjectManifestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ValidateProjectManifestResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetSystemResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -719,6 +1597,50 @@ func (c *ClientWithResponses) CreateBrowserSessionWithResponse(ctx context.Conte
 	return ParseCreateBrowserSessionResponse(rsp)
 }
 
+// CreateManifestProposalWithBodyWithResponse request with arbitrary body returning *CreateManifestProposalResponse
+func (c *ClientWithResponses) CreateManifestProposalWithBodyWithResponse(ctx context.Context, params *CreateManifestProposalParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error) {
+	rsp, err := c.CreateManifestProposalWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateManifestProposalResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateManifestProposalWithResponse(ctx context.Context, params *CreateManifestProposalParams, body CreateManifestProposalJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateManifestProposalResponse, error) {
+	rsp, err := c.CreateManifestProposal(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateManifestProposalResponse(rsp)
+}
+
+// GetManifestProposalWithResponse request returning *GetManifestProposalResponse
+func (c *ClientWithResponses) GetManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, reqEditors ...RequestEditorFn) (*GetManifestProposalResponse, error) {
+	rsp, err := c.GetManifestProposal(ctx, proposalId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetManifestProposalResponse(rsp)
+}
+
+// AcceptManifestProposalWithResponse request returning *AcceptManifestProposalResponse
+func (c *ClientWithResponses) AcceptManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *AcceptManifestProposalParams, reqEditors ...RequestEditorFn) (*AcceptManifestProposalResponse, error) {
+	rsp, err := c.AcceptManifestProposal(ctx, proposalId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcceptManifestProposalResponse(rsp)
+}
+
+// ValidateManifestProposalWithResponse request returning *ValidateManifestProposalResponse
+func (c *ClientWithResponses) ValidateManifestProposalWithResponse(ctx context.Context, proposalId ProposalId, params *ValidateManifestProposalParams, reqEditors ...RequestEditorFn) (*ValidateManifestProposalResponse, error) {
+	rsp, err := c.ValidateManifestProposal(ctx, proposalId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateManifestProposalResponse(rsp)
+}
+
 // GetOperationWithResponse request returning *GetOperationResponse
 func (c *ClientWithResponses) GetOperationWithResponse(ctx context.Context, operationId OperationId, reqEditors ...RequestEditorFn) (*GetOperationResponse, error) {
 	rsp, err := c.GetOperation(ctx, operationId, reqEditors...)
@@ -735,6 +1657,42 @@ func (c *ClientWithResponses) CancelOperationWithResponse(ctx context.Context, o
 		return nil, err
 	}
 	return ParseCancelOperationResponse(rsp)
+}
+
+// ListProjectsWithResponse request returning *ListProjectsResponse
+func (c *ClientWithResponses) ListProjectsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectsResponse, error) {
+	rsp, err := c.ListProjects(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProjectsResponse(rsp)
+}
+
+// DiffProjectManifestWithResponse request returning *DiffProjectManifestResponse
+func (c *ClientWithResponses) DiffProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*DiffProjectManifestResponse, error) {
+	rsp, err := c.DiffProjectManifest(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDiffProjectManifestResponse(rsp)
+}
+
+// ExplainProjectManifestWithResponse request returning *ExplainProjectManifestResponse
+func (c *ClientWithResponses) ExplainProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ExplainProjectManifestResponse, error) {
+	rsp, err := c.ExplainProjectManifest(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExplainProjectManifestResponse(rsp)
+}
+
+// ValidateProjectManifestWithResponse request returning *ValidateProjectManifestResponse
+func (c *ClientWithResponses) ValidateProjectManifestWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ValidateProjectManifestResponse, error) {
+	rsp, err := c.ValidateProjectManifest(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateProjectManifestResponse(rsp)
 }
 
 // GetSystemWithResponse request returning *GetSystemResponse
@@ -799,6 +1757,138 @@ func ParseCreateBrowserSessionResponse(rsp *http.Response) (*CreateBrowserSessio
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateManifestProposalResponse parses an HTTP response from a CreateManifestProposalWithResponse call
+func ParseCreateManifestProposalResponse(rsp *http.Response) (*CreateManifestProposalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateManifestProposalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest ManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetManifestProposalResponse parses an HTTP response from a GetManifestProposalWithResponse call
+func ParseGetManifestProposalResponse(rsp *http.Response) (*GetManifestProposalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetManifestProposalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAcceptManifestProposalResponse parses an HTTP response from a AcceptManifestProposalWithResponse call
+func ParseAcceptManifestProposalResponse(rsp *http.Response) (*AcceptManifestProposalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcceptManifestProposalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AcceptedManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseValidateManifestProposalResponse parses an HTTP response from a ValidateManifestProposalWithResponse call
+func ParseValidateManifestProposalResponse(rsp *http.Response) (*ValidateManifestProposalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ValidateManifestProposalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Problem
@@ -878,6 +1968,138 @@ func ParseCancelOperationResponse(rsp *http.Response) (*CancelOperationResponse,
 	return response, nil
 }
 
+// ParseListProjectsResponse parses an HTTP response from a ListProjectsWithResponse call
+func ParseListProjectsResponse(rsp *http.Response) (*ListProjectsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProjectsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Project
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDiffProjectManifestResponse parses an HTTP response from a DiffProjectManifestWithResponse call
+func ParseDiffProjectManifestResponse(rsp *http.Response) (*DiffProjectManifestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DiffProjectManifestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManifestDiff
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseExplainProjectManifestResponse parses an HTTP response from a ExplainProjectManifestWithResponse call
+func ParseExplainProjectManifestResponse(rsp *http.Response) (*ExplainProjectManifestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExplainProjectManifestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EffectiveManifest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseValidateProjectManifestResponse parses an HTTP response from a ValidateProjectManifestWithResponse call
+func ParseValidateProjectManifestResponse(rsp *http.Response) (*ValidateProjectManifestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ValidateProjectManifestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManifestValidation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetSystemResponse parses an HTTP response from a GetSystemWithResponse call
 func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -919,12 +2141,36 @@ type ServerInterface interface {
 	// Exchange a one-time bootstrap token for a same-origin session
 	// (POST /auth/sessions)
 	CreateBrowserSession(w http.ResponseWriter, r *http.Request)
+	// Scan a selected repository into an untrusted manifest proposal
+	// (POST /manifest-proposals)
+	CreateManifestProposal(w http.ResponseWriter, r *http.Request, params CreateManifestProposalParams)
+	// Read candidate manifest and source evidence
+	// (GET /manifest-proposals/{proposalId})
+	GetManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId)
+	// Approve the proposal and trust its project
+	// (POST /manifest-proposals/{proposalId}/accept)
+	AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params AcceptManifestProposalParams)
+	// Revalidate an untrusted proposal against the selected root
+	// (POST /manifest-proposals/{proposalId}/validate)
+	ValidateManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params ValidateManifestProposalParams)
 	// Read a durable operation
 	// (GET /operations/{operationId})
 	GetOperation(w http.ResponseWriter, r *http.Request, operationId OperationId)
 	// Request idempotent operation cancellation
 	// (POST /operations/{operationId}/cancel)
 	CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams)
+	// List registered projects
+	// (GET /projects)
+	ListProjects(w http.ResponseWriter, r *http.Request)
+	// Compare the accepted and effective manifests
+	// (GET /projects/{projectId}/manifest/diff)
+	DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Resolve the effective manifest with field provenance
+	// (GET /projects/{projectId}/manifest/explain)
+	ExplainProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// Validate the fully resolved manifest
+	// (GET /projects/{projectId}/manifest/validate)
+	ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
@@ -946,6 +2192,30 @@ func (_ Unimplemented) CreateBrowserSession(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// Scan a selected repository into an untrusted manifest proposal
+// (POST /manifest-proposals)
+func (_ Unimplemented) CreateManifestProposal(w http.ResponseWriter, r *http.Request, params CreateManifestProposalParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read candidate manifest and source evidence
+// (GET /manifest-proposals/{proposalId})
+func (_ Unimplemented) GetManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Approve the proposal and trust its project
+// (POST /manifest-proposals/{proposalId}/accept)
+func (_ Unimplemented) AcceptManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params AcceptManifestProposalParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Revalidate an untrusted proposal against the selected root
+// (POST /manifest-proposals/{proposalId}/validate)
+func (_ Unimplemented) ValidateManifestProposal(w http.ResponseWriter, r *http.Request, proposalId ProposalId, params ValidateManifestProposalParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Read a durable operation
 // (GET /operations/{operationId})
 func (_ Unimplemented) GetOperation(w http.ResponseWriter, r *http.Request, operationId OperationId) {
@@ -955,6 +2225,30 @@ func (_ Unimplemented) GetOperation(w http.ResponseWriter, r *http.Request, oper
 // Request idempotent operation cancellation
 // (POST /operations/{operationId}/cancel)
 func (_ Unimplemented) CancelOperation(w http.ResponseWriter, r *http.Request, operationId OperationId, params CancelOperationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List registered projects
+// (GET /projects)
+func (_ Unimplemented) ListProjects(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Compare the accepted and effective manifests
+// (GET /projects/{projectId}/manifest/diff)
+func (_ Unimplemented) DiffProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Resolve the effective manifest with field provenance
+// (GET /projects/{projectId}/manifest/explain)
+func (_ Unimplemented) ExplainProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Validate the fully resolved manifest
+// (GET /projects/{projectId}/manifest/validate)
+func (_ Unimplemented) ValidateProjectManifest(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -992,6 +2286,185 @@ func (siw *ServerInterfaceWrapper) CreateBrowserSession(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateBrowserSession(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateManifestProposal operation middleware
+func (siw *ServerInterfaceWrapper) CreateManifestProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateManifestProposalParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateManifestProposal(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetManifestProposal operation middleware
+func (siw *ServerInterfaceWrapper) GetManifestProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetManifestProposal(w, r, proposalId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// AcceptManifestProposal operation middleware
+func (siw *ServerInterfaceWrapper) AcceptManifestProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params AcceptManifestProposalParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AcceptManifestProposal(w, r, proposalId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ValidateManifestProposal operation middleware
+func (siw *ServerInterfaceWrapper) ValidateManifestProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId ProposalId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ValidateManifestProposalParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ValidateManifestProposal(w, r, proposalId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1072,6 +2545,98 @@ func (siw *ServerInterfaceWrapper) CancelOperation(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CancelOperation(w, r, operationId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListProjects operation middleware
+func (siw *ServerInterfaceWrapper) ListProjects(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjects(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DiffProjectManifest operation middleware
+func (siw *ServerInterfaceWrapper) DiffProjectManifest(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DiffProjectManifest(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ExplainProjectManifest operation middleware
+func (siw *ServerInterfaceWrapper) ExplainProjectManifest(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ExplainProjectManifest(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ValidateProjectManifest operation middleware
+func (siw *ServerInterfaceWrapper) ValidateProjectManifest(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ValidateProjectManifest(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1215,10 +2780,34 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/auth/sessions", wrapper.CreateBrowserSession)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/manifest-proposals", wrapper.CreateManifestProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/manifest-proposals/{proposalId}", wrapper.GetManifestProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/accept", wrapper.AcceptManifestProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/manifest-proposals/{proposalId}/validate", wrapper.ValidateManifestProposal)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/operations/{operationId}", wrapper.GetOperation)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/operations/{operationId}/cancel", wrapper.CancelOperation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects", wrapper.ListProjects)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/manifest/diff", wrapper.DiffProjectManifest)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/manifest/explain", wrapper.ExplainProjectManifest)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/manifest/validate", wrapper.ValidateProjectManifest)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)

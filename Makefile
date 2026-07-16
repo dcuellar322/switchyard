@@ -22,6 +22,7 @@ frontend-install:
 generate: generate-go generate-web
 
 generate-go:
+	GOCACHE=$(GOCACHE) $(GO) run ./tools/schema-gen
 	GOCACHE=$(GOCACHE) $(OAPI_CODEGEN) -config api/oapi-codegen.yaml api/openapi.yaml
 	GOCACHE=$(GOCACHE) $(SQLC) generate
 	GOCACHE=$(GOCACHE) $(GO) fmt ./internal/transport/contract/generated ./internal/platform/sqlite/generated

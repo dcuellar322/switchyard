@@ -1,0 +1,15 @@
+name: switchyard-fixture
+services:
+  api:
+    build: .
+    ports:
+      - "18082:8000"
+    environment:
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  web:
+    image: node:24-alpine
+    ports:
+      - target: 5173
+        published: "15174"
+        protocol: tcp
+    command: [npm, run, dev]

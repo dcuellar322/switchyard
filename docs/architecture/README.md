@@ -9,6 +9,10 @@ The [durable operations and local transport](operations-kernel.md) note defines
 the command state machine, restart behavior, event replay, Unix IPC, and browser
 session handshake introduced by Phase 2.
 
+The [project onboarding and manifest resolution](project-onboarding.md) note
+defines the Phase 3 repository trust boundary, evidence pipeline, approval
+transaction, generated schema, and configuration precedence.
+
 ## Process topology
 
 ```text

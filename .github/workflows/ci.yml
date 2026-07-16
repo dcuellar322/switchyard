@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: go.sum
       - run: go mod download
       - run: make generate-go
-      - run: git diff --exit-code -- internal/platform/sqlite/generated internal/transport/contract/generated
+      - run: git diff --exit-code -- internal/manifest/schema/project.schema.json internal/platform/sqlite/generated internal/transport/contract/generated
       - run: make fmt-check
       - run: go vet ./...
       - run: make archcheck

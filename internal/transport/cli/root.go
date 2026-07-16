@@ -3,6 +3,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -13,6 +14,7 @@ import (
 
 	"switchyard.dev/switchyard/internal/bootstrap"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	"switchyard.dev/switchyard/internal/foundation/identifier"
 	"switchyard.dev/switchyard/internal/platform/localipc"
 	"switchyard.dev/switchyard/internal/transport/httpclient"
 )
@@ -59,8 +61,91 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newDaemonCommand(options),
 		newUICommand(options),
 		newDoctorCommand(options),
+		newAddCommand(options),
+		newManifestCommand(options),
 	)
 	return root
+}
+
+func newAddCommand(options *rootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "add <repository>",
+		Short: "Scan a repository and create a reviewable manifest proposal",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(command *cobra.Command, args []string) error {
+			client, err := ipcClient(options)
+			if err != nil {
+				return err
+			}
+			key, err := identifier.New("cli")
+			if err != nil {
+				return err
+			}
+			proposal, err := client.CreateManifestProposal(command.Context(), args[0], key)
+			if err != nil {
+				return err
+			}
+			return writePrettyJSON(options.stdout, proposal)
+		},
+	}
+}
+
+func newManifestCommand(options *rootOptions) *cobra.Command {
+	command := &cobra.Command{Use: "manifest", Short: "Inspect effective project manifests"}
+	command.AddCommand(
+		newManifestReadCommand(options, "explain <project>", "Print effective fields and provenance", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
+			return client.ExplainManifest(ctx, id)
+		}),
+		newManifestReadCommand(options, "diff <project>", "Compare accepted and effective manifests", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
+			return client.DiffManifest(ctx, id)
+		}),
+		newManifestReadCommand(options, "validate <project>", "Validate the effective manifest", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
+			return client.ValidateProjectManifest(ctx, id)
+		}),
+	)
+	return command
+}
+
+type manifestRead func(context.Context, *httpclient.Client, string) (any, error)
+
+func newManifestReadCommand(options *rootOptions, use, short string, read manifestRead) *cobra.Command {
+	return &cobra.Command{
+		Use: use, Short: short, Args: cobra.ExactArgs(1),
+		RunE: func(command *cobra.Command, args []string) error {
+			client, err := ipcClient(options)
+			if err != nil {
+				return err
+			}
+			projectID, err := resolveProject(command.Context(), client, args[0])
+			if err != nil {
+				return err
+			}
+			value, err := read(command.Context(), client, projectID)
+			if err != nil {
+				return err
+			}
+			return writePrettyJSON(options.stdout, value)
+		},
+	}
+}
+
+func resolveProject(ctx context.Context, client *httpclient.Client, value string) (string, error) {
+	projects, err := client.Projects(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, project := range projects {
+		if project.Id == value || project.Slug == value {
+			return project.Id, nil
+		}
+	}
+	return "", fmt.Errorf("project %q not found", value)
+}
+
+func writePrettyJSON(writer io.Writer, value any) error {
+	encoder := json.NewEncoder(writer)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(value)
 }
 
 func newVersionCommand(options *rootOptions) *cobra.Command {

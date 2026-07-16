@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"switchyard.dev/switchyard/internal/operations/domain"
+	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
+	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
+	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
+	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	"switchyard.dev/switchyard/internal/system/application"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
@@ -19,11 +22,23 @@ type handler struct {
 	system     systemQuery
 	operations operationService
 	sessions   sessionService
+	catalog    catalogService
+}
+
+type catalogService interface {
+	Scan(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
+	Validate(context.Context, string) (discoveryDomain.Proposal, error)
+	Accept(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	ListProjects(context.Context) ([]catalogDomain.Project, error)
+	EffectiveManifest(context.Context, string, []byte) (manifestApplication.EffectiveManifest, error)
+	Diff(context.Context, string) (map[string]json.RawMessage, error)
+	ValidateProject(context.Context, string) (manifestApplication.ValidationResult, error)
 }
 
 type operationService interface {
-	Get(ctx context.Context, id string) (domain.Operation, error)
-	Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (domain.Operation, error)
+	Get(ctx context.Context, id string) (operationsDomain.Operation, error)
+	Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (operationsDomain.Operation, error)
 }
 
 type sessionService interface {

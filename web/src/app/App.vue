@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
+import ProjectOnboardingView from '../domains/projects/views/ProjectOnboardingView.vue'
 import SystemStatusView from '../domains/system/views/SystemStatusView.vue'
+
+const activeView = ref<'projects' | 'system'>('system')
 </script>
 
 <template>
@@ -14,12 +19,16 @@ import SystemStatusView from '../domains/system/views/SystemStatusView.vue'
       </div>
       <p class="nav-label">Command center</p>
       <nav>
-        <a class="nav-item nav-item--active" href="/" aria-current="page">
+        <button class="nav-item" :class="{ 'nav-item--active': activeView === 'projects' }" type="button" :aria-current="activeView === 'projects' ? 'page' : undefined" @click="activeView = 'projects'">
+          <span aria-hidden="true">◇</span>
+          <span>Projects</span>
+        </button>
+        <button class="nav-item" :class="{ 'nav-item--active': activeView === 'system' }" type="button" :aria-current="activeView === 'system' ? 'page' : undefined" @click="activeView = 'system'">
           <span aria-hidden="true">⌂</span>
           <span>System</span>
-        </a>
+        </button>
       </nav>
-      <p class="phase-note">Walking skeleton</p>
+      <p class="phase-note">Local-first · Phase 3</p>
     </aside>
     <main>
       <header class="topbar">
@@ -29,7 +38,8 @@ import SystemStatusView from '../domains/system/views/SystemStatusView.vue'
           <kbd>⌘ K</kbd>
         </div>
       </header>
-      <SystemStatusView />
+      <ProjectOnboardingView v-if="activeView === 'projects'" />
+      <SystemStatusView v-else />
     </main>
   </div>
 </template>
@@ -87,6 +97,11 @@ import SystemStatusView from '../domains/system/views/SystemStatusView.vue'
 }
 
 .nav-item {
+	width: 100%;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
   display: flex;
   gap: 10px;
   align-items: center;

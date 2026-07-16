@@ -64,3 +64,94 @@ func (c *Client) BrowserBootstrap(ctx context.Context) (generated.BrowserBootstr
 	}
 	return *response.JSON201, nil
 }
+
+// CreateManifestProposal scans a repository through the privileged local API.
+func (c *Client) CreateManifestProposal(ctx context.Context, path, idempotencyKey string) (generated.ManifestProposal, error) {
+	response, err := c.generated.CreateManifestProposalWithResponse(ctx,
+		&generated.CreateManifestProposalParams{IdempotencyKey: idempotencyKey},
+		generated.CreateManifestProposalRequest{Path: path},
+	)
+	if err != nil {
+		return generated.ManifestProposal{}, fmt.Errorf("create manifest proposal: %w", err)
+	}
+	if response.StatusCode() != http.StatusCreated || response.JSON201 == nil {
+		return generated.ManifestProposal{}, unexpected("create manifest proposal", response.StatusCode())
+	}
+	return *response.JSON201, nil
+}
+
+// ValidateManifestProposal reruns proposal validation through the local API.
+func (c *Client) ValidateManifestProposal(ctx context.Context, proposalID, idempotencyKey string) (generated.ManifestProposal, error) {
+	response, err := c.generated.ValidateManifestProposalWithResponse(ctx, proposalID, &generated.ValidateManifestProposalParams{IdempotencyKey: idempotencyKey})
+	if err != nil {
+		return generated.ManifestProposal{}, fmt.Errorf("validate manifest proposal: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.ManifestProposal{}, unexpected("validate manifest proposal", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+// AcceptManifestProposal records a trust decision through the local API.
+func (c *Client) AcceptManifestProposal(ctx context.Context, proposalID, idempotencyKey string) (generated.AcceptedManifestProposal, error) {
+	response, err := c.generated.AcceptManifestProposalWithResponse(ctx, proposalID, &generated.AcceptManifestProposalParams{IdempotencyKey: idempotencyKey})
+	if err != nil {
+		return generated.AcceptedManifestProposal{}, fmt.Errorf("accept manifest proposal: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.AcceptedManifestProposal{}, unexpected("accept manifest proposal", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+// Projects lists registered projects through the local API.
+func (c *Client) Projects(ctx context.Context) ([]generated.Project, error) {
+	response, err := c.generated.ListProjectsWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list projects: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return nil, unexpected("list projects", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+// ExplainManifest returns effective fields and provenance.
+func (c *Client) ExplainManifest(ctx context.Context, projectID string) (generated.EffectiveManifest, error) {
+	response, err := c.generated.ExplainProjectManifestWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.EffectiveManifest{}, fmt.Errorf("explain project manifest: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.EffectiveManifest{}, unexpected("explain project manifest", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+// DiffManifest compares the accepted and effective manifests.
+func (c *Client) DiffManifest(ctx context.Context, projectID string) (generated.ManifestDiff, error) {
+	response, err := c.generated.DiffProjectManifestWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.ManifestDiff{}, fmt.Errorf("diff project manifest: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.ManifestDiff{}, unexpected("diff project manifest", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+// ValidateProjectManifest validates the fully resolved project manifest.
+func (c *Client) ValidateProjectManifest(ctx context.Context, projectID string) (generated.ManifestValidation, error) {
+	response, err := c.generated.ValidateProjectManifestWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.ManifestValidation{}, fmt.Errorf("validate project manifest: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.ManifestValidation{}, unexpected("validate project manifest", response.StatusCode())
+	}
+	return *response.JSON200, nil
+}
+
+func unexpected(operation string, status int) error {
+	return fmt.Errorf("%s: unexpected HTTP %d", operation, status)
+}

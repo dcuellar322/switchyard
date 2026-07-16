@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetSystemData, GetSystemErrors, GetSystemResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -49,3 +49,50 @@ export const getOperation = <ThrowOnError extends boolean = false>(options: Opti
  * Request idempotent operation cancellation
  */
 export const cancelOperation = <ThrowOnError extends boolean = false>(options: Options<CancelOperationData, ThrowOnError>): RequestResult<CancelOperationResponses, CancelOperationErrors, ThrowOnError> => (options.client ?? client).post<CancelOperationResponses, CancelOperationErrors, ThrowOnError>({ url: '/operations/{operationId}/cancel', ...options });
+
+/**
+ * Scan a selected repository into an untrusted manifest proposal
+ */
+export const createManifestProposal = <ThrowOnError extends boolean = false>(options: Options<CreateManifestProposalData, ThrowOnError>): RequestResult<CreateManifestProposalResponses, CreateManifestProposalErrors, ThrowOnError> => (options.client ?? client).post<CreateManifestProposalResponses, CreateManifestProposalErrors, ThrowOnError>({
+    url: '/manifest-proposals',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read candidate manifest and source evidence
+ */
+export const getManifestProposal = <ThrowOnError extends boolean = false>(options: Options<GetManifestProposalData, ThrowOnError>): RequestResult<GetManifestProposalResponses, GetManifestProposalErrors, ThrowOnError> => (options.client ?? client).get<GetManifestProposalResponses, GetManifestProposalErrors, ThrowOnError>({ url: '/manifest-proposals/{proposalId}', ...options });
+
+/**
+ * Revalidate an untrusted proposal against the selected root
+ */
+export const validateManifestProposal = <ThrowOnError extends boolean = false>(options: Options<ValidateManifestProposalData, ThrowOnError>): RequestResult<ValidateManifestProposalResponses, ValidateManifestProposalErrors, ThrowOnError> => (options.client ?? client).post<ValidateManifestProposalResponses, ValidateManifestProposalErrors, ThrowOnError>({ url: '/manifest-proposals/{proposalId}/validate', ...options });
+
+/**
+ * Approve the proposal and trust its project
+ */
+export const acceptManifestProposal = <ThrowOnError extends boolean = false>(options: Options<AcceptManifestProposalData, ThrowOnError>): RequestResult<AcceptManifestProposalResponses, AcceptManifestProposalErrors, ThrowOnError> => (options.client ?? client).post<AcceptManifestProposalResponses, AcceptManifestProposalErrors, ThrowOnError>({ url: '/manifest-proposals/{proposalId}/accept', ...options });
+
+/**
+ * List registered projects
+ */
+export const listProjects = <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>): RequestResult<ListProjectsResponses, ListProjectsErrors, ThrowOnError> => (options?.client ?? client).get<ListProjectsResponses, ListProjectsErrors, ThrowOnError>({ url: '/projects', ...options });
+
+/**
+ * Resolve the effective manifest with field provenance
+ */
+export const explainProjectManifest = <ThrowOnError extends boolean = false>(options: Options<ExplainProjectManifestData, ThrowOnError>): RequestResult<ExplainProjectManifestResponses, ExplainProjectManifestErrors, ThrowOnError> => (options.client ?? client).get<ExplainProjectManifestResponses, ExplainProjectManifestErrors, ThrowOnError>({ url: '/projects/{projectId}/manifest/explain', ...options });
+
+/**
+ * Compare the accepted and effective manifests
+ */
+export const diffProjectManifest = <ThrowOnError extends boolean = false>(options: Options<DiffProjectManifestData, ThrowOnError>): RequestResult<DiffProjectManifestResponses, DiffProjectManifestErrors, ThrowOnError> => (options.client ?? client).get<DiffProjectManifestResponses, DiffProjectManifestErrors, ThrowOnError>({ url: '/projects/{projectId}/manifest/diff', ...options });
+
+/**
+ * Validate the fully resolved manifest
+ */
+export const validateProjectManifest = <ThrowOnError extends boolean = false>(options: Options<ValidateProjectManifestData, ThrowOnError>): RequestResult<ValidateProjectManifestResponses, ValidateProjectManifestErrors, ThrowOnError> => (options.client ?? client).get<ValidateProjectManifestResponses, ValidateProjectManifestErrors, ThrowOnError>({ url: '/projects/{projectId}/manifest/validate', ...options });

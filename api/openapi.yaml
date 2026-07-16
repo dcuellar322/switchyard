@@ -87,6 +87,136 @@ paths:
                 $ref: "#/components/schemas/Operation"
         default:
           $ref: "#/components/responses/Problem"
+  /manifest-proposals:
+    post:
+      operationId: createManifestProposal
+      summary: Scan a selected repository into an untrusted manifest proposal
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateManifestProposalRequest"
+      responses:
+        "201":
+          description: Reviewable deterministic proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestProposal"
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+    get:
+      operationId: getManifestProposal
+      summary: Read candidate manifest and source evidence
+      responses:
+        "200":
+          description: Reviewable proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestProposal"
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}/validate:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+    post:
+      operationId: validateManifestProposal
+      summary: Revalidate an untrusted proposal against the selected root
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Proposal with current validation results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestProposal"
+        default:
+          $ref: "#/components/responses/Problem"
+  /manifest-proposals/{proposalId}/accept:
+    parameters:
+      - $ref: "#/components/parameters/ProposalId"
+    post:
+      operationId: acceptManifestProposal
+      summary: Approve the proposal and trust its project
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Trusted project and accepted proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedManifestProposal"
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects:
+    get:
+      operationId: listProjects
+      summary: List registered projects
+      responses:
+        "200":
+          description: Registered project catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/manifest/explain:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: explainProjectManifest
+      summary: Resolve the effective manifest with field provenance
+      responses:
+        "200":
+          description: Effective manifest and provenance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EffectiveManifest"
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/manifest/diff:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: diffProjectManifest
+      summary: Compare the accepted and effective manifests
+      responses:
+        "200":
+          description: Canonical manifest comparison
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestDiff"
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/manifest/validate:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: validateProjectManifest
+      summary: Validate the fully resolved manifest
+      responses:
+        "200":
+          description: Effective manifest validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestValidation"
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -105,6 +235,22 @@ components:
         type: string
         minLength: 8
         maxLength: 128
+    ProposalId:
+      name: proposalId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
   responses:
     Problem:
       description: RFC 9457-style problem details
@@ -113,6 +259,130 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    CreateManifestProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [path]
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 4096
+    Project:
+      type: object
+      additionalProperties: false
+      required: [id, slug, displayName, trustState, primaryLocation, tags, manifestRevision, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        displayName: { type: string }
+        description: { type: string }
+        trustState:
+          type: string
+          enum: [pending, trusted, rejected]
+        primaryLocation: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        manifestRevision: { type: integer, format: int64, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SourceRange:
+      type: object
+      additionalProperties: false
+      required: [startLine, endLine]
+      properties:
+        startLine: { type: integer, minimum: 1 }
+        endLine: { type: integer, minimum: 1 }
+    DiscoveryEvidence:
+      type: object
+      additionalProperties: false
+      required: [id, scanner, kind, sourcePath, location, confidence, data, warnings]
+      properties:
+        id: { type: string }
+        scanner: { type: string }
+        kind: { type: string }
+        sourcePath: { type: string }
+        location: { $ref: "#/components/schemas/SourceRange" }
+        confidence: { type: number, format: double, minimum: 0, maximum: 1 }
+        data:
+          type: object
+          additionalProperties: true
+        warnings:
+          type: array
+          items: { type: string }
+    ManifestValidation:
+      type: object
+      additionalProperties: false
+      required: [valid, errors, warnings]
+      properties:
+        valid: { type: boolean }
+        errors:
+          type: array
+          items: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+    ManifestProposal:
+      type: object
+      additionalProperties: false
+      required: [id, projectId, scannerVersion, schemaVersion, candidate, evidence, confidenceByField, unresolved, validation, status, createdAt]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        scannerVersion: { type: string }
+        schemaVersion: { type: string }
+        candidate:
+          type: object
+          description: Canonical document governed by internal/manifest/schema/project.schema.json.
+          additionalProperties: true
+        evidence:
+          type: array
+          items: { $ref: "#/components/schemas/DiscoveryEvidence" }
+        confidenceByField:
+          type: object
+          additionalProperties: { type: number, format: double }
+        unresolved:
+          type: array
+          items: { type: string }
+        validation: { $ref: "#/components/schemas/ManifestValidation" }
+        status:
+          type: string
+          enum: [proposed, accepted, rejected, superseded]
+        createdAt: { type: string, format: date-time }
+    AcceptedManifestProposal:
+      type: object
+      additionalProperties: false
+      required: [project, proposal]
+      properties:
+        project: { $ref: "#/components/schemas/Project" }
+        proposal: { $ref: "#/components/schemas/ManifestProposal" }
+    ManifestSource:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string }
+        path: { type: string }
+    EffectiveManifest:
+      type: object
+      additionalProperties: false
+      required: [manifest, provenance, sources]
+      properties:
+        manifest: { type: object, additionalProperties: true }
+        provenance:
+          type: object
+          additionalProperties: { type: string }
+        sources:
+          type: array
+          items: { $ref: "#/components/schemas/ManifestSource" }
+    ManifestDiff:
+      type: object
+      additionalProperties: false
+      required: [accepted, effective]
+      properties:
+        accepted: { type: object, additionalProperties: true }
+        effective: { type: object, additionalProperties: true }
     BrowserBootstrap:
       type: object
       additionalProperties: false

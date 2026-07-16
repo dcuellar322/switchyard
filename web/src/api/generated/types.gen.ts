@@ -4,6 +4,97 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type CreateManifestProposalRequest = {
+    path: string;
+};
+
+export type Project = {
+    id: string;
+    slug: string;
+    displayName: string;
+    description?: string;
+    trustState: 'pending' | 'trusted' | 'rejected';
+    primaryLocation: string;
+    tags: Array<string>;
+    manifestRevision: number;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type SourceRange = {
+    startLine: number;
+    endLine: number;
+};
+
+export type DiscoveryEvidence = {
+    id: string;
+    scanner: string;
+    kind: string;
+    sourcePath: string;
+    location: SourceRange;
+    confidence: number;
+    data: {
+        [key: string]: unknown;
+    };
+    warnings: Array<string>;
+};
+
+export type ManifestValidation = {
+    valid: boolean;
+    errors: Array<string>;
+    warnings: Array<string>;
+};
+
+export type ManifestProposal = {
+    id: string;
+    projectId: string;
+    scannerVersion: string;
+    schemaVersion: string;
+    /**
+     * Canonical document governed by internal/manifest/schema/project.schema.json.
+     */
+    candidate: {
+        [key: string]: unknown;
+    };
+    evidence: Array<DiscoveryEvidence>;
+    confidenceByField: {
+        [key: string]: number;
+    };
+    unresolved: Array<string>;
+    validation: ManifestValidation;
+    status: 'proposed' | 'accepted' | 'rejected' | 'superseded';
+    createdAt: string;
+};
+
+export type AcceptedManifestProposal = {
+    project: Project;
+    proposal: ManifestProposal;
+};
+
+export type ManifestSource = {
+    name: string;
+    path?: string;
+};
+
+export type EffectiveManifest = {
+    manifest: {
+        [key: string]: unknown;
+    };
+    provenance: {
+        [key: string]: string;
+    };
+    sources: Array<ManifestSource>;
+};
+
+export type ManifestDiff = {
+    accepted: {
+        [key: string]: unknown;
+    };
+    effective: {
+        [key: string]: unknown;
+    };
+};
+
 export type BrowserBootstrap = {
     token: string;
     expiresAt: string;
@@ -56,6 +147,10 @@ export type ProblemDetails = {
 export type OperationId = string;
 
 export type IdempotencyKey = string;
+
+export type ProposalId = string;
+
+export type ProjectId = string;
 
 export type GetSystemData = {
     body?: never;
@@ -188,3 +283,224 @@ export type CancelOperationResponses = {
 };
 
 export type CancelOperationResponse = CancelOperationResponses[keyof CancelOperationResponses];
+
+export type CreateManifestProposalData = {
+    body: CreateManifestProposalRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/manifest-proposals';
+};
+
+export type CreateManifestProposalErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateManifestProposalError = CreateManifestProposalErrors[keyof CreateManifestProposalErrors];
+
+export type CreateManifestProposalResponses = {
+    /**
+     * Reviewable deterministic proposal
+     */
+    201: ManifestProposal;
+};
+
+export type CreateManifestProposalResponse = CreateManifestProposalResponses[keyof CreateManifestProposalResponses];
+
+export type GetManifestProposalData = {
+    body?: never;
+    path: {
+        proposalId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}';
+};
+
+export type GetManifestProposalErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetManifestProposalError = GetManifestProposalErrors[keyof GetManifestProposalErrors];
+
+export type GetManifestProposalResponses = {
+    /**
+     * Reviewable proposal
+     */
+    200: ManifestProposal;
+};
+
+export type GetManifestProposalResponse = GetManifestProposalResponses[keyof GetManifestProposalResponses];
+
+export type ValidateManifestProposalData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        proposalId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}/validate';
+};
+
+export type ValidateManifestProposalErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ValidateManifestProposalError = ValidateManifestProposalErrors[keyof ValidateManifestProposalErrors];
+
+export type ValidateManifestProposalResponses = {
+    /**
+     * Proposal with current validation results
+     */
+    200: ManifestProposal;
+};
+
+export type ValidateManifestProposalResponse = ValidateManifestProposalResponses[keyof ValidateManifestProposalResponses];
+
+export type AcceptManifestProposalData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        proposalId: string;
+    };
+    query?: never;
+    url: '/manifest-proposals/{proposalId}/accept';
+};
+
+export type AcceptManifestProposalErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type AcceptManifestProposalError = AcceptManifestProposalErrors[keyof AcceptManifestProposalErrors];
+
+export type AcceptManifestProposalResponses = {
+    /**
+     * Trusted project and accepted proposal
+     */
+    200: AcceptedManifestProposal;
+};
+
+export type AcceptManifestProposalResponse = AcceptManifestProposalResponses[keyof AcceptManifestProposalResponses];
+
+export type ListProjectsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/projects';
+};
+
+export type ListProjectsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListProjectsError = ListProjectsErrors[keyof ListProjectsErrors];
+
+export type ListProjectsResponses = {
+    /**
+     * Registered project catalog
+     */
+    200: Array<Project>;
+};
+
+export type ListProjectsResponse = ListProjectsResponses[keyof ListProjectsResponses];
+
+export type ExplainProjectManifestData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/manifest/explain';
+};
+
+export type ExplainProjectManifestErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ExplainProjectManifestError = ExplainProjectManifestErrors[keyof ExplainProjectManifestErrors];
+
+export type ExplainProjectManifestResponses = {
+    /**
+     * Effective manifest and provenance
+     */
+    200: EffectiveManifest;
+};
+
+export type ExplainProjectManifestResponse = ExplainProjectManifestResponses[keyof ExplainProjectManifestResponses];
+
+export type DiffProjectManifestData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/manifest/diff';
+};
+
+export type DiffProjectManifestErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type DiffProjectManifestError = DiffProjectManifestErrors[keyof DiffProjectManifestErrors];
+
+export type DiffProjectManifestResponses = {
+    /**
+     * Canonical manifest comparison
+     */
+    200: ManifestDiff;
+};
+
+export type DiffProjectManifestResponse = DiffProjectManifestResponses[keyof DiffProjectManifestResponses];
+
+export type ValidateProjectManifestData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/manifest/validate';
+};
+
+export type ValidateProjectManifestErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ValidateProjectManifestError = ValidateProjectManifestErrors[keyof ValidateProjectManifestErrors];
+
+export type ValidateProjectManifestResponses = {
+    /**
+     * Effective manifest validation result
+     */
+    200: ManifestValidation;
+};
+
+export type ValidateProjectManifestResponse = ValidateProjectManifestResponses[keyof ValidateProjectManifestResponses];
