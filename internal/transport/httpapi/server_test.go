@@ -293,7 +293,7 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 		t.Fatalf("missing CSRF status = %d", missingCSRFResponse.Code)
 	}
 
-	for _, path := range []string{"/ws/v1/events", "/ws/v1/logs?projectId=project-1"} {
+	for _, path := range []string{"/ws/v1/events", "/ws/v1/logs?projectId=project-1", "/ws/v1/terminal/terminal-one", "/ws/v1/agent-sessions/terminal-one"} {
 		wrongOrigin := httptest.NewRequest(http.MethodGet, path, nil)
 		wrongOrigin.Host = "127.0.0.1:19616"
 		wrongOrigin.Header.Set("Origin", "http://attacker.invalid")

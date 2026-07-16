@@ -5,6 +5,7 @@ import { unlinkSync } from "node:fs";
 import { browserBootstrapPath } from "../helpers/browserSession";
 
 test("scans a repository into an evidence-backed review", async ({ page }) => {
+  test.setTimeout(90_000);
   await page.goto(browserBootstrapPath());
   await page.getByRole("link", { name: "Discovery" }).click();
   await page
@@ -36,6 +37,23 @@ test("scans a repository into an evidence-backed review", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Live logs" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Git" })).toBeVisible();
   await expect(page.getByRole("button", { name: "⌘ Terminal" })).toBeEnabled();
+  await page.getByRole("tab", { name: "terminal" }).click();
+  await page
+    .getByRole("combobox", { name: "Shell", exact: true })
+    .selectOption("sh");
+  await page.getByRole("button", { name: "New session" }).click();
+  await expect(page.getByText("connected", { exact: true })).toBeVisible({ timeout: 15_000 });
+  const terminalInput = page.locator(".xterm-helper-textarea");
+  await terminalInput.pressSequentially(
+    "printf 'switchyard-terminal-\\342\\234\\223\\n'",
+  );
+  await terminalInput.press("Enter");
+  await expect(page.locator(".xterm-rows")).toContainText("switchyard-terminal-✓", { timeout: 15_000 });
+  await page.getByRole("tab", { name: "git" }).click();
+  await page.getByRole("tab", { name: "terminal" }).click();
+  await page.getByRole("button", { name: /Switchyard Mixed Fixture shell/ }).click();
+  await expect(page.locator(".xterm-rows")).toContainText("switchyard-terminal-✓", { timeout: 15_000 });
+  await page.getByRole("button", { name: "Terminate process" }).click();
   await page.getByRole("link", { name: "Ports" }).click();
   await expect(
     page.getByRole("heading", { name: "Port registry" }),

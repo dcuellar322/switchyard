@@ -16,6 +16,8 @@ import {
 } from "../../../lib/format";
 import { trackOperation } from "../../operations/store";
 import { loadPortRegistry } from "../../ports/api";
+import AgentSessionsPanel from "../../terminal/components/AgentSessionsPanel.vue";
+import TerminalPanel from "../../terminal/components/TerminalPanel.vue";
 import {
   loadProjectEnvironments,
   registerEnvironments,
@@ -618,21 +620,13 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
         tabindex="0"
         aria-labelledby="tab-terminal"
       >
-        <article class="panel future-panel">
-          <strong>Native terminal handoff</strong>
-          <p>
-            Switchyard opens the trusted terminal action defined by this
-            project's effective manifest. It does not embed a shell or
-            reconstruct a command in the browser.
-          </p>
-          <button
-            type="button"
-            :disabled="!terminalAction"
-            @click="runAction(terminalAction)"
-          >
-            ⌘ Open terminal
-          </button>
-        </article>
+        <TerminalPanel
+          :project-id="projectId"
+          :services="runtime.data.value?.services.map((service) => service.id) ?? []"
+          :environments="environments.data.value ?? []"
+          :actions="actions.data.value?.actions ?? []"
+          @external="runAction(terminalAction)"
+        />
       </div>
       <div
         v-else-if="activeTab === 'git'"
@@ -772,14 +766,11 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
         tabindex="0"
         aria-labelledby="tab-agents"
       >
-        <article class="panel future-panel">
-          <strong>No agent sessions</strong>
-          <p>
-            Agent orchestration is a later roadmap capability. This alpha
-            exposes no simulated agent state or inactive controls.
-          </p>
-          <RouterLink to="/agents">Read the roadmap boundary</RouterLink>
-        </article>
+        <AgentSessionsPanel
+          :project-id="projectId"
+          :environments="environments.data.value ?? []"
+          @terminal="selectTab('terminal')"
+        />
       </div>
       <div
         v-else

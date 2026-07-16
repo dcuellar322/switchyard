@@ -65,13 +65,21 @@ func identityFrom(ctx context.Context) requestIdentity {
 	return identity
 }
 
+// RequestActor returns the authenticated local actor attached by the transport
+// security middleware. It lets sibling stream adapters enforce application
+// ownership without knowing browser cookie or IPC header details.
+func RequestActor(ctx context.Context) (string, string) {
+	identity := identityFrom(ctx)
+	return string(identity.Access), identity.ActorID
+}
+
 func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/auth/sessions" && r.Method == http.MethodPost {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if !strings.HasPrefix(r.URL.Path, "/api/v1/") && r.URL.Path != "/ws/v1/events" && r.URL.Path != "/ws/v1/logs" {
+		if !strings.HasPrefix(r.URL.Path, "/api/v1/") && !isProtectedWebSocketPath(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -85,7 +93,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			writeProblem(w, r, http.StatusUnauthorized, "SESSION_INVALID", "Browser session invalid", "Launch the UI again to create a fresh session.")
 			return
 		}
-		if (r.URL.Path == "/ws/v1/events" || r.URL.Path == "/ws/v1/logs") && !sameOrigin(r) {
+		if isProtectedWebSocketPath(r.URL.Path) && !sameOrigin(r) {
 			writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "WebSocket origin rejected", "The event stream is same-origin only.")
 			return
 		}
@@ -103,6 +111,11 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 		identity.ActorID = active.ID
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), securityContextKey{}, identity)))
 	})
+}
+
+func isProtectedWebSocketPath(path string) bool {
+	return path == "/ws/v1/events" || path == "/ws/v1/logs" ||
+		strings.HasPrefix(path, "/ws/v1/terminal/") || strings.HasPrefix(path, "/ws/v1/agent-sessions/")
 }
 
 func withIdempotencyKey(next http.Handler) http.Handler {

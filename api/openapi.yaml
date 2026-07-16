@@ -836,6 +836,108 @@ paths:
               schema: { $ref: "#/components/schemas/Operation" }
         default:
           $ref: "#/components/responses/Problem"
+  /terminal-sessions:
+    get:
+      operationId: listTerminalSessions
+      summary: List terminal sessions owned by the current local principal
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string, maxLength: 128 }
+      responses:
+        "200":
+          description: Owner-scoped terminal session metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createTerminalSession
+      summary: Explicitly create a typed interactive PTY session
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TerminalSessionCreate" }
+      responses:
+        "201":
+          description: Terminal session created and ready for authenticated attachment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /terminal-sessions/{terminalSessionId}:
+    parameters:
+      - $ref: "#/components/parameters/TerminalSessionId"
+    get:
+      operationId: getTerminalSession
+      summary: Read owner-authorized terminal session metadata
+      responses:
+        "200":
+          description: Terminal session metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /terminal-sessions/{terminalSessionId}/terminate:
+    parameters:
+      - $ref: "#/components/parameters/TerminalSessionId"
+    post:
+      operationId: terminateTerminalSession
+      summary: Explicitly terminate an owned PTY process group
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "202":
+          description: Termination requested
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /agents/sessions:
+    get:
+      operationId: listAgentSessions
+      summary: List coding-agent PTY sessions and public output metadata
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string, maxLength: 128 }
+      responses:
+        "200":
+          description: Owner-scoped agent session metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      operationId: createAgentSession
+      summary: Start Codex or Claude Code as an interactive PTY process
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AgentSessionCreate" }
+      responses:
+        "201":
+          description: Agent PTY session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TerminalSession" }
+        default:
+          $ref: "#/components/responses/Problem"
 components:
   parameters:
     OperationId:
@@ -853,6 +955,14 @@ components:
       schema:
         type: string
         minLength: 8
+        maxLength: 128
+    TerminalSessionId:
+      name: terminalSessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
         maxLength: 128
     ProposalId:
       name: proposalId
@@ -1945,6 +2055,84 @@ components:
       type: string
       enum: [start, stop]
       x-enum-varnames: [WorkspaceStart, WorkspaceStop]
+    TerminalSessionKind:
+      type: string
+      enum: [shell, service, database, agent, action]
+      x-enum-varnames: [TerminalShell, TerminalService, TerminalDatabase, TerminalAgent, TerminalAction]
+    TerminalSessionStatus:
+      type: string
+      enum: [starting, active, exited, terminated, expired, interrupted, failed]
+    TerminalSessionOwner:
+      type: object
+      additionalProperties: false
+      required: [type, id]
+      properties:
+        type: { type: string, minLength: 1, maxLength: 128 }
+        id: { type: string, minLength: 1, maxLength: 128 }
+    TerminalSessionCreate:
+      type: object
+      additionalProperties: false
+      required: [projectId, kind, columns, rows]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        environmentId: { type: string, minLength: 1, maxLength: 128 }
+        kind: { $ref: "#/components/schemas/TerminalSessionKind" }
+        provider: { type: string, enum: [codex, claude] }
+        serviceId: { type: string, minLength: 1, maxLength: 128 }
+        actionId: { type: string, minLength: 1, maxLength: 128 }
+        shell: { type: string, enum: [sh, bash, zsh] }
+        databaseClient: { type: string, enum: [psql, mysql, redis-cli, mongosh, sqlite3] }
+        columns: { type: integer, minimum: 2, maximum: 500 }
+        rows: { type: integer, minimum: 2, maximum: 300 }
+    AgentSessionCreate:
+      type: object
+      additionalProperties: false
+      required: [projectId, provider, columns, rows]
+      properties:
+        projectId: { type: string, minLength: 1, maxLength: 128 }
+        environmentId: { type: string, minLength: 1, maxLength: 128 }
+        provider: { type: string, enum: [codex, claude] }
+        columns: { type: integer, minimum: 2, maximum: 500 }
+        rows: { type: integer, minimum: 2, maximum: 300 }
+    TerminalSession:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - projectId
+        - kind
+        - displayName
+        - owner
+        - workingDirectory
+        - status
+        - persistencePolicy
+        - capturePolicy
+        - outputBytes
+        - outputTruncated
+        - createdAt
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        environmentId: { type: string }
+        kind: { $ref: "#/components/schemas/TerminalSessionKind" }
+        displayName: { type: string }
+        owner: { $ref: "#/components/schemas/TerminalSessionOwner" }
+        provider: { type: string }
+        serviceId: { type: string }
+        actionId: { type: string }
+        workingDirectory: { type: string }
+        status: { $ref: "#/components/schemas/TerminalSessionStatus" }
+        persistencePolicy: { type: string, enum: [detach_until_idle_timeout] }
+        capturePolicy: { type: string, enum: [user_visible_terminal_output_only] }
+        outputBytes: { type: integer, format: int64, minimum: 0 }
+        outputTruncated: { type: boolean }
+        lastOutputAt: { type: string, format: date-time }
+        exitCode: { type: integer }
+        createdAt: { type: string, format: date-time }
+        lastAttachedAt: { type: string, format: date-time }
+        detachedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time }
+        errorCode: { type: string }
     Operation:
       type: object
       additionalProperties: false

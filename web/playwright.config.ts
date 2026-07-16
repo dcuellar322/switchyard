@@ -5,7 +5,10 @@ const externalBaseURL = process.env.SWITCHYARD_E2E_BASE_URL
 export default defineConfig({
   testDir: './tests',
   snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
-  fullyParallel: true,
+  // Runtime tests share one daemon, database, port registry, and Docker engine.
+  // Keep tests within a file ordered so lifecycle-heavy scenarios cannot starve
+  // or race one another; independent spec files may still run concurrently.
+  fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',

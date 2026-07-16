@@ -24,6 +24,8 @@ import (
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
 	"switchyard.dev/switchyard/internal/system/application"
+	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
+	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
 	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
@@ -55,6 +57,7 @@ type handler struct {
 	environments            environmentService
 	environmentRegistration environmentRegistrationService
 	routes                  routeService
+	terminals               terminalService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -163,6 +166,14 @@ type environmentRegistrationService interface {
 type routeService interface {
 	Refresh(context.Context) ([]routingDomain.Route, error)
 	Snapshot() []routingDomain.Route
+}
+
+type terminalService interface {
+	Create(context.Context, terminalDomain.CreateRequest, terminalDomain.Owner) (terminalDomain.Session, error)
+	List(context.Context, string, terminalDomain.Owner) ([]terminalDomain.Session, error)
+	Get(context.Context, string, terminalDomain.Owner) (terminalDomain.Session, error)
+	Terminate(context.Context, string, terminalDomain.Owner) (terminalDomain.Session, error)
+	Attach(context.Context, string, terminalDomain.Owner) (*terminalApplication.Attachment, error)
 }
 
 type sessionService interface {

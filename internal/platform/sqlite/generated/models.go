@@ -304,6 +304,42 @@ type SystemHealth struct {
 	InitializedAt string `json:"initialized_at"`
 }
 
+type TerminalSession struct {
+	ID                string         `json:"id"`
+	ProjectID         string         `json:"project_id"`
+	EnvironmentID     string         `json:"environment_id"`
+	Kind              string         `json:"kind"`
+	DisplayName       string         `json:"display_name"`
+	OwnerType         string         `json:"owner_type"`
+	OwnerID           string         `json:"owner_id"`
+	Provider          string         `json:"provider"`
+	ServiceID         string         `json:"service_id"`
+	ActionID          string         `json:"action_id"`
+	WorkingDirectory  string         `json:"working_directory"`
+	Status            string         `json:"status"`
+	PersistencePolicy string         `json:"persistence_policy"`
+	CapturePolicy     string         `json:"capture_policy"`
+	OutputBytes       int64          `json:"output_bytes"`
+	OutputTruncated   int64          `json:"output_truncated"`
+	LastOutputAt      sql.NullString `json:"last_output_at"`
+	ExitCode          sql.NullInt64  `json:"exit_code"`
+	CreatedAt         string         `json:"created_at"`
+	LastAttachedAt    sql.NullString `json:"last_attached_at"`
+	DetachedAt        sql.NullString `json:"detached_at"`
+	FinishedAt        sql.NullString `json:"finished_at"`
+	ErrorCode         string         `json:"error_code"`
+}
+
+type TerminalSessionAudit struct {
+	ID         string `json:"id"`
+	SessionID  string `json:"session_id"`
+	Event      string `json:"event"`
+	ActorType  string `json:"actor_type"`
+	ActorID    string `json:"actor_id"`
+	DetailJson string `json:"detail_json"`
+	OccurredAt string `json:"occurred_at"`
+}
+
 type Workspace struct {
 	ID                   string `json:"id"`
 	Name                 string `json:"name"`

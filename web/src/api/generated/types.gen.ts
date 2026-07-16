@@ -825,6 +825,61 @@ export type WorkspaceOperationRequest = {
 
 export type WorkspaceOperationAction = 'start' | 'stop';
 
+export type TerminalSessionKind = 'shell' | 'service' | 'database' | 'agent' | 'action';
+
+export type TerminalSessionStatus = 'starting' | 'active' | 'exited' | 'terminated' | 'expired' | 'interrupted' | 'failed';
+
+export type TerminalSessionOwner = {
+    type: string;
+    id: string;
+};
+
+export type TerminalSessionCreate = {
+    projectId: string;
+    environmentId?: string;
+    kind: TerminalSessionKind;
+    provider?: 'codex' | 'claude';
+    serviceId?: string;
+    actionId?: string;
+    shell?: 'sh' | 'bash' | 'zsh';
+    databaseClient?: 'psql' | 'mysql' | 'redis-cli' | 'mongosh' | 'sqlite3';
+    columns: number;
+    rows: number;
+};
+
+export type AgentSessionCreate = {
+    projectId: string;
+    environmentId?: string;
+    provider: 'codex' | 'claude';
+    columns: number;
+    rows: number;
+};
+
+export type TerminalSession = {
+    id: string;
+    projectId: string;
+    environmentId?: string;
+    kind: TerminalSessionKind;
+    displayName: string;
+    owner: TerminalSessionOwner;
+    provider?: string;
+    serviceId?: string;
+    actionId?: string;
+    workingDirectory: string;
+    status: TerminalSessionStatus;
+    persistencePolicy: 'detach_until_idle_timeout';
+    capturePolicy: 'user_visible_terminal_output_only';
+    outputBytes: number;
+    outputTruncated: boolean;
+    lastOutputAt?: string;
+    exitCode?: number;
+    createdAt: string;
+    lastAttachedAt?: string;
+    detachedAt?: string;
+    finishedAt?: string;
+    errorCode?: string;
+};
+
 export type Operation = {
     id: string;
     projectId: string;
@@ -880,6 +935,8 @@ export type ProblemDetails = {
 export type OperationId = string;
 
 export type IdempotencyKey = string;
+
+export type TerminalSessionId = string;
 
 export type ProposalId = string;
 
@@ -2256,3 +2313,170 @@ export type CreateWorkspaceOperationResponses = {
 };
 
 export type CreateWorkspaceOperationResponse = CreateWorkspaceOperationResponses[keyof CreateWorkspaceOperationResponses];
+
+export type ListTerminalSessionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+    };
+    url: '/terminal-sessions';
+};
+
+export type ListTerminalSessionsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListTerminalSessionsError = ListTerminalSessionsErrors[keyof ListTerminalSessionsErrors];
+
+export type ListTerminalSessionsResponses = {
+    /**
+     * Owner-scoped terminal session metadata
+     */
+    200: Array<TerminalSession>;
+};
+
+export type ListTerminalSessionsResponse = ListTerminalSessionsResponses[keyof ListTerminalSessionsResponses];
+
+export type CreateTerminalSessionData = {
+    body: TerminalSessionCreate;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/terminal-sessions';
+};
+
+export type CreateTerminalSessionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateTerminalSessionError = CreateTerminalSessionErrors[keyof CreateTerminalSessionErrors];
+
+export type CreateTerminalSessionResponses = {
+    /**
+     * Terminal session created and ready for authenticated attachment
+     */
+    201: TerminalSession;
+};
+
+export type CreateTerminalSessionResponse = CreateTerminalSessionResponses[keyof CreateTerminalSessionResponses];
+
+export type GetTerminalSessionData = {
+    body?: never;
+    path: {
+        terminalSessionId: string;
+    };
+    query?: never;
+    url: '/terminal-sessions/{terminalSessionId}';
+};
+
+export type GetTerminalSessionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetTerminalSessionError = GetTerminalSessionErrors[keyof GetTerminalSessionErrors];
+
+export type GetTerminalSessionResponses = {
+    /**
+     * Terminal session metadata
+     */
+    200: TerminalSession;
+};
+
+export type GetTerminalSessionResponse = GetTerminalSessionResponses[keyof GetTerminalSessionResponses];
+
+export type TerminateTerminalSessionData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        terminalSessionId: string;
+    };
+    query?: never;
+    url: '/terminal-sessions/{terminalSessionId}/terminate';
+};
+
+export type TerminateTerminalSessionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type TerminateTerminalSessionError = TerminateTerminalSessionErrors[keyof TerminateTerminalSessionErrors];
+
+export type TerminateTerminalSessionResponses = {
+    /**
+     * Termination requested
+     */
+    202: TerminalSession;
+};
+
+export type TerminateTerminalSessionResponse = TerminateTerminalSessionResponses[keyof TerminateTerminalSessionResponses];
+
+export type ListAgentSessionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+    };
+    url: '/agents/sessions';
+};
+
+export type ListAgentSessionsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListAgentSessionsError = ListAgentSessionsErrors[keyof ListAgentSessionsErrors];
+
+export type ListAgentSessionsResponses = {
+    /**
+     * Owner-scoped agent session metadata
+     */
+    200: Array<TerminalSession>;
+};
+
+export type ListAgentSessionsResponse = ListAgentSessionsResponses[keyof ListAgentSessionsResponses];
+
+export type CreateAgentSessionData = {
+    body: AgentSessionCreate;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/agents/sessions';
+};
+
+export type CreateAgentSessionErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateAgentSessionError = CreateAgentSessionErrors[keyof CreateAgentSessionErrors];
+
+export type CreateAgentSessionResponses = {
+    /**
+     * Agent PTY session created
+     */
+    201: TerminalSession;
+};
+
+export type CreateAgentSessionResponse = CreateAgentSessionResponses[keyof CreateAgentSessionResponses];

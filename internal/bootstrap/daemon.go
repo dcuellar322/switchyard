@@ -44,6 +44,9 @@ import (
 	sourcecontrolAdapters "switchyard.dev/switchyard/internal/sourcecontrol/adapters"
 	sourcecontrolApplication "switchyard.dev/switchyard/internal/sourcecontrol/application"
 	"switchyard.dev/switchyard/internal/system/application"
+	terminalAdapters "switchyard.dev/switchyard/internal/terminal/adapters"
+	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
+	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
 	eventtransport "switchyard.dev/switchyard/internal/transport/websocket"
 	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
@@ -152,8 +155,9 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err := actionAudits.Recover(ctx, time.Now().UTC()); err != nil {
 		return err
 	}
+	actionCatalog := actionsApplication.NewCatalogSource(catalogService)
 	actionService := actionsApplication.NewService(
-		actionsApplication.NewCatalogSource(catalogService),
+		actionCatalog,
 		actionsAdapters.NewRunner(actionsAdapters.NewLauncher()),
 		actionAudits,
 	)
@@ -165,6 +169,17 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
+	terminalService, err := terminalApplication.NewService(
+		ctx,
+		sqlite.NewTerminalSessionRepository(database),
+		terminalAdapters.NewResolver(catalogService, actionCatalog, environmentService, config.AICodexExecutable, config.AIClaudeExecutable),
+		terminalAdapters.NewPTY(),
+		terminalApplication.DefaultConfig(),
+	)
+	if err != nil {
+		return err
+	}
+	defer closeTerminalSessions(config.Logger, terminalService)
 	aiService, err := agentsApplication.NewEnhancementService(
 		catalogService, sqlite.NewAgentRunRepository(database), agentsAdapters.RepositoryReader{}, redactor, agentsAdapters.ManifestValidator{}, providerRegistry,
 	)
@@ -228,6 +243,10 @@ func RunDaemon(ctx context.Context, config Config) error {
 		Ports: portService, Git: gitService, Actions: actionService,
 		AI: aiService, Resources: resourceService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
+		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
+			actorType, actorID := httpapi.RequestActor(actorContext)
+			return terminalDomain.Owner{Type: actorType, ID: actorID}
+		}),
 		Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies, routingAdapters.NewProxy(routeRegistry))
@@ -245,6 +264,14 @@ func RunDaemon(ctx context.Context, config Config) error {
 	runErr := servers.run(ctx, coordinator.Shutdown)
 	background.Wait()
 	return runErr
+}
+
+func closeTerminalSessions(logger *slog.Logger, service *terminalApplication.Service) {
+	closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := service.Close(closeCtx); err != nil {
+		logger.Error("close terminal sessions", "component", "terminal", "error", err)
+	}
 }
 
 func executeOperation(

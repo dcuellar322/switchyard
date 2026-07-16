@@ -34,6 +34,10 @@ merge authority, dry-run review, and human-only trust transitions.
 The [workspace and worktree orchestration](workspaces.md) note defines Phase 13
 dependency execution, failure policy, environment isolation, optional local
 routing, launch recipes, and restart reconciliation.
+The [embedded terminal and agent sessions](terminal-sessions.md) note defines
+Phase 14 PTY ownership, typed launch resolution, authenticated binary streams,
+detach persistence, bounded scrollback, and the user-visible agent metadata
+boundary.
 
 ## Process topology
 
@@ -84,6 +88,7 @@ application interface or a typed event.
 | `actions` | Typed, risk-classified project actions |
 | `workspace` | Multi-project graphs and coordinated lifecycle |
 | `agents` | MCP, provider adapters, proposals, sessions, and agent audit |
+| `terminal` | Owned PTYs, bounded streams, typed interactive launches, and session audit |
 | `platform` | OS capabilities without product policy |
 
 `foundation` is limited to stable primitives such as clocks, IDs, event

@@ -28,3 +28,16 @@ test("project detail discloses degraded observer state", async ({ page }) => {
     fullPage: true,
   });
 });
+
+test("project terminal presents typed launch and persistence controls", async ({ page }) => {
+  await installAlphaMocks(page);
+  await page.goto(browserBootstrapPath("/projects/alpha"));
+  await page.getByRole("tab", { name: "terminal" }).click();
+  await expect(page.getByRole("heading", { name: "Interactive terminal" })).toBeVisible();
+  await expect(page.getByText(/Disconnecting detaches the browser/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "New session" })).toBeEnabled();
+  await expect(page).toHaveScreenshot("project-terminal.png", {
+    animations: "disabled",
+    fullPage: true,
+  });
+});

@@ -17,6 +17,8 @@ import (
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
 	sourcecontrol "switchyard.dev/switchyard/internal/sourcecontrol/application"
+	terminalAdapters "switchyard.dev/switchyard/internal/terminal/adapters"
+	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
 	workspace "switchyard.dev/switchyard/internal/workspace/application"
 	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
 )
@@ -90,7 +92,23 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeAgentError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeTerminalError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, terminalApplication.ErrNotFound):
+		writeProblem(w, r, http.StatusNotFound, "TERMINAL_SESSION_NOT_FOUND", "Terminal session not found", "No terminal session exists for this identifier.")
+	case errors.Is(err, terminalApplication.ErrOwnerMismatch):
+		writeProblem(w, r, http.StatusForbidden, "TERMINAL_SESSION_FORBIDDEN", "Terminal session access denied", "The terminal session belongs to another authenticated local actor.")
+	case errors.Is(err, terminalApplication.ErrNotActive):
+		writeProblem(w, r, http.StatusConflict, "TERMINAL_SESSION_INACTIVE", "Terminal session is not active", "Only a live daemon-owned session can be attached or terminated.")
+	case errors.Is(err, terminalApplication.ErrLaunchInvalid), errors.Is(err, terminalAdapters.ErrUnsupportedTarget), errors.Is(err, terminalAdapters.ErrInteractiveActionRequired):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "TERMINAL_LAUNCH_INVALID", "Terminal launch rejected", err.Error())
+	default:
+		return false
+	}
+	return true
 }
 
 func writeEnvironmentError(w http.ResponseWriter, r *http.Request, err error) bool {

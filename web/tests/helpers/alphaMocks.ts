@@ -224,6 +224,9 @@ function actions(projectId: string) {
 }
 
 export async function installAlphaMocks(page: Page, empty = false) {
+  await page.route("**/api/v1/terminal-sessions**", (route) => json(route, []));
+  await page.route("**/api/v1/agents/sessions**", (route) => json(route, []));
+  await page.route("**/api/v1/projects/*/environments", (route) => json(route, []));
   await page.route("**/api/v1/host", (route) =>
     json(route, {
       cpuPercent: 21.4,

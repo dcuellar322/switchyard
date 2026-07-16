@@ -29,8 +29,10 @@ type Dependencies struct {
 	Environments            environmentService
 	EnvironmentRegistration environmentRegistrationService
 	Routes                  routeService
+	Terminals               terminalService
 	Events                  http.Handler
 	Logs                    http.Handler
+	Terminal                http.Handler
 	Web                     http.Handler
 	Logger                  *slog.Logger
 }
@@ -62,6 +64,7 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 		ports: dependencies.Ports, git: dependencies.Git, actions: dependencies.Actions, ai: dependencies.AI, resources: dependencies.Resources,
 		workspaces:   dependencies.Workspaces,
 		environments: dependencies.Environments, environmentRegistration: dependencies.EnvironmentRegistration, routes: dependencies.Routes,
+		terminals: dependencies.Terminals,
 	}, api)
 	router.Mount("/api/v1", api)
 	if dependencies.Events != nil {
@@ -69,6 +72,10 @@ func newRouter(dependencies Dependencies, access accessKind, serveWeb bool) http
 	}
 	if dependencies.Logs != nil {
 		router.Handle("/ws/v1/logs", dependencies.Logs)
+	}
+	if serveWeb && dependencies.Terminal != nil {
+		router.Handle("/ws/v1/terminal/{sessionId}", dependencies.Terminal)
+		router.Handle("/ws/v1/agent-sessions/{sessionId}", dependencies.Terminal)
 	}
 	if serveWeb && dependencies.Web != nil {
 		router.Handle("/*", dependencies.Web)

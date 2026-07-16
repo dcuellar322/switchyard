@@ -134,6 +134,14 @@ worktree receives stable Compose, port-lease, and optional `.localhost`
 routing identity. See the
 [workspace and worktree architecture](docs/architecture/workspaces.md).
 
+Trusted projects can also launch embedded project, service, database, Codex,
+Claude Code, and reviewed interactive-action PTYs. Browser disconnects detach
+for a documented 30-minute idle window, reconnect output is memory-bounded,
+SQLite retains metadata only, and external terminal handoff remains available.
+Agent records describe user-visible terminal output and never claim access to
+hidden reasoning. See the
+[terminal and agent session architecture](docs/architecture/terminal-sessions.md).
+
 ## Security
 
 Switchyard treats repositories, local processes, Docker, browser clients,

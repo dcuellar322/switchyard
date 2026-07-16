@@ -124,6 +124,24 @@ func (e ActionDefinitionRisk) Valid() bool {
 	}
 }
 
+// Defines values for AgentSessionCreateProvider.
+const (
+	AgentSessionCreateProviderClaude AgentSessionCreateProvider = "claude"
+	AgentSessionCreateProviderCodex  AgentSessionCreateProvider = "codex"
+)
+
+// Valid indicates whether the value is a known member of the AgentSessionCreateProvider enum.
+func (e AgentSessionCreateProvider) Valid() bool {
+	switch e {
+	case AgentSessionCreateProviderClaude:
+		return true
+	case AgentSessionCreateProviderCodex:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CleanupPreviewExecutable.
 const (
 	False CleanupPreviewExecutable = false
@@ -564,22 +582,22 @@ func (e ProjectEnvironmentAvailability) Valid() bool {
 
 // Defines values for ProjectEnvironmentState.
 const (
-	Active      ProjectEnvironmentState = "active"
-	Inactive    ProjectEnvironmentState = "inactive"
-	Registered  ProjectEnvironmentState = "registered"
-	Unavailable ProjectEnvironmentState = "unavailable"
+	ProjectEnvironmentStateActive      ProjectEnvironmentState = "active"
+	ProjectEnvironmentStateInactive    ProjectEnvironmentState = "inactive"
+	ProjectEnvironmentStateRegistered  ProjectEnvironmentState = "registered"
+	ProjectEnvironmentStateUnavailable ProjectEnvironmentState = "unavailable"
 )
 
 // Valid indicates whether the value is a known member of the ProjectEnvironmentState enum.
 func (e ProjectEnvironmentState) Valid() bool {
 	switch e {
-	case Active:
+	case ProjectEnvironmentStateActive:
 		return true
-	case Inactive:
+	case ProjectEnvironmentStateInactive:
 		return true
-	case Registered:
+	case ProjectEnvironmentStateRegistered:
 		return true
-	case Unavailable:
+	case ProjectEnvironmentStateUnavailable:
 		return true
 	default:
 		return false
@@ -907,6 +925,162 @@ const (
 func (e SystemInfoStatus) Valid() bool {
 	switch e {
 	case Ready:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionCapturePolicy.
+const (
+	UserVisibleTerminalOutputOnly TerminalSessionCapturePolicy = "user_visible_terminal_output_only"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionCapturePolicy enum.
+func (e TerminalSessionCapturePolicy) Valid() bool {
+	switch e {
+	case UserVisibleTerminalOutputOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionPersistencePolicy.
+const (
+	DetachUntilIdleTimeout TerminalSessionPersistencePolicy = "detach_until_idle_timeout"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionPersistencePolicy enum.
+func (e TerminalSessionPersistencePolicy) Valid() bool {
+	switch e {
+	case DetachUntilIdleTimeout:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionCreateDatabaseClient.
+const (
+	Mongosh  TerminalSessionCreateDatabaseClient = "mongosh"
+	Mysql    TerminalSessionCreateDatabaseClient = "mysql"
+	Psql     TerminalSessionCreateDatabaseClient = "psql"
+	RedisCli TerminalSessionCreateDatabaseClient = "redis-cli"
+	Sqlite3  TerminalSessionCreateDatabaseClient = "sqlite3"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionCreateDatabaseClient enum.
+func (e TerminalSessionCreateDatabaseClient) Valid() bool {
+	switch e {
+	case Mongosh:
+		return true
+	case Mysql:
+		return true
+	case Psql:
+		return true
+	case RedisCli:
+		return true
+	case Sqlite3:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionCreateProvider.
+const (
+	TerminalSessionCreateProviderClaude TerminalSessionCreateProvider = "claude"
+	TerminalSessionCreateProviderCodex  TerminalSessionCreateProvider = "codex"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionCreateProvider enum.
+func (e TerminalSessionCreateProvider) Valid() bool {
+	switch e {
+	case TerminalSessionCreateProviderClaude:
+		return true
+	case TerminalSessionCreateProviderCodex:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionCreateShell.
+const (
+	Bash TerminalSessionCreateShell = "bash"
+	Sh   TerminalSessionCreateShell = "sh"
+	Zsh  TerminalSessionCreateShell = "zsh"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionCreateShell enum.
+func (e TerminalSessionCreateShell) Valid() bool {
+	switch e {
+	case Bash:
+		return true
+	case Sh:
+		return true
+	case Zsh:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionKind.
+const (
+	TerminalAction   TerminalSessionKind = "action"
+	TerminalAgent    TerminalSessionKind = "agent"
+	TerminalDatabase TerminalSessionKind = "database"
+	TerminalService  TerminalSessionKind = "service"
+	TerminalShell    TerminalSessionKind = "shell"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionKind enum.
+func (e TerminalSessionKind) Valid() bool {
+	switch e {
+	case TerminalAction:
+		return true
+	case TerminalAgent:
+		return true
+	case TerminalDatabase:
+		return true
+	case TerminalService:
+		return true
+	case TerminalShell:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TerminalSessionStatus.
+const (
+	TerminalSessionStatusActive      TerminalSessionStatus = "active"
+	TerminalSessionStatusExited      TerminalSessionStatus = "exited"
+	TerminalSessionStatusExpired     TerminalSessionStatus = "expired"
+	TerminalSessionStatusFailed      TerminalSessionStatus = "failed"
+	TerminalSessionStatusInterrupted TerminalSessionStatus = "interrupted"
+	TerminalSessionStatusStarting    TerminalSessionStatus = "starting"
+	TerminalSessionStatusTerminated  TerminalSessionStatus = "terminated"
+)
+
+// Valid indicates whether the value is a known member of the TerminalSessionStatus enum.
+func (e TerminalSessionStatus) Valid() bool {
+	switch e {
+	case TerminalSessionStatusActive:
+		return true
+	case TerminalSessionStatusExited:
+		return true
+	case TerminalSessionStatusExpired:
+		return true
+	case TerminalSessionStatusFailed:
+		return true
+	case TerminalSessionStatusInterrupted:
+		return true
+	case TerminalSessionStatusStarting:
+		return true
+	case TerminalSessionStatusTerminated:
 		return true
 	default:
 		return false
@@ -1290,6 +1464,18 @@ type ActionExecutionRequest struct {
 	AllowOutsideRoot *bool `json:"allowOutsideRoot,omitempty"`
 	ConfirmRisk      *bool `json:"confirmRisk,omitempty"`
 }
+
+// AgentSessionCreate defines model for AgentSessionCreate.
+type AgentSessionCreate struct {
+	Columns       int                        `json:"columns"`
+	EnvironmentId *string                    `json:"environmentId,omitempty"`
+	ProjectId     string                     `json:"projectId"`
+	Provider      AgentSessionCreateProvider `json:"provider"`
+	Rows          int                        `json:"rows"`
+}
+
+// AgentSessionCreateProvider defines model for AgentSessionCreate.Provider.
+type AgentSessionCreateProvider string
 
 // BrowserBootstrap defines model for BrowserBootstrap.
 type BrowserBootstrap struct {
@@ -2049,6 +2235,73 @@ type SystemInfo struct {
 // SystemInfoStatus defines model for SystemInfo.Status.
 type SystemInfoStatus string
 
+// TerminalSession defines model for TerminalSession.
+type TerminalSession struct {
+	ActionId          *string                          `json:"actionId,omitempty"`
+	CapturePolicy     TerminalSessionCapturePolicy     `json:"capturePolicy"`
+	CreatedAt         time.Time                        `json:"createdAt"`
+	DetachedAt        *time.Time                       `json:"detachedAt,omitempty"`
+	DisplayName       string                           `json:"displayName"`
+	EnvironmentId     *string                          `json:"environmentId,omitempty"`
+	ErrorCode         *string                          `json:"errorCode,omitempty"`
+	ExitCode          *int                             `json:"exitCode,omitempty"`
+	FinishedAt        *time.Time                       `json:"finishedAt,omitempty"`
+	Id                string                           `json:"id"`
+	Kind              TerminalSessionKind              `json:"kind"`
+	LastAttachedAt    *time.Time                       `json:"lastAttachedAt,omitempty"`
+	LastOutputAt      *time.Time                       `json:"lastOutputAt,omitempty"`
+	OutputBytes       int64                            `json:"outputBytes"`
+	OutputTruncated   bool                             `json:"outputTruncated"`
+	Owner             TerminalSessionOwner             `json:"owner"`
+	PersistencePolicy TerminalSessionPersistencePolicy `json:"persistencePolicy"`
+	ProjectId         string                           `json:"projectId"`
+	Provider          *string                          `json:"provider,omitempty"`
+	ServiceId         *string                          `json:"serviceId,omitempty"`
+	Status            TerminalSessionStatus            `json:"status"`
+	WorkingDirectory  string                           `json:"workingDirectory"`
+}
+
+// TerminalSessionCapturePolicy defines model for TerminalSession.CapturePolicy.
+type TerminalSessionCapturePolicy string
+
+// TerminalSessionPersistencePolicy defines model for TerminalSession.PersistencePolicy.
+type TerminalSessionPersistencePolicy string
+
+// TerminalSessionCreate defines model for TerminalSessionCreate.
+type TerminalSessionCreate struct {
+	ActionId       *string                              `json:"actionId,omitempty"`
+	Columns        int                                  `json:"columns"`
+	DatabaseClient *TerminalSessionCreateDatabaseClient `json:"databaseClient,omitempty"`
+	EnvironmentId  *string                              `json:"environmentId,omitempty"`
+	Kind           TerminalSessionKind                  `json:"kind"`
+	ProjectId      string                               `json:"projectId"`
+	Provider       *TerminalSessionCreateProvider       `json:"provider,omitempty"`
+	Rows           int                                  `json:"rows"`
+	ServiceId      *string                              `json:"serviceId,omitempty"`
+	Shell          *TerminalSessionCreateShell          `json:"shell,omitempty"`
+}
+
+// TerminalSessionCreateDatabaseClient defines model for TerminalSessionCreate.DatabaseClient.
+type TerminalSessionCreateDatabaseClient string
+
+// TerminalSessionCreateProvider defines model for TerminalSessionCreate.Provider.
+type TerminalSessionCreateProvider string
+
+// TerminalSessionCreateShell defines model for TerminalSessionCreate.Shell.
+type TerminalSessionCreateShell string
+
+// TerminalSessionKind defines model for TerminalSessionKind.
+type TerminalSessionKind string
+
+// TerminalSessionOwner defines model for TerminalSessionOwner.
+type TerminalSessionOwner struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// TerminalSessionStatus defines model for TerminalSessionStatus.
+type TerminalSessionStatus string
+
 // Workspace defines model for Workspace.
 type Workspace struct {
 	CreatedAt    time.Time              `json:"createdAt"`
@@ -2211,11 +2464,24 @@ type ProjectId = string
 // ProposalId defines model for ProposalId.
 type ProposalId = string
 
+// TerminalSessionId defines model for TerminalSessionId.
+type TerminalSessionId = string
+
 // WorkspaceId defines model for WorkspaceId.
 type WorkspaceId = string
 
 // Problem defines model for Problem.
 type Problem = ProblemDetails
+
+// ListAgentSessionsParams defines parameters for ListAgentSessions.
+type ListAgentSessionsParams struct {
+	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
+}
+
+// CreateAgentSessionParams defines parameters for CreateAgentSession.
+type CreateAgentSessionParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
 
 // UpdateEnvironmentParams defines parameters for UpdateEnvironment.
 type UpdateEnvironmentParams struct {
@@ -2330,6 +2596,21 @@ type GetCleanupPreviewParams struct {
 	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
 }
 
+// ListTerminalSessionsParams defines parameters for ListTerminalSessions.
+type ListTerminalSessionsParams struct {
+	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
+}
+
+// CreateTerminalSessionParams defines parameters for CreateTerminalSession.
+type CreateTerminalSessionParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// TerminateTerminalSessionParams defines parameters for TerminateTerminalSession.
+type TerminateTerminalSessionParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // CreateWorkspaceParams defines parameters for CreateWorkspace.
 type CreateWorkspaceParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
@@ -2349,6 +2630,9 @@ type UpdateWorkspaceParams struct {
 type CreateWorkspaceOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
+
+// CreateAgentSessionJSONRequestBody defines body for CreateAgentSession for application/json ContentType.
+type CreateAgentSessionJSONRequestBody = AgentSessionCreate
 
 // CreateBrowserSessionJSONRequestBody defines body for CreateBrowserSession for application/json ContentType.
 type CreateBrowserSessionJSONRequestBody = CreateBrowserSessionRequest
@@ -2376,6 +2660,9 @@ type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
 
 // PlanProjectRuntimeJSONRequestBody defines body for PlanProjectRuntime for application/json ContentType.
 type PlanProjectRuntimeJSONRequestBody = RuntimeActionRequest
+
+// CreateTerminalSessionJSONRequestBody defines body for CreateTerminalSession for application/json ContentType.
+type CreateTerminalSessionJSONRequestBody = TerminalSessionCreate
 
 // CreateWorkspaceJSONRequestBody defines body for CreateWorkspace for application/json ContentType.
 type CreateWorkspaceJSONRequestBody = WorkspaceDefinition
@@ -2459,6 +2746,14 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ListAgentSessions request
+	ListAgentSessions(ctx context.Context, params *ListAgentSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAgentSessionWithBody request with any body
+	CreateAgentSessionWithBody(ctx context.Context, params *CreateAgentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAgentSession(ctx context.Context, params *CreateAgentSessionParams, body CreateAgentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAIProposalProviders request
 	ListAIProposalProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2606,6 +2901,20 @@ type ClientInterface interface {
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListTerminalSessions request
+	ListTerminalSessions(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTerminalSessionWithBody request with any body
+	CreateTerminalSessionWithBody(ctx context.Context, params *CreateTerminalSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateTerminalSession(ctx context.Context, params *CreateTerminalSessionParams, body CreateTerminalSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetTerminalSession request
+	GetTerminalSession(ctx context.Context, terminalSessionId TerminalSessionId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TerminateTerminalSession request
+	TerminateTerminalSession(ctx context.Context, terminalSessionId TerminalSessionId, params *TerminateTerminalSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListWorkspaces request
 	ListWorkspaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2629,6 +2938,42 @@ type ClientInterface interface {
 	CreateWorkspaceOperationWithBody(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateWorkspaceOperation(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ListAgentSessions(ctx context.Context, params *ListAgentSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAgentSessionsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAgentSessionWithBody(ctx context.Context, params *CreateAgentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAgentSessionRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAgentSession(ctx context.Context, params *CreateAgentSessionParams, body CreateAgentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAgentSessionRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ListAIProposalProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -3255,6 +3600,66 @@ func (c *Client) GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListTerminalSessions(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTerminalSessionsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateTerminalSessionWithBody(ctx context.Context, params *CreateTerminalSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTerminalSessionRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateTerminalSession(ctx context.Context, params *CreateTerminalSessionParams, body CreateTerminalSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTerminalSessionRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetTerminalSession(ctx context.Context, terminalSessionId TerminalSessionId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetTerminalSessionRequest(c.Server, terminalSessionId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TerminateTerminalSession(ctx context.Context, terminalSessionId TerminalSessionId, params *TerminateTerminalSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTerminateTerminalSessionRequest(c.Server, terminalSessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListWorkspaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListWorkspacesRequest(c.Server)
 	if err != nil {
@@ -3361,6 +3766,113 @@ func (c *Client) CreateWorkspaceOperation(ctx context.Context, workspaceId Works
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewListAgentSessionsRequest generates requests for ListAgentSessions
+func NewListAgentSessionsRequest(server string, params *ListAgentSessionsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/agents/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", *params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAgentSessionRequest calls the generic CreateAgentSession builder with application/json body
+func NewCreateAgentSessionRequest(server string, params *CreateAgentSessionParams, body CreateAgentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAgentSessionRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateAgentSessionRequestWithBody generates requests for CreateAgentSession with any type of body
+func NewCreateAgentSessionRequestWithBody(server string, params *CreateAgentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/agents/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
 }
 
 // NewListAIProposalProvidersRequest generates requests for ListAIProposalProviders
@@ -5321,6 +5833,194 @@ func NewGetSystemRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewListTerminalSessionsRequest generates requests for ListTerminalSessions
+func NewListTerminalSessionsRequest(server string, params *ListTerminalSessionsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/terminal-sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", *params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTerminalSessionRequest calls the generic CreateTerminalSession builder with application/json body
+func NewCreateTerminalSessionRequest(server string, params *CreateTerminalSessionParams, body CreateTerminalSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTerminalSessionRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateTerminalSessionRequestWithBody generates requests for CreateTerminalSession with any type of body
+func NewCreateTerminalSessionRequestWithBody(server string, params *CreateTerminalSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/terminal-sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetTerminalSessionRequest generates requests for GetTerminalSession
+func NewGetTerminalSessionRequest(server string, terminalSessionId TerminalSessionId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "terminalSessionId", terminalSessionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/terminal-sessions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewTerminateTerminalSessionRequest generates requests for TerminateTerminalSession
+func NewTerminateTerminalSessionRequest(server string, terminalSessionId TerminalSessionId, params *TerminateTerminalSessionParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "terminalSessionId", terminalSessionId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/terminal-sessions/%s/terminate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewListWorkspacesRequest generates requests for ListWorkspaces
 func NewListWorkspacesRequest(server string) (*http.Request, error) {
 	var err error
@@ -5645,6 +6345,14 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ListAgentSessionsWithResponse request
+	ListAgentSessionsWithResponse(ctx context.Context, params *ListAgentSessionsParams, reqEditors ...RequestEditorFn) (*ListAgentSessionsResponse, error)
+
+	// CreateAgentSessionWithBodyWithResponse request with any body
+	CreateAgentSessionWithBodyWithResponse(ctx context.Context, params *CreateAgentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAgentSessionResponse, error)
+
+	CreateAgentSessionWithResponse(ctx context.Context, params *CreateAgentSessionParams, body CreateAgentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAgentSessionResponse, error)
+
 	// ListAIProposalProvidersWithResponse request
 	ListAIProposalProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAIProposalProvidersResponse, error)
 
@@ -5792,6 +6500,20 @@ type ClientWithResponsesInterface interface {
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
 
+	// ListTerminalSessionsWithResponse request
+	ListTerminalSessionsWithResponse(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*ListTerminalSessionsResponse, error)
+
+	// CreateTerminalSessionWithBodyWithResponse request with any body
+	CreateTerminalSessionWithBodyWithResponse(ctx context.Context, params *CreateTerminalSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTerminalSessionResponse, error)
+
+	CreateTerminalSessionWithResponse(ctx context.Context, params *CreateTerminalSessionParams, body CreateTerminalSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTerminalSessionResponse, error)
+
+	// GetTerminalSessionWithResponse request
+	GetTerminalSessionWithResponse(ctx context.Context, terminalSessionId TerminalSessionId, reqEditors ...RequestEditorFn) (*GetTerminalSessionResponse, error)
+
+	// TerminateTerminalSessionWithResponse request
+	TerminateTerminalSessionWithResponse(ctx context.Context, terminalSessionId TerminalSessionId, params *TerminateTerminalSessionParams, reqEditors ...RequestEditorFn) (*TerminateTerminalSessionResponse, error)
+
 	// ListWorkspacesWithResponse request
 	ListWorkspacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListWorkspacesResponse, error)
 
@@ -5815,6 +6537,68 @@ type ClientWithResponsesInterface interface {
 	CreateWorkspaceOperationWithBodyWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error)
 
 	CreateWorkspaceOperationWithResponse(ctx context.Context, workspaceId WorkspaceId, params *CreateWorkspaceOperationParams, body CreateWorkspaceOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWorkspaceOperationResponse, error)
+}
+
+type ListAgentSessionsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAgentSessionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAgentSessionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListAgentSessionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateAgentSessionResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAgentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAgentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateAgentSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
 }
 
 type ListAIProposalProvidersResponse struct {
@@ -7148,6 +7932,130 @@ func (r GetSystemResponse) ContentType() string {
 	return ""
 }
 
+type ListTerminalSessionsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTerminalSessionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTerminalSessionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTerminalSessionsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateTerminalSessionResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON201                       *TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTerminalSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTerminalSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateTerminalSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetTerminalSessionResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetTerminalSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetTerminalSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetTerminalSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type TerminateTerminalSessionResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON202                       *TerminalSession
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r TerminateTerminalSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TerminateTerminalSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r TerminateTerminalSessionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListWorkspacesResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -7331,6 +8239,32 @@ func (r CreateWorkspaceOperationResponse) ContentType() string {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
+}
+
+// ListAgentSessionsWithResponse request returning *ListAgentSessionsResponse
+func (c *ClientWithResponses) ListAgentSessionsWithResponse(ctx context.Context, params *ListAgentSessionsParams, reqEditors ...RequestEditorFn) (*ListAgentSessionsResponse, error) {
+	rsp, err := c.ListAgentSessions(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAgentSessionsResponse(rsp)
+}
+
+// CreateAgentSessionWithBodyWithResponse request with arbitrary body returning *CreateAgentSessionResponse
+func (c *ClientWithResponses) CreateAgentSessionWithBodyWithResponse(ctx context.Context, params *CreateAgentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAgentSessionResponse, error) {
+	rsp, err := c.CreateAgentSessionWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAgentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAgentSessionWithResponse(ctx context.Context, params *CreateAgentSessionParams, body CreateAgentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAgentSessionResponse, error) {
+	rsp, err := c.CreateAgentSession(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAgentSessionResponse(rsp)
 }
 
 // ListAIProposalProvidersWithResponse request returning *ListAIProposalProvidersResponse
@@ -7792,6 +8726,50 @@ func (c *ClientWithResponses) GetSystemWithResponse(ctx context.Context, reqEdit
 	return ParseGetSystemResponse(rsp)
 }
 
+// ListTerminalSessionsWithResponse request returning *ListTerminalSessionsResponse
+func (c *ClientWithResponses) ListTerminalSessionsWithResponse(ctx context.Context, params *ListTerminalSessionsParams, reqEditors ...RequestEditorFn) (*ListTerminalSessionsResponse, error) {
+	rsp, err := c.ListTerminalSessions(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTerminalSessionsResponse(rsp)
+}
+
+// CreateTerminalSessionWithBodyWithResponse request with arbitrary body returning *CreateTerminalSessionResponse
+func (c *ClientWithResponses) CreateTerminalSessionWithBodyWithResponse(ctx context.Context, params *CreateTerminalSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTerminalSessionResponse, error) {
+	rsp, err := c.CreateTerminalSessionWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTerminalSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateTerminalSessionWithResponse(ctx context.Context, params *CreateTerminalSessionParams, body CreateTerminalSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTerminalSessionResponse, error) {
+	rsp, err := c.CreateTerminalSession(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTerminalSessionResponse(rsp)
+}
+
+// GetTerminalSessionWithResponse request returning *GetTerminalSessionResponse
+func (c *ClientWithResponses) GetTerminalSessionWithResponse(ctx context.Context, terminalSessionId TerminalSessionId, reqEditors ...RequestEditorFn) (*GetTerminalSessionResponse, error) {
+	rsp, err := c.GetTerminalSession(ctx, terminalSessionId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetTerminalSessionResponse(rsp)
+}
+
+// TerminateTerminalSessionWithResponse request returning *TerminateTerminalSessionResponse
+func (c *ClientWithResponses) TerminateTerminalSessionWithResponse(ctx context.Context, terminalSessionId TerminalSessionId, params *TerminateTerminalSessionParams, reqEditors ...RequestEditorFn) (*TerminateTerminalSessionResponse, error) {
+	rsp, err := c.TerminateTerminalSession(ctx, terminalSessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTerminateTerminalSessionResponse(rsp)
+}
+
 // ListWorkspacesWithResponse request returning *ListWorkspacesResponse
 func (c *ClientWithResponses) ListWorkspacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListWorkspacesResponse, error) {
 	rsp, err := c.ListWorkspaces(ctx, reqEditors...)
@@ -7868,6 +8846,72 @@ func (c *ClientWithResponses) CreateWorkspaceOperationWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseCreateWorkspaceOperationResponse(rsp)
+}
+
+// ParseListAgentSessionsResponse parses an HTTP response from a ListAgentSessionsWithResponse call
+func ParseListAgentSessionsResponse(rsp *http.Response) (*ListAgentSessionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAgentSessionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAgentSessionResponse parses an HTTP response from a CreateAgentSessionWithResponse call
+func ParseCreateAgentSessionResponse(rsp *http.Response) (*CreateAgentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAgentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseListAIProposalProvidersResponse parses an HTTP response from a ListAIProposalProvidersWithResponse call
@@ -9275,6 +10319,138 @@ func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	return response, nil
 }
 
+// ParseListTerminalSessionsResponse parses an HTTP response from a ListTerminalSessionsWithResponse call
+func ParseListTerminalSessionsResponse(rsp *http.Response) (*ListTerminalSessionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTerminalSessionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTerminalSessionResponse parses an HTTP response from a CreateTerminalSessionWithResponse call
+func ParseCreateTerminalSessionResponse(rsp *http.Response) (*CreateTerminalSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTerminalSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetTerminalSessionResponse parses an HTTP response from a GetTerminalSessionWithResponse call
+func ParseGetTerminalSessionResponse(rsp *http.Response) (*GetTerminalSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetTerminalSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTerminateTerminalSessionResponse parses an HTTP response from a TerminateTerminalSessionWithResponse call
+func ParseTerminateTerminalSessionResponse(rsp *http.Response) (*TerminateTerminalSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TerminateTerminalSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest TerminalSession
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListWorkspacesResponse parses an HTTP response from a ListWorkspacesWithResponse call
 func ParseListWorkspacesResponse(rsp *http.Response) (*ListWorkspacesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -9468,6 +10644,12 @@ func ParseCreateWorkspaceOperationResponse(rsp *http.Response) (*CreateWorkspace
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// List coding-agent PTY sessions and public output metadata
+	// (GET /agents/sessions)
+	ListAgentSessions(w http.ResponseWriter, r *http.Request, params ListAgentSessionsParams)
+	// Start Codex or Claude Code as an interactive PTY process
+	// (POST /agents/sessions)
+	CreateAgentSession(w http.ResponseWriter, r *http.Request, params CreateAgentSessionParams)
 	// List configured assisted-onboarding providers and current availability
 	// (GET /ai-providers)
 	ListAIProposalProviders(w http.ResponseWriter, r *http.Request)
@@ -9597,6 +10779,18 @@ type ServerInterface interface {
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
+	// List terminal sessions owned by the current local principal
+	// (GET /terminal-sessions)
+	ListTerminalSessions(w http.ResponseWriter, r *http.Request, params ListTerminalSessionsParams)
+	// Explicitly create a typed interactive PTY session
+	// (POST /terminal-sessions)
+	CreateTerminalSession(w http.ResponseWriter, r *http.Request, params CreateTerminalSessionParams)
+	// Read owner-authorized terminal session metadata
+	// (GET /terminal-sessions/{terminalSessionId})
+	GetTerminalSession(w http.ResponseWriter, r *http.Request, terminalSessionId TerminalSessionId)
+	// Explicitly terminate an owned PTY process group
+	// (POST /terminal-sessions/{terminalSessionId}/terminate)
+	TerminateTerminalSession(w http.ResponseWriter, r *http.Request, terminalSessionId TerminalSessionId, params TerminateTerminalSessionParams)
 	// List durable multi-project workspaces
 	// (GET /workspaces)
 	ListWorkspaces(w http.ResponseWriter, r *http.Request)
@@ -9620,6 +10814,18 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// List coding-agent PTY sessions and public output metadata
+// (GET /agents/sessions)
+func (_ Unimplemented) ListAgentSessions(w http.ResponseWriter, r *http.Request, params ListAgentSessionsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Start Codex or Claude Code as an interactive PTY process
+// (POST /agents/sessions)
+func (_ Unimplemented) CreateAgentSession(w http.ResponseWriter, r *http.Request, params CreateAgentSessionParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // List configured assisted-onboarding providers and current availability
 // (GET /ai-providers)
@@ -9879,6 +11085,30 @@ func (_ Unimplemented) GetSystem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// List terminal sessions owned by the current local principal
+// (GET /terminal-sessions)
+func (_ Unimplemented) ListTerminalSessions(w http.ResponseWriter, r *http.Request, params ListTerminalSessionsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Explicitly create a typed interactive PTY session
+// (POST /terminal-sessions)
+func (_ Unimplemented) CreateTerminalSession(w http.ResponseWriter, r *http.Request, params CreateTerminalSessionParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read owner-authorized terminal session metadata
+// (GET /terminal-sessions/{terminalSessionId})
+func (_ Unimplemented) GetTerminalSession(w http.ResponseWriter, r *http.Request, terminalSessionId TerminalSessionId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Explicitly terminate an owned PTY process group
+// (POST /terminal-sessions/{terminalSessionId}/terminate)
+func (_ Unimplemented) TerminateTerminalSession(w http.ResponseWriter, r *http.Request, terminalSessionId TerminalSessionId, params TerminateTerminalSessionParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // List durable multi-project workspaces
 // (GET /workspaces)
 func (_ Unimplemented) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
@@ -9923,6 +11153,84 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// ListAgentSessions operation middleware
+func (siw *ServerInterfaceWrapper) ListAgentSessions(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListAgentSessionsParams
+
+	// ------------- Optional query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAgentSessions(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAgentSession operation middleware
+func (siw *ServerInterfaceWrapper) CreateAgentSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateAgentSessionParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAgentSession(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // ListAIProposalProviders operation middleware
 func (siw *ServerInterfaceWrapper) ListAIProposalProviders(w http.ResponseWriter, r *http.Request) {
@@ -11520,6 +12828,164 @@ func (siw *ServerInterfaceWrapper) GetSystem(w http.ResponseWriter, r *http.Requ
 	handler.ServeHTTP(w, r)
 }
 
+// ListTerminalSessions operation middleware
+func (siw *ServerInterfaceWrapper) ListTerminalSessions(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListTerminalSessionsParams
+
+	// ------------- Optional query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTerminalSessions(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateTerminalSession operation middleware
+func (siw *ServerInterfaceWrapper) CreateTerminalSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateTerminalSessionParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateTerminalSession(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetTerminalSession operation middleware
+func (siw *ServerInterfaceWrapper) GetTerminalSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "terminalSessionId" -------------
+	var terminalSessionId TerminalSessionId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "terminalSessionId", chi.URLParam(r, "terminalSessionId"), &terminalSessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "terminalSessionId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetTerminalSession(w, r, terminalSessionId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// TerminateTerminalSession operation middleware
+func (siw *ServerInterfaceWrapper) TerminateTerminalSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "terminalSessionId" -------------
+	var terminalSessionId TerminalSessionId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "terminalSessionId", chi.URLParam(r, "terminalSessionId"), &terminalSessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "terminalSessionId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params TerminateTerminalSessionParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.TerminateTerminalSession(w, r, terminalSessionId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListWorkspaces operation middleware
 func (siw *ServerInterfaceWrapper) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
 
@@ -11881,6 +13347,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/agents/sessions", wrapper.ListAgentSessions)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/agents/sessions", wrapper.CreateAgentSession)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/ai-providers", wrapper.ListAIProposalProviders)
 	})
 	r.Group(func(r chi.Router) {
@@ -12008,6 +13480,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/terminal-sessions", wrapper.ListTerminalSessions)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/terminal-sessions", wrapper.CreateTerminalSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/terminal-sessions/{terminalSessionId}", wrapper.GetTerminalSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/terminal-sessions/{terminalSessionId}/terminate", wrapper.TerminateTerminalSession)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/workspaces", wrapper.ListWorkspaces)
