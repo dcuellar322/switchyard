@@ -70,9 +70,9 @@ type telemetryRepositoryStub struct{ status domain.Status }
 func (r *telemetryRepositoryStub) Status(context.Context) (domain.Status, error) {
 	return r.status, nil
 }
-func (r *telemetryRepositoryStub) Configure(_ context.Context, settings domain.Settings, clear bool, _ domain.AuditEvent) error {
+func (r *telemetryRepositoryStub) Configure(_ context.Context, settings domain.Settings, clearCounters bool, _ domain.AuditEvent) error {
 	r.status.Settings = settings
-	if clear {
+	if clearCounters {
 		r.status.Counters = nil
 		r.status.LastSentAt = nil
 		r.status.LastError = ""

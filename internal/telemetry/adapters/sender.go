@@ -15,8 +15,10 @@ import (
 	"switchyard.dev/switchyard/internal/telemetry/domain"
 )
 
+// HTTPSender delivers bounded JSON over TLS 1.3 with strict timeouts.
 type HTTPSender struct{ client *http.Client }
 
+// NewHTTPSender constructs the production anonymous metrics delivery adapter.
 func NewHTTPSender() *HTTPSender {
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment, TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS13},
@@ -25,6 +27,7 @@ func NewHTTPSender() *HTTPSender {
 	return &HTTPSender{client: &http.Client{Transport: transport, Timeout: 10 * time.Second}}
 }
 
+// Send posts one bounded payload and accepts only a successful HTTP response.
 func (s *HTTPSender) Send(ctx context.Context, endpoint string, payload domain.Payload) error {
 	encoded, err := json.Marshal(payload)
 	if err != nil {

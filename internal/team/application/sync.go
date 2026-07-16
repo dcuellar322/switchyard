@@ -9,6 +9,7 @@ import (
 	"switchyard.dev/switchyard/internal/team/domain"
 )
 
+// ExportSync returns configuration-only data for caller-side encryption.
 func (s *Service) ExportSync(ctx context.Context) (domain.SyncDocument, error) {
 	publishers, err := s.repository.ListPublishers(ctx)
 	if err != nil {
@@ -27,6 +28,7 @@ func (s *Service) ExportSync(ctx context.Context) (domain.SyncDocument, error) {
 	}, nil
 }
 
+// PreviewSync verifies identities, signatures, limits, and replacements without mutation.
 func (s *Service) PreviewSync(ctx context.Context, document domain.SyncDocument) (domain.SyncPreview, error) {
 	if document.SchemaVersion != domain.SyncSchemaVersion || len(document.Publishers) > 100 || len(document.Bundles) > 1000 {
 		return domain.SyncPreview{}, errors.New("sync document is invalid or exceeds limits")
@@ -86,6 +88,7 @@ func (s *Service) PreviewSync(ctx context.Context, document domain.SyncDocument)
 	return preview, nil
 }
 
+// ImportSync atomically applies a verified configuration document after confirmation.
 func (s *Service) ImportSync(ctx context.Context, document domain.SyncDocument, confirm bool, actor Actor) (domain.SyncPreview, error) {
 	preview, err := s.PreviewSync(ctx, document)
 	if err != nil {

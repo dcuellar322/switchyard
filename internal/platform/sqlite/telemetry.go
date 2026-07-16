@@ -9,12 +9,15 @@ import (
 	"switchyard.dev/switchyard/internal/telemetry/domain"
 )
 
+// TelemetryRepository persists consent and anonymous aggregate counters.
 type TelemetryRepository struct{ database *Database }
 
+// NewTelemetryRepository constructs anonymous telemetry persistence.
 func NewTelemetryRepository(database *Database) *TelemetryRepository {
 	return &TelemetryRepository{database: database}
 }
 
+// Status returns persisted consent, counters, and delivery state.
 func (r *TelemetryRepository) Status(ctx context.Context) (domain.Status, error) {
 	var status domain.Status
 	var enabled int
@@ -55,7 +58,8 @@ func (r *TelemetryRepository) Status(ctx context.Context) (domain.Status, error)
 	return status, rows.Err()
 }
 
-func (r *TelemetryRepository) Configure(ctx context.Context, settings domain.Settings, clear bool, event domain.AuditEvent) error {
+// Configure atomically saves consent and optionally clears identifying state.
+func (r *TelemetryRepository) Configure(ctx context.Context, settings domain.Settings, clearCounters bool, event domain.AuditEvent) error {
 	tx, err := r.database.connection.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -63,10 +67,10 @@ func (r *TelemetryRepository) Configure(ctx context.Context, settings domain.Set
 	defer func() { _ = tx.Rollback() }()
 	if _, err := tx.ExecContext(ctx, `UPDATE telemetry_settings SET enabled=?, endpoint=?, installation_id=?,
         last_sent_at=CASE WHEN ?=1 THEN NULL ELSE last_sent_at END, last_error='', updated_at=? WHERE singleton=1`,
-		boolInteger(settings.Enabled), settings.Endpoint, settings.InstallationID, boolInteger(clear), formatTime(settings.UpdatedAt)); err != nil {
+		boolInteger(settings.Enabled), settings.Endpoint, settings.InstallationID, boolInteger(clearCounters), formatTime(settings.UpdatedAt)); err != nil {
 		return fmt.Errorf("configure anonymous telemetry: %w", err)
 	}
-	if clear {
+	if clearCounters {
 		if _, err := tx.ExecContext(ctx, `DELETE FROM telemetry_counters`); err != nil {
 			return err
 		}
@@ -79,6 +83,7 @@ func (r *TelemetryRepository) Configure(ctx context.Context, settings domain.Set
 	return tx.Commit()
 }
 
+// Increment updates one fixed counter only when persisted consent is active.
 func (r *TelemetryRepository) Increment(ctx context.Context, name string, now time.Time) error {
 	_, err := r.database.connection.ExecContext(ctx, `INSERT INTO telemetry_counters(name, value, updated_at)
         SELECT ?, 1, ? FROM telemetry_settings WHERE singleton=1 AND enabled=1
@@ -89,6 +94,7 @@ func (r *TelemetryRepository) Increment(ctx context.Context, name string, now ti
 	return nil
 }
 
+// RecordDelivery stores only bounded transport outcome metadata.
 func (r *TelemetryRepository) RecordDelivery(ctx context.Context, success bool, message string, now time.Time) error {
 	var lastSent any
 	if success {

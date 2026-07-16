@@ -14,10 +14,12 @@ import (
 // TeamRepository persists reviewed publisher trust and verified bundles.
 type TeamRepository struct{ database *Database }
 
+// NewTeamRepository constructs signed team configuration persistence.
 func NewTeamRepository(database *Database) *TeamRepository {
 	return &TeamRepository{database: database}
 }
 
+// TrustPublisher upserts one explicitly reviewed public signing identity.
 func (r *TeamRepository) TrustPublisher(ctx context.Context, publisher domain.Publisher) error {
 	_, err := r.database.connection.ExecContext(ctx, `INSERT INTO team_publishers(id, name, public_key, trusted_at)
         VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, public_key=excluded.public_key,
@@ -28,6 +30,7 @@ func (r *TeamRepository) TrustPublisher(ctx context.Context, publisher domain.Pu
 	return nil
 }
 
+// ListPublishers returns all trusted public signing identities.
 func (r *TeamRepository) ListPublishers(ctx context.Context) ([]domain.Publisher, error) {
 	rows, err := r.database.connection.QueryContext(ctx, `SELECT id, name, public_key, trusted_at FROM team_publishers ORDER BY name COLLATE NOCASE, id`)
 	if err != nil {
@@ -45,6 +48,7 @@ func (r *TeamRepository) ListPublishers(ctx context.Context) ([]domain.Publisher
 	return result, rows.Err()
 }
 
+// GetPublisher returns one trusted public signing identity.
 func (r *TeamRepository) GetPublisher(ctx context.Context, id string) (domain.Publisher, error) {
 	publisher, err := scanPublisher(r.database.connection.QueryRowContext(ctx, `SELECT id, name, public_key, trusted_at FROM team_publishers WHERE id = ?`, id))
 	if errors.Is(err, sql.ErrNoRows) {
@@ -53,6 +57,7 @@ func (r *TeamRepository) GetPublisher(ctx context.Context, id string) (domain.Pu
 	return publisher, err
 }
 
+// InstallBundle upserts one already verified signed bundle.
 func (r *TeamRepository) InstallBundle(ctx context.Context, bundle domain.Bundle) error {
 	if bundle.InstalledAt == nil {
 		return errors.New("verified bundle requires installation time")
@@ -78,6 +83,7 @@ func (r *TeamRepository) InstallBundle(ctx context.Context, bundle domain.Bundle
 	return nil
 }
 
+// ListBundles returns installed bundles, optionally filtered by kind.
 func (r *TeamRepository) ListBundles(ctx context.Context, kind domain.BundleKind) ([]domain.Bundle, error) {
 	query := `SELECT id, schema_version, kind, metadata_json, payload_json, signature_json, installed_at FROM team_bundles`
 	arguments := []any{}
@@ -102,6 +108,7 @@ func (r *TeamRepository) ListBundles(ctx context.Context, kind domain.BundleKind
 	return result, rows.Err()
 }
 
+// GetBundle returns one installed verified bundle.
 func (r *TeamRepository) GetBundle(ctx context.Context, id string) (domain.Bundle, error) {
 	bundle, err := scanBundle(r.database.connection.QueryRowContext(ctx, `SELECT id, schema_version, kind,
         metadata_json, payload_json, signature_json, installed_at FROM team_bundles WHERE id = ?`, id))
@@ -111,6 +118,7 @@ func (r *TeamRepository) GetBundle(ctx context.Context, id string) (domain.Bundl
 	return bundle, err
 }
 
+// ApplySync atomically merges a preverified configuration-only document.
 func (r *TeamRepository) ApplySync(ctx context.Context, document domain.SyncDocument) error {
 	tx, err := r.database.connection.BeginTx(ctx, nil)
 	if err != nil {
@@ -143,6 +151,7 @@ func (r *TeamRepository) ApplySync(ctx context.Context, document domain.SyncDocu
 	return tx.Commit()
 }
 
+// RecordAudit durably records publisher trust and bundle mutations.
 func (r *TeamRepository) RecordAudit(ctx context.Context, event domain.AuditEvent) error {
 	_, err := r.database.connection.ExecContext(ctx, `INSERT INTO team_audit_events
         (event_type, actor_type, actor_id, subject_id, detail, occurred_at) VALUES (?, ?, ?, ?, ?, ?)`,

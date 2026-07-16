@@ -9,6 +9,7 @@ import (
 	"switchyard.dev/switchyard/internal/team/domain"
 )
 
+// RenderTemplate resolves declared variables and validates the complete manifest.
 func (s *Service) RenderTemplate(ctx context.Context, bundleID string, values map[string]string) (json.RawMessage, error) {
 	bundle, err := s.repository.GetBundle(ctx, bundleID)
 	if err != nil {

@@ -17,10 +17,14 @@ import (
 )
 
 var (
+	// ErrInvalidSettings indicates that the requested endpoint is not explicit HTTPS.
 	ErrInvalidSettings = errors.New("telemetry settings are invalid")
-	ErrConfirmation    = errors.New("enabling telemetry requires explicit confirmation")
-	ErrDisabled        = errors.New("anonymous telemetry is disabled")
-	ErrPolicyDenied    = errors.New("enterprise policy disables telemetry")
+	// ErrConfirmation indicates that enabling delivery was not explicitly confirmed.
+	ErrConfirmation = errors.New("enabling telemetry requires explicit confirmation")
+	// ErrDisabled indicates that delivery was requested without active consent.
+	ErrDisabled = errors.New("anonymous telemetry is disabled")
+	// ErrPolicyDenied indicates that signed policy prohibits telemetry opt-in.
+	ErrPolicyDenied = errors.New("enterprise policy disables telemetry")
 )
 
 var allowedCounters = []string{
@@ -28,6 +32,7 @@ var allowedCounters = []string{
 	"plugin.operation", "diagnostic.operation", "ai.operation", "remote.operation",
 }
 
+// Repository persists consent, fixed counters, delivery state, and audit.
 type Repository interface {
 	Status(context.Context) (domain.Status, error)
 	Configure(context.Context, domain.Settings, bool, domain.AuditEvent) error
@@ -35,17 +40,23 @@ type Repository interface {
 	RecordDelivery(context.Context, bool, string, time.Time) error
 }
 
+// Sender delivers one bounded payload to the explicitly configured endpoint.
 type Sender interface {
 	Send(context.Context, string, domain.Payload) error
 }
 
+// Policy may restrict whether a local user can opt in to telemetry.
 type Policy interface {
 	EffectiveTelemetryAllowed(context.Context) (bool, error)
 }
 
+// Build supplies the public version included in the exact payload preview.
 type Build struct{ Version string }
+
+// Actor identifies the authenticated requester recorded in consent audit.
 type Actor struct{ Type, ID string }
 
+// Service owns telemetry consent, anonymous aggregation, preview, and delivery.
 type Service struct {
 	repository Repository
 	sender     Sender
@@ -54,6 +65,7 @@ type Service struct {
 	now        func() time.Time
 }
 
+// NewService constructs an opt-in telemetry boundary with no default endpoint.
 func NewService(repository Repository, sender Sender, build Build, policies ...Policy) (*Service, error) {
 	if repository == nil || sender == nil || build.Version == "" {
 		return nil, errors.New("telemetry dependencies and build are required")
@@ -65,6 +77,7 @@ func NewService(repository Repository, sender Sender, build Build, policies ...P
 	return service, nil
 }
 
+// Status returns consent and the exact payload that would be sent now.
 func (s *Service) Status(ctx context.Context) (domain.Status, error) {
 	status, err := s.repository.Status(ctx)
 	if err != nil {
@@ -77,6 +90,7 @@ func (s *Service) Status(ctx context.Context) (domain.Status, error) {
 	return status, nil
 }
 
+// Configure opts in after confirmation or opts out and clears all counters.
 func (s *Service) Configure(ctx context.Context, enabled bool, endpoint string, confirm bool, actor Actor) (domain.Status, error) {
 	endpoint = strings.TrimSpace(endpoint)
 	if enabled {
@@ -160,6 +174,7 @@ func (s *Service) ObserveOperation(ctx context.Context, kind string) {
 	s.Record(ctx, counter)
 }
 
+// Send delivers the exact current payload only while consent is active.
 func (s *Service) Send(ctx context.Context) (domain.Status, error) {
 	status, err := s.repository.Status(ctx)
 	if err != nil {
@@ -189,6 +204,7 @@ func (s *Service) payload(status domain.Status) domain.Payload {
 	}
 }
 
+// Run periodically attempts delivery; disabled telemetry remains a no-op.
 func (s *Service) Run(ctx context.Context, interval time.Duration) {
 	if interval < time.Hour {
 		interval = 24 * time.Hour

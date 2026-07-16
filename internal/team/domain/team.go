@@ -8,20 +8,29 @@ import (
 )
 
 const (
+	// BundleSchemaVersion identifies canonical signed shared configuration.
 	BundleSchemaVersion = "switchyard.bundle/v1"
-	SyncSchemaVersion   = "switchyard.sync/v1"
-	SignatureAlgorithm  = "Ed25519"
+	// SyncSchemaVersion identifies configuration-only encrypted sync documents.
+	SyncSchemaVersion = "switchyard.sync/v1"
+	// SignatureAlgorithm is the only bundle signature algorithm accepted by v1.
+	SignatureAlgorithm = "Ed25519"
 )
 
+// BundleKind identifies a validated portable payload contract.
 type BundleKind string
 
 const (
-	KindProjectTemplate  BundleKind = "project-template"
-	KindPolicyPack       BundleKind = "policy-pack"
-	KindPluginRegistry   BundleKind = "plugin-registry"
+	// KindProjectTemplate contains a portable parameterized project manifest.
+	KindProjectTemplate BundleKind = "project-template"
+	// KindPolicyPack contains restrictive optional-feature allowlists.
+	KindPolicyPack BundleKind = "policy-pack"
+	// KindPluginRegistry contains curated signed plugin metadata only.
+	KindPluginRegistry BundleKind = "plugin-registry"
+	// KindEnterpriseConfig contains restrictive policy and publisher requirements.
 	KindEnterpriseConfig BundleKind = "enterprise-config"
 )
 
+// KnownBundleKinds is the complete signed bundle vocabulary.
 var KnownBundleKinds = []BundleKind{KindProjectTemplate, KindPolicyPack, KindPluginRegistry, KindEnterpriseConfig}
 
 // BundleMetadata is publisher-controlled portable identity.
@@ -34,6 +43,7 @@ type BundleMetadata struct {
 	ExpiresAt   *time.Time `json:"expiresAt,omitempty"`
 }
 
+// Signature records the publisher key, algorithm, and canonical-envelope signature.
 type Signature struct {
 	KeyID     string `json:"keyId"`
 	Algorithm string `json:"algorithm"`
@@ -59,6 +69,7 @@ type Publisher struct {
 	TrustedAt time.Time `json:"trustedAt"`
 }
 
+// TemplateVariable defines one reviewed project-template substitution.
 type TemplateVariable struct {
 	ID          string `json:"id"`
 	Label       string `json:"label"`
@@ -67,6 +78,7 @@ type TemplateVariable struct {
 	Default     string `json:"default,omitempty"`
 }
 
+// ProjectTemplate contains a portable manifest and bounded variable catalog.
 type ProjectTemplate struct {
 	Manifest  json.RawMessage    `json:"manifest"`
 	Variables []TemplateVariable `json:"variables"`
@@ -81,12 +93,14 @@ type PolicyPack struct {
 	TelemetryAllowed          bool     `json:"telemetryAllowed"`
 }
 
+// EnterpriseConfig combines restrictive policy with publisher requirements.
 type EnterpriseConfig struct {
 	Policy                     PolicyPack `json:"policy"`
 	RequiredPublisherIDs       []string   `json:"requiredPublisherIds"`
 	RequireSignedConfiguration bool       `json:"requireSignedConfiguration"`
 }
 
+// RegistryEntry is signed plugin metadata and never installation authority.
 type RegistryEntry struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
@@ -100,10 +114,12 @@ type RegistryEntry struct {
 	Documentation string   `json:"documentation,omitempty"`
 }
 
+// PluginRegistry is a bounded collection of curated signed metadata.
 type PluginRegistry struct {
 	Entries []RegistryEntry `json:"entries"`
 }
 
+// EffectivePolicy is the restrictive intersection of installed policy bundles.
 type EffectivePolicy struct {
 	SourceBundleIDs            []string `json:"sourceBundleIds"`
 	AllowedRemoteCapabilities  []string `json:"allowedRemoteCapabilities"`
@@ -122,6 +138,7 @@ type SyncDocument struct {
 	ExportedAt    time.Time   `json:"exportedAt"`
 }
 
+// SyncPreview lists verified import effects and replacement warnings.
 type SyncPreview struct {
 	PublisherCount int      `json:"publisherCount"`
 	BundleCount    int      `json:"bundleCount"`
@@ -129,6 +146,7 @@ type SyncPreview struct {
 	Warnings       []string `json:"warnings"`
 }
 
+// AuditEvent records publisher trust and signed configuration mutations.
 type AuditEvent struct {
 	Type, ActorType, ActorID, SubjectID, Detail string
 	OccurredAt                                  time.Time

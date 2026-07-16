@@ -11,6 +11,7 @@ import (
 // ManifestValidator validates a fully rendered v1 project declaration.
 type ManifestValidator struct{}
 
+// ValidateManifestJSON decodes and validates the rendered stable manifest.
 func (ManifestValidator) ValidateManifestJSON(document []byte) error {
 	var manifest manifestDomain.Manifest
 	if err := json.Unmarshal(document, &manifest); err != nil {

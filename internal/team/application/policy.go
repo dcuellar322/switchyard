@@ -9,6 +9,7 @@ import (
 	"switchyard.dev/switchyard/internal/team/domain"
 )
 
+// Registry returns signed plugin metadata allowed by effective policy.
 func (s *Service) Registry(ctx context.Context) ([]domain.RegistryEntry, error) {
 	policy, err := s.EffectivePolicy(ctx)
 	if err != nil {
@@ -45,6 +46,7 @@ func (s *Service) Registry(ctx context.Context) ([]domain.RegistryEntry, error) 
 	return result, nil
 }
 
+// EffectivePolicy intersects every installed policy and enterprise bundle.
 func (s *Service) EffectivePolicy(ctx context.Context) (domain.EffectivePolicy, error) {
 	result := domain.EffectivePolicy{
 		AllowedRemoteCapabilities: []string{"inventory.read", "project.operate", "environment.manage"},
@@ -92,6 +94,7 @@ func (s *Service) bundlePolicy(ctx context.Context, bundle domain.Bundle) (domai
 	return enterprise.Policy, enterprise.RequireSignedConfiguration, nil
 }
 
+// AuthorizeRemote enforces signed policy as an additional fleet restriction.
 func (s *Service) AuthorizeRemote(ctx context.Context, capability, action string) error {
 	policy, err := s.EffectivePolicy(ctx)
 	if err != nil {
@@ -103,6 +106,7 @@ func (s *Service) AuthorizeRemote(ctx context.Context, capability, action string
 	return nil
 }
 
+// EffectiveTelemetryAllowed reports whether policy permits a user to opt in.
 func (s *Service) EffectiveTelemetryAllowed(ctx context.Context) (bool, error) {
 	policy, err := s.EffectivePolicy(ctx)
 	return policy.TelemetryAllowed, err

@@ -91,15 +91,16 @@ func (i *LocalInventory) Inventory(ctx context.Context) ([]domain.Project, []dom
 
 func observationHealth(state runtimeDomain.ProjectState) (string, bool) {
 	switch state {
+	case runtimeDomain.StateUnknown, runtimeDomain.StateStarting, runtimeDomain.StateStopping:
+		return "unknown", false
 	case runtimeDomain.StateRunning, runtimeDomain.StateRunningExternal:
 		return "healthy", false
 	case runtimeDomain.StateDegraded, runtimeDomain.StateFailed, runtimeDomain.StatePartiallyRunning:
 		return "degraded", true
 	case runtimeDomain.StateStopped, runtimeDomain.StatePaused:
 		return "inactive", false
-	default:
-		return "unknown", false
 	}
+	return "unknown", false
 }
 
 type operationSubmitter interface {

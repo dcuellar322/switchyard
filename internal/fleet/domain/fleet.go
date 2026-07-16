@@ -8,29 +8,41 @@ import (
 	"time"
 )
 
+// ProtocolVersion is the stable narrow peer-agent contract identifier.
 const ProtocolVersion = "switchyard.remote/v1"
 
+// Capability is one separately grantable remote-agent permission.
 type Capability string
 
 const (
-	CapabilityInventoryRead     Capability = "inventory.read"
-	CapabilityProjectOperate    Capability = "project.operate"
+	// CapabilityInventoryRead permits bounded identity and inventory reads.
+	CapabilityInventoryRead Capability = "inventory.read"
+	// CapabilityProjectOperate permits typed project lifecycle requests.
+	CapabilityProjectOperate Capability = "project.operate"
+	// CapabilityEnvironmentManage permits typed registered-environment lifecycle requests.
 	CapabilityEnvironmentManage Capability = "environment.manage"
 )
 
+// KnownCapabilities is the complete v1 remote permission vocabulary.
 var KnownCapabilities = []Capability{
 	CapabilityInventoryRead,
 	CapabilityProjectOperate,
 	CapabilityEnvironmentManage,
 }
 
+// MachineState describes the controller's latest bounded peer observation.
 type MachineState string
 
 const (
-	MachinePending  MachineState = "pending"
-	MachineOnline   MachineState = "online"
+	// MachinePending has not completed its first authenticated probe.
+	MachinePending MachineState = "pending"
+	// MachineOnline completed its latest authenticated probe.
+	MachineOnline MachineState = "online"
+	// MachineDegraded is authenticated but incompatible or partially available.
 	MachineDegraded MachineState = "degraded"
-	MachineOffline  MachineState = "offline"
+	// MachineOffline could not complete its latest authenticated probe.
+	MachineOffline MachineState = "offline"
+	// MachineDisabled has local access explicitly disabled.
 	MachineDisabled MachineState = "disabled"
 )
 
@@ -42,6 +54,7 @@ type CredentialReferences struct {
 	ClientKey         string `json:"-"`
 }
 
+// Complete reports whether all three local mTLS credential references exist.
 func (r CredentialReferences) Complete() bool {
 	return r.CACertificate != "" && r.ClientCertificate != "" && r.ClientKey != ""
 }
@@ -68,6 +81,7 @@ type Machine struct {
 	UpdatedAt              time.Time            `json:"updatedAt"`
 }
 
+// HasGrant requires an enabled machine, a peer-declared capability, and a local grant.
 func (m Machine) HasGrant(capability Capability) bool {
 	return m.Enabled && slices.Contains(m.Capabilities, capability) && slices.Contains(m.GrantedCapabilities, capability)
 }
@@ -83,6 +97,7 @@ type Identity struct {
 	Capabilities    []Capability `json:"capabilities"`
 }
 
+// Validate enforces the complete compatible peer identity contract.
 func (i Identity) Validate() error {
 	if i.ProtocolVersion != ProtocolVersion || i.MachineID == "" || i.Name == "" || i.Version == "" || i.OS == "" || i.Architecture == "" {
 		return errors.New("remote identity is incomplete or incompatible")
@@ -95,6 +110,7 @@ func (i Identity) Validate() error {
 	return nil
 }
 
+// Project is the redacted remote project summary exposed to controllers.
 type Project struct {
 	ID          string `json:"id"`
 	Slug        string `json:"slug"`
@@ -105,6 +121,7 @@ type Project struct {
 	Degraded    bool   `json:"degraded"`
 }
 
+// Environment is the redacted remote development-environment summary.
 type Environment struct {
 	ID           string `json:"id"`
 	ProjectID    string `json:"projectId"`
@@ -123,19 +140,26 @@ type Snapshot struct {
 	ObservedAt   time.Time     `json:"observedAt"`
 }
 
+// OperationAction is the complete typed remote lifecycle vocabulary.
 type OperationAction string
 
 const (
-	ActionStart   OperationAction = "start"
-	ActionStop    OperationAction = "stop"
+	// ActionStart starts a remote project or registered environment.
+	ActionStart OperationAction = "start"
+	// ActionStop stops a remote project or registered environment.
+	ActionStop OperationAction = "stop"
+	// ActionRestart restarts a remote project or registered environment.
 	ActionRestart OperationAction = "restart"
+	// ActionRebuild rebuilds a remote project or registered environment.
 	ActionRebuild OperationAction = "rebuild"
 )
 
+// Valid reports whether the action belongs to the narrow v1 vocabulary.
 func (a OperationAction) Valid() bool {
 	return a == ActionStart || a == ActionStop || a == ActionRestart || a == ActionRebuild
 }
 
+// OperationRequest describes one confirmed idempotent remote lifecycle request.
 type OperationRequest struct {
 	RequestID     string          `json:"requestId"`
 	ProjectID     string          `json:"projectId"`
@@ -144,6 +168,7 @@ type OperationRequest struct {
 	ConfirmRisk   bool            `json:"confirmRisk"`
 }
 
+// OperationReceipt identifies the durable operation accepted by the peer.
 type OperationReceipt struct {
 	RequestID   string    `json:"requestId"`
 	OperationID string    `json:"operationId"`
@@ -151,6 +176,7 @@ type OperationReceipt struct {
 	AcceptedAt  time.Time `json:"acceptedAt"`
 }
 
+// AuditEvent records one controller-side or agent-side federation decision.
 type AuditEvent struct {
 	MachineID, Type, ActorType, ActorID, RequestID, Detail string
 	OccurredAt                                             time.Time

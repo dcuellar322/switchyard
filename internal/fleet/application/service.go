@@ -18,13 +18,19 @@ import (
 )
 
 var (
-	ErrNotFound           = errors.New("remote machine not found")
-	ErrInvalidMachine     = errors.New("remote machine configuration is invalid")
-	ErrPermissionDenied   = errors.New("remote capability is not granted")
+	// ErrNotFound indicates that no local machine registration has the requested ID.
+	ErrNotFound = errors.New("remote machine not found")
+	// ErrInvalidMachine indicates malformed identity, endpoint, credentials, or grants.
+	ErrInvalidMachine = errors.New("remote machine configuration is invalid")
+	// ErrPermissionDenied indicates that a peer, local grant, or policy denied access.
+	ErrPermissionDenied = errors.New("remote capability is not granted")
+	// ErrConfirmationNeeded indicates that a remote mutation was not confirmed.
 	ErrConfirmationNeeded = errors.New("remote mutation requires explicit confirmation")
-	ErrPeerIdentity       = errors.New("remote peer identity changed")
+	// ErrPeerIdentity indicates that an authenticated peer no longer matches registration.
+	ErrPeerIdentity = errors.New("remote peer identity changed")
 )
 
+// Repository persists machine registrations, redacted observations, and audit.
 type Repository interface {
 	Create(context.Context, domain.Machine) error
 	List(context.Context) ([]domain.Machine, error)
@@ -35,6 +41,7 @@ type Repository interface {
 	RecordAudit(context.Context, domain.AuditEvent) error
 }
 
+// PeerClient calls the narrow mutually authenticated remote agent protocol.
 type PeerClient interface {
 	Snapshot(context.Context, domain.Machine) (domain.Snapshot, error)
 	Operate(context.Context, domain.Machine, domain.OperationRequest) (domain.OperationReceipt, error)
@@ -46,8 +53,10 @@ type Policy interface {
 	AuthorizeRemote(context.Context, string, string) error
 }
 
+// Actor identifies the authenticated requester recorded in fleet audit.
 type Actor struct{ Type, ID string }
 
+// RegisterRequest contains reviewed peer identity, credential references, and grants.
 type RegisterRequest struct {
 	Name, Endpoint, CertificateFingerprint string
 	Credentials                            domain.CredentialReferences
@@ -55,6 +64,7 @@ type RegisterRequest struct {
 	ConfirmRisk                            bool
 }
 
+// Service coordinates optional remote inventory and typed lifecycle operations.
 type Service struct {
 	repository Repository
 	peers      PeerClient
@@ -62,6 +72,7 @@ type Service struct {
 	now        func() time.Time
 }
 
+// NewService constructs the controller-side fleet application boundary.
 func NewService(repository Repository, peers PeerClient, policies ...Policy) (*Service, error) {
 	if repository == nil || peers == nil {
 		return nil, errors.New("fleet service dependencies are required")
@@ -73,6 +84,7 @@ func NewService(repository Repository, peers PeerClient, policies ...Policy) (*S
 	return service, nil
 }
 
+// Register persists reviewed mTLS identity and grants, then probes the peer.
 func (s *Service) Register(ctx context.Context, request RegisterRequest, actor Actor) (domain.Machine, error) {
 	if !request.ConfirmRisk {
 		return domain.Machine{}, ErrConfirmationNeeded
@@ -107,6 +119,7 @@ func (s *Service) Register(ctx context.Context, request RegisterRequest, actor A
 	return s.Probe(ctx, id, actor)
 }
 
+// List returns redacted local remote-machine registrations.
 func (s *Service) List(ctx context.Context) ([]domain.Machine, error) {
 	items, err := s.repository.List(ctx)
 	for index := range items {
@@ -115,12 +128,14 @@ func (s *Service) List(ctx context.Context) ([]domain.Machine, error) {
 	return items, err
 }
 
+// Get returns one redacted local remote-machine registration.
 func (s *Service) Get(ctx context.Context, id string) (domain.Machine, error) {
 	machine, err := s.repository.Get(ctx, id)
 	machine.CredentialConfigured = machine.Credentials.Complete()
 	return machine, err
 }
 
+// ConfigureAccess replaces the complete reviewed local grant set.
 func (s *Service) ConfigureAccess(ctx context.Context, id string, enabled bool, grants []domain.Capability, confirmRisk bool, actor Actor) (domain.Machine, error) {
 	if !confirmRisk {
 		return domain.Machine{}, ErrConfirmationNeeded
@@ -151,6 +166,7 @@ func (s *Service) ConfigureAccess(ctx context.Context, id string, enabled bool, 
 	return s.Get(ctx, id)
 }
 
+// Probe refreshes authenticated peer identity and bounded inventory state.
 func (s *Service) Probe(ctx context.Context, id string, actor Actor) (domain.Machine, error) {
 	machine, err := s.repository.Get(ctx, id)
 	if err != nil {
@@ -177,6 +193,7 @@ func (s *Service) Probe(ctx context.Context, id string, actor Actor) (domain.Mac
 	return s.Get(ctx, id)
 }
 
+// Snapshot reads current bounded peer inventory when inventory access is granted.
 func (s *Service) Snapshot(ctx context.Context, id string) (domain.Snapshot, error) {
 	machine, err := s.repository.Get(ctx, id)
 	if err != nil {
@@ -188,6 +205,7 @@ func (s *Service) Snapshot(ctx context.Context, id string) (domain.Snapshot, err
 	return s.peers.Snapshot(ctx, machine)
 }
 
+// Operate authorizes and submits one confirmed typed lifecycle request.
 func (s *Service) Operate(ctx context.Context, machineID string, request domain.OperationRequest, actor Actor) (domain.OperationReceipt, error) {
 	machine, err := s.repository.Get(ctx, machineID)
 	if err != nil {
@@ -229,6 +247,7 @@ func (s *Service) Operate(ctx context.Context, machineID string, request domain.
 	return receipt, callErr
 }
 
+// Remove deletes only the local registration after confirmed audit.
 func (s *Service) Remove(ctx context.Context, id string, confirmRisk bool, actor Actor) error {
 	if !confirmRisk {
 		return ErrConfirmationNeeded

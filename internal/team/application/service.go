@@ -18,15 +18,23 @@ import (
 )
 
 var (
-	ErrNotFound           = errors.New("team configuration not found")
-	ErrInvalidPublisher   = errors.New("publisher identity is invalid")
+	// ErrNotFound indicates that no publisher or bundle has the requested ID.
+	ErrNotFound = errors.New("team configuration not found")
+	// ErrInvalidPublisher indicates an incomplete or inconsistent public identity.
+	ErrInvalidPublisher = errors.New("publisher identity is invalid")
+	// ErrPublisherUntrusted indicates that a bundle signer has not been trusted.
 	ErrPublisherUntrusted = errors.New("bundle publisher is not trusted")
-	ErrInvalidBundle      = errors.New("signed configuration bundle is invalid")
-	ErrSignature          = errors.New("bundle signature verification failed")
-	ErrConfirmation       = errors.New("team configuration change requires explicit confirmation")
-	ErrPolicyDenied       = errors.New("enterprise policy denied the capability")
+	// ErrInvalidBundle indicates malformed, expired, nonportable, or unsupported data.
+	ErrInvalidBundle = errors.New("signed configuration bundle is invalid")
+	// ErrSignature indicates that canonical Ed25519 verification failed.
+	ErrSignature = errors.New("bundle signature verification failed")
+	// ErrConfirmation indicates that a trust or configuration mutation was not confirmed.
+	ErrConfirmation = errors.New("team configuration change requires explicit confirmation")
+	// ErrPolicyDenied indicates that restrictive signed policy denied a capability.
+	ErrPolicyDenied = errors.New("enterprise policy denied the capability")
 )
 
+// Repository persists explicit publisher trust, verified bundles, and audit.
 type Repository interface {
 	TrustPublisher(context.Context, domain.Publisher) error
 	ListPublishers(context.Context) ([]domain.Publisher, error)
@@ -38,18 +46,22 @@ type Repository interface {
 	RecordAudit(context.Context, domain.AuditEvent) error
 }
 
+// ManifestValidator validates a fully rendered portable project manifest.
 type ManifestValidator interface {
 	ValidateManifestJSON([]byte) error
 }
 
+// Service owns signed shared configuration verification and policy evaluation.
 type Service struct {
 	repository Repository
 	manifests  ManifestValidator
 	now        func() time.Time
 }
 
+// Actor identifies the authenticated requester recorded in team audit.
 type Actor struct{ Type, ID string }
 
+// NewService constructs the signed team configuration application boundary.
 func NewService(repository Repository, manifests ManifestValidator) (*Service, error) {
 	if repository == nil || manifests == nil {
 		return nil, errors.New("team configuration dependencies are required")
@@ -57,11 +69,13 @@ func NewService(repository Repository, manifests ManifestValidator) (*Service, e
 	return &Service{repository: repository, manifests: manifests, now: time.Now}, nil
 }
 
+// PublisherID derives the stable public identity of an Ed25519 signing key.
 func PublisherID(publicKey ed25519.PublicKey) string {
 	digest := sha256.Sum256(publicKey)
 	return "publisher-" + hex.EncodeToString(digest[:16])
 }
 
+// TrustPublisher stores one explicitly reviewed public signing identity.
 func (s *Service) TrustPublisher(ctx context.Context, name, encodedPublicKey string, confirm bool, actor Actor) (domain.Publisher, error) {
 	if !confirm {
 		return domain.Publisher{}, ErrConfirmation
@@ -84,10 +98,12 @@ func (s *Service) TrustPublisher(ctx context.Context, name, encodedPublicKey str
 	return publisher, nil
 }
 
+// Publishers lists explicitly trusted public signing identities.
 func (s *Service) Publishers(ctx context.Context) ([]domain.Publisher, error) {
 	return s.repository.ListPublishers(ctx)
 }
 
+// Install verifies and persists one confirmed bundle from a trusted publisher.
 func (s *Service) Install(ctx context.Context, bundle domain.Bundle, confirm bool, actor Actor) (domain.Bundle, error) {
 	if !confirm {
 		return domain.Bundle{}, ErrConfirmation
@@ -125,6 +141,7 @@ func (s *Service) Install(ctx context.Context, bundle domain.Bundle, confirm boo
 	return bundle, nil
 }
 
+// Bundles lists installed verified bundles, optionally filtered by kind.
 func (s *Service) Bundles(ctx context.Context, kind domain.BundleKind) ([]domain.Bundle, error) {
 	if kind != "" && !slices.Contains(domain.KnownBundleKinds, kind) {
 		return nil, ErrInvalidBundle

@@ -142,6 +142,7 @@ func validatePortablePayload(raw json.RawMessage) error {
 	return inspect(value)
 }
 
+// SignBundle validates and signs a portable canonical bundle envelope.
 func SignBundle(bundle domain.Bundle, privateKey ed25519.PrivateKey) (domain.Bundle, error) {
 	if len(privateKey) != ed25519.PrivateKeySize {
 		return domain.Bundle{}, errors.New("Ed25519 private key is invalid")
@@ -167,6 +168,7 @@ func SignBundle(bundle domain.Bundle, privateKey ed25519.PrivateKey) (domain.Bun
 	return bundle, nil
 }
 
+// CanonicalBundle returns the normalized unsigned bytes covered by Ed25519.
 func CanonicalBundle(bundle domain.Bundle) ([]byte, error) {
 	payload, err := normalizeJSON(bundle.Payload)
 	if err != nil {

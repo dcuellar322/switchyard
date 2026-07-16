@@ -11,10 +11,12 @@ import (
 	"switchyard.dev/switchyard/internal/fleet/domain"
 )
 
+// LocalInventory supplies the redacted inventory visible to remote controllers.
 type LocalInventory interface {
 	Inventory(context.Context) ([]domain.Project, []domain.Environment, error)
 }
 
+// LocalOperator submits approved peer requests through the durable operation kernel.
 type LocalOperator interface {
 	SubmitRemote(context.Context, domain.OperationRequest, string) (domain.OperationReceipt, error)
 }
@@ -26,6 +28,7 @@ type ControllerGrant struct {
 	Capabilities []domain.Capability
 }
 
+// AgentService enforces controller certificate grants for the narrow peer protocol.
 type AgentService struct {
 	identity    domain.Identity
 	inventory   LocalInventory
@@ -35,6 +38,7 @@ type AgentService struct {
 	now         func() time.Time
 }
 
+// NewAgentService constructs an agent with exact controller fingerprints and grants.
 func NewAgentService(identity domain.Identity, inventory LocalInventory, operator LocalOperator, controllers []ControllerGrant, policies ...Policy) (*AgentService, error) {
 	if err := identity.Validate(); err != nil || inventory == nil || operator == nil || len(controllers) == 0 {
 		return nil, errors.New("remote agent dependencies and identity are required")
@@ -58,6 +62,7 @@ func NewAgentService(identity domain.Identity, inventory LocalInventory, operato
 	return service, nil
 }
 
+// Identity returns the bounded peer identity to an inventory-authorized controller.
 func (s *AgentService) Identity(controller string) (domain.Identity, error) {
 	if !s.authorized(controller, domain.CapabilityInventoryRead) {
 		return domain.Identity{}, ErrPermissionDenied
@@ -65,6 +70,7 @@ func (s *AgentService) Identity(controller string) (domain.Identity, error) {
 	return s.identity, nil
 }
 
+// Snapshot returns bounded project and environment inventory to an authorized controller.
 func (s *AgentService) Snapshot(ctx context.Context, controller string) (domain.Snapshot, error) {
 	if !s.authorized(controller, domain.CapabilityInventoryRead) {
 		return domain.Snapshot{}, ErrPermissionDenied
@@ -76,6 +82,7 @@ func (s *AgentService) Snapshot(ctx context.Context, controller string) (domain.
 	return domain.Snapshot{Identity: s.identity, Projects: projects, Environments: environments, ObservedAt: s.now().UTC()}, nil
 }
 
+// Operate authorizes and submits one confirmed typed controller request.
 func (s *AgentService) Operate(ctx context.Context, controller string, request domain.OperationRequest) (domain.OperationReceipt, error) {
 	capability := domain.CapabilityProjectOperate
 	if request.EnvironmentID != "" {
@@ -103,6 +110,7 @@ func (s *AgentService) authorized(controller string, capability domain.Capabilit
 	return slices.Contains(s.controllers[fingerprint], capability)
 }
 
+// ControllerFingerprints returns the sorted exact TLS client pins for listener setup.
 func (s *AgentService) ControllerFingerprints() []string {
 	result := make([]string, 0, len(s.controllers))
 	for fingerprint := range s.controllers {
