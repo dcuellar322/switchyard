@@ -17,9 +17,14 @@ import (
 )
 
 type processUsage struct {
-	cpuPercent  float64
-	memoryBytes uint64
-	memoryLimit uint64
+	cpuPercent      float64
+	cpuAvailable    bool
+	memoryBytes     uint64
+	memoryLimit     uint64
+	memoryAvailable bool
+	diskReadBytes   uint64
+	diskWriteBytes  uint64
+	diskAvailable   bool
 }
 
 type processInspector interface {
@@ -151,10 +156,17 @@ func (gopsutilInspector) Usage(ctx context.Context, pid int32) (processUsage, er
 	cpuPercent, cpuErr := process.CPUPercentWithContext(ctx)
 	memory, memoryErr := process.MemoryInfoWithContext(ctx)
 	hostMemory, hostErr := mem.VirtualMemoryWithContext(ctx)
-	if err := errors.Join(cpuErr, memoryErr, hostErr); err != nil {
+	if err := errors.Join(cpuErr, memoryErr); err != nil {
 		return processUsage{}, err
 	}
-	return processUsage{cpuPercent: max(0, cpuPercent), memoryBytes: memory.RSS, memoryLimit: hostMemory.Total}, nil
+	usage := processUsage{cpuPercent: max(0, cpuPercent), cpuAvailable: true, memoryBytes: memory.RSS, memoryAvailable: true}
+	if hostErr == nil {
+		usage.memoryLimit = hostMemory.Total
+	}
+	if counters, ioErr := process.IOCountersWithContext(ctx); ioErr == nil {
+		usage.diskReadBytes, usage.diskWriteBytes, usage.diskAvailable = counters.ReadBytes, counters.WriteBytes, true
+	}
+	return usage, nil
 }
 
 func processFingerprint(executable string, startedAt time.Time, workingDirectory string) string {

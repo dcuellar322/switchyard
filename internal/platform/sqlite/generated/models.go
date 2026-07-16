@@ -209,6 +209,35 @@ type ProjectTag struct {
 	Tag       string `json:"tag"`
 }
 
+type ResourceMetricSample struct {
+	ID                    int64         `json:"id"`
+	ProjectID             string        `json:"project_id"`
+	ServiceID             string        `json:"service_id"`
+	SampledAt             string        `json:"sampled_at"`
+	ResolutionSeconds     int64         `json:"resolution_seconds"`
+	SampleCount           int64         `json:"sample_count"`
+	CpuPercent            float64       `json:"cpu_percent"`
+	CpuMaxPercent         float64       `json:"cpu_max_percent"`
+	CpuAvailable          int64         `json:"cpu_available"`
+	MemoryBytes           int64         `json:"memory_bytes"`
+	MemoryMaxBytes        int64         `json:"memory_max_bytes"`
+	MemoryLimit           int64         `json:"memory_limit"`
+	MemoryAvailable       int64         `json:"memory_available"`
+	NetworkRxBytes        int64         `json:"network_rx_bytes"`
+	NetworkTxBytes        int64         `json:"network_tx_bytes"`
+	NetworkAvailable      int64         `json:"network_available"`
+	DiskReadBytes         int64         `json:"disk_read_bytes"`
+	DiskWriteBytes        int64         `json:"disk_write_bytes"`
+	DiskAvailable         int64         `json:"disk_available"`
+	ProcessCount          int64         `json:"process_count"`
+	RestartCount          int64         `json:"restart_count"`
+	HealthLatencyMs       int64         `json:"health_latency_ms"`
+	HealthAvailable       int64         `json:"health_available"`
+	StorageBytes          sql.NullInt64 `json:"storage_bytes"`
+	StorageClassification string        `json:"storage_classification"`
+	Partial               int64         `json:"partial"`
+}
+
 type Run struct {
 	ID                  string         `json:"id"`
 	ProjectID           string         `json:"project_id"`

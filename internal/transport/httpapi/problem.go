@@ -9,6 +9,7 @@ import (
 	agents "switchyard.dev/switchyard/internal/agents/application"
 	catalog "switchyard.dev/switchyard/internal/catalog/application"
 	"switchyard.dev/switchyard/internal/foundation/correlation"
+	resources "switchyard.dev/switchyard/internal/observability/application"
 	operations "switchyard.dev/switchyard/internal/operations/application"
 	ports "switchyard.dev/switchyard/internal/ports/application"
 	runtime "switchyard.dev/switchyard/internal/runtime/application"
@@ -40,7 +41,7 @@ func writeProblem(w http.ResponseWriter, r *http.Request, status int, code, titl
 }
 
 func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
-	if writeAgentError(w, r, err) {
+	if writeSpecializedError(w, r, err) {
 		return
 	}
 	switch {
@@ -83,6 +84,18 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 	default:
 		writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error", "The request could not be completed.")
 	}
+}
+
+func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
+	return writeAgentError(w, r, err) || writeResourceError(w, r, err)
+}
+
+func writeResourceError(w http.ResponseWriter, r *http.Request, err error) bool {
+	if !errors.Is(err, resources.ErrInvalidResourceQuery) {
+		return false
+	}
+	writeProblem(w, r, http.StatusBadRequest, "RESOURCE_QUERY_INVALID", "Resource query invalid", "Use a retained time range, supported resolution, and no more than 1000 points.")
+	return true
 }
 
 func writeAgentError(w http.ResponseWriter, r *http.Request, err error) bool {

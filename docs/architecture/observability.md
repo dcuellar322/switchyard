@@ -1,4 +1,4 @@
-# Health and log observability
+# Health, logs, and resource intelligence
 
 Phase 7 implements ADR-0014 as a boundary above both runtime drivers. Docker
 and native-process adapters still emit raw runtime observations and log lines;
@@ -74,3 +74,52 @@ sequence. The browser reconnects with its last sequence, merges the HTTP
 snapshot with WebSocket replay, and deduplicates overlap. Disconnected and
 stale observations remain visible as warnings rather than being rendered as a
 false stopped or healthy state.
+
+## Resource sampling and history
+
+Phase 12 extends the same bounded context with one process-wide sampler:
+
+```text
+trusted catalog descriptors
+          |
+          v
+bounded active-runtime observation ----> current project/service aggregate
+          |                                      |
+          v                                      v
+exact SQLite samples -> 1-minute -> 15-minute -> bounded history API
+```
+
+Runtime drivers provide raw provider-neutral samples. Compose contributes one
+sample per canonical labelled container, including replicas. The native driver
+aggregates every currently verified member of a durable managed process tree.
+The observability application layer performs project/service aggregation and
+budget evaluation; neither driver owns history or warning policy.
+
+Every potentially missing metric has explicit availability evidence. A partial
+container/process read remains a gap and is never coerced into a convincing
+zero. Rollups average only available CPU, memory, and health values, retain
+peaks, keep the latest available cumulative network/disk/storage evidence, and
+carry partial status forward.
+
+Default tiers are exact samples every ten seconds for one hour, one-minute
+samples for 24 hours, and fifteen-minute samples for 30 days. Rollups are
+idempotent and source data is pruned only after the target upsert commits.
+History requests select a retained tier and enforce a hard point cap.
+
+## Storage intelligence boundary
+
+The Docker adapter uses Engine disk-usage APIs only. Its consumer-owned
+interface exposes inspection and has no prune/delete method. Canonical Compose
+project labels and live image/volume references are the only project evidence;
+names and path prefixes are never guessed.
+
+Container writable layers may be exclusive when one canonical project owns
+them. Volumes are exclusive only with local size and single-project evidence.
+Images remain estimated or shared because layer exclusivity is not proven.
+Build cache is shared or unknown. Every record includes its classification and
+reason, and Switchyard's database/WAL/SHM/log footprint is reported separately
+as Switchyard-exclusive storage.
+
+Cleanup preview is a read model containing exact Engine identifiers and known
+or unknown reclaimable bytes. It is always non-executable; Phase 12 adds no
+automatic deletion surface.

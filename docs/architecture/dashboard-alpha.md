@@ -12,7 +12,7 @@ durable event and log streams used by other clients.
 | `/` and `/projects` | Project overview, filtering, sorting, tags, recent access, and aggregate status |
 | `/projects/:id` | Runtime, health, logs, resources, Git, ports, trusted actions, and manifest provenance |
 | `/ports` | Declared, reserved, and bound port evidence and conflicts |
-| `/resources` | Current cross-project CPU and memory samples with attribution warnings |
+| `/resources` | Current and retained project/service metrics, budgets, storage attribution, cleanup preview, and Switchyard footprint |
 | `/logs` | Bounded cross-project log search and filtering |
 | `/discovery` | Deterministic scan, evidence review, validation, and trust approval |
 | `/settings` | Daemon identity, host capabilities, and browser-local display preferences |
@@ -56,8 +56,10 @@ Each route distinguishes loading, empty, partial, stale, disconnected,
 degraded, and failed observations. Docker failure is a capability failure, not
 a daemon failure: process projects, discovery, Git, settings, logs already in
 the archive, and other local workflows remain available. Container storage is
-explicitly labeled shared when Docker cannot provide reliable per-project
-attribution.
+classified as exclusive, shared, estimated, or unknown with per-resource
+evidence. Docker failure degrades only storage; persisted native-process
+history remains available. Missing metric reads render as gaps or `—`, never as
+synthetic zero consumption.
 
 ## Accessibility and visual evidence
 

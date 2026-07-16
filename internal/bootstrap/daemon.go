@@ -100,6 +100,21 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}()
 	logService := observabilityApplication.NewLogService(runtimeService, logStore)
 	healthService := observabilityApplication.NewHealthService(runtimeSource, runtimeService, sqlite.NewHealthRepository(database), observabilityAdapters.NewHealthEvaluator())
+	resourceService, err := observabilityApplication.NewResourceService(
+		observabilityAdapters.NewResourceCatalogSource(catalogService),
+		observabilityAdapters.NewResourceRuntimeSource(runtimeService, healthService),
+		database,
+		observabilityAdapters.NewDockerStorage(),
+		observabilityApplication.ResourceConfig{
+			SampleInterval: config.MetricSampleInterval, RawRetention: config.MetricRawRetention,
+			MinuteRetention: config.MetricMinuteRetention, QuarterHourRetention: config.MetricQuarterHourRetention,
+			MaximumHistoryPoints: config.MetricMaximumHistoryPoints,
+			LogRetentionAge:      config.LogRetentionAge, LogRetentionBytes: config.LogRetentionBytes,
+		},
+	)
+	if err != nil {
+		return err
+	}
 	portService := portsApplication.NewService(
 		portsApplication.NewCatalogSource(catalogService),
 		portsAdapters.NewRuntimeBindings(catalogService, runtimeService),
@@ -141,7 +156,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	var background sync.WaitGroup
-	background.Add(3)
+	background.Add(4)
 	go func() {
 		defer background.Done()
 		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {
@@ -160,6 +175,12 @@ func RunDaemon(ctx context.Context, config Config) error {
 			config.Logger.Warn("log collector unavailable", "component", "observability", "project_id", projectID, "error", logErr)
 		})
 	}()
+	go func() {
+		defer background.Done()
+		resourceService.Run(ctx, func(resourceErr error) {
+			config.Logger.Warn("resource sampler unavailable", "component", "observability", "error", resourceErr)
+		})
+	}()
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
 	host := application.NewHostQuery(hostPlatform.NewObserver())
@@ -167,7 +188,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
 		Ports: portService, Git: gitService, Actions: actionService,
-		AI:  aiService,
+		AI: aiService, Resources: resourceService,
 		Web: web.Handler(), Logger: config.Logger,
 	}
 	servers, err := newLocalServers(config, dependencies)

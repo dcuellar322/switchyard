@@ -124,6 +124,36 @@ func (e ActionDefinitionRisk) Valid() bool {
 	}
 }
 
+// Defines values for CleanupPreviewExecutable.
+const (
+	False CleanupPreviewExecutable = false
+)
+
+// Valid indicates whether the value is a known member of the CleanupPreviewExecutable enum.
+func (e CleanupPreviewExecutable) Valid() bool {
+	switch e {
+	case False:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CleanupPreviewRisk.
+const (
+	CleanupPreviewRiskDestructive CleanupPreviewRisk = "destructive"
+)
+
+// Valid indicates whether the value is a known member of the CleanupPreviewRisk enum.
+func (e CleanupPreviewRisk) Valid() bool {
+	switch e {
+	case CleanupPreviewRiskDestructive:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DockerHostObservationAttribution.
 const (
 	DockerHostObservationAttributionShared  DockerHostObservationAttribution = "shared"
@@ -535,6 +565,21 @@ func (e PublishedPortProtocol) Valid() bool {
 	}
 }
 
+// Defines values for ResourceFootprintClassification.
+const (
+	ResourceFootprintClassificationExclusive ResourceFootprintClassification = "exclusive"
+)
+
+// Valid indicates whether the value is a known member of the ResourceFootprintClassification enum.
+func (e ResourceFootprintClassification) Valid() bool {
+	switch e {
+	case ResourceFootprintClassificationExclusive:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RuntimeAction.
 const (
 	Pause    RuntimeAction = "pause"
@@ -702,19 +747,67 @@ func (e RuntimePlanDriver) Valid() bool {
 
 // Defines values for RuntimePlanRisk.
 const (
-	RuntimePlanRiskCaution     RuntimePlanRisk = "caution"
-	RuntimePlanRiskDestructive RuntimePlanRisk = "destructive"
-	RuntimePlanRiskSafe        RuntimePlanRisk = "safe"
+	Caution     RuntimePlanRisk = "caution"
+	Destructive RuntimePlanRisk = "destructive"
+	Safe        RuntimePlanRisk = "safe"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
 func (e RuntimePlanRisk) Valid() bool {
 	switch e {
-	case RuntimePlanRiskCaution:
+	case Caution:
 		return true
-	case RuntimePlanRiskDestructive:
+	case Destructive:
 		return true
-	case RuntimePlanRiskSafe:
+	case Safe:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for StorageClassification.
+const (
+	StorageClassificationEstimated StorageClassification = "estimated"
+	StorageClassificationExclusive StorageClassification = "exclusive"
+	StorageClassificationShared    StorageClassification = "shared"
+	StorageClassificationUnknown   StorageClassification = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the StorageClassification enum.
+func (e StorageClassification) Valid() bool {
+	switch e {
+	case StorageClassificationEstimated:
+		return true
+	case StorageClassificationExclusive:
+		return true
+	case StorageClassificationShared:
+		return true
+	case StorageClassificationUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for StorageResourceKind.
+const (
+	BuildCache StorageResourceKind = "build_cache"
+	Container  StorageResourceKind = "container"
+	Image      StorageResourceKind = "image"
+	Volume     StorageResourceKind = "volume"
+)
+
+// Valid indicates whether the value is a known member of the StorageResourceKind enum.
+func (e StorageResourceKind) Valid() bool {
+	switch e {
+	case BuildCache:
+		return true
+	case Container:
+		return true
+	case Image:
+		return true
+	case Volume:
 		return true
 	default:
 		return false
@@ -748,6 +841,30 @@ func (e ExportProjectLogsParamsFormat) Valid() bool {
 	case Ndjson:
 		return true
 	case Plain:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GetMetricHistoryParamsResolution.
+const (
+	Auto GetMetricHistoryParamsResolution = "auto"
+	N15m GetMetricHistoryParamsResolution = "15m"
+	N1m  GetMetricHistoryParamsResolution = "1m"
+	Raw  GetMetricHistoryParamsResolution = "raw"
+)
+
+// Valid indicates whether the value is a known member of the GetMetricHistoryParamsResolution enum.
+func (e GetMetricHistoryParamsResolution) Valid() bool {
+	switch e {
+	case Auto:
+		return true
+	case N15m:
+		return true
+	case N1m:
+		return true
+	case Raw:
 		return true
 	default:
 		return false
@@ -921,6 +1038,36 @@ type BrowserSession struct {
 	CsrfToken string    `json:"csrfToken"`
 	ExpiresAt time.Time `json:"expiresAt"`
 }
+
+// BudgetWarning defines model for BudgetWarning.
+type BudgetWarning struct {
+	Code          string    `json:"code"`
+	Limit         float64   `json:"limit"`
+	Message       string    `json:"message"`
+	Observed      float64   `json:"observed"`
+	Resource      string    `json:"resource"`
+	Samples       int       `json:"samples"`
+	SustainedFrom time.Time `json:"sustainedFrom"`
+	Unit          string    `json:"unit"`
+}
+
+// CleanupPreview defines model for CleanupPreview.
+type CleanupPreview struct {
+	EstimatedBytes int64                    `json:"estimatedBytes"`
+	Executable     CleanupPreviewExecutable `json:"executable"`
+	ObservedAt     time.Time                `json:"observedAt"`
+	ProjectId      string                   `json:"projectId"`
+	Resources      []StorageResource        `json:"resources"`
+	Risk           CleanupPreviewRisk       `json:"risk"`
+	UnknownSizes   int                      `json:"unknownSizes"`
+	Warnings       []string                 `json:"warnings"`
+}
+
+// CleanupPreviewExecutable defines model for CleanupPreview.Executable.
+type CleanupPreviewExecutable bool
+
+// CleanupPreviewRisk defines model for CleanupPreview.Risk.
+type CleanupPreviewRisk string
 
 // ContainerMetadata defines model for ContainerMetadata.
 type ContainerMetadata struct {
@@ -1110,6 +1257,16 @@ type ManifestValidation struct {
 	Warnings []string `json:"warnings"`
 }
 
+// MetricHistory defines model for MetricHistory.
+type MetricHistory struct {
+	From              time.Time             `json:"from"`
+	Points            []ResourceMetricPoint `json:"points"`
+	ProjectId         string                `json:"projectId"`
+	ResolutionSeconds int                   `json:"resolutionSeconds"`
+	ServiceId         string                `json:"serviceId"`
+	To                time.Time             `json:"to"`
+}
+
 // Operation defines model for Operation.
 type Operation struct {
 	CancellationRequested bool           `json:"cancellationRequested"`
@@ -1262,6 +1419,14 @@ type ProjectHealthObserverState string
 // ProjectHealthStatus defines model for ProjectHealth.Status.
 type ProjectHealthStatus string
 
+// ProjectStorage defines model for ProjectStorage.
+type ProjectStorage struct {
+	ProjectId       string         `json:"projectId"`
+	SharedResources int            `json:"sharedResources"`
+	Summary         StorageSummary `json:"summary"`
+	UnknownSizes    int            `json:"unknownSizes"`
+}
+
 // PublishedPort defines model for PublishedPort.
 type PublishedPort struct {
 	ContainerPort int                   `json:"containerPort"`
@@ -1272,6 +1437,97 @@ type PublishedPort struct {
 
 // PublishedPortProtocol defines model for PublishedPort.Protocol.
 type PublishedPortProtocol string
+
+// ResourceBudget defines model for ResourceBudget.
+type ResourceBudget struct {
+	CpuPercent   float64 `json:"cpuPercent"`
+	MemoryBytes  int64   `json:"memoryBytes"`
+	StorageBytes int64   `json:"storageBytes"`
+}
+
+// ResourceFootprint defines model for ResourceFootprint.
+type ResourceFootprint struct {
+	Classification   ResourceFootprintClassification `json:"classification"`
+	DatabaseBytes    int64                           `json:"databaseBytes"`
+	DatabaseShmBytes int64                           `json:"databaseShmBytes"`
+	DatabaseWalBytes int64                           `json:"databaseWalBytes"`
+	LogBytes         int64                           `json:"logBytes"`
+	LogSegments      int                             `json:"logSegments"`
+	MetricRows       int64                           `json:"metricRows"`
+	OldestMetricAt   *time.Time                      `json:"oldestMetricAt,omitempty"`
+}
+
+// ResourceFootprintClassification defines model for ResourceFootprint.Classification.
+type ResourceFootprintClassification string
+
+// ResourceMetricPoint defines model for ResourceMetricPoint.
+type ResourceMetricPoint struct {
+	CpuAvailable          bool                  `json:"cpuAvailable"`
+	CpuMaxPercent         float64               `json:"cpuMaxPercent"`
+	CpuPercent            float64               `json:"cpuPercent"`
+	DiskAvailable         bool                  `json:"diskAvailable"`
+	DiskReadBytes         int64                 `json:"diskReadBytes"`
+	DiskWriteBytes        int64                 `json:"diskWriteBytes"`
+	HealthAvailable       bool                  `json:"healthAvailable"`
+	HealthLatencyMs       int64                 `json:"healthLatencyMs"`
+	MemoryAvailable       bool                  `json:"memoryAvailable"`
+	MemoryBytes           int64                 `json:"memoryBytes"`
+	MemoryLimit           int64                 `json:"memoryLimit"`
+	MemoryMaxBytes        int64                 `json:"memoryMaxBytes"`
+	NetworkAvailable      bool                  `json:"networkAvailable"`
+	NetworkRxBytes        int64                 `json:"networkRxBytes"`
+	NetworkTxBytes        int64                 `json:"networkTxBytes"`
+	Partial               bool                  `json:"partial"`
+	ProcessCount          int                   `json:"processCount"`
+	ProjectId             string                `json:"projectId"`
+	ResolutionSeconds     int                   `json:"resolutionSeconds"`
+	RestartCount          int                   `json:"restartCount"`
+	SampleCount           int                   `json:"sampleCount"`
+	ServiceId             string                `json:"serviceId"`
+	StorageBytes          *int64                `json:"storageBytes,omitempty"`
+	StorageClassification StorageClassification `json:"storageClassification"`
+	Timestamp             time.Time             `json:"timestamp"`
+}
+
+// ResourceOverview defines model for ResourceOverview.
+type ResourceOverview struct {
+	Footprint  ResourceFootprint         `json:"footprint"`
+	ObservedAt time.Time                 `json:"observedAt"`
+	Projects   []ResourceProjectSnapshot `json:"projects"`
+	Retention  ResourceRetention         `json:"retention"`
+	Storage    StorageSummary            `json:"storage"`
+	Warnings   []string                  `json:"warnings"`
+}
+
+// ResourceProjectSnapshot defines model for ResourceProjectSnapshot.
+type ResourceProjectSnapshot struct {
+	Active    bool                      `json:"active"`
+	Budget    ResourceBudget            `json:"budget"`
+	Driver    string                    `json:"driver"`
+	Metric    ResourceMetricPoint       `json:"metric"`
+	Name      string                    `json:"name"`
+	ProjectId string                    `json:"projectId"`
+	Services  []ResourceServiceSnapshot `json:"services"`
+	State     string                    `json:"state"`
+	Warnings  []BudgetWarning           `json:"warnings"`
+}
+
+// ResourceRetention defines model for ResourceRetention.
+type ResourceRetention struct {
+	LogBytes              int64 `json:"logBytes"`
+	LogSeconds            int64 `json:"logSeconds"`
+	MaximumHistoryPoints  int   `json:"maximumHistoryPoints"`
+	MinuteSeconds         int64 `json:"minuteSeconds"`
+	QuarterHourSeconds    int64 `json:"quarterHourSeconds"`
+	RawSeconds            int64 `json:"rawSeconds"`
+	SampleIntervalSeconds int   `json:"sampleIntervalSeconds"`
+}
+
+// ResourceServiceSnapshot defines model for ResourceServiceSnapshot.
+type ResourceServiceSnapshot struct {
+	Metric    ResourceMetricPoint `json:"metric"`
+	ServiceId string              `json:"serviceId"`
+}
 
 // RuntimeAction defines model for RuntimeAction.
 type RuntimeAction string
@@ -1324,14 +1580,24 @@ type RuntimeLogEntryStream string
 
 // RuntimeMetricSample defines model for RuntimeMetricSample.
 type RuntimeMetricSample struct {
-	CpuPercent     float64   `json:"cpuPercent"`
-	MemoryBytes    int64     `json:"memoryBytes"`
-	MemoryLimit    int64     `json:"memoryLimit"`
-	NetworkRxBytes int64     `json:"networkRxBytes"`
-	NetworkTxBytes int64     `json:"networkTxBytes"`
-	ProjectId      string    `json:"projectId"`
-	ServiceId      string    `json:"serviceId"`
-	Timestamp      time.Time `json:"timestamp"`
+	CpuAvailable     bool      `json:"cpuAvailable"`
+	CpuPercent       float64   `json:"cpuPercent"`
+	DiskAvailable    bool      `json:"diskAvailable"`
+	DiskReadBytes    int64     `json:"diskReadBytes"`
+	DiskWriteBytes   int64     `json:"diskWriteBytes"`
+	InstanceId       *string   `json:"instanceId,omitempty"`
+	MemoryAvailable  bool      `json:"memoryAvailable"`
+	MemoryBytes      int64     `json:"memoryBytes"`
+	MemoryLimit      int64     `json:"memoryLimit"`
+	NetworkAvailable bool      `json:"networkAvailable"`
+	NetworkRxBytes   int64     `json:"networkRxBytes"`
+	NetworkTxBytes   int64     `json:"networkTxBytes"`
+	Partial          bool      `json:"partial"`
+	ProcessCount     int       `json:"processCount"`
+	ProjectId        string    `json:"projectId"`
+	RestartCount     int       `json:"restartCount"`
+	ServiceId        string    `json:"serviceId"`
+	Timestamp        time.Time `json:"timestamp"`
 }
 
 // RuntimeObservation defines model for RuntimeObservation.
@@ -1390,6 +1656,42 @@ type RuntimeServiceObservation struct {
 type SourceRange struct {
 	EndLine   int `json:"endLine"`
 	StartLine int `json:"startLine"`
+}
+
+// StorageClassification defines model for StorageClassification.
+type StorageClassification string
+
+// StorageInventory defines model for StorageInventory.
+type StorageInventory struct {
+	Connected  bool              `json:"connected"`
+	ObservedAt time.Time         `json:"observedAt"`
+	Projects   []ProjectStorage  `json:"projects"`
+	Resources  []StorageResource `json:"resources"`
+	Summary    StorageSummary    `json:"summary"`
+	Warnings   []string          `json:"warnings"`
+}
+
+// StorageResource defines model for StorageResource.
+type StorageResource struct {
+	Bytes          *int64                `json:"bytes,omitempty"`
+	Classification StorageClassification `json:"classification"`
+	Id             string                `json:"id"`
+	Kind           StorageResourceKind   `json:"kind"`
+	Name           string                `json:"name"`
+	ProjectIds     []string              `json:"projectIds"`
+	Reason         string                `json:"reason"`
+	Reclaimable    bool                  `json:"reclaimable"`
+}
+
+// StorageResourceKind defines model for StorageResource.Kind.
+type StorageResourceKind string
+
+// StorageSummary defines model for StorageSummary.
+type StorageSummary struct {
+	Bytes            int64                 `json:"bytes"`
+	Classification   StorageClassification `json:"classification"`
+	ReclaimableBytes int64                 `json:"reclaimableBytes"`
+	ResourceCount    int                   `json:"resourceCount"`
 }
 
 // SystemInfo defines model for SystemInfo.
@@ -1500,6 +1802,18 @@ type GetProjectMetricsParams struct {
 	Service *string `form:"service,omitempty" json:"service,omitempty"`
 }
 
+// GetMetricHistoryParams defines parameters for GetMetricHistory.
+type GetMetricHistoryParams struct {
+	Service    *string                           `form:"service,omitempty" json:"service,omitempty"`
+	From       time.Time                         `form:"from" json:"from"`
+	To         time.Time                         `form:"to" json:"to"`
+	Resolution *GetMetricHistoryParamsResolution `form:"resolution,omitempty" json:"resolution,omitempty"`
+	MaxPoints  *int                              `form:"maxPoints,omitempty" json:"maxPoints,omitempty"`
+}
+
+// GetMetricHistoryParamsResolution defines parameters for GetMetricHistory.
+type GetMetricHistoryParamsResolution string
+
 // CreateProjectOperationParams defines parameters for CreateProjectOperation.
 type CreateProjectOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
@@ -1508,6 +1822,11 @@ type CreateProjectOperationParams struct {
 // TrustProjectParams defines parameters for TrustProject.
 type TrustProjectParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// GetCleanupPreviewParams defines parameters for GetCleanupPreview.
+type GetCleanupPreviewParams struct {
+	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
 }
 
 // CreateBrowserSessionJSONRequestBody defines body for CreateBrowserSession for application/json ContentType.
@@ -1706,6 +2025,9 @@ type ClientInterface interface {
 	// GetProjectMetrics request
 	GetProjectMetrics(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetMetricHistory request
+	GetMetricHistory(ctx context.Context, projectId ProjectId, params *GetMetricHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateProjectOperationWithBody request with any body
 	CreateProjectOperationWithBody(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1721,6 +2043,15 @@ type ClientInterface interface {
 
 	// TrustProject request
 	TrustProject(ctx context.Context, projectId ProjectId, params *TrustProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetResourceOverview request
+	GetResourceOverview(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCleanupPreview request
+	GetCleanupPreview(ctx context.Context, params *GetCleanupPreviewParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStorageInventory request
+	GetStorageInventory(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2146,6 +2477,18 @@ func (c *Client) GetProjectMetrics(ctx context.Context, projectId ProjectId, par
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetMetricHistory(ctx context.Context, projectId ProjectId, params *GetMetricHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMetricHistoryRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateProjectOperationWithBody(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateProjectOperationRequestWithBody(c.Server, projectId, params, contentType, body)
 	if err != nil {
@@ -2208,6 +2551,42 @@ func (c *Client) PlanProjectRuntime(ctx context.Context, projectId ProjectId, bo
 
 func (c *Client) TrustProject(ctx context.Context, projectId ProjectId, params *TrustProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTrustProjectRequest(c.Server, projectId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetResourceOverview(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetResourceOverviewRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetCleanupPreview(ctx context.Context, params *GetCleanupPreviewParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCleanupPreviewRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetStorageInventory(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStorageInventoryRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -3562,6 +3941,107 @@ func NewGetProjectMetricsRequest(server string, projectId ProjectId, params *Get
 	return req, nil
 }
 
+// NewGetMetricHistoryRequest generates requests for GetMetricHistory
+func NewGetMetricHistoryRequest(server string, projectId ProjectId, params *GetMetricHistoryParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/metrics/history", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Service != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "service", *params.Service, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "from", params.From, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "to", params.To, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.Resolution != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resolution", *params.Resolution, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.MaxPoints != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "maxPoints", *params.MaxPoints, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateProjectOperationRequest calls the generic CreateProjectOperation builder with application/json body
 func NewCreateProjectOperationRequest(server string, projectId ProjectId, params *CreateProjectOperationParams, body CreateProjectOperationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -3750,6 +4230,114 @@ func NewTrustProjectRequest(server string, projectId ProjectId, params *TrustPro
 	return req, nil
 }
 
+// NewGetResourceOverviewRequest generates requests for GetResourceOverview
+func NewGetResourceOverviewRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/resources")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetCleanupPreviewRequest generates requests for GetCleanupPreview
+func NewGetCleanupPreviewRequest(server string, params *GetCleanupPreviewParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/resources/cleanup-preview")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", *params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStorageInventoryRequest generates requests for GetStorageInventory
+func NewGetStorageInventoryRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/resources/storage")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetSystemRequest generates requests for GetSystem
 func NewGetSystemRequest(server string) (*http.Request, error) {
 	var err error
@@ -3919,6 +4507,9 @@ type ClientWithResponsesInterface interface {
 	// GetProjectMetricsWithResponse request
 	GetProjectMetricsWithResponse(ctx context.Context, projectId ProjectId, params *GetProjectMetricsParams, reqEditors ...RequestEditorFn) (*GetProjectMetricsResponse, error)
 
+	// GetMetricHistoryWithResponse request
+	GetMetricHistoryWithResponse(ctx context.Context, projectId ProjectId, params *GetMetricHistoryParams, reqEditors ...RequestEditorFn) (*GetMetricHistoryResponse, error)
+
 	// CreateProjectOperationWithBodyWithResponse request with any body
 	CreateProjectOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error)
 
@@ -3934,6 +4525,15 @@ type ClientWithResponsesInterface interface {
 
 	// TrustProjectWithResponse request
 	TrustProjectWithResponse(ctx context.Context, projectId ProjectId, params *TrustProjectParams, reqEditors ...RequestEditorFn) (*TrustProjectResponse, error)
+
+	// GetResourceOverviewWithResponse request
+	GetResourceOverviewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetResourceOverviewResponse, error)
+
+	// GetCleanupPreviewWithResponse request
+	GetCleanupPreviewWithResponse(ctx context.Context, params *GetCleanupPreviewParams, reqEditors ...RequestEditorFn) (*GetCleanupPreviewResponse, error)
+
+	// GetStorageInventoryWithResponse request
+	GetStorageInventoryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStorageInventoryResponse, error)
 
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
@@ -4836,6 +5436,37 @@ func (r GetProjectMetricsResponse) ContentType() string {
 	return ""
 }
 
+type GetMetricHistoryResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *MetricHistory
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMetricHistoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMetricHistoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetMetricHistoryResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type CreateProjectOperationResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -4954,6 +5585,99 @@ func (r TrustProjectResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r TrustProjectResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetResourceOverviewResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *ResourceOverview
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetResourceOverviewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetResourceOverviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetResourceOverviewResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCleanupPreviewResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *CleanupPreview
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCleanupPreviewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCleanupPreviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCleanupPreviewResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetStorageInventoryResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *StorageInventory
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStorageInventoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStorageInventoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetStorageInventoryResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -5300,6 +6024,15 @@ func (c *ClientWithResponses) GetProjectMetricsWithResponse(ctx context.Context,
 	return ParseGetProjectMetricsResponse(rsp)
 }
 
+// GetMetricHistoryWithResponse request returning *GetMetricHistoryResponse
+func (c *ClientWithResponses) GetMetricHistoryWithResponse(ctx context.Context, projectId ProjectId, params *GetMetricHistoryParams, reqEditors ...RequestEditorFn) (*GetMetricHistoryResponse, error) {
+	rsp, err := c.GetMetricHistory(ctx, projectId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMetricHistoryResponse(rsp)
+}
+
 // CreateProjectOperationWithBodyWithResponse request with arbitrary body returning *CreateProjectOperationResponse
 func (c *ClientWithResponses) CreateProjectOperationWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateProjectOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectOperationResponse, error) {
 	rsp, err := c.CreateProjectOperationWithBody(ctx, projectId, params, contentType, body, reqEditors...)
@@ -5350,6 +6083,33 @@ func (c *ClientWithResponses) TrustProjectWithResponse(ctx context.Context, proj
 		return nil, err
 	}
 	return ParseTrustProjectResponse(rsp)
+}
+
+// GetResourceOverviewWithResponse request returning *GetResourceOverviewResponse
+func (c *ClientWithResponses) GetResourceOverviewWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetResourceOverviewResponse, error) {
+	rsp, err := c.GetResourceOverview(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetResourceOverviewResponse(rsp)
+}
+
+// GetCleanupPreviewWithResponse request returning *GetCleanupPreviewResponse
+func (c *ClientWithResponses) GetCleanupPreviewWithResponse(ctx context.Context, params *GetCleanupPreviewParams, reqEditors ...RequestEditorFn) (*GetCleanupPreviewResponse, error) {
+	rsp, err := c.GetCleanupPreview(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCleanupPreviewResponse(rsp)
+}
+
+// GetStorageInventoryWithResponse request returning *GetStorageInventoryResponse
+func (c *ClientWithResponses) GetStorageInventoryWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStorageInventoryResponse, error) {
+	rsp, err := c.GetStorageInventory(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStorageInventoryResponse(rsp)
 }
 
 // GetSystemWithResponse request returning *GetSystemResponse
@@ -6304,6 +7064,39 @@ func ParseGetProjectMetricsResponse(rsp *http.Response) (*GetProjectMetricsRespo
 	return response, nil
 }
 
+// ParseGetMetricHistoryResponse parses an HTTP response from a GetMetricHistoryWithResponse call
+func ParseGetMetricHistoryResponse(rsp *http.Response) (*GetMetricHistoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMetricHistoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MetricHistory
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateProjectOperationResponse parses an HTTP response from a CreateProjectOperationWithResponse call
 func ParseCreateProjectOperationResponse(rsp *http.Response) (*CreateProjectOperationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -6419,6 +7212,105 @@ func ParseTrustProjectResponse(rsp *http.Response) (*TrustProjectResponse, error
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest AcceptedManifestProposal
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetResourceOverviewResponse parses an HTTP response from a GetResourceOverviewWithResponse call
+func ParseGetResourceOverviewResponse(rsp *http.Response) (*GetResourceOverviewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetResourceOverviewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResourceOverview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCleanupPreviewResponse parses an HTTP response from a GetCleanupPreviewWithResponse call
+func ParseGetCleanupPreviewResponse(rsp *http.Response) (*GetCleanupPreviewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCleanupPreviewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CleanupPreview
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetStorageInventoryResponse parses an HTTP response from a GetStorageInventoryWithResponse call
+func ParseGetStorageInventoryResponse(rsp *http.Response) (*GetStorageInventoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStorageInventoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest StorageInventory
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6558,6 +7450,9 @@ type ServerInterface interface {
 	// Read one current resource sample per runtime service
 	// (GET /projects/{projectId}/metrics)
 	GetProjectMetrics(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetProjectMetricsParams)
+	// Read bounded persisted project or service metric history
+	// (GET /projects/{projectId}/metrics/history)
+	GetMetricHistory(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetMetricHistoryParams)
 	// Queue a durable project lifecycle operation
 	// (POST /projects/{projectId}/operations)
 	CreateProjectOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateProjectOperationParams)
@@ -6570,6 +7465,15 @@ type ServerInterface interface {
 	// Validate and accept the latest project proposal
 	// (POST /projects/{projectId}/trust)
 	TrustProject(w http.ResponseWriter, r *http.Request, projectId ProjectId, params TrustProjectParams)
+	// Read aggregate current project resources, budgets, storage, and retention
+	// (GET /resources)
+	GetResourceOverview(w http.ResponseWriter, r *http.Request)
+	// Preview exact reclaimable resources without deleting anything
+	// (GET /resources/cleanup-preview)
+	GetCleanupPreview(w http.ResponseWriter, r *http.Request, params GetCleanupPreviewParams)
+	// Inspect Docker storage with explicit attribution confidence
+	// (GET /resources/storage)
+	GetStorageInventory(w http.ResponseWriter, r *http.Request)
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
@@ -6753,6 +7657,12 @@ func (_ Unimplemented) GetProjectMetrics(w http.ResponseWriter, r *http.Request,
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// Read bounded persisted project or service metric history
+// (GET /projects/{projectId}/metrics/history)
+func (_ Unimplemented) GetMetricHistory(w http.ResponseWriter, r *http.Request, projectId ProjectId, params GetMetricHistoryParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Queue a durable project lifecycle operation
 // (POST /projects/{projectId}/operations)
 func (_ Unimplemented) CreateProjectOperation(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateProjectOperationParams) {
@@ -6774,6 +7684,24 @@ func (_ Unimplemented) PlanProjectRuntime(w http.ResponseWriter, r *http.Request
 // Validate and accept the latest project proposal
 // (POST /projects/{projectId}/trust)
 func (_ Unimplemented) TrustProject(w http.ResponseWriter, r *http.Request, projectId ProjectId, params TrustProjectParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read aggregate current project resources, budgets, storage, and retention
+// (GET /resources)
+func (_ Unimplemented) GetResourceOverview(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Preview exact reclaimable resources without deleting anything
+// (GET /resources/cleanup-preview)
+func (_ Unimplemented) GetCleanupPreview(w http.ResponseWriter, r *http.Request, params GetCleanupPreviewParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Inspect Docker storage with explicit attribution confidence
+// (GET /resources/storage)
+func (_ Unimplemented) GetStorageInventory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -7885,6 +8813,100 @@ func (siw *ServerInterfaceWrapper) GetProjectMetrics(w http.ResponseWriter, r *h
 	handler.ServeHTTP(w, r)
 }
 
+// GetMetricHistory operation middleware
+func (siw *ServerInterfaceWrapper) GetMetricHistory(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetMetricHistoryParams
+
+	// ------------- Optional query parameter "service" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "service", r.URL.Query(), &params.Service, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "service"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "service", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "from" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "from", r.URL.Query(), &params.From, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "from"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "from", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "to" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "to", r.URL.Query(), &params.To, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "to"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "to", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "resolution" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "resolution", r.URL.Query(), &params.Resolution, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "resolution"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "resolution", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "maxPoints" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "maxPoints", r.URL.Query(), &params.MaxPoints, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "maxPoints"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "maxPoints", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetMetricHistory(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // CreateProjectOperation operation middleware
 func (siw *ServerInterfaceWrapper) CreateProjectOperation(w http.ResponseWriter, r *http.Request) {
 
@@ -8036,6 +9058,67 @@ func (siw *ServerInterfaceWrapper) TrustProject(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.TrustProject(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetResourceOverview operation middleware
+func (siw *ServerInterfaceWrapper) GetResourceOverview(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetResourceOverview(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetCleanupPreview operation middleware
+func (siw *ServerInterfaceWrapper) GetCleanupPreview(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetCleanupPreviewParams
+
+	// ------------- Optional query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetCleanupPreview(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetStorageInventory operation middleware
+func (siw *ServerInterfaceWrapper) GetStorageInventory(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetStorageInventory(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -8260,6 +9343,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/projects/{projectId}/metrics", wrapper.GetProjectMetrics)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/metrics/history", wrapper.GetMetricHistory)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/projects/{projectId}/operations", wrapper.CreateProjectOperation)
 	})
 	r.Group(func(r chi.Router) {
@@ -8270,6 +9356,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/projects/{projectId}/trust", wrapper.TrustProject)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/resources", wrapper.GetResourceOverview)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/resources/cleanup-preview", wrapper.GetCleanupPreview)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/resources/storage", wrapper.GetStorageInventory)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)

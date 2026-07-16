@@ -23,8 +23,10 @@ func (f fakeConnector) Connect(context.Context, dockerConnection) (engineClient,
 type fakeEngine struct {
 	containers []container.Summary
 	inspects   map[string]container.InspectResponse
+	inspectErr map[string]error
 	logs       map[string][]byte
 	stats      map[string][]byte
+	statsErr   map[string]error
 	events     client.EventsResult
 }
 
@@ -41,7 +43,7 @@ func (f *fakeEngine) ContainerList(context.Context, client.ContainerListOptions)
 }
 
 func (f *fakeEngine) ContainerInspect(_ context.Context, id string, _ client.ContainerInspectOptions) (client.ContainerInspectResult, error) {
-	return client.ContainerInspectResult{Container: f.inspects[id]}, nil
+	return client.ContainerInspectResult{Container: f.inspects[id]}, f.inspectErr[id]
 }
 
 func (f *fakeEngine) ContainerLogs(_ context.Context, id string, _ client.ContainerLogsOptions) (client.ContainerLogsResult, error) {
@@ -49,7 +51,7 @@ func (f *fakeEngine) ContainerLogs(_ context.Context, id string, _ client.Contai
 }
 
 func (f *fakeEngine) ContainerStats(_ context.Context, id string, _ client.ContainerStatsOptions) (client.ContainerStatsResult, error) {
-	return client.ContainerStatsResult{Body: io.NopCloser(bytes.NewReader(f.stats[id]))}, nil
+	return client.ContainerStatsResult{Body: io.NopCloser(bytes.NewReader(f.stats[id]))}, f.statsErr[id]
 }
 
 func (f *fakeEngine) Events(context.Context, client.EventsListOptions) client.EventsResult {

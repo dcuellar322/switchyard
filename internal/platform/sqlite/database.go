@@ -21,6 +21,7 @@ import (
 type Database struct {
 	connection *sql.DB
 	queries    *generated.Queries
+	path       string
 }
 
 // Open connects to path, enables local safety pragmas, and applies migrations.
@@ -50,7 +51,7 @@ func Open(ctx context.Context, path string) (*Database, error) {
 	}
 	connection.SetMaxOpenConns(1)
 
-	database := &Database{connection: connection, queries: generated.New(connection)}
+	database := &Database{connection: connection, queries: generated.New(connection), path: absPath}
 	if err := database.initialize(ctx); err != nil {
 		_ = connection.Close()
 		return nil, err

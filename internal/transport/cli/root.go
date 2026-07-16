@@ -18,27 +18,32 @@ import (
 )
 
 type rootOptions struct {
-	address            string
-	dataDir            string
-	ipcAddr            string
-	json               bool
-	jsonl              bool
-	nonInteractive     bool
-	noColor            bool
-	stdout             io.Writer
-	stderr             io.Writer
-	logRingCapacity    int
-	logSegmentBytes    int64
-	logRetentionAge    time.Duration
-	logRetentionBytes  int64
-	redactionPatterns  []string
-	aiCodexExecutable  string
-	aiCodexModel       string
-	aiClaudeExecutable string
-	aiClaudeModel      string
-	aiOpenAIEndpoint   string
-	aiOpenAIModel      string
-	aiOpenAIAPIKeyEnv  string
+	address                    string
+	dataDir                    string
+	ipcAddr                    string
+	json                       bool
+	jsonl                      bool
+	nonInteractive             bool
+	noColor                    bool
+	stdout                     io.Writer
+	stderr                     io.Writer
+	logRingCapacity            int
+	logSegmentBytes            int64
+	logRetentionAge            time.Duration
+	logRetentionBytes          int64
+	metricSampleInterval       time.Duration
+	metricRawRetention         time.Duration
+	metricMinuteRetention      time.Duration
+	metricQuarterHourRetention time.Duration
+	metricMaximumHistoryPoints int
+	redactionPatterns          []string
+	aiCodexExecutable          string
+	aiCodexModel               string
+	aiClaudeExecutable         string
+	aiClaudeModel              string
+	aiOpenAIEndpoint           string
+	aiOpenAIModel              string
+	aiOpenAIAPIKeyEnv          string
 }
 
 // Execute runs the CLI with explicit process dependencies.
@@ -50,7 +55,10 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	options := &rootOptions{address: config.HTTPAddr, dataDir: config.DataDir, stdout: stdout, stderr: stderr,
 		logRingCapacity: config.LogRingCapacity, logSegmentBytes: config.LogSegmentBytes,
 		logRetentionAge: config.LogRetentionAge, logRetentionBytes: config.LogRetentionBytes,
-		aiCodexExecutable: config.AICodexExecutable, aiCodexModel: config.AICodexModel,
+		metricSampleInterval: config.MetricSampleInterval, metricRawRetention: config.MetricRawRetention,
+		metricMinuteRetention: config.MetricMinuteRetention, metricQuarterHourRetention: config.MetricQuarterHourRetention,
+		metricMaximumHistoryPoints: config.MetricMaximumHistoryPoints,
+		aiCodexExecutable:          config.AICodexExecutable, aiCodexModel: config.AICodexModel,
 		aiClaudeExecutable: config.AIClaudeExecutable, aiClaudeModel: config.AIClaudeModel,
 		aiOpenAIEndpoint: config.AIOpenAIEndpoint, aiOpenAIModel: config.AIOpenAIModel, aiOpenAIAPIKeyEnv: config.AIOpenAIAPIKeyEnv,
 	}
@@ -110,8 +118,11 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger,
 			LogRingCapacity: options.logRingCapacity, LogSegmentBytes: options.logSegmentBytes,
 			LogRetentionAge: options.logRetentionAge, LogRetentionBytes: options.logRetentionBytes,
-			RedactionPatterns: options.redactionPatterns,
-			AICodexExecutable: options.aiCodexExecutable, AICodexModel: options.aiCodexModel,
+			MetricSampleInterval: options.metricSampleInterval, MetricRawRetention: options.metricRawRetention,
+			MetricMinuteRetention: options.metricMinuteRetention, MetricQuarterHourRetention: options.metricQuarterHourRetention,
+			MetricMaximumHistoryPoints: options.metricMaximumHistoryPoints,
+			RedactionPatterns:          options.redactionPatterns,
+			AICodexExecutable:          options.aiCodexExecutable, AICodexModel: options.aiCodexModel,
 			AIClaudeExecutable: options.aiClaudeExecutable, AIClaudeModel: options.aiClaudeModel,
 			AIOpenAIEndpoint: options.aiOpenAIEndpoint, AIOpenAIModel: options.aiOpenAIModel, AIOpenAIAPIKeyEnv: options.aiOpenAIAPIKeyEnv,
 		})
@@ -120,6 +131,11 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 	command.Flags().Int64Var(&options.logSegmentBytes, "log-segment-bytes", options.logSegmentBytes, "maximum bytes per NDJSON log segment")
 	command.Flags().DurationVar(&options.logRetentionAge, "log-retention-age", options.logRetentionAge, "maximum retained log age")
 	command.Flags().Int64Var(&options.logRetentionBytes, "log-retention-bytes", options.logRetentionBytes, "maximum retained log bytes")
+	command.Flags().DurationVar(&options.metricSampleInterval, "metric-sample-interval", options.metricSampleInterval, "active project resource sampling interval")
+	command.Flags().DurationVar(&options.metricRawRetention, "metric-raw-retention", options.metricRawRetention, "exact metric sample retention")
+	command.Flags().DurationVar(&options.metricMinuteRetention, "metric-minute-retention", options.metricMinuteRetention, "one-minute metric retention")
+	command.Flags().DurationVar(&options.metricQuarterHourRetention, "metric-quarter-hour-retention", options.metricQuarterHourRetention, "fifteen-minute metric retention")
+	command.Flags().IntVar(&options.metricMaximumHistoryPoints, "metric-max-history-points", options.metricMaximumHistoryPoints, "maximum points returned per history query")
 	command.Flags().StringSliceVar(&options.redactionPatterns, "redact-pattern", nil, "additional regular expression to redact (repeatable)")
 	command.Flags().StringVar(&options.aiCodexExecutable, "ai-codex-executable", options.aiCodexExecutable, "Codex CLI executable or absolute path")
 	command.Flags().StringVar(&options.aiCodexModel, "ai-codex-model", options.aiCodexModel, "optional Codex model override")

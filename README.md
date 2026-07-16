@@ -91,7 +91,9 @@ metrics, and honest external-listener recognition. See the
 Both runtimes feed the same redaction-first persistent log archive and health
 evaluator. Project diagnostics include required-readiness gates, stale and
 disconnected observer states, rotating bounded log history, cursor-resumable
-live logs, and operation-correlated export. See the
+live logs, operation-correlated export, availability-aware metric history,
+sustained resource budgets, and honest Docker storage attribution. Cleanup is
+preview-only and exposes no automatic deletion capability. See the
 [observability architecture](docs/architecture/observability.md).
 
 The developer workflow layer combines provenance-bearing declared, reserved,
@@ -102,9 +104,10 @@ and produce redaction-safe audits. See the
 [developer workflows architecture](docs/architecture/developer-workflows.md).
 
 The browser dashboard provides the responsive project command center, bounded
-logs and resources, operation progress, keyboard command palette, and honest
-partial or Docker-disconnected states. It remains a generated-contract adapter
-and never constructs runtime commands. See the
+logs, retained resource charts, exact storage inventory/preview, operation
+progress, keyboard command palette, and honest partial or Docker-disconnected
+states. It remains a generated-contract adapter and never constructs runtime
+commands. See the
 [dashboard alpha architecture](docs/architecture/dashboard-alpha.md).
 
 Coding agents use a permission-scoped MCP stdio adapter over the same daemon

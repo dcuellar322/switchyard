@@ -21,10 +21,24 @@ func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest
 	if err != nil {
 		return fmt.Errorf("list Compose containers for metrics: %w", err)
 	}
-	for _, item := range composeContainers(containers.Items, config.ProjectName) {
+	items := composeContainers(containers.Items, config.ProjectName)
+	sampled := 0
+	var lastErr error
+	for _, item := range items {
 		if err := sampleContainer(ctx, engine, request.Project, item, sink); err != nil {
-			return err
+			lastErr = err
+			if writeErr := sink.WriteMetric(ctx, domain.MetricSample{
+				Timestamp: time.Now().UTC(), ProjectID: request.Project.ProjectID,
+				ServiceID: productServiceID(request.Project, item.Labels[labelService]), InstanceID: item.ID, Partial: true,
+			}); writeErr != nil {
+				return writeErr
+			}
+			continue
 		}
+		sampled++
+	}
+	if sampled == 0 && len(items) > 0 {
+		return lastErr
 	}
 	return nil
 }
@@ -44,12 +58,27 @@ func sampleContainer(ctx context.Context, engine engineClient, project domain.Pr
 		timestamp = time.Now().UTC()
 	}
 	rx, tx := networkTotals(stats.Networks)
+	read, written, diskAvailable := diskTotals(stats)
+	restartCount, partial := 0, false
+	inspect, inspectErr := engine.ContainerInspect(ctx, item.ID, client.ContainerInspectOptions{})
+	if inspectErr == nil {
+		restartCount = inspect.Container.RestartCount
+	} else {
+		partial = true
+	}
 	return sink.WriteMetric(ctx, domain.MetricSample{
 		Timestamp: timestamp, ProjectID: project.ProjectID,
-		ServiceID:  productServiceID(project, item.Labels[labelService]),
-		CPUPercent: cpuPercent(stats), MemoryBytes: stats.MemoryStats.Usage,
-		MemoryLimit: stats.MemoryStats.Limit, NetworkRxBytes: rx, NetworkTxBytes: tx,
+		ServiceID: productServiceID(project, item.Labels[labelService]), InstanceID: item.ID,
+		CPUPercent: cpuPercent(stats), CPUAvailable: cpuStatsAvailable(stats), MemoryBytes: stats.MemoryStats.Usage,
+		MemoryLimit: stats.MemoryStats.Limit, MemoryAvailable: true, NetworkRxBytes: rx, NetworkTxBytes: tx, NetworkAvailable: stats.Networks != nil,
+		DiskReadBytes: read, DiskWriteBytes: written, DiskAvailable: diskAvailable,
+		ProcessCount: max(1, int(stats.PidsStats.Current)), RestartCount: restartCount, Partial: partial,
 	})
+}
+
+func cpuStatsAvailable(stats container.StatsResponse) bool {
+	return stats.CPUStats.CPUUsage.TotalUsage >= stats.PreCPUStats.CPUUsage.TotalUsage &&
+		stats.CPUStats.SystemUsage > stats.PreCPUStats.SystemUsage
 }
 
 func cpuPercent(stats container.StatsResponse) float64 {
@@ -77,4 +106,19 @@ func networkTotals(networks map[string]container.NetworkStats) (uint64, uint64) 
 		tx += network.TxBytes
 	}
 	return rx, tx
+}
+
+func diskTotals(stats container.StatsResponse) (uint64, uint64, bool) {
+	read, written := stats.StorageStats.ReadSizeBytes, stats.StorageStats.WriteSizeBytes
+	available := read > 0 || written > 0
+	for _, entry := range stats.BlkioStats.IoServiceBytesRecursive {
+		switch entry.Op {
+		case "Read", "read":
+			read += entry.Value
+		case "Write", "write":
+			written += entry.Value
+		}
+		available = true
+	}
+	return read, written, available
 }

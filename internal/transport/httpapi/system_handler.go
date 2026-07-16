@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
 	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
@@ -44,6 +45,7 @@ type handler struct {
 	git        gitService
 	actions    actionService
 	ai         aiOnboardingService
+	resources  resourceService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -122,6 +124,13 @@ type aiOnboardingService interface {
 	Providers(context.Context) []agentsApplication.ProviderDescriptor
 	Preview(context.Context, string, agentsApplication.Limits) (agentsApplication.BundlePreview, error)
 	GetRun(context.Context, string) (agentsApplication.Run, error)
+}
+
+type resourceService interface {
+	Overview(context.Context) (observabilityDomain.ResourceOverview, error)
+	History(context.Context, string, string, string, time.Time, time.Time, int) (observabilityDomain.MetricHistory, error)
+	Storage(context.Context) (observabilityDomain.StorageInventory, error)
+	CleanupPreview(context.Context, string) (observabilityDomain.CleanupPreview, error)
 }
 
 type sessionService interface {

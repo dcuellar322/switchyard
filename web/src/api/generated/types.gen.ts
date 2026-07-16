@@ -479,11 +479,169 @@ export type RuntimeMetricSample = {
     timestamp: string;
     projectId: string;
     serviceId: string;
+    instanceId?: string;
     cpuPercent: number;
+    cpuAvailable: boolean;
     memoryBytes: number;
     memoryLimit: number;
+    memoryAvailable: boolean;
     networkRxBytes: number;
     networkTxBytes: number;
+    networkAvailable: boolean;
+    diskReadBytes: number;
+    diskWriteBytes: number;
+    diskAvailable: boolean;
+    processCount: number;
+    restartCount: number;
+    partial: boolean;
+};
+
+export type StorageClassification = 'exclusive' | 'shared' | 'estimated' | 'unknown';
+
+export type ResourceBudget = {
+    cpuPercent: number;
+    memoryBytes: number;
+    storageBytes: number;
+};
+
+export type ResourceMetricPoint = {
+    timestamp: string;
+    projectId: string;
+    serviceId: string;
+    resolutionSeconds: number;
+    sampleCount: number;
+    cpuPercent: number;
+    cpuMaxPercent: number;
+    cpuAvailable: boolean;
+    memoryBytes: number;
+    memoryMaxBytes: number;
+    memoryLimit: number;
+    memoryAvailable: boolean;
+    networkRxBytes: number;
+    networkTxBytes: number;
+    networkAvailable: boolean;
+    diskReadBytes: number;
+    diskWriteBytes: number;
+    diskAvailable: boolean;
+    processCount: number;
+    restartCount: number;
+    healthLatencyMs: number;
+    healthAvailable: boolean;
+    storageBytes?: number;
+    storageClassification: StorageClassification;
+    partial: boolean;
+};
+
+export type BudgetWarning = {
+    code: string;
+    resource: string;
+    limit: number;
+    observed: number;
+    unit: string;
+    samples: number;
+    sustainedFrom: string;
+    message: string;
+};
+
+export type ResourceServiceSnapshot = {
+    serviceId: string;
+    metric: ResourceMetricPoint;
+};
+
+export type ResourceProjectSnapshot = {
+    projectId: string;
+    name: string;
+    driver: string;
+    state: string;
+    active: boolean;
+    metric: ResourceMetricPoint;
+    services: Array<ResourceServiceSnapshot>;
+    budget: ResourceBudget;
+    warnings: Array<BudgetWarning>;
+};
+
+export type MetricHistory = {
+    projectId: string;
+    serviceId: string;
+    resolutionSeconds: number;
+    from: string;
+    to: string;
+    points: Array<ResourceMetricPoint>;
+};
+
+export type StorageResource = {
+    kind: 'container' | 'image' | 'volume' | 'build_cache';
+    id: string;
+    name: string;
+    projectIds: Array<string>;
+    bytes?: number;
+    reclaimable: boolean;
+    classification: StorageClassification;
+    reason: string;
+};
+
+export type StorageSummary = {
+    bytes: number;
+    reclaimableBytes: number;
+    classification: StorageClassification;
+    resourceCount: number;
+};
+
+export type ProjectStorage = {
+    projectId: string;
+    summary: StorageSummary;
+    unknownSizes: number;
+    sharedResources: number;
+};
+
+export type StorageInventory = {
+    connected: boolean;
+    observedAt: string;
+    summary: StorageSummary;
+    projects: Array<ProjectStorage>;
+    resources: Array<StorageResource>;
+    warnings: Array<string>;
+};
+
+export type CleanupPreview = {
+    projectId: string;
+    risk: 'destructive';
+    executable: false;
+    estimatedBytes: number;
+    unknownSizes: number;
+    resources: Array<StorageResource>;
+    warnings: Array<string>;
+    observedAt: string;
+};
+
+export type ResourceFootprint = {
+    databaseBytes: number;
+    databaseWalBytes: number;
+    databaseShmBytes: number;
+    logBytes: number;
+    logSegments: number;
+    metricRows: number;
+    oldestMetricAt?: string;
+    classification: 'exclusive';
+};
+
+export type ResourceRetention = {
+    sampleIntervalSeconds: number;
+    rawSeconds: number;
+    minuteSeconds: number;
+    quarterHourSeconds: number;
+    maximumHistoryPoints: number;
+    logSeconds: number;
+    logBytes: number;
+};
+
+export type ResourceOverview = {
+    observedAt: string;
+    projects: Array<ResourceProjectSnapshot>;
+    storage: StorageSummary;
+    footprint: ResourceFootprint;
+    retention: ResourceRetention;
+    warnings: Array<string>;
 };
 
 export type Operation = {
@@ -596,6 +754,83 @@ export type GetHostResponses = {
 };
 
 export type GetHostResponse = GetHostResponses[keyof GetHostResponses];
+
+export type GetResourceOverviewData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/resources';
+};
+
+export type GetResourceOverviewErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetResourceOverviewError = GetResourceOverviewErrors[keyof GetResourceOverviewErrors];
+
+export type GetResourceOverviewResponses = {
+    /**
+     * Aggregate resource intelligence
+     */
+    200: ResourceOverview;
+};
+
+export type GetResourceOverviewResponse = GetResourceOverviewResponses[keyof GetResourceOverviewResponses];
+
+export type GetStorageInventoryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/resources/storage';
+};
+
+export type GetStorageInventoryErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetStorageInventoryError = GetStorageInventoryErrors[keyof GetStorageInventoryErrors];
+
+export type GetStorageInventoryResponses = {
+    /**
+     * Read-only storage inventory
+     */
+    200: StorageInventory;
+};
+
+export type GetStorageInventoryResponse = GetStorageInventoryResponses[keyof GetStorageInventoryResponses];
+
+export type GetCleanupPreviewData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+    };
+    url: '/resources/cleanup-preview';
+};
+
+export type GetCleanupPreviewErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetCleanupPreviewError = GetCleanupPreviewErrors[keyof GetCleanupPreviewErrors];
+
+export type GetCleanupPreviewResponses = {
+    /**
+     * Non-executable cleanup preview
+     */
+    200: CleanupPreview;
+};
+
+export type GetCleanupPreviewResponse = GetCleanupPreviewResponses[keyof GetCleanupPreviewResponses];
 
 export type CreateBrowserBootstrapTokenData = {
     body?: never;
@@ -1357,6 +1592,39 @@ export type GetProjectMetricsResponses = {
 };
 
 export type GetProjectMetricsResponse = GetProjectMetricsResponses[keyof GetProjectMetricsResponses];
+
+export type GetMetricHistoryData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query: {
+        service?: string;
+        from: string;
+        to: string;
+        resolution?: 'auto' | 'raw' | '1m' | '15m';
+        maxPoints?: number;
+    };
+    url: '/projects/{projectId}/metrics/history';
+};
+
+export type GetMetricHistoryErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetMetricHistoryError = GetMetricHistoryErrors[keyof GetMetricHistoryErrors];
+
+export type GetMetricHistoryResponses = {
+    /**
+     * Chronological retained metric history
+     */
+    200: MetricHistory;
+};
+
+export type GetMetricHistoryResponse = GetMetricHistoryResponses[keyof GetMetricHistoryResponses];
 
 export type GetProjectGitData = {
     body?: never;

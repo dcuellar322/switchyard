@@ -308,14 +308,24 @@ type MetricRequest struct {
 
 // MetricSample is one current resource measurement.
 type MetricSample struct {
-	Timestamp      time.Time `json:"timestamp"`
-	ProjectID      string    `json:"projectId"`
-	ServiceID      string    `json:"serviceId"`
-	CPUPercent     float64   `json:"cpuPercent"`
-	MemoryBytes    uint64    `json:"memoryBytes"`
-	MemoryLimit    uint64    `json:"memoryLimit"`
-	NetworkRxBytes uint64    `json:"networkRxBytes"`
-	NetworkTxBytes uint64    `json:"networkTxBytes"`
+	Timestamp        time.Time `json:"timestamp"`
+	ProjectID        string    `json:"projectId"`
+	ServiceID        string    `json:"serviceId"`
+	InstanceID       string    `json:"instanceId,omitempty"`
+	CPUPercent       float64   `json:"cpuPercent"`
+	CPUAvailable     bool      `json:"cpuAvailable"`
+	MemoryBytes      uint64    `json:"memoryBytes"`
+	MemoryLimit      uint64    `json:"memoryLimit"`
+	MemoryAvailable  bool      `json:"memoryAvailable"`
+	NetworkRxBytes   uint64    `json:"networkRxBytes"`
+	NetworkTxBytes   uint64    `json:"networkTxBytes"`
+	NetworkAvailable bool      `json:"networkAvailable"`
+	DiskReadBytes    uint64    `json:"diskReadBytes"`
+	DiskWriteBytes   uint64    `json:"diskWriteBytes"`
+	DiskAvailable    bool      `json:"diskAvailable"`
+	ProcessCount     int       `json:"processCount"`
+	RestartCount     int       `json:"restartCount"`
+	Partial          bool      `json:"partial"`
 }
 
 // RuntimeEvent identifies one Compose-labelled Engine event.

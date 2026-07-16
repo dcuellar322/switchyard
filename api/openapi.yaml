@@ -32,6 +32,46 @@ paths:
                 $ref: "#/components/schemas/HostObservation"
         default:
           $ref: "#/components/responses/Problem"
+  /resources:
+    get:
+      operationId: getResourceOverview
+      summary: Read aggregate current project resources, budgets, storage, and retention
+      responses:
+        "200":
+          description: Aggregate resource intelligence
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceOverview" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /resources/storage:
+    get:
+      operationId: getStorageInventory
+      summary: Inspect Docker storage with explicit attribution confidence
+      responses:
+        "200":
+          description: Read-only storage inventory
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StorageInventory" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /resources/cleanup-preview:
+    get:
+      operationId: getCleanupPreview
+      summary: Preview exact reclaimable resources without deleting anything
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Non-executable cleanup preview
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CleanupPreview" }
+        default:
+          $ref: "#/components/responses/Problem"
   /auth/bootstrap-tokens:
     post:
       operationId: createBrowserBootstrapToken
@@ -509,6 +549,38 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/RuntimeMetricSample" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/metrics/history:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getMetricHistory
+      summary: Read bounded persisted project or service metric history
+      parameters:
+        - name: service
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: resolution
+          in: query
+          schema: { type: string, enum: [auto, raw, 1m, 15m], default: auto }
+        - name: maxPoints
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 1000 }
+      responses:
+        "200":
+          description: Chronological retained metric history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MetricHistory" }
         default:
           $ref: "#/components/responses/Problem"
   /projects/{projectId}/git:
@@ -1267,16 +1339,203 @@ components:
     RuntimeMetricSample:
       type: object
       additionalProperties: false
-      required: [timestamp, projectId, serviceId, cpuPercent, memoryBytes, memoryLimit, networkRxBytes, networkTxBytes]
+      required: [timestamp, projectId, serviceId, cpuPercent, cpuAvailable, memoryBytes, memoryLimit, memoryAvailable, networkRxBytes, networkTxBytes, networkAvailable, diskReadBytes, diskWriteBytes, diskAvailable, processCount, restartCount, partial]
       properties:
         timestamp: { type: string, format: date-time }
         projectId: { type: string }
         serviceId: { type: string }
+        instanceId: { type: string }
         cpuPercent: { type: number, format: double, minimum: 0 }
+        cpuAvailable: { type: boolean }
         memoryBytes: { type: integer, format: int64, minimum: 0 }
         memoryLimit: { type: integer, format: int64, minimum: 0 }
+        memoryAvailable: { type: boolean }
         networkRxBytes: { type: integer, format: int64, minimum: 0 }
         networkTxBytes: { type: integer, format: int64, minimum: 0 }
+        networkAvailable: { type: boolean }
+        diskReadBytes: { type: integer, format: int64, minimum: 0 }
+        diskWriteBytes: { type: integer, format: int64, minimum: 0 }
+        diskAvailable: { type: boolean }
+        processCount: { type: integer, minimum: 0 }
+        restartCount: { type: integer, minimum: 0 }
+        partial: { type: boolean }
+    StorageClassification:
+      type: string
+      enum: [exclusive, shared, estimated, unknown]
+    ResourceBudget:
+      type: object
+      additionalProperties: false
+      required: [cpuPercent, memoryBytes, storageBytes]
+      properties:
+        cpuPercent: { type: number, format: double, minimum: 0 }
+        memoryBytes: { type: integer, format: int64, minimum: 0 }
+        storageBytes: { type: integer, format: int64, minimum: 0 }
+    ResourceMetricPoint:
+      type: object
+      additionalProperties: false
+      required: [timestamp, projectId, serviceId, resolutionSeconds, sampleCount, cpuPercent, cpuMaxPercent, cpuAvailable, memoryBytes, memoryMaxBytes, memoryLimit, memoryAvailable, networkRxBytes, networkTxBytes, networkAvailable, diskReadBytes, diskWriteBytes, diskAvailable, processCount, restartCount, healthLatencyMs, healthAvailable, storageClassification, partial]
+      properties:
+        timestamp: { type: string, format: date-time }
+        projectId: { type: string }
+        serviceId: { type: string }
+        resolutionSeconds: { type: integer, minimum: 0 }
+        sampleCount: { type: integer, minimum: 1 }
+        cpuPercent: { type: number, format: double, minimum: 0 }
+        cpuMaxPercent: { type: number, format: double, minimum: 0 }
+        cpuAvailable: { type: boolean }
+        memoryBytes: { type: integer, format: int64, minimum: 0 }
+        memoryMaxBytes: { type: integer, format: int64, minimum: 0 }
+        memoryLimit: { type: integer, format: int64, minimum: 0 }
+        memoryAvailable: { type: boolean }
+        networkRxBytes: { type: integer, format: int64, minimum: 0 }
+        networkTxBytes: { type: integer, format: int64, minimum: 0 }
+        networkAvailable: { type: boolean }
+        diskReadBytes: { type: integer, format: int64, minimum: 0 }
+        diskWriteBytes: { type: integer, format: int64, minimum: 0 }
+        diskAvailable: { type: boolean }
+        processCount: { type: integer, minimum: 0 }
+        restartCount: { type: integer, minimum: 0 }
+        healthLatencyMs: { type: integer, format: int64, minimum: 0 }
+        healthAvailable: { type: boolean }
+        storageBytes: { type: integer, format: int64, minimum: 0 }
+        storageClassification: { $ref: "#/components/schemas/StorageClassification" }
+        partial: { type: boolean }
+    BudgetWarning:
+      type: object
+      additionalProperties: false
+      required: [code, resource, limit, observed, unit, samples, sustainedFrom, message]
+      properties:
+        code: { type: string }
+        resource: { type: string }
+        limit: { type: number, format: double }
+        observed: { type: number, format: double }
+        unit: { type: string }
+        samples: { type: integer, minimum: 1 }
+        sustainedFrom: { type: string, format: date-time }
+        message: { type: string }
+    ResourceServiceSnapshot:
+      type: object
+      additionalProperties: false
+      required: [serviceId, metric]
+      properties:
+        serviceId: { type: string }
+        metric: { $ref: "#/components/schemas/ResourceMetricPoint" }
+    ResourceProjectSnapshot:
+      type: object
+      additionalProperties: false
+      required: [projectId, name, driver, state, active, metric, services, budget, warnings]
+      properties:
+        projectId: { type: string }
+        name: { type: string }
+        driver: { type: string }
+        state: { type: string }
+        active: { type: boolean }
+        metric: { $ref: "#/components/schemas/ResourceMetricPoint" }
+        services: { type: array, items: { $ref: "#/components/schemas/ResourceServiceSnapshot" } }
+        budget: { $ref: "#/components/schemas/ResourceBudget" }
+        warnings: { type: array, items: { $ref: "#/components/schemas/BudgetWarning" } }
+    MetricHistory:
+      type: object
+      additionalProperties: false
+      required: [projectId, serviceId, resolutionSeconds, from, to, points]
+      properties:
+        projectId: { type: string }
+        serviceId: { type: string }
+        resolutionSeconds: { type: integer, minimum: 0 }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        points: { type: array, maxItems: 1000, items: { $ref: "#/components/schemas/ResourceMetricPoint" } }
+    StorageResource:
+      type: object
+      additionalProperties: false
+      required: [kind, id, name, projectIds, reclaimable, classification, reason]
+      properties:
+        kind: { type: string, enum: [container, image, volume, build_cache] }
+        id: { type: string }
+        name: { type: string }
+        projectIds: { type: array, items: { type: string } }
+        bytes: { type: integer, format: int64, minimum: 0 }
+        reclaimable: { type: boolean }
+        classification: { $ref: "#/components/schemas/StorageClassification" }
+        reason: { type: string }
+    StorageSummary:
+      type: object
+      additionalProperties: false
+      required: [bytes, reclaimableBytes, classification, resourceCount]
+      properties:
+        bytes: { type: integer, format: int64, minimum: 0 }
+        reclaimableBytes: { type: integer, format: int64, minimum: 0 }
+        classification: { $ref: "#/components/schemas/StorageClassification" }
+        resourceCount: { type: integer, minimum: 0 }
+    ProjectStorage:
+      type: object
+      additionalProperties: false
+      required: [projectId, summary, unknownSizes, sharedResources]
+      properties:
+        projectId: { type: string }
+        summary: { $ref: "#/components/schemas/StorageSummary" }
+        unknownSizes: { type: integer, minimum: 0 }
+        sharedResources: { type: integer, minimum: 0 }
+    StorageInventory:
+      type: object
+      additionalProperties: false
+      required: [connected, observedAt, summary, projects, resources, warnings]
+      properties:
+        connected: { type: boolean }
+        observedAt: { type: string, format: date-time }
+        summary: { $ref: "#/components/schemas/StorageSummary" }
+        projects: { type: array, items: { $ref: "#/components/schemas/ProjectStorage" } }
+        resources: { type: array, items: { $ref: "#/components/schemas/StorageResource" } }
+        warnings: { type: array, items: { type: string } }
+    CleanupPreview:
+      type: object
+      additionalProperties: false
+      required: [projectId, risk, executable, estimatedBytes, unknownSizes, resources, warnings, observedAt]
+      properties:
+        projectId: { type: string }
+        risk: { type: string, enum: [destructive] }
+        executable: { type: boolean, enum: [false] }
+        estimatedBytes: { type: integer, format: int64, minimum: 0 }
+        unknownSizes: { type: integer, minimum: 0 }
+        resources: { type: array, items: { $ref: "#/components/schemas/StorageResource" } }
+        warnings: { type: array, items: { type: string } }
+        observedAt: { type: string, format: date-time }
+    ResourceFootprint:
+      type: object
+      additionalProperties: false
+      required: [databaseBytes, databaseWalBytes, databaseShmBytes, logBytes, logSegments, metricRows, classification]
+      properties:
+        databaseBytes: { type: integer, format: int64, minimum: 0 }
+        databaseWalBytes: { type: integer, format: int64, minimum: 0 }
+        databaseShmBytes: { type: integer, format: int64, minimum: 0 }
+        logBytes: { type: integer, format: int64, minimum: 0 }
+        logSegments: { type: integer, minimum: 0 }
+        metricRows: { type: integer, format: int64, minimum: 0 }
+        oldestMetricAt: { type: string, format: date-time }
+        classification: { type: string, enum: [exclusive] }
+    ResourceRetention:
+      type: object
+      additionalProperties: false
+      required: [sampleIntervalSeconds, rawSeconds, minuteSeconds, quarterHourSeconds, maximumHistoryPoints, logSeconds, logBytes]
+      properties:
+        sampleIntervalSeconds: { type: integer, minimum: 1 }
+        rawSeconds: { type: integer, format: int64, minimum: 1 }
+        minuteSeconds: { type: integer, format: int64, minimum: 1 }
+        quarterHourSeconds: { type: integer, format: int64, minimum: 1 }
+        maximumHistoryPoints: { type: integer, minimum: 1, maximum: 1000 }
+        logSeconds: { type: integer, format: int64, minimum: 1 }
+        logBytes: { type: integer, format: int64, minimum: 1 }
+    ResourceOverview:
+      type: object
+      additionalProperties: false
+      required: [observedAt, projects, storage, footprint, retention, warnings]
+      properties:
+        observedAt: { type: string, format: date-time }
+        projects: { type: array, items: { $ref: "#/components/schemas/ResourceProjectSnapshot" } }
+        storage: { $ref: "#/components/schemas/StorageSummary" }
+        footprint: { $ref: "#/components/schemas/ResourceFootprint" }
+        retention: { $ref: "#/components/schemas/ResourceRetention" }
+        warnings: { type: array, items: { type: string } }
     Operation:
       type: object
       additionalProperties: false

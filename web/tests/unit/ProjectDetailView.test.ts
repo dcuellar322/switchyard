@@ -191,4 +191,10 @@ test("keeps project controls usable and honest when Docker is unavailable", asyn
     "true",
   );
   expect(await screen.findByText("database unavailable")).toBeInTheDocument();
+
+  await fireEvent.click(screen.getByRole("tab", { name: "storage" }));
+  expect(
+    screen.getByRole("link", { name: "Inspect project storage →" }),
+  ).toHaveAttribute("href", "/resources?project=alpha");
+  expect(screen.getByText(/cleanup remains a non-executable preview/)).toBeInTheDocument();
 });

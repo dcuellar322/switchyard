@@ -130,11 +130,31 @@ const stateTone = computed(() =>
 );
 const memory = computed(
   () =>
-    metrics.data.value?.reduce((sum, item) => sum + item.memoryBytes, 0) ?? 0,
+    metrics.data.value?.reduce(
+      (sum, item) => sum + (item.memoryAvailable ? item.memoryBytes : 0),
+      0,
+    ) ?? 0,
 );
 const cpu = computed(
   () =>
-    metrics.data.value?.reduce((sum, item) => sum + item.cpuPercent, 0) ?? 0,
+    metrics.data.value?.reduce(
+      (sum, item) => sum + (item.cpuAvailable ? item.cpuPercent : 0),
+      0,
+    ) ?? 0,
+);
+const cpuAvailable = computed(() =>
+  Boolean(metrics.data.value?.some((item) => item.cpuAvailable)),
+);
+const memoryAvailable = computed(() =>
+  Boolean(metrics.data.value?.some((item) => item.memoryAvailable)),
+);
+const memoryLimit = computed(() =>
+  Math.max(
+    0,
+    ...(metrics.data.value
+      ?.filter((item) => item.memoryAvailable)
+      .map((item) => item.memoryLimit) ?? []),
+  ),
 );
 const changes = computed(() => {
   const value = git.data.value?.changes;
@@ -352,7 +372,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
             >
               <div class="service-row service-row--head">
                 <span>Service</span><span>Status</span><span>Health</span
-                ><span>Port</span><span>Resource</span>
+				><span>Port</span><span>CPU</span><span>Memory</span>
               </div>
               <div
                 v-for="service in runtime.data.value.services"
@@ -373,13 +393,15 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
                     .filter(Boolean)
                     .join(", ") || "—"
                 }}</span
-                ><span>{{
-                  formatBytes(
-                    metrics.data.value?.find(
-                      (item) => item.serviceId === service.id,
-                    )?.memoryBytes ?? 0,
-                  )
-                }}</span>
+				><span>{{
+					metrics.data.value?.find((item) => item.serviceId === service.id)?.cpuAvailable
+						? `${metrics.data.value.find((item) => item.serviceId === service.id)!.cpuPercent.toFixed(1)}%`
+						: "—"
+				}}</span><span>{{
+					metrics.data.value?.find((item) => item.serviceId === service.id)?.memoryAvailable
+						? formatBytes(metrics.data.value.find((item) => item.serviceId === service.id)!.memoryBytes)
+						: "—"
+				}}</span>
               </div>
             </div>
             <p v-else class="panel-state">
@@ -433,24 +455,24 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
             <dl>
               <div>
                 <dt>CPU</dt>
-                <dd>{{ cpu.toFixed(1) }}%</dd>
+				<dd>{{ cpuAvailable ? `${cpu.toFixed(1)}%` : "—" }}</dd>
                 <span
-                  ><i :style="{ width: `${Math.min(cpu, 100)}%` }"></i
+					><i :style="{ width: `${cpuAvailable ? Math.min(cpu, 100) : 0}%` }"></i
                 ></span>
               </div>
               <div>
                 <dt>Memory</dt>
-                <dd>{{ formatBytes(memory) }}</dd>
+				<dd>{{ memoryAvailable ? formatBytes(memory) : "—" }}</dd>
                 <span
                   ><i
                     :style="{
-                      width: `${Math.min((memory / Math.max(...(metrics.data.value?.map((item) => item.memoryLimit) ?? [1]))) * 100, 100)}%`,
+						width: `${memoryAvailable && memoryLimit > 0 ? Math.min((memory / memoryLimit) * 100, 100) : 0}%`,
                     }"
                   ></i
                 ></span>
               </div>
             </dl>
-            <RouterLink :to="{ name: 'resources' }"
+            <RouterLink :to="{ name: 'resources', query: { project: projectId } }"
               >Open resource view →</RouterLink
             >
           </article>
@@ -691,13 +713,15 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
         aria-labelledby="tab-storage"
       >
         <article class="panel future-panel">
-          <strong>Shared runtime storage</strong>
+          <strong>Project storage intelligence</strong>
           <p>
-            Project-exclusive storage attribution is not available yet.
-            Host-level Docker usage is intentionally labeled shared in
-            Resources.
+            Inspect containers, images, volumes, and build cache attributed to
+            this project. Shared, estimated, and unknown values stay labeled,
+            and cleanup remains a non-executable preview.
           </p>
-          <RouterLink to="/resources">View shared resources</RouterLink>
+          <RouterLink :to="{ name: 'resources', query: { project: projectId } }"
+            >Inspect project storage →</RouterLink
+          >
         </article>
       </div>
       <div
@@ -936,7 +960,7 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
 }
 .service-row {
   display: grid;
-  grid-template-columns: 1.1fr 0.85fr 0.8fr 0.7fr 0.7fr;
+	grid-template-columns: 1.1fr 0.85fr 0.8fr 0.7fr 0.6fr 0.7fr;
   gap: 10px;
   padding: 9px 11px;
   border-top: 1px solid var(--border);

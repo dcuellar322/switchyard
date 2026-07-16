@@ -115,6 +115,8 @@ type inspectorFake struct {
 	listeners map[int][]domain.ProcessIdentity
 	matches   map[int32]bool
 	usage     processUsage
+	usages    map[int32]processUsage
+	usageErrs map[int32]error
 }
 
 func (f inspectorFake) Snapshot(_ context.Context, pid int32) (domain.ProcessIdentity, error) {
@@ -133,7 +135,15 @@ func (f inspectorFake) Listeners(_ context.Context, port int) ([]domain.ProcessI
 func (f inspectorFake) MatchesCommand(_ context.Context, pid int32, _ string) bool {
 	return f.matches[pid]
 }
-func (f inspectorFake) Usage(context.Context, int32) (processUsage, error) { return f.usage, nil }
+func (f inspectorFake) Usage(_ context.Context, pid int32) (processUsage, error) {
+	if err := f.usageErrs[pid]; err != nil {
+		return processUsage{}, err
+	}
+	if usage, ok := f.usages[pid]; ok {
+		return usage, nil
+	}
+	return f.usage, nil
+}
 
 type secretResolverFake struct {
 	values map[string]string

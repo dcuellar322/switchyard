@@ -119,6 +119,11 @@ func (s *HealthService) Get(ctx context.Context, projectID string) (observabilit
 	return aggregateHealth(projectID, observation, results, s.now().UTC()), nil
 }
 
+// LatestResults returns persisted check latencies without triggering runtime inspection.
+func (s *HealthService) LatestResults(ctx context.Context, projectID string) ([]observability.HealthResult, error) {
+	return s.repository.LatestHealth(ctx, projectID)
+}
+
 // EvaluateProject runs every declared check and records only sanitized result messages.
 func (s *HealthService) EvaluateProject(ctx context.Context, projectID string) (observability.ProjectHealth, error) {
 	project, err := s.source.ResolveRuntime(ctx, projectID)
