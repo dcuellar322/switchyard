@@ -2,6 +2,7 @@ package application_test
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"testing"
 
@@ -47,7 +48,7 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	if duplicateProject.ID != project.ID || duplicateProposal.ID != proposal.ID {
 		t.Fatal("duplicate scan created a competing proposal")
 	}
-	trusted, accepted, err := service.Accept(ctx, proposal.ID)
+	trusted, accepted, err := service.TrustProject(ctx, project.ID)
 	if err != nil {
 		t.Fatalf("Accept() error = %v", err)
 	}
@@ -60,5 +61,11 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	}
 	if effective.Manifest.Metadata.Name != "Switchyard Mixed Fixture" {
 		t.Fatalf("effective name = %q", effective.Manifest.Metadata.Name)
+	}
+	if err := service.RemoveProject(ctx, project.ID); err != nil {
+		t.Fatalf("RemoveProject() error = %v", err)
+	}
+	if _, err := service.GetProject(ctx, project.ID); !errors.Is(err, application.ErrNotFound) {
+		t.Fatalf("GetProject() after removal error = %v", err)
 	}
 }

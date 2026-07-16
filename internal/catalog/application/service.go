@@ -31,10 +31,12 @@ type Repository interface {
 	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal) error
 	FindProposalByLocation(context.Context, string) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
+	LatestProposal(context.Context, string) (discoveryDomain.Proposal, error)
 	AcceptProposal(context.Context, string, time.Time) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProject(context.Context, string) (catalog.Project, error)
 	ListProjects(context.Context) ([]catalog.Project, error)
 	AcceptedManifest(context.Context, string) (manifestDomain.Manifest, error)
+	RemoveProject(context.Context, string, time.Time) error
 }
 
 // Service is the project onboarding use-case boundary.
@@ -126,6 +128,25 @@ func (s *Service) Accept(ctx context.Context, id string) (catalog.Project, disco
 // ListProjects returns registered projects in stable display order.
 func (s *Service) ListProjects(ctx context.Context) ([]catalog.Project, error) {
 	return s.repository.ListProjects(ctx)
+}
+
+// GetProject returns one registered project.
+func (s *Service) GetProject(ctx context.Context, id string) (catalog.Project, error) {
+	return s.repository.GetProject(ctx, id)
+}
+
+// TrustProject validates and accepts the latest proposal for a project.
+func (s *Service) TrustProject(ctx context.Context, projectID string) (catalog.Project, discoveryDomain.Proposal, error) {
+	proposal, err := s.repository.LatestProposal(ctx, projectID)
+	if err != nil {
+		return catalog.Project{}, discoveryDomain.Proposal{}, err
+	}
+	return s.Accept(ctx, proposal.ID)
+}
+
+// RemoveProject removes catalog state without touching repository files.
+func (s *Service) RemoveProject(ctx context.Context, projectID string) error {
+	return s.repository.RemoveProject(ctx, projectID, s.now().UTC())
 }
 
 // EffectiveManifest resolves the accepted snapshot with portable and local files.

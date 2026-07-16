@@ -20,6 +20,7 @@ var (
 type Repository interface {
 	CreateOrGet(ctx context.Context, operation domain.Operation) (domain.Operation, bool, error)
 	Get(ctx context.Context, id string) (domain.Operation, error)
+	List(ctx context.Context, projectID string, limit int64) ([]domain.Operation, error)
 	Transition(ctx context.Context, current domain.Operation, next domain.Operation) error
 	RequestCancellation(ctx context.Context, id string, at time.Time) (bool, error)
 	AddStep(ctx context.Context, step Step) error

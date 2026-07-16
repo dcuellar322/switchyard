@@ -31,6 +31,9 @@ type catalogService interface {
 	Validate(context.Context, string) (discoveryDomain.Proposal, error)
 	Accept(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	ListProjects(context.Context) ([]catalogDomain.Project, error)
+	GetProject(context.Context, string) (catalogDomain.Project, error)
+	TrustProject(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	RemoveProject(context.Context, string) error
 	EffectiveManifest(context.Context, string, []byte) (manifestApplication.EffectiveManifest, error)
 	Diff(context.Context, string) (map[string]json.RawMessage, error)
 	ValidateProject(context.Context, string) (manifestApplication.ValidationResult, error)
@@ -38,6 +41,7 @@ type catalogService interface {
 
 type operationService interface {
 	Get(ctx context.Context, id string) (operationsDomain.Operation, error)
+	List(ctx context.Context, projectID string, limit int64) ([]operationsDomain.Operation, error)
 	Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (operationsDomain.Operation, error)
 }
 

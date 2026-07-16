@@ -145,6 +145,20 @@ func (r *CatalogRepository) GetProposal(ctx context.Context, id string) (discove
 	return proposal, rows.Err()
 }
 
+// LatestProposal returns the newest review candidate for a project.
+func (r *CatalogRepository) LatestProposal(ctx context.Context, projectID string) (discovery.Proposal, error) {
+	var id string
+	err := r.database.connection.QueryRowContext(ctx, `SELECT id FROM manifest_proposals
+        WHERE project_id = ? ORDER BY created_at DESC, id DESC LIMIT 1`, projectID).Scan(&id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return discovery.Proposal{}, application.ErrNotFound
+	}
+	if err != nil {
+		return discovery.Proposal{}, fmt.Errorf("read latest manifest proposal: %w", err)
+	}
+	return r.GetProposal(ctx, id)
+}
+
 // AcceptProposal atomically trusts a proposal and appends a manifest revision.
 func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at time.Time) (catalog.Project, discovery.Proposal, error) {
 	proposal, err := r.GetProposal(ctx, id)
@@ -266,6 +280,35 @@ func (r *CatalogRepository) AcceptedManifest(ctx context.Context, projectID stri
 	}
 	var result manifest.Manifest
 	return result, decodeJSON(value, &result)
+}
+
+// RemoveProject deletes catalog records while preserving a standalone audit event.
+func (r *CatalogRepository) RemoveProject(ctx context.Context, projectID string, at time.Time) error {
+	tx, err := r.database.connection.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin project removal: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	result, err := tx.ExecContext(ctx, `DELETE FROM projects WHERE id = ?`, projectID)
+	if err != nil {
+		return fmt.Errorf("delete project catalog: %w", err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("read project removal result: %w", err)
+	}
+	if rows != 1 {
+		return application.ErrNotFound
+	}
+	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
+        (event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
+        VALUES ('project.removed', 'system', 'catalog-service', ?, ?, '{}', ?)`, projectID, projectID, formatTime(at)); err != nil {
+		return fmt.Errorf("audit project removal: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit project removal: %w", err)
+	}
+	return nil
 }
 
 type rowScanner interface{ Scan(...any) error }

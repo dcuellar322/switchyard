@@ -254,6 +254,34 @@ export type GetOperationResponses = {
 
 export type GetOperationResponse = GetOperationResponses[keyof GetOperationResponses];
 
+export type ListOperationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        projectId?: string;
+        limit?: number;
+    };
+    url: '/operations';
+};
+
+export type ListOperationsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type ListOperationsError = ListOperationsErrors[keyof ListOperationsErrors];
+
+export type ListOperationsResponses = {
+    /**
+     * Recent durable operations
+     */
+    200: Array<Operation>;
+};
+
+export type ListOperationsResponse = ListOperationsResponses[keyof ListOperationsResponses];
+
 export type CancelOperationData = {
     body?: never;
     headers: {
@@ -423,6 +451,93 @@ export type ListProjectsResponses = {
 };
 
 export type ListProjectsResponse = ListProjectsResponses[keyof ListProjectsResponses];
+
+export type RemoveProjectData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}';
+};
+
+export type RemoveProjectErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type RemoveProjectError = RemoveProjectErrors[keyof RemoveProjectErrors];
+
+export type RemoveProjectResponses = {
+    /**
+     * Project removed
+     */
+    204: void;
+};
+
+export type RemoveProjectResponse = RemoveProjectResponses[keyof RemoveProjectResponses];
+
+export type GetProjectData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}';
+};
+
+export type GetProjectErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectError = GetProjectErrors[keyof GetProjectErrors];
+
+export type GetProjectResponses = {
+    /**
+     * Registered project
+     */
+    200: Project;
+};
+
+export type GetProjectResponse = GetProjectResponses[keyof GetProjectResponses];
+
+export type TrustProjectData = {
+    body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/trust';
+};
+
+export type TrustProjectErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type TrustProjectError = TrustProjectErrors[keyof TrustProjectErrors];
+
+export type TrustProjectResponses = {
+    /**
+     * Trusted project and accepted proposal
+     */
+    200: AcceptedManifestProposal;
+};
+
+export type TrustProjectResponse = TrustProjectResponses[keyof TrustProjectResponses];
 
 export type ExplainProjectManifestData = {
     body?: never;

@@ -16,6 +16,21 @@ type Client struct {
 	generated *generated.ClientWithResponses
 }
 
+// APIError preserves a stable problem code and HTTP status for CLI exit mapping.
+type APIError struct {
+	Operation string
+	Status    int
+	Code      string
+	Detail    string
+}
+
+func (e *APIError) Error() string {
+	if e.Detail != "" {
+		return fmt.Sprintf("%s: %s", e.Operation, e.Detail)
+	}
+	return fmt.Sprintf("%s: unexpected HTTP %d", e.Operation, e.Status)
+}
+
 // New creates a typed client for a daemon address.
 func New(address string) (*Client, error) {
 	baseURL := address
@@ -116,6 +131,82 @@ func (c *Client) Projects(ctx context.Context) ([]generated.Project, error) {
 	return *response.JSON200, nil
 }
 
+// Project reads one registered project by opaque ID.
+func (c *Client) Project(ctx context.Context, projectID string) (generated.Project, error) {
+	response, err := c.generated.GetProjectWithResponse(ctx, projectID)
+	if err != nil {
+		return generated.Project{}, fmt.Errorf("get project: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.Project{}, apiError("get project", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// TrustProject accepts the latest valid proposal for one project.
+func (c *Client) TrustProject(ctx context.Context, projectID, idempotencyKey string) (generated.AcceptedManifestProposal, error) {
+	response, err := c.generated.TrustProjectWithResponse(ctx, projectID, &generated.TrustProjectParams{IdempotencyKey: idempotencyKey})
+	if err != nil {
+		return generated.AcceptedManifestProposal{}, fmt.Errorf("trust project: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.AcceptedManifestProposal{}, apiError("trust project", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// RemoveProject removes catalog data without touching the repository.
+func (c *Client) RemoveProject(ctx context.Context, projectID, idempotencyKey string) error {
+	response, err := c.generated.RemoveProjectWithResponse(ctx, projectID, &generated.RemoveProjectParams{IdempotencyKey: idempotencyKey})
+	if err != nil {
+		return fmt.Errorf("remove project: %w", err)
+	}
+	if response.StatusCode() != http.StatusNoContent {
+		return apiError("remove project", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return nil
+}
+
+// Operations lists recent durable operations with an optional project filter.
+func (c *Client) Operations(ctx context.Context, projectID string, limit int64) ([]generated.Operation, error) {
+	params := &generated.ListOperationsParams{Limit: &limit}
+	if projectID != "" {
+		params.ProjectId = &projectID
+	}
+	response, err := c.generated.ListOperationsWithResponse(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("list operations: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return nil, apiError("list operations", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// Operation reads one durable operation.
+func (c *Client) Operation(ctx context.Context, operationID string) (generated.Operation, error) {
+	response, err := c.generated.GetOperationWithResponse(ctx, operationID)
+	if err != nil {
+		return generated.Operation{}, fmt.Errorf("get operation: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.Operation{}, apiError("get operation", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
+// CancelOperation requests durable idempotent cancellation.
+func (c *Client) CancelOperation(ctx context.Context, operationID, idempotencyKey string) (generated.Operation, error) {
+	response, err := c.generated.CancelOperationWithResponse(ctx, operationID, &generated.CancelOperationParams{IdempotencyKey: idempotencyKey})
+	if err != nil {
+		return generated.Operation{}, fmt.Errorf("cancel operation: %w", err)
+	}
+	if response.StatusCode() != http.StatusOK || response.JSON200 == nil {
+		return generated.Operation{}, apiError("cancel operation", response.StatusCode(), response.ApplicationproblemJSONDefault)
+	}
+	return *response.JSON200, nil
+}
+
 // ExplainManifest returns effective fields and provenance.
 func (c *Client) ExplainManifest(ctx context.Context, projectID string) (generated.EffectiveManifest, error) {
 	response, err := c.generated.ExplainProjectManifestWithResponse(ctx, projectID)
@@ -154,4 +245,15 @@ func (c *Client) ValidateProjectManifest(ctx context.Context, projectID string) 
 
 func unexpected(operation string, status int) error {
 	return fmt.Errorf("%s: unexpected HTTP %d", operation, status)
+}
+
+func apiError(operation string, status int, problem *generated.Problem) error {
+	result := &APIError{Operation: operation, Status: status}
+	if problem != nil {
+		result.Code = problem.Code
+		if problem.Detail != nil {
+			result.Detail = *problem.Detail
+		}
+	}
+	return result
 }

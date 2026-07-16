@@ -11,6 +11,12 @@ SELECT * FROM operations WHERE id = ?;
 -- name: GetOperationByIdempotency :one
 SELECT * FROM operations WHERE project_id = ? AND idempotency_key = ?;
 
+-- name: ListOperations :many
+SELECT * FROM operations
+WHERE (sqlc.arg(project_id) = '' OR project_id = sqlc.arg(project_id))
+ORDER BY requested_at DESC, id DESC
+LIMIT sqlc.arg(result_limit);
+
 -- name: ListRecoverableOperations :many
 SELECT * FROM operations
 WHERE state IN ('queued', 'running')

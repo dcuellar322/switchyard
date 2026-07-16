@@ -70,6 +70,27 @@ paths:
                 $ref: "#/components/schemas/Operation"
         default:
           $ref: "#/components/responses/Problem"
+  /operations:
+    get:
+      operationId: listOperations
+      summary: List recent durable operations
+      parameters:
+        - name: projectId
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, format: int64, minimum: 1, maximum: 500, default: 100 }
+      responses:
+        "200":
+          description: Recent durable operations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
   /operations/{operationId}/cancel:
     parameters:
       - $ref: "#/components/parameters/OperationId"
@@ -170,6 +191,45 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Project"
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProject
+      summary: Read one registered project
+      responses:
+        "200":
+          description: Registered project
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+        default:
+          $ref: "#/components/responses/Problem"
+    delete:
+      operationId: removeProject
+      summary: Remove catalog state without changing repository files
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "204": { description: Project removed }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/trust:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: trustProject
+      summary: Validate and accept the latest project proposal
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Trusted project and accepted proposal
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AcceptedManifestProposal" }
         default:
           $ref: "#/components/responses/Problem"
   /projects/{projectId}/manifest/explain:

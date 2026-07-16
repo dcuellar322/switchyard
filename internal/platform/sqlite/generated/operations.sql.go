@@ -302,6 +302,55 @@ func (q *Queries) ListOperationSteps(ctx context.Context, operationID string) ([
 	return items, nil
 }
 
+const listOperations = `-- name: ListOperations :many
+SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations
+WHERE (?1 = '' OR project_id = ?1)
+ORDER BY requested_at DESC, id DESC
+LIMIT ?2
+`
+
+type ListOperationsParams struct {
+	ProjectID   interface{} `json:"project_id"`
+	ResultLimit int64       `json:"result_limit"`
+}
+
+func (q *Queries) ListOperations(ctx context.Context, arg ListOperationsParams) ([]Operation, error) {
+	rows, err := q.db.QueryContext(ctx, listOperations, arg.ProjectID, arg.ResultLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Operation{}
+	for rows.Next() {
+		var i Operation
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProjectID,
+			&i.Kind,
+			&i.State,
+			&i.IdempotencyKey,
+			&i.InputJson,
+			&i.ErrorCode,
+			&i.ErrorMessage,
+			&i.CancellationRequested,
+			&i.RequestedAt,
+			&i.StartedAt,
+			&i.FinishedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listRecoverableOperations = `-- name: ListRecoverableOperations :many
 SELECT id, project_id, kind, state, idempotency_key, input_json, error_code, error_message, cancellation_requested, requested_at, started_at, finished_at, updated_at FROM operations
 WHERE state IN ('queued', 'running')

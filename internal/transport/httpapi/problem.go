@@ -41,6 +41,8 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusUnprocessableEntity, "PROPOSAL_INVALID", "Manifest proposal invalid", err.Error())
 	case errors.Is(err, catalog.ErrAlreadyReviewed):
 		writeProblem(w, r, http.StatusConflict, "PROPOSAL_REVIEWED", "Manifest proposal already reviewed", "Create a new proposal before making another trust decision.")
+	case errors.Is(err, operations.ErrInvalidRequest):
+		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request invalid", "One or more request parameters are outside their supported range.")
 	case errors.Is(err, operations.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "OPERATION_NOT_FOUND", "Operation not found", "No durable operation exists for this identifier.")
 	case errors.Is(err, session.ErrInvalidBootstrap):

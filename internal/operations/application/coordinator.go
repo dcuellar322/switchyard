@@ -88,6 +88,14 @@ func (c *Coordinator) Get(ctx context.Context, id string) (domain.Operation, err
 	return c.repo.Get(ctx, id)
 }
 
+// List returns recent durable operations, optionally filtered by project.
+func (c *Coordinator) List(ctx context.Context, projectID string, limit int64) ([]domain.Operation, error) {
+	if limit < 1 || limit > 500 {
+		return nil, ErrInvalidRequest
+	}
+	return c.repo.List(ctx, projectID, limit)
+}
+
 // Cancel requests idempotent cancellation and signals a live executor.
 func (c *Coordinator) Cancel(ctx context.Context, id, actorType, actorID, idempotencyKey string) (domain.Operation, error) {
 	operation, err := c.repo.Get(ctx, id)

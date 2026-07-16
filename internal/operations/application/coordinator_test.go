@@ -57,6 +57,10 @@ func TestCoordinatorIdempotencyAndProjectSerialization(t *testing.T) {
 	if executor.executions != 3 {
 		t.Fatalf("executions = %d, want 3", executor.executions)
 	}
+	listed, err := coordinator.List(ctx, "project-a", 100)
+	if err != nil || len(listed) != 2 {
+		t.Fatalf("List(project-a) = %d, %v", len(listed), err)
+	}
 }
 
 func TestCoordinatorCancellation(t *testing.T) {

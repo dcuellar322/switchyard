@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
+import type { AcceptManifestProposalData, AcceptManifestProposalErrors, AcceptManifestProposalResponses, CancelOperationData, CancelOperationErrors, CancelOperationResponses, CreateBrowserBootstrapTokenData, CreateBrowserBootstrapTokenErrors, CreateBrowserBootstrapTokenResponses, CreateBrowserSessionData, CreateBrowserSessionErrors, CreateBrowserSessionResponses, CreateManifestProposalData, CreateManifestProposalErrors, CreateManifestProposalResponses, DiffProjectManifestData, DiffProjectManifestErrors, DiffProjectManifestResponses, ExplainProjectManifestData, ExplainProjectManifestErrors, ExplainProjectManifestResponses, GetManifestProposalData, GetManifestProposalErrors, GetManifestProposalResponses, GetOperationData, GetOperationErrors, GetOperationResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetSystemData, GetSystemErrors, GetSystemResponses, ListOperationsData, ListOperationsErrors, ListOperationsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, RemoveProjectData, RemoveProjectErrors, RemoveProjectResponses, TrustProjectData, TrustProjectErrors, TrustProjectResponses, ValidateManifestProposalData, ValidateManifestProposalErrors, ValidateManifestProposalResponses, ValidateProjectManifestData, ValidateProjectManifestErrors, ValidateProjectManifestResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -46,6 +46,11 @@ export const createBrowserSession = <ThrowOnError extends boolean = false>(optio
 export const getOperation = <ThrowOnError extends boolean = false>(options: Options<GetOperationData, ThrowOnError>): RequestResult<GetOperationResponses, GetOperationErrors, ThrowOnError> => (options.client ?? client).get<GetOperationResponses, GetOperationErrors, ThrowOnError>({ url: '/operations/{operationId}', ...options });
 
 /**
+ * List recent durable operations
+ */
+export const listOperations = <ThrowOnError extends boolean = false>(options?: Options<ListOperationsData, ThrowOnError>): RequestResult<ListOperationsResponses, ListOperationsErrors, ThrowOnError> => (options?.client ?? client).get<ListOperationsResponses, ListOperationsErrors, ThrowOnError>({ url: '/operations', ...options });
+
+/**
  * Request idempotent operation cancellation
  */
 export const cancelOperation = <ThrowOnError extends boolean = false>(options: Options<CancelOperationData, ThrowOnError>): RequestResult<CancelOperationResponses, CancelOperationErrors, ThrowOnError> => (options.client ?? client).post<CancelOperationResponses, CancelOperationErrors, ThrowOnError>({ url: '/operations/{operationId}/cancel', ...options });
@@ -81,6 +86,21 @@ export const acceptManifestProposal = <ThrowOnError extends boolean = false>(opt
  * List registered projects
  */
 export const listProjects = <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>): RequestResult<ListProjectsResponses, ListProjectsErrors, ThrowOnError> => (options?.client ?? client).get<ListProjectsResponses, ListProjectsErrors, ThrowOnError>({ url: '/projects', ...options });
+
+/**
+ * Remove catalog state without changing repository files
+ */
+export const removeProject = <ThrowOnError extends boolean = false>(options: Options<RemoveProjectData, ThrowOnError>): RequestResult<RemoveProjectResponses, RemoveProjectErrors, ThrowOnError> => (options.client ?? client).delete<RemoveProjectResponses, RemoveProjectErrors, ThrowOnError>({ url: '/projects/{projectId}', ...options });
+
+/**
+ * Read one registered project
+ */
+export const getProject = <ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>): RequestResult<GetProjectResponses, GetProjectErrors, ThrowOnError> => (options.client ?? client).get<GetProjectResponses, GetProjectErrors, ThrowOnError>({ url: '/projects/{projectId}', ...options });
+
+/**
+ * Validate and accept the latest project proposal
+ */
+export const trustProject = <ThrowOnError extends boolean = false>(options: Options<TrustProjectData, ThrowOnError>): RequestResult<TrustProjectResponses, TrustProjectErrors, ThrowOnError> => (options.client ?? client).post<TrustProjectResponses, TrustProjectErrors, ThrowOnError>({ url: '/projects/{projectId}/trust', ...options });
 
 /**
  * Resolve the effective manifest with field provenance

@@ -65,13 +65,17 @@ versions are pinned in `.go-version`, `.node-version`, `go.mod`, and the root
 ```bash
 make bootstrap
 make build
-./bin/switchyard daemon --data-dir .switchyard-data/dev
-./bin/switchyard --data-dir .switchyard-data/dev ui
+./bin/switchyard --data-dir .switchyard-data/dev doctor
+./bin/switchyard --data-dir .switchyard-data/dev project add .
+./bin/switchyard --data-dir .switchyard-data/dev project list
 ```
 
-Open the one-time URL printed by `switchyard ui`; direct unauthenticated API
-requests are rejected. Run `make quality` for the complete local quality gate
-or the focused Make targets documented by `make -n quality`.
+The CLI starts the local daemon on demand. Run `switchyard ui` to print a
+one-time browser URL; direct unauthenticated API requests are rejected. The
+[CLI reference](docs/cli.md) documents stable JSON/JSONL output, semantic exit
+codes, shell completions, and automation rules. Run `make quality` for the
+complete local quality gate or the focused Make targets documented by
+`make -n quality`.
 
 ## Security
 

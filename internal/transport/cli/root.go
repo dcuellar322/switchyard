@@ -3,28 +3,29 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"switchyard.dev/switchyard/internal/bootstrap"
 	"switchyard.dev/switchyard/internal/foundation/buildinfo"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/platform/localipc"
-	"switchyard.dev/switchyard/internal/transport/httpclient"
 )
 
 type rootOptions struct {
-	address string
-	dataDir string
-	ipcAddr string
-	stdout  io.Writer
-	stderr  io.Writer
+	address        string
+	dataDir        string
+	ipcAddr        string
+	json           bool
+	jsonl          bool
+	nonInteractive bool
+	noColor        bool
+	stdout         io.Writer
+	stderr         io.Writer
 }
 
 // Execute runs the CLI with explicit process dependencies.
@@ -33,12 +34,7 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 	if err != nil {
 		return err
 	}
-	options := &rootOptions{
-		address: config.HTTPAddr,
-		dataDir: config.DataDir,
-		stdout:  stdout,
-		stderr:  stderr,
-	}
+	options := &rootOptions{address: config.HTTPAddr, dataDir: config.DataDir, stdout: stdout, stderr: stderr}
 	command := newRootCommand(options)
 	command.SetArgs(args)
 	command.SetOut(stdout)
@@ -48,194 +44,110 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 
 func newRootCommand(options *rootOptions) *cobra.Command {
 	root := &cobra.Command{
-		Use:           "switchyard",
-		Short:         "Local project-oriented development command center",
-		SilenceUsage:  true,
-		SilenceErrors: true,
+		Use: "switchyard", Short: "Local project-oriented development command center",
+		SilenceUsage: true, SilenceErrors: true,
+		PersistentPreRunE: func(*cobra.Command, []string) error {
+			if options.json && options.jsonl {
+				return usageError("OUTPUT_MODE_CONFLICT", "--json and --jsonl cannot be used together")
+			}
+			return nil
+		},
 	}
 	root.PersistentFlags().StringVar(&options.address, "address", options.address, "loopback daemon address")
 	root.PersistentFlags().StringVar(&options.dataDir, "data-dir", options.dataDir, "local Switchyard data directory")
 	root.PersistentFlags().StringVar(&options.ipcAddr, "ipc-address", "", "privileged local IPC address")
+	root.PersistentFlags().BoolVar(&options.json, "json", false, "emit a stable JSON envelope")
+	root.PersistentFlags().BoolVar(&options.jsonl, "jsonl", false, "emit one stable JSON envelope per item")
+	root.PersistentFlags().BoolVar(&options.nonInteractive, "non-interactive", false, "disable interactive prompts")
+	root.PersistentFlags().BoolVar(&options.noColor, "no-color", false, "disable ANSI color output")
 	root.AddCommand(
-		newVersionCommand(options),
-		newDaemonCommand(options),
-		newUICommand(options),
-		newDoctorCommand(options),
-		newAddCommand(options),
-		newManifestCommand(options),
+		newVersionCommand(options), newDaemonCommand(options), newUICommand(options), newDoctorCommand(options),
+		newAddCommand(options), newListAliasCommand(options), newProjectCommand(options), newOperationCommand(options),
+		newManifestCommand(options), newOpenCommand(options), newCompletionCommand(root), newSchemaCommand(options),
 	)
 	return root
 }
 
-func newAddCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:   "add <repository>",
-		Short: "Scan a repository and create a reviewable manifest proposal",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(command *cobra.Command, args []string) error {
-			client, err := ipcClient(options)
-			if err != nil {
-				return err
-			}
-			key, err := identifier.New("cli")
-			if err != nil {
-				return err
-			}
-			proposal, err := client.CreateManifestProposal(command.Context(), args[0], key)
-			if err != nil {
-				return err
-			}
-			return writePrettyJSON(options.stdout, proposal)
-		},
-	}
-}
-
-func newManifestCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "manifest", Short: "Inspect effective project manifests"}
-	command.AddCommand(
-		newManifestReadCommand(options, "explain <project>", "Print effective fields and provenance", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
-			return client.ExplainManifest(ctx, id)
-		}),
-		newManifestReadCommand(options, "diff <project>", "Compare accepted and effective manifests", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
-			return client.DiffManifest(ctx, id)
-		}),
-		newManifestReadCommand(options, "validate <project>", "Validate the effective manifest", func(ctx context.Context, client *httpclient.Client, id string) (any, error) {
-			return client.ValidateProjectManifest(ctx, id)
-		}),
-	)
-	return command
-}
-
-type manifestRead func(context.Context, *httpclient.Client, string) (any, error)
-
-func newManifestReadCommand(options *rootOptions, use, short string, read manifestRead) *cobra.Command {
-	return &cobra.Command{
-		Use: use, Short: short, Args: cobra.ExactArgs(1),
-		RunE: func(command *cobra.Command, args []string) error {
-			client, err := ipcClient(options)
-			if err != nil {
-				return err
-			}
-			projectID, err := resolveProject(command.Context(), client, args[0])
-			if err != nil {
-				return err
-			}
-			value, err := read(command.Context(), client, projectID)
-			if err != nil {
-				return err
-			}
-			return writePrettyJSON(options.stdout, value)
-		},
-	}
-}
-
-func resolveProject(ctx context.Context, client *httpclient.Client, value string) (string, error) {
-	projects, err := client.Projects(ctx)
-	if err != nil {
-		return "", err
-	}
-	for _, project := range projects {
-		if project.Id == value || project.Slug == value {
-			return project.Id, nil
-		}
-	}
-	return "", fmt.Errorf("project %q not found", value)
-}
-
-func writePrettyJSON(writer io.Writer, value any) error {
-	encoder := json.NewEncoder(writer)
-	encoder.SetIndent("", "  ")
-	return encoder.Encode(value)
-}
-
 func newVersionCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print Switchyard build identity",
-		RunE: func(*cobra.Command, []string) error {
-			info := buildinfo.Current()
-			_, err := fmt.Fprintf(options.stdout, "Switchyard %s (%s)\n", info.Version, info.Commit)
+	return &cobra.Command{Use: "version", Short: "Print Switchyard build identity", Args: cobra.NoArgs, RunE: func(*cobra.Command, []string) error {
+		info := buildinfo.Current()
+		return writeResult(options, "version", info, func(w io.Writer) error {
+			_, err := fmt.Fprintf(w, "Switchyard %s (%s)\n", info.Version, info.Commit)
 			return err
-		},
-	}
+		})
+	}}
 }
 
 func newDaemonCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:   "daemon",
-		Short: "Run the local Switchyard control plane",
-		RunE: func(command *cobra.Command, _ []string) error {
-			logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
-			return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
-				DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger,
-			})
-		},
-	}
+	return &cobra.Command{Use: "daemon", Short: "Run the local Switchyard control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+		logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, Logger: logger})
+	}}
 }
 
 func newUICommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:   "ui",
-		Short: "Print the local browser UI address",
-		RunE: func(command *cobra.Command, _ []string) error {
-			client, err := ipcClient(options)
-			if err != nil {
-				return err
-			}
-			bootstrap, err := client.BrowserBootstrap(command.Context())
-			if err != nil {
-				return err
-			}
-			_, err = fmt.Fprintf(
-				options.stdout,
-				"http://%s/?bootstrap=%s\n",
-				options.address,
-				url.QueryEscape(bootstrap.Token),
-			)
+	return &cobra.Command{Use: "ui", Short: "Print the local browser UI address", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+		client, err := daemonClient(command.Context(), options)
+		if err != nil {
 			return err
-		},
-	}
+		}
+		credential, err := client.BrowserBootstrap(command.Context())
+		if err != nil {
+			return err
+		}
+		address := "http://" + options.address + "/?bootstrap=" + url.QueryEscape(credential.Token)
+		return writeResult(options, "ui", map[string]any{"url": address, "expiresAt": credential.ExpiresAt}, func(w io.Writer) error { _, err := fmt.Fprintln(w, address); return err })
+	}}
 }
 
 func newDoctorCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
-		Use:   "doctor",
-		Short: "Check daemon and durable storage health",
-		RunE: func(command *cobra.Command, _ []string) error {
-			client, err := ipcClient(options)
-			if err != nil {
-				return err
-			}
-			info, err := client.System(command.Context())
-			if err != nil {
-				return err
-			}
-			_, err = fmt.Fprintf(
-				options.stdout,
-				"daemon=%s version=%s api=%s schema=%d\n",
-				info.Status,
-				info.Version,
-				info.ApiVersion,
-				info.DatabaseSchemaVersion,
-			)
+	return &cobra.Command{Use: "doctor", Short: "Check daemon and durable storage health", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+		client, err := daemonClient(command.Context(), options)
+		if err != nil {
 			return err
-		},
-	}
+		}
+		info, err := client.System(command.Context())
+		if err != nil {
+			return err
+		}
+		return writeResult(options, "doctor", info, func(w io.Writer) error {
+			_, err := fmt.Fprintf(w, "daemon=%s version=%s api=%s schema=%d\n", info.Status, info.Version, info.ApiVersion, info.DatabaseSchemaVersion)
+			return err
+		})
+	}}
 }
 
-func ipcClient(options *rootOptions) (*httpclient.Client, error) {
-	address := options.ipcAddr
-	if address == "" {
-		address = localipc.DefaultAddress(options.dataDir)
+func newCompletionCommand(root *cobra.Command) *cobra.Command {
+	command := &cobra.Command{Use: "completion [bash|zsh|fish|powershell]", Short: "Generate a shell completion script", Args: cobra.ExactArgs(1), DisableFlagsInUseLine: true}
+	command.ValidArgs = []string{"bash", "zsh", "fish", "powershell"}
+	command.RunE = func(_ *cobra.Command, args []string) error {
+		switch args[0] {
+		case "bash":
+			return root.GenBashCompletion(root.OutOrStdout())
+		case "zsh":
+			return root.GenZshCompletion(root.OutOrStdout())
+		case "fish":
+			return root.GenFishCompletion(root.OutOrStdout(), true)
+		case "powershell":
+			return root.GenPowerShellCompletion(root.OutOrStdout())
+		default:
+			return usageError("SHELL_UNSUPPORTED", "supported shells: "+strings.Join(command.ValidArgs, ", "))
+		}
 	}
-	return httpclient.NewIPC(address)
+	return command
 }
 
 // Main executes the process CLI and returns a semantic process status.
 func Main(ctx context.Context) int {
-	if err := Execute(ctx, os.Args[1:], os.Stdout, os.Stderr); err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		return 1
+	err := Execute(ctx, os.Args[1:], os.Stdout, os.Stderr)
+	if err == nil {
+		return 0
 	}
-	return 0
+	cliErr := classifyError(err)
+	if machineRequested(os.Args[1:]) {
+		_ = writeMachineError(os.Stderr, cliErr)
+	} else {
+		_, _ = fmt.Fprintln(os.Stderr, cliErr.Message)
+	}
+	return cliErr.ExitCode
 }

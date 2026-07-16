@@ -59,6 +59,32 @@ func (h *handler) ListProjects(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, projects)
 }
 
+func (h *handler) GetProject(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	project, err := h.catalog.GetProject(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, project)
+}
+
+func (h *handler) TrustProject(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId, _ generated.TrustProjectParams) {
+	project, proposal, err := h.catalog.TrustProject(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"project": project, "proposal": proposal})
+}
+
+func (h *handler) RemoveProject(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId, _ generated.RemoveProjectParams) {
+	if err := h.catalog.RemoveProject(r.Context(), projectID); err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (h *handler) ExplainProjectManifest(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
 	effective, err := h.catalog.EffectiveManifest(r.Context(), projectID, nil)
 	if err != nil {

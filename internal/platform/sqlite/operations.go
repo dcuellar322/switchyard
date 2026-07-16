@@ -58,6 +58,23 @@ func (r *OperationRepository) Get(ctx context.Context, id string) (domain.Operat
 	return mapOperation(record)
 }
 
+// List returns recent operations with an optional project filter.
+func (r *OperationRepository) List(ctx context.Context, projectID string, limit int64) ([]domain.Operation, error) {
+	records, err := r.queries.ListOperations(ctx, generated.ListOperationsParams{ProjectID: projectID, ResultLimit: limit})
+	if err != nil {
+		return nil, fmt.Errorf("list operations: %w", err)
+	}
+	result := make([]domain.Operation, 0, len(records))
+	for _, record := range records {
+		operation, err := mapOperation(record)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, operation)
+	}
+	return result, nil
+}
+
 // Transition applies a compare-and-swap lifecycle change.
 func (r *OperationRepository) Transition(ctx context.Context, current, next domain.Operation) error {
 	rows, err := r.queries.UpdateOperationState(ctx, generated.UpdateOperationStateParams{

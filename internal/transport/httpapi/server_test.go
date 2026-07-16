@@ -59,6 +59,10 @@ func (operationStub) Get(context.Context, string) (domain.Operation, error) {
 	return domain.Operation{}, operations.ErrNotFound
 }
 
+func (operationStub) List(context.Context, string, int64) ([]domain.Operation, error) {
+	return []domain.Operation{}, nil
+}
+
 func (operationStub) Cancel(context.Context, string, string, string, string) (domain.Operation, error) {
 	return domain.Operation{}, operations.ErrNotFound
 }

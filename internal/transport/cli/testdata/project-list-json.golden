@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "switchyard.cli/v1",
+  "command": "project.list",
+  "data": [
+    {
+      "slug": "alpha",
+      "trustState": "trusted"
+    }
+  ]
+}
