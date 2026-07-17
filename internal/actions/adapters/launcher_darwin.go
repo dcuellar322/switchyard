@@ -14,10 +14,10 @@ type platformLauncher struct{ executor launchExecutor }
 func NewLauncher() Launcher { return platformLauncher{executor: installedLauncher{}} }
 
 func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string) error {
-	if len(command) == 0 {
-		return l.executor.Run(ctx, "open", "-a", "Terminal", workingDirectory)
+	shellCommand := "cd " + shellQuote(workingDirectory)
+	if len(command) > 0 {
+		shellCommand += " && exec " + shellJoin(command)
 	}
-	shellCommand := "cd " + shellQuote(workingDirectory) + " && exec " + shellJoin(command)
 	script := `tell application "Terminal" to do script "` + appleScriptQuote(shellCommand) + `"` + "\n" + `tell application "Terminal" to activate`
 	return l.executor.Run(ctx, "osascript", "-e", script)
 }

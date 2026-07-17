@@ -26,7 +26,7 @@ func TestMacTerminalLaunchUsesExactWorkingDirectory(t *testing.T) {
 	if err := launcher.OpenTerminal(context.Background(), workingDirectory, nil); err != nil {
 		t.Fatal(err)
 	}
-	if executor.executable != "open" || len(executor.arguments) != 3 || executor.arguments[2] != workingDirectory {
+	if executor.executable != "osascript" || !strings.Contains(executor.arguments[1], "cd '/tmp/project with spaces'") {
 		t.Fatalf("launch = %q %#v", executor.executable, executor.arguments)
 	}
 	if err := launcher.OpenTerminal(context.Background(), workingDirectory, []string{"codex"}); err != nil {
