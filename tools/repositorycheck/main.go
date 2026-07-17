@@ -1,5 +1,6 @@
-// Command repositorycheck enforces legal metadata, generated-source headers,
-// and a local high-confidence credential scan.
+// Command repositorycheck enforces roadmap/governance inventory, legal
+// metadata, generated-source headers, and a local high-confidence credential
+// scan.
 package main
 
 import (
@@ -54,7 +55,7 @@ func main() {
 }
 
 func inspect(root string) ([]finding, error) {
-	var findings []finding
+	findings := inspectGovernance(root)
 	for _, requirement := range []struct {
 		path     string
 		contains []string
@@ -110,6 +111,55 @@ func inspect(root string) ([]finding, error) {
 	}
 	sort.Slice(findings, func(i, j int) bool { return findings[i].String() < findings[j].String() })
 	return findings, nil
+}
+
+func inspectGovernance(root string) []finding {
+	required := []string{
+		"AGENTS.md", "SWITCHYARD_IMPLEMENTATION_PLAN.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "SUPPORT.md",
+		".github/ISSUE_TEMPLATE/bug_report.yml", ".github/ISSUE_TEMPLATE/feature_request.yml", ".github/pull_request_template.md",
+		".github/workflows/ci.yml", ".github/workflows/nightly.yml", ".github/workflows/release.yml", ".github/workflows/security.yml",
+		"docs/getting-started.md", "docs/desktop-installation.md", "docs/manifest-reference.md", "docs/cli.md", "docs/mcp.md",
+		"docs/adapter-development.md", "docs/troubleshooting.md", "docs/privacy.md", "docs/compatibility.md", "docs/glossary.md",
+	}
+	adrPaths := []string{
+		"docs/adr/0001-modular-monolith.md", "docs/adr/0002-go-control-plane.md", "docs/adr/0003-one-binary.md",
+		"docs/adr/0004-rest-websocket-openapi.md", "docs/adr/0005-sqlite-persistence.md", "docs/adr/0006-docker-compose-runtime.md",
+		"docs/adr/0007-process-ownership.md", "docs/adr/0008-manifest-precedence.md", "docs/adr/0009-thin-tauri-shell.md",
+		"docs/adr/0010-mcp-first-agents.md", "docs/adr/0011-agent-permissions.md", "docs/adr/0012-out-of-process-plugins.md",
+		"docs/adr/0013-local-transport-security.md", "docs/adr/0014-log-retention-redaction.md", "docs/adr/0015-platform-order.md",
+		"docs/adr/0016-optional-federation.md",
+	}
+	required = append(required, adrPaths...)
+	for phase := 0; phase <= 19; phase++ {
+		required = append(required, fmt.Sprintf("docs/progress/phase-%02d.md", phase))
+	}
+	for _, fixture := range []string{
+		"compose-healthy", "compose-degraded", "compose-port-conflict", "uv-single-process", "node-single-process",
+		"mixed-compose-and-process", "monorepo-two-apps", "external-process", "worktree-project", "malicious-readme", "secret-redaction",
+	} {
+		required = append(required, filepath.Join("test", "fixtures", fixture))
+	}
+
+	var findings []finding
+	for _, path := range required {
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(path))); err != nil {
+			findings = append(findings, finding{path: filepath.ToSlash(path), reason: "required roadmap or governance artifact is missing"})
+		}
+	}
+	for _, path := range adrPaths {
+		contents, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(path)))
+		if err == nil && !bytes.Contains(contents, []byte("- Status: Accepted")) {
+			findings = append(findings, finding{path: path, reason: "foundational ADR is not marked Accepted"})
+		}
+	}
+	for phase := 0; phase <= 19; phase++ {
+		path := fmt.Sprintf("docs/progress/phase-%02d.md", phase)
+		contents, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(path)))
+		if err == nil && bytes.Contains(contents, []byte("- [ ]")) {
+			findings = append(findings, finding{path: path, reason: "phase progress contains an unchecked acceptance criterion"})
+		}
+	}
+	return findings
 }
 
 func ignoredDirectory(name string) bool {

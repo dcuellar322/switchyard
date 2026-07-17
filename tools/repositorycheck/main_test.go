@@ -22,3 +22,16 @@ func TestScanSecretsRejectsCredentialAndAllowsMarkedFixture(t *testing.T) {
 		t.Fatalf("scanSecrets() findings = %#v", findings)
 	}
 }
+
+func TestInspectGovernanceReportsMissingRoadmapInventory(t *testing.T) {
+	t.Parallel()
+	findings := inspectGovernance(t.TempDir())
+	if len(findings) < 60 {
+		t.Fatalf("inspectGovernance() findings = %d, want complete missing inventory", len(findings))
+	}
+	for _, item := range findings {
+		if item.reason != "required roadmap or governance artifact is missing" {
+			t.Fatalf("unexpected finding: %s", item)
+		}
+	}
+}

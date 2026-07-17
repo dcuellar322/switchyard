@@ -8,8 +8,9 @@
   commit, and build-time identity.
 - Added a typed, versioned `desktop snapshot` CLI boundary for daemon, host,
   project runtime/health, workspace, recent-operation, and port-conflict state.
-- Added exact desktop/sidecar/daemon/API/schema preflight before browser
-  credential issuance or native mutations.
+- Added exact desktop/bundled-sidecar and compatible same-major daemon/API/
+  minimum-schema preflight before browser credential issuance or native
+  mutations.
 - Added a migration rollback guard: a binary refuses a database newer than its
   embedded migrations before Goose attempts an upgrade.
 - Added a live tray with daemon state and bounded project/workspace open,
@@ -51,7 +52,8 @@ services.
 - Database-newer-than-binary rejection before migration.
 - Local UI path validation for remote origins, network paths, dot/encoded-dot
   traversal, fragments, backslashes, and injected bootstrap credentials.
-- Exact desktop/sidecar/daemon/API/schema compatibility acceptance and failure.
+- Exact desktop/sidecar plus same-major daemon/API/minimum-schema compatibility
+  acceptance, additive-schema acceptance, and fail-closed mismatch cases.
 - Deep-link route parsing and rejection of traversal, foreign origins, query
   injection, and malformed identifiers.
 - Sidecar resource-identifier containment and versioned command response
@@ -67,8 +69,9 @@ services.
   fabricates daemon shutdown.
 - [x] The tray reflects daemon/project/workspace state and uses fixed typed
   actions.
-- [x] Incompatible sidecar/daemon/API/schema combinations are detected before
-  native mutation; newer databases are also rejected by Go before migration.
+- [x] Incompatible sidecar/daemon/API/minimum-schema combinations are detected
+  before native mutation; newer databases are also rejected by Go before
+  migration.
 - [x] Installation supports signed/notarized macOS releases and a CLI-only
   headless path.
 - [x] Uninstall guidance offers preserve, backup, and reviewed-delete data

@@ -11,12 +11,17 @@ The native process executes a fixed `switchyard version --json` command and a
 read-only `switchyard desktop snapshot --json` command. The latter attaches to
 a healthy daemon or lets the bundled binary safely start its detached daemon.
 Before requesting a browser credential or exposing a project/workspace action,
-the shell requires an exact match across:
+the shell requires:
 
-- desktop and bundled-sidecar semantic versions;
-- desktop and running-daemon semantic versions;
+- an exact desktop and bundled-sidecar semantic-version match;
+- a running daemon in the same product major version;
 - `switchyard.api/v1`; and
-- SQLite schema version 12.
+- SQLite schema version 13 or newer.
+
+The minimum schema is the first v1 desktop snapshot contract. Later v1 schema
+additions are compatible because the shell consumes only the versioned bounded
+snapshot and browser URL; it does not read SQLite or infer capabilities from
+table versions.
 
 Incompatibility is shown as a startup failure and no native mutation is
 attempted. SQLite independently refuses to open a database whose applied
@@ -38,7 +43,7 @@ Rust owns only OS-facing presentation:
 - a dynamically refreshed tray showing daemon state, up to eight recent
   projects and workspaces, and fixed open/start/stop actions;
 - a persisted close preference, defaulting to hide-to-tray;
-- opt-in launch-at-login through a macOS LaunchAgent;
+- opt-in launch-at-login through the platform-native Tauri autostart adapter;
 - single-instance activation and bounded `switchyard://project/<id>` and
   `switchyard://workspace/<id>` deep links;
 - native notifications for new failed/partial operations, health transitions,
@@ -72,6 +77,7 @@ installation; the shell restarts only after successful installation. Release
 artifacts are drafted rather than published automatically so maintainers can
 review signatures, notarization, changelog, and compatibility.
 
-The current desktop order is macOS first, matching ADR-0015. The Rust sources
-use platform-neutral Tauri APIs where possible, but Windows packaging and a
-native ConPTY implementation remain Phase 18 work.
+Desktop support followed the ADR-0015 order: macOS first, followed by the
+Phase 18 Linux and Windows bundles. Interactive Windows sessions use the native
+ConPTY adapter; WSL remains a separate Linux-daemon boundary as documented in
+the platform support matrix.
