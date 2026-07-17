@@ -1,0 +1,7 @@
+{
+  "name": "@switchyard-fixture/api",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js"
+  }
+}

@@ -1,0 +1,20 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: external-process
+  name: Externally owned process fixture
+  tags: [external, observation]
+repository:
+  root: .
+runtime:
+  driver: external
+ports:
+  - id: server
+    host: 19871
+    target: 19871
+    protocol: tcp
+endpoints:
+  - id: server
+    name: External fixture
+    url: http://127.0.0.1:${ports.server}
+    primary: true

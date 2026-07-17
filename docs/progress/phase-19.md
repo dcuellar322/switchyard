@@ -72,7 +72,7 @@ TLS, SQL, Docker, command execution, and encryption adapters.
   packaging.
 - `pnpm --dir web build` passed with route-level code splitting. The initial
   JavaScript chunk is 92.64 kB and no chunk-size warning remains.
-- A fresh schema-16 daemon started on loopback from `bin/switchyard`. Stable JSON
+- A fresh schema-17 daemon started on loopback from `bin/switchyard`. Stable JSON
   smoke checks reported API v1/status ready, telemetry disabled with no pending
   counters, and empty machine and publisher inventories before clean shutdown.
 

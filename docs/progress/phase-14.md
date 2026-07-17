@@ -6,7 +6,7 @@
   database-client, coding-agent, and reviewed interactive-action sessions.
 - Added a daemon-owned Unix PTY adapter with explicit working directory,
   argument-array commands, terminal environment, resize, and process-group
-  termination. Windows reports an explicit unsupported ConPTY boundary.
+  termination. Phase 18 subsequently added the native ConPTY adapter.
 - Added owner-scoped application lifecycle, bounded 1 MiB reconnect scrollback,
   non-blocking subscribers, a 30-minute detached idle deadline, explicit
   termination, daemon-shutdown interruption, and restart recovery.
@@ -111,9 +111,8 @@ process-group termination through a real PTY.
 
 ## Known limitations and deferred work
 
-- Unix PTYs are production-capable on the repository's ordered macOS/Linux
-  targets. Native Windows ConPTY is an explicit later platform implementation,
-  not a silent pipe fallback.
+- Unix PTYs are production-capable on macOS/Linux. Native Windows ConPTY is now
+  supplied by Phase 18 rather than a silent pipe fallback.
 - Rich provider SDK orchestration is deferred by the scope guard. Codex and
   Claude Code run through their reliable user-visible PTY interfaces.
 - PTY scrollback is intentionally not durable across daemon restarts.

@@ -49,9 +49,9 @@ git status --short: repository was empty and clean before package import
 
 ## Known limitations
 
-- The executable, quality pipeline, and development toolchains begin in Phase 1.
-- The issue-template security URL contains an ownership placeholder that must be
-  replaced before the public repository is published.
+- The executable, quality pipeline, and development toolchains began in Phase 1.
+- Repository-owned security, support, source, and REUSE links now point at the
+  public repository; no publication placeholder remains.
 
 ## Deferred work
 

@@ -103,8 +103,8 @@ a local debug build.
 
 ## Known limitations and deferred work
 
-- The checked-in implementation and CI package macOS first. Windows installer,
-  service management, WSL integration, and ConPTY are Phase 18 scope.
+- Phase 15 packaged macOS first. Phase 18 now supplies the Linux/Windows bundle
+  matrix, native Windows adapters, and explicit WSL behavior.
 - Signing, notarization, and production updater-feed access require external
   Apple and Minisign credentials and cannot be truthfully exercised by an
   unsigned local build.

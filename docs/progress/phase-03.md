@@ -31,6 +31,10 @@
 - Added a responsive browser review showing safety posture, validation,
   unresolved fields, services, ports, proposed commands, confidence, and exact
   evidence locations before approval.
+- Added and enforced the complete deterministic fixture inventory from the
+  implementation plan, including healthy/degraded/conflicting Compose,
+  mixed-runtime, monorepo, external-process, worktree, adversarial README, and
+  secret-redaction scenarios.
 
 ## Security behavior
 

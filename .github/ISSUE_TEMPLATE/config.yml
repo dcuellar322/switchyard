@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/dcuellar322/switchyard/security/advisories/new
     about: Report vulnerabilities privately through GitHub Security Advisories.
   - name: Usage and integration support
-    url: https://github.com/switchyard-dev/switchyard/discussions
+    url: https://github.com/dcuellar322/switchyard/discussions
     about: Ask questions without opening a defect report.

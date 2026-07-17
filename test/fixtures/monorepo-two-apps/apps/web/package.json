@@ -1,0 +1,7 @@
+{
+  "name": "@switchyard-fixture/web",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port 5173"
+  }
+}

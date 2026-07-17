@@ -82,6 +82,12 @@ codes, shell completions, and automation rules. Run `make quality` for the
 complete local quality gate or the focused Make targets documented by
 `make -n quality`.
 
+The small repositories under [`test/fixtures`](test/fixtures/) cover the
+implementation plan's healthy, degraded, conflicting, mixed-runtime,
+monorepo, worktree, external-process, prompt-injection, and secret-redaction
+scenarios. An inventory test keeps those public contributor assets complete;
+Docker fixtures remain inert unless an explicit integration test starts them.
+
 Durable project roots, preferred ports, retention, local tools, provider
 references, agent permissions, and appearance are edited through the generated
 settings contract. See the [settings guide](docs/settings.md) for live versus

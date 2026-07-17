@@ -1,0 +1,17 @@
+name: switchyard-compose-port-conflict-fixture
+
+services:
+  first:
+    build:
+      context: ../compose-healthy
+    image: switchyard/compose-healthy-fixture:v1
+    pull_policy: build
+    ports:
+      - "127.0.0.1:19870:8080"
+  second:
+    build:
+      context: ../compose-healthy
+    image: switchyard/compose-healthy-fixture:v1
+    pull_policy: build
+    ports:
+      - "127.0.0.1:19870:8080"

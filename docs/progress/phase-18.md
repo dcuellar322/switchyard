@@ -43,7 +43,8 @@ boundaries rather than a new architectural dependency.
 - [x] CLI, manifest, HTTP, MCP, plugin, and product compatibility and deprecation
   policies are public in the repository.
 - [x] A new contributor can install, generate, test, build, and run the project
-  from documented commands and working example manifests.
+  from documented commands, working example manifests, and the enforced
+  §19.2 fixture inventory.
 
 ## Verification evidence
 

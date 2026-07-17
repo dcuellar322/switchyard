@@ -1,0 +1,27 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: worktree-project
+  name: Worktree projection fixture
+  tags: [git, worktree]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    environment:
+      PORT: "19872"
+    processes:
+      - id: web
+        command: [node, server.js]
+        workingDirectory: .
+services:
+  - id: web
+    source:
+      process: web
+ports:
+  - id: web
+    service: web
+    host: 19872
+    target: 19872
+    protocol: tcp

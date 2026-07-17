@@ -1,0 +1,19 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: secret-redaction
+  name: Secret redaction fixture
+  tags: [logs, redaction]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: emitter
+        command: [node, emit.js]
+        workingDirectory: .
+services:
+  - id: emitter
+    source:
+      process: emitter
