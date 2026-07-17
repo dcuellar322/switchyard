@@ -1,11 +1,27 @@
 # Release engineering
 
-Stable releases are built only from `v*` tags by `.github/workflows/release.yml`.
+Tagged releases are built only from validated `v*` tags by
+`.github/workflows/release.yml`.
 The workflow cross-compiles CLI archives with GoReleaser, emits SHA-256
 checksums and per-archive SBOMs, builds native Tauri bundles on each operating
 system, signs updater payloads, applies Apple notarization and Windows
 Authenticode signing, generates desktop CycloneDX SBOMs, attests the combined
 artifact set, and creates a draft GitHub release for final human review.
+
+## Release channels
+
+| Channel | Tag form | Distribution behavior |
+|---|---|---|
+| Nightly | `v1.2.0-nightly.20260716` | Unsigned cross-platform CLI snapshots are also built daily from the default branch and retained as short-lived workflow artifacts. A tagged nightly uses the protected release workflow and is marked prerelease. |
+| Alpha | `v1.2.0-alpha.1` | Signed draft prerelease for early contract and migration testing. |
+| Beta | `v1.2.0-beta.1` | Signed draft prerelease after the supported-platform workflow matrix passes. |
+| Stable | `v1.2.0` | Signed draft release eligible to become the latest published version after human review. |
+
+`scripts/release-channel.sh` is the shared fail-closed classifier. The release
+workflow checks out the exact tag for both tag pushes and manual dispatches;
+manual dispatch cannot build an arbitrary branch under a release name. Tags
+with unknown prerelease labels are rejected. Nightly workflow artifacts are
+deliberately unsigned and are never updater-authoritative.
 
 The protected `desktop-release` environment supplies Apple credentials,
 `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`, Linux GPG key material,

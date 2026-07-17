@@ -4,6 +4,11 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing reviewed release tag to build
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -11,13 +16,34 @@ permissions:
   attestations: write
 
 jobs:
+  metadata:
+    name: Validate release identity
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.channel.outputs.tag }}
+      channel: ${{ steps.channel.outputs.channel }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      - id: channel
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"
+          test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "$RELEASE_TAG")"
+          sh ./scripts/release-channel.sh "$RELEASE_TAG"
+
   cli:
     name: CLI archives, checksums, and SBOMs
+    needs: metadata
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.metadata.outputs.tag }}
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
@@ -51,6 +77,7 @@ jobs:
 
   desktop:
     name: ${{ matrix.name }} desktop bundles
+    needs: metadata
     runs-on: ${{ matrix.os }}
     environment: desktop-release
     strategy:
@@ -68,6 +95,8 @@ jobs:
             bundles: msi,nsis
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.metadata.outputs.tag }}
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
@@ -132,7 +161,7 @@ jobs:
 
   publish:
     name: Attest and draft release
-    needs: [cli, desktop]
+    needs: [metadata, cli, desktop]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v7
@@ -146,5 +175,8 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
+          prerelease: ${{ needs.metadata.outputs.channel != 'stable' }}
+          tag_name: ${{ needs.metadata.outputs.tag }}
+          name: Switchyard ${{ needs.metadata.outputs.tag }} (${{ needs.metadata.outputs.channel }})
           generate_release_notes: true
           files: release/**/*

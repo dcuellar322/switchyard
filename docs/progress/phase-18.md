@@ -18,6 +18,9 @@
   GoReleaser archives/checksums/CycloneDX SBOMs, platform desktop bundles,
   Apple/Windows/Linux signing hooks, Tauri updater signatures, Sigstore bundles,
   GitHub artifact attestations, CodeQL, dependency review, and secret scanning.
+- Added fail-closed nightly/alpha/beta/stable tag classification, exact-tag
+  checkout for manual releases, prerelease marking, and a scheduled unsigned
+  cross-platform nightly CLI snapshot with short artifact retention.
 - Published the v1 compatibility/deprecation policy, platform and WSL behavior,
   data migration and restore-based downgrade procedures, release matrix,
   contributor setup, adapter guide, manifest reference, privacy policy, support
@@ -60,6 +63,11 @@ upgrade coverage preserves the revisioned settings singleton and value-free
 audit history alongside the earlier project, manifest, and operation records.
 The smoke discovered and approved the repository deterministically, listed the
 project, inspected the database, and shut down cleanly.
+
+Release-channel unit tests reject unknown or injection-shaped tags and classify
+nightly, alpha, beta, and stable forms deterministically. The manual release
+path resolves an existing tag before any build job begins; scheduled nightly
+artifacts never receive stable signing or updater authority.
 
 Signed/notarized release artifacts are deliberately created only by a reviewed
 `v*` tag in the protected release environment. The workflow refuses partial
