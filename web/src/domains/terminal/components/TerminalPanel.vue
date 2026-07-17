@@ -14,6 +14,7 @@ const props = defineProps<{
   services: Array<string>
   environments: Array<ProjectEnvironment>
   actions: Array<ActionDefinition>
+  externalAvailable?: boolean
 }>()
 const emit = defineEmits<{ external: [] }>()
 const queryClient = useQueryClient()
@@ -180,7 +181,7 @@ onBeforeUnmount(() => {
       <label v-if="selectedKind === 'action'">Action<select v-model="selectedAction" required><option disabled value="">Select action</option><option v-for="action in interactiveActions" :key="action.id" :value="action.id">{{ action.name }}</option></select></label>
       <label v-if="environments.length">Checkout<select v-model="selectedEnvironment"><option value="">Primary checkout</option><option v-for="environment in environments" :key="environment.id" :value="environment.id">{{ environment.name }}</option></select></label>
       <button type="submit" :disabled="create.isPending.value">{{ create.isPending.value ? 'Starting…' : 'New session' }}</button>
-      <button type="button" @click="emit('external')">Open external terminal</button>
+      <button type="button" :disabled="!externalAvailable" :title="externalAvailable ? 'Open the project root in the operating system terminal' : 'No external terminal action is available'" @click="emit('external')">Open external terminal</button>
     </form>
     <p v-if="create.isError.value" class="terminal-message terminal-message--error" role="alert">{{ create.error.value?.message }}</p>
     <p v-if="notice" class="terminal-message" role="status">{{ notice }}</p>

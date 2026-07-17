@@ -10,11 +10,11 @@ export function boundLogEntries(
   entries: Array<RuntimeLogEntry>,
   limit = 500,
 ): Array<RuntimeLogEntry> {
-  return [...entries]
-    .sort(
-      (left, right) => Date.parse(right.timestamp) - Date.parse(left.timestamp),
-    )
-    .slice(0, limit);
+  return entries
+    .map((entry) => ({ entry, timestamp: Date.parse(entry.timestamp) }))
+    .sort((left, right) => right.timestamp - left.timestamp)
+    .slice(0, limit)
+    .map(({ entry }) => entry);
 }
 
 export async function loadProjectLogBatches(

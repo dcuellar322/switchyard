@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import {
+  ArrowLeftRight,
+  Bot,
+  Boxes,
+  FolderKanban,
+  FolderSearch,
+  Gauge,
+  LayoutDashboard,
+  MonitorCog,
+  Plug,
+  ScrollText,
+  Settings,
+  Users,
+} from "@lucide/vue";
 import { useQuery } from "@tanstack/vue-query";
 import { RouterLink } from "vue-router";
 
@@ -20,27 +34,27 @@ const ports = useQuery({
 const host = useHostObservation();
 
 const navigation = [
-  { to: "/", label: "Dashboard", icon: "⌂" },
-  { to: "/projects", label: "Projects", icon: "▦", count: "projects" },
-  { to: "/ports", label: "Ports", icon: "⇄", count: "ports" },
-  { to: "/resources", label: "Resources", icon: "◒" },
-  { to: "/logs", label: "Logs", icon: "▤" },
-  { to: "/discovery", label: "Discovery", icon: "◇" },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/projects", label: "Projects", icon: FolderKanban, count: "projects" },
+  { to: "/ports", label: "Ports", icon: ArrowLeftRight, count: "ports" },
+  { to: "/resources", label: "Resources", icon: Gauge },
+  { to: "/logs", label: "Logs", icon: ScrollText },
+  { to: "/discovery", label: "Discovery", icon: FolderSearch },
 ];
 const tools = [
-  { to: "/workspaces", label: "Workspaces", icon: "▥" },
-  { to: "/fleet", label: "Machines", icon: "⌁" },
-  { to: "/team", label: "Team", icon: "◎" },
-  { to: "/agents", label: "Agents", icon: "◆" },
-  { to: "/plugins", label: "Plugins", icon: "⬡" },
-  { to: "/settings", label: "Settings", icon: "⚙" },
+  { to: "/workspaces", label: "Workspaces", icon: Boxes },
+  { to: "/fleet", label: "Machines", icon: MonitorCog },
+  { to: "/team", label: "Team", icon: Users },
+  { to: "/agents", label: "Agents", icon: Bot },
+  { to: "/plugins", label: "Plugins", icon: Plug },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 </script>
 
 <template>
   <aside class="sidebar" aria-label="Primary navigation">
     <RouterLink class="brand" to="/" aria-label="Switchyard dashboard">
-      <span class="brand-mark" aria-hidden="true">S</span>
+      <img class="brand-mark" src="/switchyard-icon.svg" alt="" />
       <span class="brand-copy"
         ><strong>Switchyard</strong
         ><small>Local development control</small></span
@@ -55,8 +69,8 @@ const tools = [
         :to="item.to"
         :aria-label="item.label"
       >
-        <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span
-        ><span class="nav-copy">{{ item.label }}</span>
+        <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
+        <span class="nav-copy">{{ item.label }}</span>
         <span v-if="item.count === 'projects'" class="count">{{
           projects.data.value?.length ?? "—"
         }}</span>
@@ -74,8 +88,8 @@ const tools = [
         :to="item.to"
         :aria-label="item.label"
       >
-        <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span
-        ><span class="nav-copy">{{ item.label }}</span>
+        <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
+        <span class="nav-copy">{{ item.label }}</span>
       </RouterLink>
     </nav>
     <div class="sidebar-footer">
@@ -128,16 +142,10 @@ const tools = [
   text-decoration: none;
 }
 .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   box-shadow: 0 10px 30px rgba(120, 166, 255, 0.22);
-  color: #07111f;
-  font-weight: 900;
-  font-size: 17px;
 }
 .brand-copy {
   display: grid;
@@ -188,8 +196,7 @@ const tools = [
   box-shadow: inset 2px 0 var(--accent);
 }
 .nav-icon {
-  width: 20px;
-  text-align: center;
+  flex: 0 0 20px;
   color: var(--soft);
 }
 .router-link-exact-active .nav-icon {

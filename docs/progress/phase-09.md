@@ -134,3 +134,18 @@ browser, visual, production web, and production binary build checks.
   phases. Tauri packaging has not started.
 - Host Docker storage is labeled shared because Engine accounting cannot be
   reliably assigned to one Compose project.
+
+## 2026-07-17 interface stabilization evidence
+
+- The desktop mark is reused in the sidebar and browser favicon, and the UI
+  now uses the maintained `@lucide/vue` package for consistent accessible
+  icons instead of text glyphs.
+- Project filters have a wider responsive search field, selects reserve
+  comfortable chevron spacing, primary controls have larger targets, and
+  service tags use stable domain-oriented color tones.
+- The Team route now explains both configured and empty local-team states,
+  including the explicit next step and the boundary that it is not a presence
+  or user-directory feature.
+- Updated unit, E2E, and 14 deterministic visual checks cover logs, endpoints,
+  terminal navigation, Team states, responsive dashboard controls, and the
+  revised application chrome.

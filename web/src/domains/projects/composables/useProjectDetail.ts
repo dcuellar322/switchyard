@@ -161,15 +161,13 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
       (action) => action.type === "browser.open",
     ),
   );
+  const endpoints = computed(
+    () => actions.data.value?.actions.filter((action) => action.type === "browser.open" && action.target) ?? [],
+  );
   const quickActions = computed(
     () =>
       actions.data.value?.actions
-        .filter(
-          (action) =>
-            ![terminalAction.value?.id, browserAction.value?.id].includes(
-              action.id,
-            ),
-        )
+        .filter((action) => !["terminal.open", "browser.open"].includes(action.type))
         .slice(0, 5) ?? [],
   );
   const requiredHealth = computed(
@@ -177,7 +175,7 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
   );
   const isPartial = computed(() =>
     [runtime, health, metrics, git, actions].some(
-      (query) => query.isError.value,
+      (query) => query.isError.value && query.data.value === undefined,
     ),
   );
 
@@ -234,6 +232,7 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     recentLogs,
     terminalAction,
     browserAction,
+    endpoints,
     quickActions,
     requiredHealth,
     isPartial,

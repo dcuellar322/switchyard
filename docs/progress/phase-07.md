@@ -139,3 +139,15 @@ version 5.
 - Docker logs retain start/rebuild operation correlation in daemon memory;
   native process run correlation survives daemon restart through the run
   ledger.
+
+## 2026-07-17 observability UX evidence
+
+- Project log views follow the newest entry on initial load and while the user
+  remains at the bottom; scrolling up pauses following and exposes an explicit
+  jump-to-newest control.
+- Fleet logs expose an auto-refresh toggle, 5/10/30/60-second intervals, and a
+  manual refresh control. Timestamp parsing is performed once per entry before
+  bounded ordering to keep large recent histories responsive.
+- Transient background refetch errors no longer insert and remove a full-width
+  warning. A compact partial-data indicator appears only when an observation
+  has no cached value.

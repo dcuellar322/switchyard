@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Activity, Search } from "@lucide/vue";
 import { computed } from "vue";
 
 import { formatBytes } from "../../lib/format";
@@ -25,7 +26,7 @@ const activeCount = computed(
       aria-haspopup="dialog"
       @click="$emit('palette')"
     >
-      <span aria-hidden="true">⌕</span><span>Projects, commands, ports…</span
+      <Search :size="16" aria-hidden="true" /><span>Projects, commands, ports…</span
       ><kbd>⌘ K</kbd>
     </button>
     <div class="host-metrics" :aria-busy="host.isPending.value">
@@ -65,7 +66,7 @@ const activeCount = computed(
         "
         @click="operations.toggle()"
       >
-        ◉<span v-if="activeCount">{{ activeCount }}</span>
+        <Activity :size="18" aria-hidden="true" /><span v-if="activeCount">{{ activeCount }}</span>
       </button>
     </div>
   </header>

@@ -188,7 +188,9 @@ export async function runProjectAction(projectId: string, actionId: string, conf
     path: { projectId, actionId }, body: { confirmRisk, allowOutsideRoot: false },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new Error('The project action could not be queued.')
+  if (result.error || !result.data) {
+    throw new ProjectAPIError(result.error?.detail || 'The project action could not be queued.', result.error?.code)
+  }
   return result.data
 }
 

@@ -68,3 +68,18 @@ test('explains that encrypted sync excludes sensitive local state', async () => 
   expect(await screen.findByRole('heading', { name: 'Encrypted sync' })).toBeInTheDocument()
   expect(screen.getByText(/Fleet credentials, projects, paths, logs, operations, and secrets are never included/)).toBeInTheDocument()
 })
+
+test('explains the local configuration scope when no team data is installed', async () => {
+  api.loadTeamPublishers.mockResolvedValue([])
+  api.loadTeamBundles.mockResolvedValue([])
+  api.loadEffectivePolicy.mockResolvedValue({
+    sourceBundleIds: [], allowedRemoteCapabilities: [], allowedRemoteActions: [],
+    allowedPluginPublishers: [], telemetryAllowed: false, requireSignedConfiguration: true,
+  })
+  api.loadCuratedPlugins.mockResolvedValue([])
+
+  renderView()
+
+  expect(await screen.findByRole('heading', { name: 'No shared team configuration is installed' })).toBeInTheDocument()
+  expect(screen.getByText(/not a live member directory/)).toBeInTheDocument()
+})

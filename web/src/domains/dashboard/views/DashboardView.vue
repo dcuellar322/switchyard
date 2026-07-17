@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Plus, ScanSearch } from "@lucide/vue";
 import { RouterLink } from "vue-router";
 
 import { formatBytes } from "../../../lib/format";
@@ -26,7 +27,6 @@ const {
   repoAttention,
   partialCount,
   runLifecycle,
-  openTerminal,
   clearFilters,
   markProjectAccess,
 } = useDashboard();
@@ -53,10 +53,10 @@ const {
       </div>
       <div class="page-actions">
         <RouterLink class="button" :to="{ name: 'discovery' }"
-          >Scan for projects</RouterLink
+          ><ScanSearch :size="16" aria-hidden="true" />Scan for projects</RouterLink
         >
         <RouterLink class="button button--primary" :to="{ name: 'discovery' }"
-          >＋ Add project</RouterLink
+          ><Plus :size="17" aria-hidden="true" />Add project</RouterLink
         >
       </div>
     </header>
@@ -187,7 +187,6 @@ const {
         :snapshot="snapshot"
         :pending="pendingProject === snapshot.project.id"
         @runtime="runLifecycle"
-        @terminal="openTerminal"
         @open="markProjectAccess"
       />
     </div>
@@ -236,8 +235,10 @@ const {
 }
 .button {
   display: inline-flex;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   padding: 8px 11px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -331,7 +332,7 @@ const {
 }
 .toolbar input,
 .toolbar select {
-  height: 34px;
+  height: 38px;
   padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -339,7 +340,7 @@ const {
   color: var(--muted);
 }
 .toolbar input {
-  width: 180px;
+  width: clamp(240px, 24vw, 360px);
 }
 .projects-grid {
   display: grid;

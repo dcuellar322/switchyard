@@ -1,10 +1,7 @@
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, expect, test } from "vitest";
 
-import type {
-  ActionDefinition,
-  Project,
-} from "../../src/api/generated/types.gen";
+import type { Project } from "../../src/api/generated/types.gen";
 import ProjectHeader from "../../src/domains/projects/components/ProjectHeader.vue";
 
 afterEach(cleanup);
@@ -21,26 +18,13 @@ const project: Project = {
   updatedAt: "2026-07-15T12:00:00Z",
 };
 
-const terminalAction: ActionDefinition = {
-  id: "terminal",
-  name: "Open terminal",
-  type: "terminal.open",
-  command: [],
-  workingDirectory: ".",
-  shell: false,
-  captureOutput: false,
-  risk: "interactive",
-  timeoutSeconds: 0,
-};
-
-function renderHeader(action?: ActionDefinition) {
+function renderHeader() {
   return render(ProjectHeader, {
     props: {
       project,
       state: "stopped",
       stateTone: "neutral",
       active: false,
-      terminalAction: action,
       actionPending: false,
       lifecyclePending: false,
       operationError: "",
@@ -52,22 +36,13 @@ function renderHeader(action?: ActionDefinition) {
   });
 }
 
-test("opens the integrated terminal when no external terminal action is resolved", async () => {
+test("opens the integrated terminal without queuing an external action", async () => {
   const view = renderHeader();
 
-  await fireEvent.click(view.getByRole("button", { name: "⌘ Terminal" }));
+  await fireEvent.click(view.getByRole("button", { name: "Terminal" }));
 
   expect(view.emitted("terminal")).toHaveLength(1);
   expect(view.emitted("action")).toBeUndefined();
-});
-
-test("runs the resolved system terminal action when one is available", async () => {
-  const view = renderHeader(terminalAction);
-
-  await fireEvent.click(view.getByRole("button", { name: "⌘ Terminal" }));
-
-  expect(view.emitted("action")).toEqual([[terminalAction]]);
-  expect(view.emitted("terminal")).toBeUndefined();
 });
 
 test("offers trusted Compose profiles when starting a stopped project", async () => {
@@ -87,10 +62,10 @@ test("offers trusted Compose profiles when starting a stopped project", async ()
     global: { stubs: { RouterLink: { template: "<a><slot /></a>" } } },
   });
 
-  await fireEvent.click(view.getByRole("button", { name: "▶ Start" }));
+  await fireEvent.click(view.getByRole("button", { name: "Start" }));
   expect(view.getByRole("dialog", { name: "Start Alpha App services" })).toBeInTheDocument();
   await fireEvent.click(view.getByRole("checkbox", { name: "Marketing" }));
-  await fireEvent.click(view.getByRole("button", { name: "▶ Start services" }));
+  await fireEvent.click(view.getByRole("button", { name: "Start services" }));
 
   expect(view.emitted("lifecycle")).toEqual([["start", ["marketing"]]]);
 });

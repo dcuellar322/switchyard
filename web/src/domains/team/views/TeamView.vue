@@ -35,6 +35,14 @@ const install = useMutation({
   },
 })
 const error = computed(() => publishers.error.value || bundles.error.value || policy.error.value || registry.error.value || trust.error.value || install.error.value)
+const loading = computed(() => publishers.isPending.value || bundles.isPending.value || policy.isPending.value || registry.isPending.value)
+const emptyConfiguration = computed(() =>
+  !loading.value &&
+  (publishers.data.value?.length ?? 0) === 0 &&
+  (bundles.data.value?.length ?? 0) === 0 &&
+  (policy.data.value?.sourceBundleIds.length ?? 0) === 0 &&
+  (registry.data.value?.length ?? 0) === 0,
+)
 
 async function selectBundle(event: unknown) {
   fileError.value = ''
@@ -55,9 +63,18 @@ async function selectBundle(event: unknown) {
 
 <template>
   <section class="team-view" aria-labelledby="team-title">
-    <header><p>Portable team configuration</p><h1 id="team-title">Team</h1><span>Explicit Ed25519 trust, signed bundles, restrictive policy, and configuration-only encrypted sync.</span></header>
+    <header><p>Local team configuration</p><h1 id="team-title">Team</h1><span>Share reviewed templates and policy without syncing source code, project paths, presence, or user accounts.</span></header>
     <p v-if="error" class="error" role="alert">{{ error.message }}</p>
-    <div class="grid">
+    <div v-if="loading" class="loading-state" aria-live="polite">Loading local team trust and policy…</div>
+    <div v-else class="grid">
+      <article class="panel orientation" :class="{ 'orientation--empty': emptyConfiguration }">
+        <div>
+          <p>{{ emptyConfiguration ? 'Nothing installed yet' : 'Configuration status' }}</p>
+          <h2>{{ emptyConfiguration ? 'No shared team configuration is installed' : 'Shared configuration is active' }}</h2>
+        </div>
+        <p v-if="emptyConfiguration">This page is for signed configuration exchange, not a live member directory. Start by trusting a publisher key below, then install a reviewed signed bundle or use <code>switchyard team sync</code>.</p>
+        <p v-else>Trusted publishers and installed bundles apply only to this machine. Every imported policy remains visible and restrictive by default.</p>
+      </article>
       <article class="panel">
         <div class="panel-head"><div><p>Trust store</p><h2>Publisher identities</h2></div><span>{{ publishers.data.value?.length ?? 0 }}</span></div>
         <p class="description">Trust one exact public key only after confirming it through an independent channel.</p>
@@ -87,5 +104,5 @@ async function selectBundle(event: unknown) {
 </template>
 
 <style scoped>
-.team-view { max-width:1300px; margin:0 auto; padding:28px }.team-view>header p,.panel-head p { margin:0; color:var(--accent); font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase }.team-view>header h1 { margin:6px 0; font-size:30px }.team-view>header span,.description,.empty,.sync p { color:var(--muted) }.grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:22px }.panel { min-width:0; padding:18px; border:1px solid var(--border); border-radius:13px; background:linear-gradient(145deg,var(--panel),#0d1219) }.panel-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px }.panel-head h2 { margin:4px 0 0; font-size:17px }.panel-head>span { padding:4px 7px; border:1px solid var(--border); border-radius:99px; color:var(--muted); font-size:9px }.panel ul { display:grid; gap:7px; margin:13px 0; padding:0; list-style:none }.panel li { display:grid; gap:3px; padding:9px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2) }.panel li span,.panel code { color:var(--soft); overflow-wrap:anywhere }.panel code { font-size:10px }form { display:grid; gap:10px; margin-top:15px; padding-top:14px; border-top:1px solid var(--border) }form label:not(.confirm) { display:grid; gap:5px; color:var(--muted) }input:not([type=checkbox]) { width:100%; padding:9px; border:1px solid var(--border); border-radius:8px; background:#0b1017; color:var(--text) }.confirm { display:flex; align-items:flex-start; gap:8px; color:var(--muted) }button { width:max-content; padding:8px 11px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text) }button:disabled { opacity:.5 }.error { padding:10px; border:1px solid rgba(255,115,115,.3); border-radius:8px; color:var(--red) }.review { color:var(--yellow) }.policy,.registry,.sync { grid-column:1/-1 }.policy dl { display:grid; grid-template-columns:repeat(2,1fr); gap:8px }.policy dl div { padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2) }.policy dt { color:var(--soft); font-size:9px; text-transform:uppercase }.policy dd { margin:5px 0 0 }.registry-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:9px }.registry-list article { padding:11px; border:1px solid var(--border); border-radius:9px; background:var(--panel-2) }.registry-list article div { display:grid; gap:3px }.registry-list article span,.registry-list p { color:var(--muted) }@media(max-width:760px){.team-view { padding:20px 18px }.grid { grid-template-columns:1fr }.policy dl { grid-template-columns:1fr }}
+.team-view { max-width:1300px; margin:0 auto; padding:28px }.team-view>header p,.panel-head p,.orientation>div>p { margin:0; color:var(--accent); font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase }.team-view>header h1 { margin:6px 0; font-size:30px }.team-view>header span,.description,.empty,.sync p,.orientation>p { color:var(--muted) }.loading-state { margin-top:22px; padding:42px; border:1px solid var(--border); border-radius:13px; background:var(--panel); color:var(--muted); text-align:center }.grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:22px }.panel { min-width:0; padding:18px; border:1px solid var(--border); border-radius:13px; background:linear-gradient(145deg,var(--panel),#0d1219) }.orientation { grid-column:1/-1; display:grid; grid-template-columns:minmax(260px,.8fr) minmax(320px,1.2fr); align-items:center; gap:24px; border-color:rgba(120,166,255,.28); background:linear-gradient(135deg,rgba(120,166,255,.1),rgba(158,123,255,.05)) }.orientation--empty { border-style:dashed }.orientation h2 { margin:5px 0 0; font-size:19px }.orientation>p { margin:0; line-height:1.6 }.panel-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px }.panel-head h2 { margin:4px 0 0; font-size:17px }.panel-head>span { padding:4px 7px; border:1px solid var(--border); border-radius:99px; color:var(--muted); font-size:9px }.panel ul { display:grid; gap:7px; margin:13px 0; padding:0; list-style:none }.panel li { display:grid; gap:3px; padding:9px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2) }.panel li span,.panel code { color:var(--soft); overflow-wrap:anywhere }.panel code { font-size:10px }form { display:grid; gap:10px; margin-top:15px; padding-top:14px; border-top:1px solid var(--border) }form label:not(.confirm) { display:grid; gap:5px; color:var(--muted) }input:not([type=checkbox]) { width:100%; padding:9px; border:1px solid var(--border); border-radius:8px; background:#0b1017; color:var(--text) }.confirm { display:flex; align-items:flex-start; gap:8px; color:var(--muted) }button { width:max-content; min-height:36px; padding:8px 11px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text) }button:disabled { opacity:.5 }.error { padding:10px; border:1px solid rgba(255,115,115,.3); border-radius:8px; color:var(--red) }.review { color:var(--yellow) }.policy,.registry,.sync { grid-column:1/-1 }.policy dl { display:grid; grid-template-columns:repeat(2,1fr); gap:8px }.policy dl div { padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2) }.policy dt { color:var(--soft); font-size:9px; text-transform:uppercase }.policy dd { margin:5px 0 0 }.registry-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:9px }.registry-list article { padding:11px; border:1px solid var(--border); border-radius:9px; background:var(--panel-2) }.registry-list article div { display:grid; gap:3px }.registry-list article span,.registry-list p { color:var(--muted) }@media(max-width:760px){.team-view { padding:20px 18px }.grid { grid-template-columns:1fr }.orientation { grid-template-columns:1fr }.policy dl { grid-template-columns:1fr }}
 </style>

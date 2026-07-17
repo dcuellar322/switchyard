@@ -100,6 +100,18 @@ vi.mock("../../src/domains/projects/api", () => ({
           risk: "interactive",
           timeoutSeconds: 0,
         },
+        {
+          id: "frontend",
+          name: "Open frontend",
+          type: "browser.open",
+          target: "http://127.0.0.1:8080/",
+          command: [],
+          workingDirectory: ".",
+          shell: false,
+          captureOutput: false,
+          risk: "interactive",
+          timeoutSeconds: 0,
+        },
       ],
     }),
   loadEffectiveManifest: vi
@@ -178,9 +190,11 @@ test("keeps project controls usable and honest when Docker is unavailable", asyn
     await screen.findByRole("heading", { name: "Alpha App" }),
   ).toBeInTheDocument();
   expect(screen.getByText(/Docker is unavailable/)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "▶ Start" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "⌘ Terminal" })).toBeEnabled();
-  await fireEvent.click(screen.getByRole("button", { name: "▶ Start" }));
+  expect(screen.getByRole("heading", { name: "Endpoints" })).toBeInTheDocument();
+  expect(screen.getByText("127.0.0.1:8080/")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Terminal" })).toBeEnabled();
+  await fireEvent.click(screen.getByRole("button", { name: "Start" }));
   expect(runRuntimeAction).toHaveBeenCalledWith("alpha", "start", []);
 
   const overview = screen.getByRole("tab", { name: "overview" });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RefreshCw } from "@lucide/vue";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
@@ -7,6 +8,8 @@ import { loadProjects } from "../../projects/api";
 import { loadProjectLogBatches } from "../api";
 
 const route = useRoute();
+const autoRefresh = ref(true);
+const refreshInterval = ref(5_000);
 const projects = useQuery({
   queryKey: ["projects"],
   queryFn: loadProjects,
@@ -19,7 +22,7 @@ const logs = useQuery({
   ]),
   queryFn: () => loadProjectLogBatches(projects.data.value ?? []),
   enabled: computed(() => Boolean(projects.data.value)),
-  refetchInterval: 5_000,
+  refetchInterval: computed(() => autoRefresh.value ? refreshInterval.value : false),
 });
 const search = ref("");
 const projectFilter = ref("all");
@@ -76,13 +79,29 @@ const visible = computed(() => {
         <h1 id="logs-title">Logs</h1>
         <span>Bounded persisted output across trusted projects.</span>
       </div>
-      <button
-        type="button"
-        :disabled="logs.isFetching.value"
-        @click="logs.refetch()"
-      >
-        {{ logs.isFetching.value ? "Refreshing…" : "Refresh" }}
-      </button>
+      <div class="refresh-controls">
+        <label class="auto-refresh">
+          <input v-model="autoRefresh" type="checkbox" />
+          <span>{{ autoRefresh ? "Auto refresh" : "Auto refresh off" }}</span>
+        </label>
+        <label v-if="autoRefresh">
+          <span class="sr-only">Refresh interval</span>
+          <select v-model.number="refreshInterval" aria-label="Refresh interval">
+            <option :value="5_000">Every 5 seconds</option>
+            <option :value="10_000">Every 10 seconds</option>
+            <option :value="30_000">Every 30 seconds</option>
+            <option :value="60_000">Every minute</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          :disabled="logs.isFetching.value"
+          @click="logs.refetch()"
+        >
+          <RefreshCw :size="15" :class="{ spinning: logs.isFetching.value }" aria-hidden="true" />
+          {{ logs.isFetching.value ? "Refreshing…" : "Refresh now" }}
+        </button>
+      </div>
     </header>
     <div class="filters" role="search">
       <label
@@ -234,6 +253,10 @@ const visible = computed(() => {
 }
 button,
 .state-panel a {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
   padding: 9px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -241,6 +264,32 @@ button,
   color: var(--text);
   text-decoration: none;
 }
+.refresh-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.refresh-controls select {
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--panel);
+  color: var(--muted);
+}
+.auto-refresh {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.auto-refresh input { accent-color: var(--accent); }
+.spinning { animation: refresh-spin 0.8s linear infinite; }
 .filters {
   display: flex;
   align-items: center;
@@ -371,6 +420,7 @@ button,
   .page-head {
     display: grid;
   }
+  .refresh-controls { flex-wrap: wrap; }
   .filters label {
     width: 100%;
   }
@@ -378,4 +428,5 @@ button,
     grid-template-columns: 65px 85px minmax(0, 1fr);
   }
 }
+@keyframes refresh-spin { to { transform: rotate(360deg); } }
 </style>

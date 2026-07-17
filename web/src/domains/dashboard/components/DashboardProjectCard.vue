@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowRight, Play, ScrollText, Square, Terminal } from "@lucide/vue";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 
@@ -8,13 +9,13 @@ import {
   isActiveState,
   projectInitials,
   stateLabel,
+  tagTone,
 } from "../../../lib/format";
 import type { ProjectSnapshot } from "../api";
 
 const props = defineProps<{ snapshot: ProjectSnapshot; pending?: boolean }>();
 const emit = defineEmits<{
   runtime: [snapshot: ProjectSnapshot, action: RuntimeAction];
-  terminal: [snapshot: ProjectSnapshot];
   open: [projectId: string];
 }>();
 
@@ -39,11 +40,16 @@ const changeCount = computed(() => {
     ? changes.staged + changes.modified + changes.untracked + changes.conflicted
     : 0;
 });
-const endpoint = computed(
-  () =>
-    props.snapshot.actions?.actions.find(
-      (action) => action.type === "browser.open",
-    )?.target,
+const endpoints = computed(
+  () => props.snapshot.actions?.actions.filter((action) => action.type === "browser.open" && action.target) ?? [],
+);
+const endpointSummary = computed(() => {
+  const first = endpoints.value[0]?.target?.replace(/^https?:\/\//, "");
+  if (!first) return "Not declared";
+  return endpoints.value.length > 1 ? `${first} +${endpoints.value.length - 1}` : first;
+});
+const endpointTitle = computed(() =>
+  endpoints.value.map((action) => `${action.name}: ${action.target}`).join("\n"),
 );
 const memory = computed(
   () =>
@@ -104,10 +110,8 @@ const services = computed(
         >
       </div>
       <div class="meta-box">
-        <span>Endpoint</span
-        ><strong>{{
-          endpoint?.replace(/^https?:\/\//, "") ?? "Not declared"
-        }}</strong>
+        <span>Endpoints</span
+        ><strong :title="endpointTitle">{{ endpointSummary }}</strong>
       </div>
       <div class="meta-box">
         <span>Resources</span
@@ -120,6 +124,8 @@ const services = computed(
         v-for="service in services"
         :key="service.id"
         class="service-chip"
+        :class="`service-chip--${tagTone(service.id)}`"
+        :title="`${service.id}: ${stateLabel(service.state)}`"
         >{{ service.id }}</span
       >
       <span v-if="!services.length" class="service-chip">{{
@@ -149,7 +155,9 @@ const services = computed(
         :disabled="pending"
         @click="emit('runtime', snapshot, primaryAction)"
       >
-        {{ primaryAction === "start" ? "▶ Start" : "■ Stop" }}
+        <Play v-if="primaryAction === 'start'" :size="15" aria-hidden="true" />
+        <Square v-else :size="14" fill="currentColor" aria-hidden="true" />
+        {{ primaryAction === "start" ? "Start" : "Stop" }}
       </button>
       <RouterLink
         class="button"
@@ -159,21 +167,24 @@ const services = computed(
           query: { tab: 'logs' },
         }"
         @click="emit('open', snapshot.project.id)"
-        >▤ Logs</RouterLink
+        ><ScrollText :size="15" aria-hidden="true" />Logs</RouterLink
       >
-      <button
-        type="button"
+      <RouterLink
         class="button"
-        :disabled="pending || !snapshot.actions"
-        @click="emit('terminal', snapshot)"
+        :to="{
+          name: 'project',
+          params: { projectId: snapshot.project.id },
+          query: { tab: 'terminal' },
+        }"
+        @click="emit('open', snapshot.project.id)"
       >
-        ⌘ Terminal
-      </button>
+        <Terminal :size="15" aria-hidden="true" />Terminal
+      </RouterLink>
       <RouterLink
         class="button open-detail"
         :to="{ name: 'project', params: { projectId: snapshot.project.id } }"
         @click="emit('open', snapshot.project.id)"
-        >Open →</RouterLink
+        >Open <ArrowRight :size="15" aria-hidden="true" /></RouterLink
       >
     </div>
   </article>
@@ -320,6 +331,31 @@ const services = computed(
   border-radius: 6px;
   background: #141b25;
 }
+.service-chip--blue {
+  color: #9fc3ff;
+  border-color: rgba(120, 166, 255, 0.28);
+  background: rgba(120, 166, 255, 0.1);
+}
+.service-chip--purple {
+  color: #c4adff;
+  border-color: rgba(158, 123, 255, 0.3);
+  background: rgba(158, 123, 255, 0.1);
+}
+.service-chip--green {
+  color: #87edbd;
+  border-color: rgba(84, 212, 154, 0.28);
+  background: rgba(84, 212, 154, 0.09);
+}
+.service-chip--orange {
+  color: #f4c77f;
+  border-color: rgba(241, 170, 91, 0.3);
+  background: rgba(241, 170, 91, 0.09);
+}
+.service-chip--cyan {
+  color: #8ce6f0;
+  border-color: rgba(99, 215, 231, 0.28);
+  background: rgba(99, 215, 231, 0.09);
+}
 .partial {
   color: var(--yellow);
   font-size: 10px;
@@ -330,7 +366,11 @@ const services = computed(
   border-top: 1px solid rgba(255, 255, 255, 0.055);
 }
 .button {
-  padding: 7px 9px;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: var(--panel-2);

@@ -25,7 +25,7 @@ const {
   operationError, liveLogs, logConnection, lifecycle, customAction,
   registerWorktrees, state, active, stateTone, memory, cpu, cpuAvailable,
   memoryAvailable, memoryLimit, changes, projectPorts, recentLogs,
-  terminalAction, browserAction, quickActions, requiredHealth, isPartial,
+  terminalAction, browserAction, endpoints, quickActions, requiredHealth, isPartial,
   runLifecycle, runAction,
 } = useProjectDetail(projectId);
 
@@ -46,7 +46,7 @@ async function selectTab(tab: ProjectTab) {
     <template v-else-if="project.data.value">
       <ProjectHeader
         :project="project.data.value" :state="state" :state-tone="stateTone" :active="active"
-        :browser-action="browserAction" :terminal-action="terminalAction"
+        :browser-action="browserAction"
         :action-pending="customAction.isPending.value" :lifecycle-pending="lifecycle.isPending.value"
         :operation-error="operationError" :partial="isPartial"
         :docker-unavailable="runtime.data.value?.driver === 'compose' && runtime.data.value.engine?.connected === false"
@@ -61,7 +61,7 @@ async function selectTab(tab: ProjectTab) {
           :metrics="metrics.data.value ?? []" :recent-logs="recentLogs" :log-connection="logConnection.state.value"
           :cpu="cpu" :cpu-available="cpuAvailable" :memory="memory" :memory-available="memoryAvailable" :memory-limit="memoryLimit"
           :git="git.data.value" :changes="changes" :health-state="health.data.value?.observerState ?? 'unavailable'"
-          :required-health="requiredHealth" :quick-actions="quickActions" :action-pending="customAction.isPending.value"
+          :required-health="requiredHealth" :endpoints="endpoints" :quick-actions="quickActions" :action-pending="customAction.isPending.value"
           @select-tab="selectTab" @run-action="runAction"
         />
       </div>
@@ -72,6 +72,7 @@ async function selectTab(tab: ProjectTab) {
         <TerminalPanel
           :project-id="projectId" :services="runtime.data.value?.services.map((service) => service.id) ?? []"
           :environments="environments.data.value ?? []" :actions="actions.data.value?.actions ?? []"
+          :external-available="Boolean(terminalAction)"
           @external="runAction(terminalAction)"
         />
       </div>

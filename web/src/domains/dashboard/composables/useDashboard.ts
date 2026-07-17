@@ -7,7 +7,6 @@ import { trackOperation } from "../../operations/store";
 import { loadPortRegistry } from "../../ports/api";
 import {
   loadProjects,
-  runProjectAction,
   runRuntimeAction,
 } from "../../projects/api";
 import { loadRecentProjects, markProjectAccess } from "../../projects/recent";
@@ -51,10 +50,6 @@ export function useDashboard() {
       projectId: string;
       action: RuntimeAction;
     }) => runRuntimeAction(projectId, action),
-    onSuccess: trackOperation,
-  });
-  const terminalMutation = useMutation({
-    mutationFn: (projectId: string) => runProjectAction(projectId, "terminal"),
     onSuccess: trackOperation,
   });
 
@@ -173,21 +168,6 @@ export function useDashboard() {
     }
   }
 
-  async function openTerminal(snapshot: ProjectSnapshot) {
-    pendingProject.value = snapshot.project.id;
-    operationError.value = "";
-    try {
-      await terminalMutation.mutateAsync(snapshot.project.id);
-    } catch (cause) {
-      operationError.value =
-        cause instanceof Error
-          ? cause.message
-          : "The terminal action could not be queued.";
-    } finally {
-      pendingProject.value = "";
-    }
-  }
-
   function clearFilters() {
     search.value = "";
     statusFilter.value = "all";
@@ -214,7 +194,6 @@ export function useDashboard() {
     repoAttention,
     partialCount,
     runLifecycle,
-    openTerminal,
     clearFilters,
     markProjectAccess,
   };

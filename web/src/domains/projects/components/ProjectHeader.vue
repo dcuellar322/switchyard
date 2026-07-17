@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowLeft, ExternalLink, Play, RefreshCw, Square, Terminal } from "@lucide/vue";
 import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
@@ -15,7 +16,6 @@ const props = defineProps<{
   stateTone: string;
   active: boolean;
   browserAction?: ActionDefinition;
-  terminalAction?: ActionDefinition;
   actionPending: boolean;
   lifecyclePending: boolean;
   operationError: string;
@@ -61,20 +61,13 @@ function profileLabel(profile: string) {
   return profile.replaceAll(/[-_.]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function openTerminal() {
-  if (props.terminalAction) {
-    emit("action", props.terminalAction);
-    return;
-  }
-  emit("terminal");
-}
 </script>
 
 <template>
   <header class="project-hero">
     <div class="hero-identity">
       <RouterLink class="back" to="/projects" aria-label="Back to projects"
-        >←</RouterLink
+        ><ArrowLeft :size="17" aria-hidden="true" /></RouterLink
       >
       <div class="project-avatar" aria-hidden="true">
         {{ projectInitials(project.displayName) }}
@@ -85,6 +78,12 @@ function openTerminal() {
           <span class="status" :class="`status--${stateTone}`"
             ><i></i>{{ stateLabel(state) }}</span
           >
+          <span
+            v-if="partial"
+            class="observation-state"
+            role="status"
+            title="One or more observations are unavailable. Cached project controls and evidence remain usable."
+          >Partial data</span>
         </div>
         <p>{{ project.primaryLocation }}</p>
       </div>
@@ -96,10 +95,10 @@ function openTerminal() {
         :disabled="actionPending"
         @click="$emit('action', browserAction)"
       >
-        ↗ Open app
+        <ExternalLink :size="16" aria-hidden="true" />Open app
       </button>
-      <button type="button" :disabled="actionPending" @click="openTerminal">
-        ⌘ Terminal
+      <button type="button" @click="$emit('terminal')">
+        <Terminal :size="16" aria-hidden="true" />Terminal
       </button>
       <button
         v-if="active"
@@ -107,7 +106,7 @@ function openTerminal() {
         :disabled="lifecyclePending"
         @click="$emit('lifecycle', 'restart', [])"
       >
-        ↻ Restart
+        <RefreshCw :size="16" aria-hidden="true" />Restart
       </button>
       <button
         class="primary"
@@ -115,7 +114,9 @@ function openTerminal() {
         :disabled="lifecyclePending"
         @click="requestLifecycle"
       >
-        {{ active ? "■ Stop" : "▶ Start" }}
+        <Square v-if="active" :size="14" fill="currentColor" aria-hidden="true" />
+        <Play v-else :size="16" aria-hidden="true" />
+        {{ active ? "Stop" : "Start" }}
       </button>
     </div>
   </header>
@@ -140,15 +141,11 @@ function openTerminal() {
     </fieldset>
     <div class="start-options__actions">
       <button type="button" @click="closeStartOptions">Cancel</button>
-      <button class="primary" type="submit" :disabled="lifecyclePending">▶ Start services</button>
+      <button class="primary" type="submit" :disabled="lifecyclePending"><Play :size="15" aria-hidden="true" />Start services</button>
     </div>
   </form>
   <p v-if="operationError" class="message message--error" role="alert">
     {{ operationError }}
-  </p>
-  <p v-if="partial" class="message" role="status">
-    Some observations are unavailable. Available project controls and evidence
-    remain usable.
   </p>
   <p v-if="dockerUnavailable" class="message" role="status">
     Docker is unavailable. Catalog, Git, manifest, and persisted logs remain

@@ -41,3 +41,15 @@ export function isTerminalOperation(value: string): boolean {
     value,
   );
 }
+
+export type TagTone = "blue" | "cyan" | "green" | "orange" | "purple" | "neutral";
+
+export function tagTone(value: string): TagTone {
+  const tag = value.trim().toLowerCase();
+  if (/(front|web|ui|client|vite|vue|react|marketing)/.test(tag)) return "purple";
+  if (/(back|api|server|daemon|worker|go|python|node)/.test(tag)) return "blue";
+  if (/(postgre|mysql|maria|sqlite|database|\bdb\b)/.test(tag)) return "green";
+  if (/(redis|cache|queue|broker)/.test(tag)) return "orange";
+  if (/(proxy|gateway|router|network)/.test(tag)) return "cyan";
+  return "neutral";
+}

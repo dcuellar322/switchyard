@@ -10,6 +10,8 @@ import type {
   RuntimeObservation,
 } from "../../../api/generated/types.gen";
 import { formatBytes, stateLabel } from "../../../lib/format";
+import ProjectEndpointsCard from "./ProjectEndpointsCard.vue";
+import ProjectLogPreview from "./ProjectLogPreview.vue";
 
 const props = defineProps<{
   projectId: string;
@@ -27,6 +29,7 @@ const props = defineProps<{
   changes: number;
   healthState: string;
   requiredHealth: Array<HealthResult>;
+  endpoints: Array<ActionDefinition>;
   quickActions: Array<ActionDefinition>;
   actionPending: boolean;
 }>();
@@ -38,6 +41,7 @@ const emit = defineEmits<{
 function serviceMetric(serviceId: string) {
   return props.metrics.find((item) => item.serviceId === serviceId);
 }
+
 </script>
 
 <template>
@@ -97,35 +101,18 @@ function serviceMetric(serviceId: string) {
         </p>
       </article>
 
-      <article class="panel logs-panel">
-        <header class="panel-head">
-          <div>
-            <p>Streaming output</p>
-            <h2>Live logs</h2>
-          </div>
-          <div class="stream-state">
-            <i :class="{ online: logConnection === 'connected' }"></i
-            >{{ logConnection }}
-            <button type="button" @click="emit('selectTab', 'logs')">
-              View all →
-            </button>
-          </div>
-        </header>
-        <div
-          v-if="recentLogs.length"
-          class="log-lines"
-          aria-label="Recent project logs"
-        >
-          <div v-for="entry in recentLogs.slice(-14)" :key="entry.sequence">
-            <time>{{ new Date(entry.timestamp).toLocaleTimeString() }}</time>
-            <span>{{ entry.serviceId }}</span>
-            <code :class="{ stderr: entry.stream === 'stderr' }">{{
-              entry.message
-            }}</code>
-          </div>
-        </div>
-        <p v-else class="panel-state">No persisted or live log entries yet.</p>
-      </article>
+      <ProjectEndpointsCard
+        v-if="endpoints.length"
+        :endpoints="endpoints"
+        :action-pending="actionPending"
+        @run-action="emit('runAction', $event)"
+      />
+
+      <ProjectLogPreview
+        :recent-logs="recentLogs"
+        :log-connection="logConnection"
+        @view-all="emit('selectTab', 'logs')"
+      />
     </div>
 
     <aside class="overview-side">

@@ -30,7 +30,7 @@ beforeEach(() => {
 test('terminal launcher exposes typed targets and honest detach persistence', async () => {
   render(TerminalPanel, {
     props: {
-      projectId: 'alpha', services: ['api', 'database'], environments: [],
+      projectId: 'alpha', services: ['api', 'database'], environments: [], externalAvailable: true,
       actions: [{ id: 'console', name: 'Console', type: 'command', command: ['bin/console'], workingDirectory: '.', shell: false, captureOutput: false, risk: 'interactive', timeoutSeconds: 0 }],
     },
     global: { plugins: plugins() },

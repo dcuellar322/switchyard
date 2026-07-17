@@ -133,3 +133,17 @@ environment values.
 - Action output is bounded for process safety but is not yet a first-class log
   stream; persistent process and Compose logs continue to use the Phase 7
   observability pipeline.
+
+## 2026-07-17 terminal and endpoint evidence
+
+- Dashboard and project-header Terminal controls route to Switchyard's
+  integrated terminal instead of incorrectly queueing `terminal.open` as a
+  project action.
+- The explicit external-terminal control is disabled when no trusted
+  `terminal.open` action exists. On macOS, the launcher uses Terminal's
+  AppleScript API to open and focus a shell at the exact trusted working
+  directory.
+- Every trusted `browser.open` action is rendered as a named project endpoint;
+  browser and terminal actions are excluded from generic quick actions.
+- Project action failures preserve the server problem detail and code instead
+  of replacing them with a generic queueing message.

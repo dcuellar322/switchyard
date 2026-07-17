@@ -36,7 +36,7 @@ test("scans a repository into an evidence-backed review", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Services" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Live logs" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Git" })).toBeVisible();
-  const terminalShortcut = page.getByRole("button", { name: "⌘ Terminal" });
+  const terminalShortcut = page.getByRole("button", { name: "Terminal" });
   await expect(terminalShortcut).toBeEnabled();
   await terminalShortcut.click();
   await expect(page.getByRole("tab", { name: "terminal" })).toHaveAttribute(
@@ -86,7 +86,7 @@ test("manages a native process project through durable browser operations", asyn
     page.getByRole("heading", { name: "npm single-process fixture" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "▶ Start" }).click();
+  await page.getByRole("button", { name: "Start" }).click();
   await expect(page.getByText("Running", { exact: true }).first()).toBeVisible({
     timeout: 20_000,
   });
@@ -95,7 +95,7 @@ test("manages a native process project through durable browser operations", asyn
     timeout: 15_000,
   });
 
-  await page.getByRole("button", { name: "■ Stop" }).click();
+  await page.getByRole("button", { name: "Stop" }).click();
   await expect(page.getByText("Stopped", { exact: true }).first()).toBeVisible({
     timeout: 20_000,
   });
@@ -173,7 +173,7 @@ test("manages a real Compose project through the same browser workflow", async (
           new URL(response.url()).pathname,
         ),
     );
-    await page.getByRole("button", { name: "▶ Start" }).click();
+    await page.getByRole("button", { name: "Start" }).click();
     const operation = (await (await operationResponse).json()) as {
       id: string;
     };
@@ -211,7 +211,7 @@ test("manages a real Compose project through the same browser workflow", async (
     await expect(page.getByText("compose · switchyard")).toBeVisible({
       timeout: 15_000,
     });
-    await page.getByRole("button", { name: "■ Stop" }).click();
+    await page.getByRole("button", { name: "Stop" }).click();
     await expect(
       page.getByText("Stopped", { exact: true }).first(),
     ).toBeVisible({ timeout: 30_000 });
