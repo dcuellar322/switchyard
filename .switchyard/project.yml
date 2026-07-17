@@ -1,0 +1,65 @@
+schemaVersion: switchyard.dev/v1
+kind: Project
+
+metadata:
+  id: switchyard
+  name: Switchyard
+  tags: [go, vue, tauri]
+
+repository:
+  root: .
+
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: daemon
+        command:
+          - ./bin/switchyard
+          - --address
+          - 127.0.0.1:19617
+          - --ipc-address
+          - .switchyard-data/managed/switchyard.sock
+          - --data-dir
+          - .switchyard-data/managed
+          - daemon
+        workingDirectory: .
+        stopTimeoutSeconds: 10
+
+services:
+  - id: daemon
+    displayName: Switchyard development daemon
+    source:
+      process: daemon
+    healthChecks:
+      - id: ready
+        type: http
+        url: http://127.0.0.1:19617/api/v1/system
+        expectedStatus: 200
+        required: true
+
+ports:
+  - id: daemon-http
+    service: daemon
+    host: 19617
+    target: 19617
+    protocol: tcp
+
+actions:
+  - id: build
+    name: Build Switchyard
+    type: command
+    command: [make, build]
+    workingDirectory: .
+    captureOutput: true
+    risk: mutating
+    timeoutSeconds: 600
+
+  - id: quality
+    name: Run complete quality gate
+    type: tests.run
+    command: [make, quality]
+    workingDirectory: .
+    captureOutput: true
+    risk: mutating
+    timeoutSeconds: 3600

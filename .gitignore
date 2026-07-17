@@ -21,6 +21,7 @@ web/test-results/
 
 # Local runtime state
 .switchyard-data/
+.switchyard/project.local.yml
 *.db
 *.db-shm
 *.db-wal
