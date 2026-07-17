@@ -3,7 +3,9 @@ package application_test
 import (
 	"context"
 	"errors"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"switchyard.dev/switchyard/internal/catalog/application"
@@ -45,8 +47,12 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	if err != nil {
 		t.Fatalf("duplicate Scan() error = %v", err)
 	}
-	if duplicateProject.ID != project.ID || duplicateProposal.ID != proposal.ID {
-		t.Fatal("duplicate scan created a competing proposal")
+	if duplicateProject.ID != project.ID || duplicateProposal.ID == proposal.ID {
+		t.Fatal("pending rescan did not replace the existing proposal")
+	}
+	superseded, err := service.GetProposal(ctx, proposal.ID)
+	if err != nil || superseded.Status != discoveryDomain.StatusSuperseded {
+		t.Fatalf("superseded proposal = %#v error=%v", superseded, err)
 	}
 	trusted, accepted, err := service.TrustProject(ctx, project.ID)
 	if err != nil {
@@ -67,6 +73,91 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	}
 	if _, err := service.GetProject(ctx, project.ID); !errors.Is(err, application.ErrNotFound) {
 		t.Fatalf("GetProject() after removal error = %v", err)
+	}
+}
+
+func TestPendingScanRefreshesProposalFromPortableManifest(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = database.Close() })
+	service := application.NewService(sqlite.NewCatalogRepository(database), adapters.Defaults())
+	root := t.TempDir()
+	project, source, err := service.Scan(ctx, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(source.Unresolved) == 0 {
+		t.Fatal("initial proposal unexpectedly resolved")
+	}
+	manifestDirectory := filepath.Join(root, ".switchyard")
+	if err := os.MkdirAll(manifestDirectory, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	portable := `schemaVersion: switchyard.dev/v1
+kind: Project
+metadata:
+  id: refreshed-project
+  name: Refreshed project
+  tags: [go, process]
+repository:
+  root: .
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: daemon
+        command: [go, version]
+        workingDirectory: .
+services:
+  - id: daemon
+    source:
+      process: daemon
+`
+	if err := os.WriteFile(filepath.Join(manifestDirectory, "project.yml"), []byte(portable), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	refreshedProject, refreshed, err := service.Scan(ctx, root)
+	if err != nil {
+		t.Fatalf("rescan error = %v", err)
+	}
+	if refreshedProject.ID != project.ID || refreshed.ID == source.ID {
+		t.Fatalf("rescan identities project=%q proposal=%q", refreshedProject.ID, refreshed.ID)
+	}
+	if refreshedProject.Slug != "refreshed-project" || refreshedProject.DisplayName != "Refreshed project" {
+		t.Fatalf("refreshed project metadata = %#v", refreshedProject)
+	}
+	if !refreshed.Validation.Valid || len(refreshed.Unresolved) != 0 {
+		t.Fatalf("refreshed proposal validation=%#v unresolved=%v", refreshed.Validation, refreshed.Unresolved)
+	}
+	previous, err := service.GetProposal(ctx, source.ID)
+	if err != nil || previous.Status != discoveryDomain.StatusSuperseded {
+		t.Fatalf("previous proposal = %#v error=%v", previous, err)
+	}
+}
+
+func TestTrustReportsUnresolvedProposalFields(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = database.Close() })
+	service := application.NewService(sqlite.NewCatalogRepository(database), adapters.Defaults())
+	project, _, err := service.Scan(ctx, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _, err = service.TrustProject(ctx, project.ID)
+	if !errors.Is(err, application.ErrInvalidProposal) {
+		t.Fatalf("TrustProject() error = %v", err)
+	}
+	if !strings.Contains(err.Error(), "unresolved fields: /runtime/driver, /services") || strings.Contains(err.Error(), "[]") {
+		t.Fatalf("TrustProject() error is not actionable: %v", err)
 	}
 }
 

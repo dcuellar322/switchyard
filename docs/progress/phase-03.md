@@ -25,6 +25,11 @@
 - Added transactional proposal persistence, duplicate-root deduplication,
   compare-and-swap approval, trust transitions, audit records, and manifest
   snapshots.
+- Pending duplicate-root scans now rerun deterministic discovery and atomically
+  supersede the prior proposal, so adding a portable manifest during review no
+  longer requires removing and recreating the catalog project.
+- Trust failures distinguish schema validation errors from unresolved fields
+  and report their JSON pointers instead of rendering an empty error list.
 - Added generated onboarding, catalog, manifest explain/diff/validate APIs;
   `switchyard add`; and `switchyard manifest explain|diff|validate` over local
   IPC.
@@ -63,6 +68,7 @@
 
 ```text
 Go manifest/discovery/catalog/SQLite tests: passed
+Pending proposal refresh and actionable trust-error regressions: passed
 Go full package suite and architecture check: passed
 Vue typecheck, ESLint, and Vitest: passed
 Playwright: system and evidence-backed onboarding flows passed

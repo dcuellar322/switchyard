@@ -32,6 +32,7 @@ var (
 // Repository persists projects, proposals, evidence, and accepted snapshots.
 type Repository interface {
 	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal, MutationActor) error
+	ReplacePendingProposal(context.Context, string, catalog.Project, discoveryDomain.Proposal, MutationActor) error
 	CreateRevision(context.Context, string, discoveryDomain.Proposal, MutationActor) error
 	FindProposalByLocation(context.Context, string) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
@@ -97,7 +98,22 @@ func (s *Service) ScanWithRootOverrideAs(ctx context.Context, path string, allow
 		}
 	}
 	if project, proposal, findErr := s.repository.FindProposalByLocation(ctx, root.Path); findErr == nil {
-		return project, proposal, nil
+		if project.TrustState != catalog.TrustPending || proposal.Status != discoveryDomain.StatusProposed {
+			return project, proposal, nil
+		}
+		refreshed, scanErr := s.buildProposal(ctx, root, project.ID)
+		if scanErr != nil {
+			return catalog.Project{}, discoveryDomain.Proposal{}, scanErr
+		}
+		project.Slug = refreshed.Candidate.Metadata.ID
+		project.DisplayName = refreshed.Candidate.Metadata.Name
+		project.Description = refreshed.Candidate.Metadata.Description
+		project.Tags = slices.Clone(refreshed.Candidate.Metadata.Tags)
+		project.UpdatedAt = refreshed.CreatedAt
+		if replaceErr := s.repository.ReplacePendingProposal(ctx, proposal.ID, project, refreshed, normalizedActor(actor)); replaceErr != nil {
+			return catalog.Project{}, discoveryDomain.Proposal{}, replaceErr
+		}
+		return project, refreshed, nil
 	} else if !errors.Is(findErr, ErrNotFound) {
 		return catalog.Project{}, discoveryDomain.Proposal{}, findErr
 	}
@@ -105,18 +121,10 @@ func (s *Service) ScanWithRootOverrideAs(ctx context.Context, path string, allow
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
-	proposalID, err := identifier.New("proposal")
+	proposal, err := s.buildProposal(ctx, root, projectID)
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
-	evidence, err := discovery.ScanAll(ctx, root, s.scanners)
-	if err != nil {
-		return catalog.Project{}, discoveryDomain.Proposal{}, err
-	}
-	proposal := discovery.BuildProposal(root, projectID, proposalID, evidence)
-	validation := manifest.Validate(root.Path, proposal.Candidate)
-	proposal.Validation = discoveryDomain.Validation(validation)
-	proposal.CreatedAt = s.now().UTC()
 	project := catalog.Project{
 		ID: projectID, Slug: proposal.Candidate.Metadata.ID, DisplayName: proposal.Candidate.Metadata.Name,
 		Description: proposal.Candidate.Metadata.Description, TrustState: catalog.TrustPending,
@@ -127,6 +135,21 @@ func (s *Service) ScanWithRootOverrideAs(ctx context.Context, path string, allow
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
 	return project, proposal, nil
+}
+
+func (s *Service) buildProposal(ctx context.Context, root discovery.Root, projectID string) (discoveryDomain.Proposal, error) {
+	proposalID, err := identifier.New("proposal")
+	if err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	evidence, err := discovery.ScanAll(ctx, root, s.scanners)
+	if err != nil {
+		return discoveryDomain.Proposal{}, err
+	}
+	proposal := discovery.BuildProposal(root, projectID, proposalID, evidence)
+	proposal.Validation = discoveryDomain.Validation(manifest.Validate(root.Path, proposal.Candidate))
+	proposal.CreatedAt = s.now().UTC()
+	return proposal, nil
 }
 
 // GetProposal returns the persisted candidate and all source evidence.
@@ -214,9 +237,23 @@ func (s *Service) AcceptAs(ctx context.Context, id string, actor MutationActor) 
 		return catalog.Project{}, discoveryDomain.Proposal{}, ErrHumanApprovalRequired
 	}
 	if !proposal.Validation.Valid || len(proposal.Unresolved) > 0 {
-		return catalog.Project{}, discoveryDomain.Proposal{}, fmt.Errorf("%w: %v", ErrInvalidProposal, proposal.Validation.Errors)
+		return catalog.Project{}, discoveryDomain.Proposal{}, invalidProposalError(proposal)
 	}
 	return s.repository.AcceptProposal(ctx, id, s.now().UTC(), normalizedActor(actor))
+}
+
+func invalidProposalError(proposal discoveryDomain.Proposal) error {
+	reasons := make([]string, 0, 2)
+	if len(proposal.Validation.Errors) > 0 {
+		reasons = append(reasons, "validation errors: "+strings.Join(proposal.Validation.Errors, "; "))
+	}
+	if len(proposal.Unresolved) > 0 {
+		reasons = append(reasons, "unresolved fields: "+strings.Join(proposal.Unresolved, ", "))
+	}
+	if len(reasons) == 0 {
+		reasons = append(reasons, "validation failed without details")
+	}
+	return fmt.Errorf("%w: %s", ErrInvalidProposal, strings.Join(reasons, "; "))
 }
 
 // ListProjects returns registered projects in stable display order.

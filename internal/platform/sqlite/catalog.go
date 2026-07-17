@@ -27,7 +27,7 @@ func (r *CatalogRepository) FindProposalByLocation(ctx context.Context, location
 	var projectID, proposalID string
 	err := r.database.connection.QueryRowContext(ctx, `SELECT p.id, mp.id FROM projects p
         JOIN manifest_proposals mp ON mp.project_id = p.id
-        WHERE p.primary_location = ? ORDER BY mp.created_at DESC LIMIT 1`, location).Scan(&projectID, &proposalID)
+		WHERE p.primary_location = ? ORDER BY mp.created_at DESC, mp.id DESC LIMIT 1`, location).Scan(&projectID, &proposalID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return catalog.Project{}, discovery.Proposal{}, application.ErrNotFound
 	}
@@ -59,31 +59,11 @@ func (r *CatalogRepository) CreateProposal(ctx context.Context, project catalog.
 	if _, err = tx.ExecContext(ctx, `INSERT INTO project_locations (project_id, path, is_primary) VALUES (?, ?, 1)`, project.ID, project.PrimaryLocation); err != nil {
 		return fmt.Errorf("insert project location: %w", err)
 	}
-	for _, tag := range project.Tags {
-		if _, err = tx.ExecContext(ctx, `INSERT INTO project_tags (project_id, tag) VALUES (?, ?)`, project.ID, tag); err != nil {
-			return fmt.Errorf("insert project tag: %w", err)
-		}
+	if err = insertProjectTags(ctx, tx, project.ID, project.Tags); err != nil {
+		return err
 	}
-	candidate, _ := json.Marshal(proposal.Candidate)
-	confidence, _ := json.Marshal(proposal.ConfidenceByField)
-	unresolved, _ := json.Marshal(proposal.Unresolved)
-	validation, _ := json.Marshal(proposal.Validation)
-	_, err = tx.ExecContext(ctx, `INSERT INTO manifest_proposals
-        (id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, proposal.ID, proposal.ProjectID, proposal.ScannerVersion,
-		proposal.SchemaVersion, candidate, confidence, unresolved, validation, proposal.Status, formatTime(proposal.CreatedAt))
-	if err != nil {
-		return fmt.Errorf("insert manifest proposal: %w", err)
-	}
-	for _, item := range proposal.Evidence {
-		warnings, _ := json.Marshal(item.Warnings)
-		_, err = tx.ExecContext(ctx, `INSERT INTO discovery_evidence
-            (id, proposal_id, scanner, kind, source_path, start_line, end_line, confidence, data_json, warnings_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, item.ID, proposal.ID, item.Scanner, item.Kind, item.SourcePath,
-			item.Location.StartLine, item.Location.EndLine, item.Confidence, item.Data, warnings)
-		if err != nil {
-			return fmt.Errorf("insert discovery evidence: %w", err)
-		}
+	if err = insertManifestProposal(ctx, tx, proposal); err != nil {
+		return err
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
         (event_type, actor_type, actor_id, project_id, idempotency_key, detail_json, occurred_at)
@@ -112,25 +92,8 @@ func (r *CatalogRepository) CreateRevision(ctx context.Context, sourceID string,
 	if err != nil || rows != 1 {
 		return application.ErrAlreadyReviewed
 	}
-	candidate, _ := json.Marshal(proposal.Candidate)
-	confidence, _ := json.Marshal(proposal.ConfidenceByField)
-	unresolved, _ := json.Marshal(proposal.Unresolved)
-	validation, _ := json.Marshal(proposal.Validation)
-	_, err = tx.ExecContext(ctx, `INSERT INTO manifest_proposals
-		(id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, proposal.ID, proposal.ProjectID, proposal.ScannerVersion,
-		proposal.SchemaVersion, candidate, confidence, unresolved, validation, proposal.Status, formatTime(proposal.CreatedAt))
-	if err != nil {
-		return fmt.Errorf("insert proposal revision: %w", err)
-	}
-	for _, item := range proposal.Evidence {
-		warnings, _ := json.Marshal(item.Warnings)
-		if _, err = tx.ExecContext(ctx, `INSERT INTO discovery_evidence
-			(id, proposal_id, scanner, kind, source_path, start_line, end_line, confidence, data_json, warnings_json)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, item.ID, proposal.ID, item.Scanner, item.Kind, item.SourcePath,
-			item.Location.StartLine, item.Location.EndLine, item.Confidence, item.Data, warnings); err != nil {
-			return fmt.Errorf("insert revision evidence: %w", err)
-		}
+	if err = insertManifestProposal(ctx, tx, proposal); err != nil {
+		return err
 	}
 	detail, _ := json.Marshal(map[string]string{"sourceProposalId": sourceID})
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events
