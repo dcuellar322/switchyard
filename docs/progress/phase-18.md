@@ -73,3 +73,12 @@ Signed/notarized release artifacts are deliberately created only by a reviewed
 `v*` tag in the protected release environment. The workflow refuses partial
 publication and leaves a draft release for human inspection; no signing key or
 production release was fabricated during local verification.
+
+## 2026-07-17 cross-platform regression evidence
+
+- The forced-stop integration helper now ignores both POSIX `SIGTERM` and
+  Windows `os.Interrupt`, matching the CTRL_BREAK path used by the Windows
+  supervisor and preserving the expected `stopped_forced` result.
+- Native macOS adapter tests pass, and the Linux and Windows adapter packages
+  cross-compile from this checkout. The corrected Windows behavior remains
+  required on the hosted Windows runner.

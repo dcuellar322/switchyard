@@ -240,7 +240,9 @@ func helperArgument() string {
 func serveHelper(ignoreTermination bool) {
 	if ignoreTermination {
 		// The forced-termination test proves escalation after this explicit refusal.
-		ignoreSignal(syscall.SIGTERM)
+		// Windows delivers CTRL_BREAK_EVENT as os.Interrupt, while Unix uses
+		// SIGTERM. Ignore both so the fixture exercises the same escalation path.
+		ignoreSignal(syscall.SIGTERM, os.Interrupt)
 	}
 	listener, err := net.Listen("tcp", "127.0.0.1:"+os.Getenv("PORT"))
 	if err != nil {
@@ -365,9 +367,9 @@ func freePort(t *testing.T) int {
 	return listener.Addr().(*net.TCPAddr).Port
 }
 
-func ignoreSignal(signal os.Signal) {
+func ignoreSignal(signals ...os.Signal) {
 	signalChannel := make(chan os.Signal, 1)
-	signalNotify(signalChannel, signal)
+	signalNotify(signalChannel, signals...)
 }
 
 var signalNotify = func(channel chan<- os.Signal, signals ...os.Signal) {

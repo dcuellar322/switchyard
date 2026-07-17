@@ -112,3 +112,12 @@ shutdown smoke test: SIGINT and Playwright SIGTERM both removed daemon.lock
    database schema state are live.
 4. Run `./bin/switchyard doctor` in another terminal.
 5. Stop the daemon with Ctrl-C and confirm `daemon.lock` is absent.
+
+## 2026-07-17 CI stabilization evidence
+
+- pnpm 11's build-script allowlist now explicitly approves the pinned
+  `esbuild` and `vue-demi` packages, so frozen installs no longer stop before
+  the Node, browser, and desktop jobs begin.
+- `pnpm install --frozen-lockfile`, generated-code drift checks, repository
+  policy, Go vet, GolangCI, architecture checks, and Vue lint/typechecking pass
+  from the release checkout.
