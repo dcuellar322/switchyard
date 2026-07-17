@@ -869,6 +869,7 @@ export type ContainerMetadata = {
     startedAt?: string;
     finishedAt?: string;
     exitCode?: number;
+    oomKilled?: boolean;
     restartCount: number;
 };
 

@@ -23,6 +23,8 @@
   optional-profile containers remain visible.
 - A successful stop is treated as deliberate lifecycle intent, preventing a
   forced container exit code from turning a stopped project into `failed`.
+  Durable Docker OOM metadata distinguishes a forced stop from a real
+  signal-137 memory failure after daemon restart.
 - Added bounded Docker stdout/stderr streaming with service/run identity and
   current CPU, memory, and network sampling.
 - Added dynamically maintained Engine event subscriptions; a project-labelled

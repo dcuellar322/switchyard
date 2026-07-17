@@ -2869,6 +2869,7 @@ components:
         startedAt: { type: string, format: date-time }
         finishedAt: { type: string, format: date-time }
         exitCode: { type: integer }
+        oomKilled: { type: boolean }
         restartCount: { type: integer, minimum: 0 }
     ProcessMetadata:
       type: object

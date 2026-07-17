@@ -148,6 +148,7 @@ func serviceObservation(ctx context.Context, engine engineClient, project domain
 			result.Container.FinishedAt = parseDockerTime(state.FinishedAt)
 			exitCode := state.ExitCode
 			result.Container.ExitCode = &exitCode
+			result.Container.OOMKilled = state.OOMKilled
 		}
 		if state.Paused {
 			result.State = "paused"
@@ -241,7 +242,7 @@ func summarizeServices(services []domain.ServiceObservation) serviceCounts {
 		case "removing":
 			counts.stopping++
 		case "exited", "dead":
-			if service.Container.ExitCode != nil && *service.Container.ExitCode != 0 {
+			if failedContainerExit(service.Container) {
 				counts.failed++
 			}
 		}
@@ -250,6 +251,16 @@ func summarizeServices(services []domain.ServiceObservation) serviceCounts {
 		}
 	}
 	return counts
+}
+
+func failedContainerExit(metadata *domain.ContainerMetadata) bool {
+	if metadata == nil || metadata.ExitCode == nil || *metadata.ExitCode == 0 {
+		return false
+	}
+	if *metadata.ExitCode == 137 && !metadata.OOMKilled {
+		return false
+	}
+	return *metadata.ExitCode != 143
 }
 
 func unixTime(value int64) time.Time {

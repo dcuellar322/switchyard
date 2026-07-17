@@ -2283,6 +2283,7 @@ type ContainerMetadata struct {
 	Id           string     `json:"id"`
 	Image        string     `json:"image"`
 	Name         string     `json:"name"`
+	OomKilled    *bool      `json:"oomKilled,omitempty"`
 	RestartCount int        `json:"restartCount"`
 	StartedAt    *time.Time `json:"startedAt,omitempty"`
 }

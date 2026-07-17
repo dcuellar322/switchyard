@@ -269,6 +269,7 @@ type ContainerMetadata struct {
 	StartedAt    *time.Time `json:"startedAt,omitempty"`
 	FinishedAt   *time.Time `json:"finishedAt,omitempty"`
 	ExitCode     *int       `json:"exitCode,omitempty"`
+	OOMKilled    bool       `json:"oomKilled,omitempty"`
 	RestartCount int        `json:"restartCount"`
 }
 

@@ -59,7 +59,9 @@ those names. Observation continues to use the normalized default topology but
 also includes non-default containers while they are active; stale stopped
 profile containers do not degrade the project. A successful project-wide stop
 is retained as lifecycle intent so signal-based container exits are reported
-as stopped rather than failed.
+as stopped rather than failed. Docker's durable `OOMKilled` state keeps a
+signal-137 out-of-memory termination classified as a failure across daemon
+restarts.
 
 ## Observation and streams
 

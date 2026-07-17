@@ -43,13 +43,26 @@ func TestInspectUsesComposeLabelsAndRecognizesExternalProject(t *testing.T) {
 
 func TestDeliberateStopDoesNotReportSignalExitAsProjectFailure(t *testing.T) {
 	t.Parallel()
-	exitCode := 137
+	exitCode := 1
 	services := []domain.ServiceObservation{{State: "exited", Container: &domain.ContainerMetadata{ExitCode: &exitCode}}}
 	if got := deriveProjectState(services, 1, domain.OriginExternal, true); got != domain.StateStopped {
 		t.Fatalf("state = %q", got)
 	}
 	if got := deriveProjectState(services, 1, domain.OriginExternal, false); got != domain.StateFailed {
 		t.Fatalf("unexpected failure state = %q", got)
+	}
+}
+
+func TestSignalExitIsStoppedUnlessDockerReportsOOM(t *testing.T) {
+	t.Parallel()
+	exitCode := 137
+	services := []domain.ServiceObservation{{State: "exited", Container: &domain.ContainerMetadata{ExitCode: &exitCode}}}
+	if got := deriveProjectState(services, 1, domain.OriginExternal, false); got != domain.StateStopped {
+		t.Fatalf("signal stop state = %q", got)
+	}
+	services[0].Container.OOMKilled = true
+	if got := deriveProjectState(services, 1, domain.OriginExternal, false); got != domain.StateFailed {
+		t.Fatalf("OOM state = %q", got)
 	}
 }
 
