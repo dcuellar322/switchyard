@@ -2,6 +2,8 @@ import vue from '@vitejs/plugin-vue'
 import { writeFile } from 'node:fs/promises'
 import { defineConfig } from 'vitest/config'
 
+const daemonAddress = process.env.SWITCHYARD_E2E_DAEMON_ADDRESS ?? '127.0.0.1:19616'
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -15,9 +17,9 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     proxy: {
-      '/api': 'http://127.0.0.1:19616',
+      '/api': `http://${daemonAddress}`,
       '/ws': {
-        target: 'ws://127.0.0.1:19616',
+        target: `ws://${daemonAddress}`,
         ws: true,
       },
     },

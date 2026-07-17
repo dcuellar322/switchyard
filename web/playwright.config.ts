@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const externalBaseURL = process.env.SWITCHYARD_E2E_BASE_URL
+const daemonAddress = process.env.SWITCHYARD_E2E_DAEMON_ADDRESS ?? '127.0.0.1:29616'
 
 export default defineConfig({
   testDir: './tests',
@@ -40,13 +41,14 @@ export default defineConfig({
         {
           command: './scripts/run-e2e-daemon.sh',
           cwd: '..',
-          url: 'http://127.0.0.1:19616/api/v1/system',
+          url: `http://${daemonAddress}/api/v1/system`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,
           gracefulShutdown: { signal: 'SIGTERM', timeout: 5_000 },
         },
         {
           command: 'pnpm dev',
+          env: { SWITCHYARD_E2E_DAEMON_ADDRESS: daemonAddress },
           url: 'http://127.0.0.1:4173',
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

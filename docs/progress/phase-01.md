@@ -57,6 +57,9 @@
 
 ## Commands run and results
 
+Browser E2E and visual tests use a dedicated, overridable daemon address so the
+quality gate can run while a normal Switchyard daemon is active on port 19616.
+
 ```text
 make generate: passed; OpenAPI, sqlc, and TypeScript outputs reproduced
 make lint: passed; golangci-lint reported 0 issues, archcheck and ESLint passed
