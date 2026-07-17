@@ -13,6 +13,11 @@
 - Added operation toasts, a progress drawer, cancellation, event-driven query
   invalidation, polling fallback, loading and empty states, partial-data
   warnings, and Docker-disconnected behavior.
+- Operation notices now represent work initiated in the current UI session,
+  follow its durable state, expire after terminal completion, and remain clear
+  of the project detail quick-action rail at desktop and narrow widths.
+- Primary endpoint actions sort ahead of secondary browser endpoints so the
+  project-level Open app control follows the reviewed manifest declaration.
 - Added a host observation endpoint for CPU, memory, Docker storage, explicit
   attribution, timeout warnings, and short-lived request coalescing.
 - Corrected Compose ownership timing and reconciliation under concurrent

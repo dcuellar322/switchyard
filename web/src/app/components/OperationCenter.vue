@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { computed, watch } from "vue";
+import { computed, onBeforeUnmount, watch } from "vue";
 
 import { isTerminalOperation, stateLabel } from "../../lib/format";
 import {
@@ -29,7 +29,28 @@ const cancellation = useMutation({
   onSuccess: trackOperation,
 });
 const recent = computed(() => store.operations.value.slice(0, 20));
-const toast = computed(() => recent.value[0]);
+const toast = computed(() => store.notice.value);
+let dismissalTimer: number | undefined;
+watch(
+  () =>
+    toast.value
+      ? `${toast.value.id}:${toast.value.state}:${toast.value.updatedAt}`
+      : "",
+  () => {
+    if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer);
+    dismissalTimer = undefined;
+    const current = toast.value;
+    if (!current || !isTerminalOperation(current.state)) return;
+    dismissalTimer = window.setTimeout(
+      () => store.dismissNotice(current.id),
+      5_000,
+    );
+  },
+  { immediate: true },
+);
+onBeforeUnmount(() => {
+  if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer);
+});
 </script>
 
 <template>
@@ -112,7 +133,7 @@ const toast = computed(() => recent.value[0]);
 <style scoped>
 .operation-toast {
   position: fixed;
-  right: 22px;
+  left: 252px;
   bottom: 22px;
   z-index: 70;
   display: flex;
@@ -125,6 +146,18 @@ const toast = computed(() => recent.value[0]);
   background: #111720;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
   cursor: pointer;
+}
+@media (max-width: 760px) {
+  .operation-toast {
+    left: 94px;
+  }
+}
+@media (max-width: 420px) {
+  .operation-toast {
+    right: 16px;
+    left: 16px;
+    min-width: 0;
+  }
 }
 .operation-toast span:nth-child(2) {
   display: grid;
