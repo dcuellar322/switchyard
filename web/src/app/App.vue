@@ -1,15 +1,32 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { RouterView } from "vue-router";
 
 import { queryClient } from "../queryClient";
 import { useEventConnection } from "../domains/system/composables/useEventConnection";
+import { loadDaemonSettings } from "../domains/system/settingsApi";
 import AppSidebar from "./components/AppSidebar.vue";
 import AppTopbar from "./components/AppTopbar.vue";
 import CommandPalette from "./components/CommandPalette.vue";
 import OperationCenter from "./components/OperationCenter.vue";
 
 const paletteOpen = ref(false);
+const preferences = useQuery({
+  queryKey: ["daemon-settings"],
+  queryFn: loadDaemonSettings,
+});
+watch(
+  () => preferences.data.value?.settings.appearance,
+  (appearance) => {
+    if (!appearance) return;
+    document.documentElement.dataset.compact =
+      appearance.density === "compact" ? "true" : "false";
+    document.documentElement.dataset.timeDisplay = appearance.timeDisplay;
+    document.documentElement.dataset.theme = appearance.theme;
+  },
+  { immediate: true },
+);
 const pendingProjects = new Set<string>();
 let operationsInvalid = false;
 let invalidationTimer: number | undefined;

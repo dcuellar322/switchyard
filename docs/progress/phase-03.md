@@ -8,6 +8,10 @@
 - Added canonical-root selection, symlink containment, a one MiB read limit,
   forbidden secret files, and fixed-file discovery without repository code
   execution.
+- Added revisioned approved project roots as a control-plane policy. New scans
+  outside those canonical directories fail closed unless that single browser
+  or CLI request carries an explicit one-shot override; the override is not
+  available to MCP proposal creation and never changes repository trust.
 - Added independent Git, Compose, Python/uv, Node/npm, Make, Just, README, and
   existing-runtime scanners with exact file and line evidence.
 - Added deterministic aggregation of Compose services and ports, lifecycle
@@ -47,6 +51,9 @@
 - [x] The local overlay wins and the portable file remains byte-identical.
 - [x] Every evidence item has a source path and valid one-based line range.
 - [x] `.env` secret canaries are absent from proposals and browser output.
+- [x] An outside-root scan is rejected by default, an explicit override permits
+  only that deterministic scan, and symlink/filesystem-root settings are
+  rejected during settings validation.
 
 ## Verification
 
@@ -57,6 +64,7 @@ Vue typecheck, ESLint, and Vitest: passed
 Playwright: system and evidence-backed onboarding flows passed
 Real binary + daemon + Unix IPC add fixture: passed; valid proposal, schema 3
 Generated JSON Schema/OpenAPI/sqlc/TypeScript outputs: reproduced
+Root-policy application, HTTP, CLI, and persistence tests: passed
 ```
 
 ## Scope guard

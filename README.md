@@ -82,6 +82,12 @@ codes, shell completions, and automation rules. Run `make quality` for the
 complete local quality gate or the focused Make targets documented by
 `make -n quality`.
 
+Durable project roots, preferred ports, retention, local tools, provider
+references, agent permissions, and appearance are edited through the generated
+settings contract. See the [settings guide](docs/settings.md) for live versus
+restart-bound behavior, optimistic revisions, headless export/apply, and the
+explicit outside-root discovery override.
+
 On macOS, Linux, and Windows, `make desktop-build` produces native bundles
 containing the same Go control plane. `pnpm desktop:dev` runs the shell locally. The shell
 adds a tray, native notifications, optional launch-at-login, deep links, and

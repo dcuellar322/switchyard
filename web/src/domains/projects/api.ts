@@ -41,6 +41,13 @@ import type {
 } from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
+export class ProjectAPIError extends Error {
+  constructor(message: string, readonly code = '') {
+    super(message)
+    this.name = 'ProjectAPIError'
+  }
+}
+
 function requestKey(): string {
   return `ui_${crypto.randomUUID()}`
 }
@@ -57,12 +64,12 @@ export async function loadProject(projectId: string): Promise<Project> {
   return result.data
 }
 
-export async function scanRepository(path: string): Promise<ManifestProposal> {
+export async function scanRepository(path: string, allowOutsideRoots = false): Promise<ManifestProposal> {
   const result = await createManifestProposal({
-    body: { path },
+    body: { path, allowOutsideRoots },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new Error('The repository scan could not create a proposal.')
+  if (result.error || !result.data) throw new ProjectAPIError(result.error?.detail || 'The repository scan could not create a proposal.', result.error?.code)
   return result.data
 }
 

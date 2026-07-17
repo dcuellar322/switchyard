@@ -17,6 +17,7 @@ import {
   startAIEnhancement,
   stopOperation,
 } from '../api'
+import { loadDaemonSettings } from '../../system/settingsApi'
 
 const limits: AiGenerationLimits = {
   evidenceBytes: 65_536,
@@ -46,8 +47,19 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
   onUnmounted(() => { pollGeneration += 1 })
 
   async function initializeProviders() {
-    providers.value = await loadAIProviders().catch(() => [])
-    selectedProvider.value = providers.value.find((provider) => provider.available)?.id ?? ''
+    const [loadedProviders, settings] = await Promise.all([
+      loadAIProviders().catch(() => []),
+      loadDaemonSettings().catch(() => undefined),
+    ])
+    providers.value = loadedProviders
+    const preferred = settings?.settings.ai.defaultProvider
+    if (preferred === 'none') {
+      selectedProvider.value = ''
+      return
+    }
+    selectedProvider.value = providers.value.find((provider) => provider.id === preferred && provider.available)?.id
+      ?? providers.value.find((provider) => provider.available)?.id
+      ?? ''
   }
 
   function reset() {

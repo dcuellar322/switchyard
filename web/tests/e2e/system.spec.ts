@@ -39,5 +39,18 @@ test("renders the alpha shell, keyboard palette, and live daemon settings", asyn
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   await expect(page.getByText("Switchyard daemon")).toBeVisible();
   await expect(page.getByText("ready", { exact: true })).toBeVisible();
-  await expect(page.getByText("Database schema")).toBeVisible();
+  await expect(page.getByText("API / schema")).toBeVisible();
+  await expect(page.getByText(/Revision \d+/)).toBeVisible();
+
+  const logAge = page.getByLabel(/Log age/);
+  const originalLogDays = await logAge.inputValue();
+  const changedLogDays = originalLogDays === "8" ? "9" : "8";
+  await logAge.fill(changedLogDays);
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText(/Restart the daemon to apply/)).toContainText(
+    "retention",
+  );
+  await logAge.fill(originalLogDays);
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText(/Restart the daemon to apply/)).toBeHidden();
 });

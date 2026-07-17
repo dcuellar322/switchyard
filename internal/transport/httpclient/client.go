@@ -131,9 +131,15 @@ func (c *Client) BrowserBootstrap(ctx context.Context) (generated.BrowserBootstr
 
 // CreateManifestProposal scans a repository through the privileged local API.
 func (c *Client) CreateManifestProposal(ctx context.Context, path, idempotencyKey string) (generated.ManifestProposal, error) {
+	return c.CreateManifestProposalWithRootOverride(ctx, path, idempotencyKey, false)
+}
+
+// CreateManifestProposalWithRootOverride carries an explicit one-off approval
+// when a local user intentionally scans outside configured roots.
+func (c *Client) CreateManifestProposalWithRootOverride(ctx context.Context, path, idempotencyKey string, allowOutsideRoots bool) (generated.ManifestProposal, error) {
 	response, err := c.generated.CreateManifestProposalWithResponse(ctx,
 		&generated.CreateManifestProposalParams{IdempotencyKey: idempotencyKey},
-		generated.CreateManifestProposalRequest{Path: path},
+		generated.CreateManifestProposalRequest{Path: path, AllowOutsideRoots: &allowOutsideRoots},
 	)
 	if err != nil {
 		return generated.ManifestProposal{}, fmt.Errorf("create manifest proposal: %w", err)

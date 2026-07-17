@@ -19,6 +19,7 @@ import (
 	runtime "switchyard.dev/switchyard/internal/runtime/application"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
+	settings "switchyard.dev/switchyard/internal/settings/application"
 	sourcecontrol "switchyard.dev/switchyard/internal/sourcecontrol/application"
 	team "switchyard.dev/switchyard/internal/team/application"
 	telemetry "switchyard.dev/switchyard/internal/telemetry/application"
@@ -97,7 +98,21 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func writeSpecializedError(w http.ResponseWriter, r *http.Request, err error) bool {
-	return writeTeamError(w, r, err) || writeTelemetryError(w, r, err) || writeFleetError(w, r, err) || writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+	return writeSettingsError(w, r, err) || writeTeamError(w, r, err) || writeTelemetryError(w, r, err) || writeFleetError(w, r, err) || writeDiagnosticError(w, r, err) || writeTerminalError(w, r, err) || writeAgentError(w, r, err) || writePluginError(w, r, err) || writeResourceError(w, r, err) || writeWorkspaceError(w, r, err) || writeEnvironmentError(w, r, err)
+}
+
+func writeSettingsError(w http.ResponseWriter, r *http.Request, err error) bool {
+	switch {
+	case errors.Is(err, settings.ErrOutsideProjectRoots):
+		writeProblem(w, r, http.StatusForbidden, "PROJECT_ROOT_DENIED", "Repository is outside configured roots", "Add the parent directory in Settings or explicitly approve this one-time outside-root scan.")
+	case errors.Is(err, settings.ErrInvalidSettings):
+		writeProblem(w, r, http.StatusUnprocessableEntity, "SETTINGS_INVALID", "Settings invalid", err.Error())
+	case errors.Is(err, settings.ErrRevisionConflict):
+		writeProblem(w, r, http.StatusConflict, "SETTINGS_REVISION_CONFLICT", "Settings changed in another client", "Reload the current settings revision before saving again.")
+	default:
+		return false
+	}
+	return true
 }
 
 func writeTeamError(w http.ResponseWriter, r *http.Request, err error) bool {

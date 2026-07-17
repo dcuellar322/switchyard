@@ -413,6 +413,22 @@ type RunProcess struct {
 	ObservedAt          string `json:"observed_at"`
 }
 
+type Setting struct {
+	Singleton    int64  `json:"singleton"`
+	Revision     int64  `json:"revision"`
+	DocumentJson string `json:"document_json"`
+	UpdatedAt    string `json:"updated_at"`
+}
+
+type SettingsAuditEvent struct {
+	ID           int64  `json:"id"`
+	Revision     int64  `json:"revision"`
+	ActorType    string `json:"actor_type"`
+	ActorID      string `json:"actor_id"`
+	SectionsJson string `json:"sections_json"`
+	OccurredAt   string `json:"occurred_at"`
+}
+
 type SystemHealth struct {
 	Singleton     int64  `json:"singleton"`
 	SchemaVersion int64  `json:"schema_version"`

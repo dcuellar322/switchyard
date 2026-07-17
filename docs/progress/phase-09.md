@@ -23,6 +23,11 @@
 - Added deterministic populated, empty, narrow, degraded, and port-conflict
   visual baselines plus real daemon browser flows for Compose and native
   process projects.
+- Replaced the settings placeholder with a revisioned durable control-plane
+  editor for approved roots, ports, retention, tools, agent permissions, AI
+  adapters, and appearance. The split panels expose loading, disconnected,
+  validation, optimistic-conflict, saved, and restart-required states, while
+  the generated API and CLI round-trip the same document.
 
 ## Files and modules added
 
@@ -48,8 +53,9 @@ Compose ownership, ADR-0009's browser-first stability guard, ADR-0013's local
 session security, and ADR-0014's bounded redacted logs.
 
 Server state belongs to TanStack Query. The event stream is an invalidation
-signal rather than a second client-side source of truth. Browser preferences
-and recency are guarded local state. Runtime and action execution continue
+signal rather than a second client-side source of truth. Product settings are
+revisioned daemon state; only ephemeral browser recency remains guarded local
+state. Runtime and action execution continue
 through typed server operations; Vue components do not know command syntax.
 
 ## Tests added
@@ -63,6 +69,9 @@ through typed server operations; Vue components do not know command syntax.
   Compose concurrent-ownership regression tests.
 - Live browser onboarding, settings, axe WCAG A/AA, native process start/log/
   stop, and real Compose start/attribution/stop flows.
+- Settings domain, SQLite migration, full-document compare-and-swap, redacted
+  audit, root-policy, CLI export/apply, restart-effect, and Vue interaction
+  tests.
 - Six deterministic visual scenarios at desktop and narrow viewports.
 
 ## Verification evidence
@@ -104,6 +113,8 @@ browser, visual, production web, and production binary build checks.
   and daemon functionality with explicit capability warnings.
 - [x] The alpha manages real Compose and process projects through the same
   browser operation model end to end.
+- [x] Browser, CLI, MCP defaults, and daemon composition consume the same
+  durable settings document without persisting provider secrets.
 
 ## Known limitations and deferred work
 

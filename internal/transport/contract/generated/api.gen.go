@@ -79,6 +79,30 @@ func (e AIManifestEnhancementState) Valid() bool {
 	}
 }
 
+// Defines values for AIPreferencesDefaultProvider.
+const (
+	AIPreferencesDefaultProviderClaude           AIPreferencesDefaultProvider = "claude"
+	AIPreferencesDefaultProviderCodex            AIPreferencesDefaultProvider = "codex"
+	AIPreferencesDefaultProviderNone             AIPreferencesDefaultProvider = "none"
+	AIPreferencesDefaultProviderOpenaiCompatible AIPreferencesDefaultProvider = "openai-compatible"
+)
+
+// Valid indicates whether the value is a known member of the AIPreferencesDefaultProvider enum.
+func (e AIPreferencesDefaultProvider) Valid() bool {
+	switch e {
+	case AIPreferencesDefaultProviderClaude:
+		return true
+	case AIPreferencesDefaultProviderCodex:
+		return true
+	case AIPreferencesDefaultProviderNone:
+		return true
+	case AIPreferencesDefaultProviderOpenaiCompatible:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AIProviderDescriptorKind.
 const (
 	AIProviderDescriptorKindCli  AIProviderDescriptorKind = "cli"
@@ -91,6 +115,27 @@ func (e AIProviderDescriptorKind) Valid() bool {
 	case AIProviderDescriptorKindCli:
 		return true
 	case AIProviderDescriptorKindHttp:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AIProviderPreferencesId.
+const (
+	AIProviderPreferencesIdClaude           AIProviderPreferencesId = "claude"
+	AIProviderPreferencesIdCodex            AIProviderPreferencesId = "codex"
+	AIProviderPreferencesIdOpenaiCompatible AIProviderPreferencesId = "openai-compatible"
+)
+
+// Valid indicates whether the value is a known member of the AIProviderPreferencesId enum.
+func (e AIProviderPreferencesId) Valid() bool {
+	switch e {
+	case AIProviderPreferencesIdClaude:
+		return true
+	case AIProviderPreferencesIdCodex:
+		return true
+	case AIProviderPreferencesIdOpenaiCompatible:
 		return true
 	default:
 		return false
@@ -136,6 +181,60 @@ func (e AgentSessionCreateProvider) Valid() bool {
 	case AgentSessionCreateProviderClaude:
 		return true
 	case AgentSessionCreateProviderCodex:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppearancePreferencesDensity.
+const (
+	Comfortable AppearancePreferencesDensity = "comfortable"
+	Compact     AppearancePreferencesDensity = "compact"
+)
+
+// Valid indicates whether the value is a known member of the AppearancePreferencesDensity enum.
+func (e AppearancePreferencesDensity) Valid() bool {
+	switch e {
+	case Comfortable:
+		return true
+	case Compact:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppearancePreferencesTheme.
+const (
+	Dark         AppearancePreferencesTheme = "dark"
+	HighContrast AppearancePreferencesTheme = "high-contrast"
+)
+
+// Valid indicates whether the value is a known member of the AppearancePreferencesTheme enum.
+func (e AppearancePreferencesTheme) Valid() bool {
+	switch e {
+	case Dark:
+		return true
+	case HighContrast:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppearancePreferencesTimeDisplay.
+const (
+	Absolute AppearancePreferencesTimeDisplay = "absolute"
+	Relative AppearancePreferencesTimeDisplay = "relative"
+)
+
+// Valid indicates whether the value is a known member of the AppearancePreferencesTimeDisplay enum.
+func (e AppearancePreferencesTimeDisplay) Valid() bool {
+	switch e {
+	case Absolute:
+		return true
+	case Relative:
 		return true
 	default:
 		return false
@@ -199,6 +298,24 @@ const (
 func (e CleanupPreviewRisk) Valid() bool {
 	switch e {
 	case CleanupPreviewRiskDestructive:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DaemonSettingsStatusPendingRestart.
+const (
+	AiProviders DaemonSettingsStatusPendingRestart = "ai.providers"
+	Retention   DaemonSettingsStatusPendingRestart = "retention"
+)
+
+// Valid indicates whether the value is a known member of the DaemonSettingsStatusPendingRestart enum.
+func (e DaemonSettingsStatusPendingRestart) Valid() bool {
+	switch e {
+	case AiProviders:
+		return true
+	case Retention:
 		return true
 	default:
 		return false
@@ -595,6 +712,30 @@ func (e OperationState) Valid() bool {
 	case OperationStateRunning:
 		return true
 	case OperationStateSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PermissionPreferencesDefaultAgentProfile.
+const (
+	Admin    PermissionPreferencesDefaultAgentProfile = "admin"
+	Develop  PermissionPreferencesDefaultAgentProfile = "develop"
+	Maintain PermissionPreferencesDefaultAgentProfile = "maintain"
+	Observe  PermissionPreferencesDefaultAgentProfile = "observe"
+)
+
+// Valid indicates whether the value is a known member of the PermissionPreferencesDefaultAgentProfile enum.
+func (e PermissionPreferencesDefaultAgentProfile) Valid() bool {
+	switch e {
+	case Admin:
+		return true
+	case Develop:
+		return true
+	case Maintain:
+		return true
+	case Observe:
 		return true
 	default:
 		return false
@@ -1603,6 +1744,42 @@ func (e TerminalSessionStatus) Valid() bool {
 	}
 }
 
+// Defines values for ToolPreferencesEditor.
+const (
+	None   ToolPreferencesEditor = "none"
+	Vscode ToolPreferencesEditor = "vscode"
+)
+
+// Valid indicates whether the value is a known member of the ToolPreferencesEditor enum.
+func (e ToolPreferencesEditor) Valid() bool {
+	switch e {
+	case None:
+		return true
+	case Vscode:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ToolPreferencesTerminal.
+const (
+	Integrated ToolPreferencesTerminal = "integrated"
+	System     ToolPreferencesTerminal = "system"
+)
+
+// Valid indicates whether the value is a known member of the ToolPreferencesTerminal enum.
+func (e ToolPreferencesTerminal) Valid() bool {
+	switch e {
+	case Integrated:
+		return true
+	case System:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for WorkspaceExecutionKind.
 const (
 	Start WorkspaceExecutionKind = "start"
@@ -1930,6 +2107,15 @@ type AIManifestEnhancement struct {
 // AIManifestEnhancementState defines model for AIManifestEnhancement.State.
 type AIManifestEnhancementState string
 
+// AIPreferences defines model for AIPreferences.
+type AIPreferences struct {
+	DefaultProvider AIPreferencesDefaultProvider `json:"defaultProvider"`
+	Providers       []AIProviderPreferences      `json:"providers"`
+}
+
+// AIPreferencesDefaultProvider defines model for AIPreferences.DefaultProvider.
+type AIPreferencesDefaultProvider string
+
 // AIProviderDescriptor defines model for AIProviderDescriptor.
 type AIProviderDescriptor struct {
 	Available            bool                     `json:"available"`
@@ -1943,6 +2129,19 @@ type AIProviderDescriptor struct {
 
 // AIProviderDescriptorKind defines model for AIProviderDescriptor.Kind.
 type AIProviderDescriptorKind string
+
+// AIProviderPreferences defines model for AIProviderPreferences.
+type AIProviderPreferences struct {
+	CredentialReference *string                 `json:"credentialReference,omitempty"`
+	Enabled             bool                    `json:"enabled"`
+	Endpoint            *string                 `json:"endpoint,omitempty"`
+	Executable          *string                 `json:"executable,omitempty"`
+	Id                  AIProviderPreferencesId `json:"id"`
+	Model               *string                 `json:"model,omitempty"`
+}
+
+// AIProviderPreferencesId defines model for AIProviderPreferences.Id.
+type AIProviderPreferencesId string
 
 // AIUsage defines model for AIUsage.
 type AIUsage struct {
@@ -1992,6 +2191,22 @@ type AgentSessionCreate struct {
 
 // AgentSessionCreateProvider defines model for AgentSessionCreate.Provider.
 type AgentSessionCreateProvider string
+
+// AppearancePreferences defines model for AppearancePreferences.
+type AppearancePreferences struct {
+	Density     AppearancePreferencesDensity     `json:"density"`
+	Theme       AppearancePreferencesTheme       `json:"theme"`
+	TimeDisplay AppearancePreferencesTimeDisplay `json:"timeDisplay"`
+}
+
+// AppearancePreferencesDensity defines model for AppearancePreferences.Density.
+type AppearancePreferencesDensity string
+
+// AppearancePreferencesTheme defines model for AppearancePreferences.Theme.
+type AppearancePreferencesTheme string
+
+// AppearancePreferencesTimeDisplay defines model for AppearancePreferences.TimeDisplay.
+type AppearancePreferencesTimeDisplay string
 
 // AutomationEvaluation defines model for AutomationEvaluation.
 type AutomationEvaluation struct {
@@ -2100,7 +2315,8 @@ type CreateDiagnosisRequest struct {
 
 // CreateManifestProposalRequest defines model for CreateManifestProposalRequest.
 type CreateManifestProposalRequest struct {
-	Path string `json:"path"`
+	AllowOutsideRoots *bool  `json:"allowOutsideRoots,omitempty"`
+	Path              string `json:"path"`
 }
 
 // CuratedPlugin defines model for CuratedPlugin.
@@ -2116,6 +2332,28 @@ type CuratedPlugin struct {
 	Summary       string   `json:"summary"`
 	Version       string   `json:"version"`
 }
+
+// DaemonSettings defines model for DaemonSettings.
+type DaemonSettings struct {
+	Ai           AIPreferences         `json:"ai"`
+	Appearance   AppearancePreferences `json:"appearance"`
+	Permissions  PermissionPreferences `json:"permissions"`
+	Ports        PortPreferences       `json:"ports"`
+	ProjectRoots []string              `json:"projectRoots"`
+	Retention    RetentionPreferences  `json:"retention"`
+	Revision     int64                 `json:"revision"`
+	Tools        ToolPreferences       `json:"tools"`
+	UpdatedAt    time.Time             `json:"updatedAt"`
+}
+
+// DaemonSettingsStatus defines model for DaemonSettingsStatus.
+type DaemonSettingsStatus struct {
+	PendingRestart []DaemonSettingsStatusPendingRestart `json:"pendingRestart"`
+	Settings       DaemonSettings                       `json:"settings"`
+}
+
+// DaemonSettingsStatusPendingRestart defines model for DaemonSettingsStatus.PendingRestart.
+type DaemonSettingsStatusPendingRestart string
 
 // Diagnosis defines model for Diagnosis.
 type Diagnosis struct {
@@ -2560,6 +2798,14 @@ type Operation struct {
 // OperationState defines model for OperationState.
 type OperationState string
 
+// PermissionPreferences defines model for PermissionPreferences.
+type PermissionPreferences struct {
+	DefaultAgentProfile PermissionPreferencesDefaultAgentProfile `json:"defaultAgentProfile"`
+}
+
+// PermissionPreferencesDefaultAgentProfile defines model for PermissionPreferences.DefaultAgentProfile.
+type PermissionPreferencesDefaultAgentProfile string
+
 // PluginAction defines model for PluginAction.
 type PluginAction struct {
 	Description string           `json:"description"`
@@ -2694,6 +2940,13 @@ type PortFactProtocol string
 
 // PortFactSource defines model for PortFact.Source.
 type PortFactSource string
+
+// PortPreferences defines model for PortPreferences.
+type PortPreferences struct {
+	Excluded   []int `json:"excluded"`
+	RangeEnd   int   `json:"rangeEnd"`
+	RangeStart int   `json:"rangeStart"`
+}
 
 // PortRegistry defines model for PortRegistry.
 type PortRegistry struct {
@@ -2950,6 +3203,16 @@ type ResourceRetention struct {
 type ResourceServiceSnapshot struct {
 	Metric    ResourceMetricPoint `json:"metric"`
 	ServiceId string              `json:"serviceId"`
+}
+
+// RetentionPreferences defines model for RetentionPreferences.
+type RetentionPreferences struct {
+	LogAgeSeconds              int64 `json:"logAgeSeconds"`
+	LogMaximumBytes            int64 `json:"logMaximumBytes"`
+	MaximumMetricHistoryPoints int   `json:"maximumMetricHistoryPoints"`
+	MetricMinuteSeconds        int64 `json:"metricMinuteSeconds"`
+	MetricQuarterHourSeconds   int64 `json:"metricQuarterHourSeconds"`
+	MetricRawSeconds           int64 `json:"metricRawSeconds"`
 }
 
 // RuntimeAction defines model for RuntimeAction.
@@ -3329,9 +3592,27 @@ type TerminalSessionOwner struct {
 // TerminalSessionStatus defines model for TerminalSessionStatus.
 type TerminalSessionStatus string
 
+// ToolPreferences defines model for ToolPreferences.
+type ToolPreferences struct {
+	Editor   ToolPreferencesEditor   `json:"editor"`
+	Terminal ToolPreferencesTerminal `json:"terminal"`
+}
+
+// ToolPreferencesEditor defines model for ToolPreferences.Editor.
+type ToolPreferencesEditor string
+
+// ToolPreferencesTerminal defines model for ToolPreferences.Terminal.
+type ToolPreferencesTerminal string
+
 // UpdateAutomationRecipeRequest defines model for UpdateAutomationRecipeRequest.
 type UpdateAutomationRecipeRequest struct {
 	Enabled bool `json:"enabled"`
+}
+
+// UpdateDaemonSettingsRequest defines model for UpdateDaemonSettingsRequest.
+type UpdateDaemonSettingsRequest struct {
+	ExpectedRevision int64          `json:"expectedRevision"`
+	Settings         DaemonSettings `json:"settings"`
 }
 
 // Workspace defines model for Workspace.
@@ -3678,6 +3959,11 @@ type GetCleanupPreviewParams struct {
 	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
 }
 
+// UpdateDaemonSettingsParams defines parameters for UpdateDaemonSettings.
+type UpdateDaemonSettingsParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // ListTeamBundlesParams defines parameters for ListTeamBundles.
 type ListTeamBundlesParams struct {
 	Kind *TeamBundleKind `form:"kind,omitempty" json:"kind,omitempty"`
@@ -3777,6 +4063,9 @@ type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
 
 // PlanProjectRuntimeJSONRequestBody defines body for PlanProjectRuntime for application/json ContentType.
 type PlanProjectRuntimeJSONRequestBody = RuntimeActionRequest
+
+// UpdateDaemonSettingsJSONRequestBody defines body for UpdateDaemonSettings for application/json ContentType.
+type UpdateDaemonSettingsJSONRequestBody = UpdateDaemonSettingsRequest
 
 // InstallTeamBundleJSONRequestBody defines body for InstallTeamBundle for application/json ContentType.
 type InstallTeamBundleJSONRequestBody = TeamBundleInstallRequest
@@ -4139,6 +4428,14 @@ type ClientInterface interface {
 
 	// ListLocalRoutes request
 	ListLocalRoutes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDaemonSettings request
+	GetDaemonSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDaemonSettingsWithBody request with any body
+	UpdateDaemonSettingsWithBody(ctx context.Context, params *UpdateDaemonSettingsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateDaemonSettings(ctx context.Context, params *UpdateDaemonSettingsParams, body UpdateDaemonSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetSystem request
 	GetSystem(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -5336,6 +5633,42 @@ func (c *Client) GetStorageInventory(ctx context.Context, reqEditors ...RequestE
 
 func (c *Client) ListLocalRoutes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListLocalRoutesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDaemonSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDaemonSettingsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDaemonSettingsWithBody(ctx context.Context, params *UpdateDaemonSettingsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDaemonSettingsRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDaemonSettings(ctx context.Context, params *UpdateDaemonSettingsParams, body UpdateDaemonSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDaemonSettingsRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9015,6 +9348,86 @@ func NewListLocalRoutesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetDaemonSettingsRequest generates requests for GetDaemonSettings
+func NewGetDaemonSettingsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/settings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateDaemonSettingsRequest calls the generic UpdateDaemonSettings builder with application/json body
+func NewUpdateDaemonSettingsRequest(server string, params *UpdateDaemonSettingsParams, body UpdateDaemonSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateDaemonSettingsRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewUpdateDaemonSettingsRequestWithBody generates requests for UpdateDaemonSettings with any type of body
+func NewUpdateDaemonSettingsRequestWithBody(server string, params *UpdateDaemonSettingsParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/settings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewGetSystemRequest generates requests for GetSystem
 func NewGetSystemRequest(server string) (*http.Request, error) {
 	var err error
@@ -10248,6 +10661,14 @@ type ClientWithResponsesInterface interface {
 
 	// ListLocalRoutesWithResponse request
 	ListLocalRoutesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLocalRoutesResponse, error)
+
+	// GetDaemonSettingsWithResponse request
+	GetDaemonSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDaemonSettingsResponse, error)
+
+	// UpdateDaemonSettingsWithBodyWithResponse request with any body
+	UpdateDaemonSettingsWithBodyWithResponse(ctx context.Context, params *UpdateDaemonSettingsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDaemonSettingsResponse, error)
+
+	UpdateDaemonSettingsWithResponse(ctx context.Context, params *UpdateDaemonSettingsParams, body UpdateDaemonSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDaemonSettingsResponse, error)
 
 	// GetSystemWithResponse request
 	GetSystemWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSystemResponse, error)
@@ -12599,6 +13020,68 @@ func (r ListLocalRoutesResponse) ContentType() string {
 	return ""
 }
 
+type GetDaemonSettingsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *DaemonSettingsStatus
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDaemonSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDaemonSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDaemonSettingsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateDaemonSettingsResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *DaemonSettingsStatus
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateDaemonSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateDaemonSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateDaemonSettingsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetSystemResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -14126,6 +14609,32 @@ func (c *ClientWithResponses) ListLocalRoutesWithResponse(ctx context.Context, r
 		return nil, err
 	}
 	return ParseListLocalRoutesResponse(rsp)
+}
+
+// GetDaemonSettingsWithResponse request returning *GetDaemonSettingsResponse
+func (c *ClientWithResponses) GetDaemonSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetDaemonSettingsResponse, error) {
+	rsp, err := c.GetDaemonSettings(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDaemonSettingsResponse(rsp)
+}
+
+// UpdateDaemonSettingsWithBodyWithResponse request with arbitrary body returning *UpdateDaemonSettingsResponse
+func (c *ClientWithResponses) UpdateDaemonSettingsWithBodyWithResponse(ctx context.Context, params *UpdateDaemonSettingsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDaemonSettingsResponse, error) {
+	rsp, err := c.UpdateDaemonSettingsWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDaemonSettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateDaemonSettingsWithResponse(ctx context.Context, params *UpdateDaemonSettingsParams, body UpdateDaemonSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDaemonSettingsResponse, error) {
+	rsp, err := c.UpdateDaemonSettings(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDaemonSettingsResponse(rsp)
 }
 
 // GetSystemWithResponse request returning *GetSystemResponse
@@ -16803,6 +17312,72 @@ func ParseListLocalRoutesResponse(rsp *http.Response) (*ListLocalRoutesResponse,
 	return response, nil
 }
 
+// ParseGetDaemonSettingsResponse parses an HTTP response from a GetDaemonSettingsWithResponse call
+func ParseGetDaemonSettingsResponse(rsp *http.Response) (*GetDaemonSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDaemonSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DaemonSettingsStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateDaemonSettingsResponse parses an HTTP response from a UpdateDaemonSettingsWithResponse call
+func ParseUpdateDaemonSettingsResponse(rsp *http.Response) (*UpdateDaemonSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateDaemonSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DaemonSettingsStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetSystemResponse parses an HTTP response from a GetSystemWithResponse call
 func ParseGetSystemResponse(rsp *http.Response) (*GetSystemResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -17776,6 +18351,12 @@ type ServerInterface interface {
 	// List optional localhost routes and explicit availability states
 	// (GET /routes)
 	ListLocalRoutes(w http.ResponseWriter, r *http.Request)
+	// Read durable local preferences and restart-effect status
+	// (GET /settings)
+	GetDaemonSettings(w http.ResponseWriter, r *http.Request)
+	// Atomically replace durable local preferences
+	// (PUT /settings)
+	UpdateDaemonSettings(w http.ResponseWriter, r *http.Request, params UpdateDaemonSettingsParams)
 	// Read daemon and storage status
 	// (GET /system)
 	GetSystem(w http.ResponseWriter, r *http.Request)
@@ -18286,6 +18867,18 @@ func (_ Unimplemented) GetStorageInventory(w http.ResponseWriter, r *http.Reques
 // List optional localhost routes and explicit availability states
 // (GET /routes)
 func (_ Unimplemented) ListLocalRoutes(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Read durable local preferences and restart-effect status
+// (GET /settings)
+func (_ Unimplemented) GetDaemonSettings(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Atomically replace durable local preferences
+// (PUT /settings)
+func (_ Unimplemented) UpdateDaemonSettings(w http.ResponseWriter, r *http.Request, params UpdateDaemonSettingsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -20933,6 +21526,65 @@ func (siw *ServerInterfaceWrapper) ListLocalRoutes(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r)
 }
 
+// GetDaemonSettings operation middleware
+func (siw *ServerInterfaceWrapper) GetDaemonSettings(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetDaemonSettings(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateDaemonSettings operation middleware
+func (siw *ServerInterfaceWrapper) UpdateDaemonSettings(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UpdateDaemonSettingsParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateDaemonSettings(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetSystem operation middleware
 func (siw *ServerInterfaceWrapper) GetSystem(w http.ResponseWriter, r *http.Request) {
 
@@ -21882,6 +22534,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/routes", wrapper.ListLocalRoutes)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/settings", wrapper.GetDaemonSettings)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/settings", wrapper.UpdateDaemonSettings)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/system", wrapper.GetSystem)

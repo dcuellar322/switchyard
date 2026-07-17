@@ -32,6 +32,36 @@ paths:
                 $ref: "#/components/schemas/HostObservation"
         default:
           $ref: "#/components/responses/Problem"
+  /settings:
+    get:
+      operationId: getDaemonSettings
+      summary: Read durable local preferences and restart-effect status
+      responses:
+        "200":
+          description: Current revisioned settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaemonSettingsStatus" }
+        default:
+          $ref: "#/components/responses/Problem"
+    put:
+      operationId: updateDaemonSettings
+      summary: Atomically replace durable local preferences
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateDaemonSettingsRequest" }
+      responses:
+        "200":
+          description: Updated settings and fields awaiting daemon restart
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaemonSettingsStatus" }
+        default:
+          $ref: "#/components/responses/Problem"
   /resources:
     get:
       operationId: getResourceOverview
@@ -1669,6 +1699,105 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    DaemonSettingsStatus:
+      type: object
+      additionalProperties: false
+      required: [settings, pendingRestart]
+      properties:
+        settings: { $ref: "#/components/schemas/DaemonSettings" }
+        pendingRestart:
+          type: array
+          items: { type: string, enum: [retention, ai.providers] }
+    UpdateDaemonSettingsRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRevision, settings]
+      properties:
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        settings: { $ref: "#/components/schemas/DaemonSettings" }
+    DaemonSettings:
+      type: object
+      additionalProperties: false
+      required: [revision, projectRoots, ports, retention, tools, ai, permissions, appearance, updatedAt]
+      properties:
+        revision: { type: integer, format: int64, minimum: 1 }
+        projectRoots:
+          type: array
+          minItems: 1
+          maxItems: 32
+          items: { type: string, minLength: 1, maxLength: 4096 }
+        ports: { $ref: "#/components/schemas/PortPreferences" }
+        retention: { $ref: "#/components/schemas/RetentionPreferences" }
+        tools: { $ref: "#/components/schemas/ToolPreferences" }
+        ai: { $ref: "#/components/schemas/AIPreferences" }
+        permissions: { $ref: "#/components/schemas/PermissionPreferences" }
+        appearance: { $ref: "#/components/schemas/AppearancePreferences" }
+        updatedAt: { type: string, format: date-time }
+    PortPreferences:
+      type: object
+      additionalProperties: false
+      required: [rangeStart, rangeEnd, excluded]
+      properties:
+        rangeStart: { type: integer, minimum: 1024, maximum: 65535 }
+        rangeEnd: { type: integer, minimum: 1024, maximum: 65535 }
+        excluded:
+          type: array
+          maxItems: 512
+          items: { type: integer, minimum: 1024, maximum: 65535 }
+    RetentionPreferences:
+      type: object
+      additionalProperties: false
+      required: [logAgeSeconds, logMaximumBytes, metricRawSeconds, metricMinuteSeconds, metricQuarterHourSeconds, maximumMetricHistoryPoints]
+      properties:
+        logAgeSeconds: { type: integer, format: int64, minimum: 3600, maximum: 31536000 }
+        logMaximumBytes: { type: integer, format: int64, minimum: 1048576, maximum: 1099511627776 }
+        metricRawSeconds: { type: integer, format: int64, minimum: 60, maximum: 31536000 }
+        metricMinuteSeconds: { type: integer, format: int64, minimum: 60, maximum: 31536000 }
+        metricQuarterHourSeconds: { type: integer, format: int64, minimum: 60, maximum: 31536000 }
+        maximumMetricHistoryPoints: { type: integer, minimum: 100, maximum: 10000 }
+    ToolPreferences:
+      type: object
+      additionalProperties: false
+      required: [terminal, editor]
+      properties:
+        terminal: { type: string, enum: [integrated, system] }
+        editor: { type: string, enum: [vscode, none] }
+    AIPreferences:
+      type: object
+      additionalProperties: false
+      required: [defaultProvider, providers]
+      properties:
+        defaultProvider: { type: string, enum: [none, codex, claude, openai-compatible] }
+        providers:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items: { $ref: "#/components/schemas/AIProviderPreferences" }
+    AIProviderPreferences:
+      type: object
+      additionalProperties: false
+      required: [id, enabled]
+      properties:
+        id: { type: string, enum: [codex, claude, openai-compatible] }
+        enabled: { type: boolean }
+        executable: { type: string, maxLength: 4096 }
+        endpoint: { type: string, maxLength: 2048 }
+        model: { type: string, maxLength: 256 }
+        credentialReference: { type: string, maxLength: 131, pattern: "^env:[A-Za-z_][A-Za-z0-9_]{0,126}$" }
+    PermissionPreferences:
+      type: object
+      additionalProperties: false
+      required: [defaultAgentProfile]
+      properties:
+        defaultAgentProfile: { type: string, enum: [observe, develop, maintain, admin] }
+    AppearancePreferences:
+      type: object
+      additionalProperties: false
+      required: [density, timeDisplay, theme]
+      properties:
+        density: { type: string, enum: [comfortable, compact] }
+        timeDisplay: { type: string, enum: [relative, absolute] }
+        theme: { type: string, enum: [dark, high-contrast] }
     DiagnosticEvidence:
       type: object
       additionalProperties: false
@@ -2386,6 +2515,9 @@ components:
           type: string
           minLength: 1
           maxLength: 4096
+        allowOutsideRoots:
+          type: boolean
+          default: false
     Project:
       type: object
       additionalProperties: false

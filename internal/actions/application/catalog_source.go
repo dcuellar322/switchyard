@@ -12,12 +12,25 @@ import (
 	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
 )
 
+// ToolPreferenceSource exposes user-selected integration identifiers without
+// coupling actions to settings persistence.
+type ToolPreferenceSource interface {
+	PreferredTools(context.Context) (string, string, error)
+}
+
 // CatalogSource exposes only accepted action and endpoint declarations.
-type CatalogSource struct{ catalog *catalog.Service }
+type CatalogSource struct {
+	catalog *catalog.Service
+	tools   ToolPreferenceSource
+}
 
 // NewCatalogSource adapts accepted manifest actions and safe defaults.
-func NewCatalogSource(service *catalog.Service) *CatalogSource {
-	return &CatalogSource{catalog: service}
+func NewCatalogSource(service *catalog.Service, preferences ...ToolPreferenceSource) *CatalogSource {
+	source := &CatalogSource{catalog: service}
+	if len(preferences) > 0 {
+		source.tools = preferences[0]
+	}
+	return source
 }
 
 // ResolveActions returns actions only after project trust has been established.
@@ -37,8 +50,19 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 	for _, action := range effective.Manifest.Actions {
 		actions[action.ID] = definition(action)
 	}
-	addDefault(actions, domain.Definition{ID: "terminal", Name: "Open terminal", Type: "terminal.open", WorkingDirectory: ".", Risk: domain.RiskInteractive})
-	addDefault(actions, domain.Definition{ID: "vscode", Name: "Open VS Code", Type: "editor.open", Provider: "vscode", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	terminal, editor := "system", "vscode"
+	if s.tools != nil {
+		terminal, editor, err = s.tools.PreferredTools(ctx)
+		if err != nil {
+			return domain.ProjectActions{}, err
+		}
+	}
+	if terminal == "system" {
+		addDefault(actions, domain.Definition{ID: "terminal", Name: "Open terminal", Type: "terminal.open", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	}
+	if editor == "vscode" {
+		addDefault(actions, domain.Definition{ID: "vscode", Name: "Open VS Code", Type: "editor.open", Provider: "vscode", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	}
 	addDefault(actions, domain.Definition{ID: "codex", Name: "Start Codex", Type: "agent.start", Provider: "codex", WorkingDirectory: ".", Risk: domain.RiskInteractive})
 	addDefault(actions, domain.Definition{ID: "claude", Name: "Start Claude Code", Type: "agent.start", Provider: "claude", WorkingDirectory: ".", Risk: domain.RiskInteractive})
 	addDefault(actions, domain.Definition{ID: "git-pull", Name: "Git pull", Type: "git.pull", WorkingDirectory: ".", Risk: domain.RiskNetworked, TimeoutSeconds: 300})

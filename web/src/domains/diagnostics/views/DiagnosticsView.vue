@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
 import { loadProjects } from '../../projects/api'
+import { loadDaemonSettings } from '../../system/settingsApi'
 import {
   acknowledgeNotification,
   diagnoseProject,
@@ -30,6 +31,7 @@ watch(() => projects.data.value, (values) => {
   if (!selectedProject.value && values?.length) selectedProject.value = values[0]!.id
 }, { immediate: true })
 const providers = useQuery({ queryKey: ['ai-providers'], queryFn: loadProviders })
+const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
 const diagnosis = useQuery({
   queryKey: computed(() => ['diagnosis', selectedProject.value]),
   queryFn: () => loadLatestDiagnosis(selectedProject.value),
@@ -47,6 +49,19 @@ const notifications = useQuery({
   enabled: computed(() => Boolean(selectedProject.value)),
 })
 const availableProviders = computed(() => providers.data.value?.filter((item) => item.available) ?? [])
+const defaultProviderApplied = ref(false)
+watch(
+  [availableProviders, () => settings.data.value],
+  ([values, status]) => {
+    if (defaultProviderApplied.value || !providers.data.value || !status) return
+    const preferred = status.settings.ai.defaultProvider
+    if (preferred !== 'none' && values.some((provider) => provider.id === preferred)) {
+      selectedProvider.value = preferred
+    }
+    defaultProviderApplied.value = true
+  },
+  { immediate: true },
+)
 const suggestedActions = computed(() => {
   const values = diagnosis.data.value?.hypotheses.flatMap((item) => item.suggestedActions) ?? []
   return [...new Map(values.map((item) => [item.actionId, item])).values()]

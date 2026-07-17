@@ -10,7 +10,7 @@ import (
 var cliCommands = []string{
 	"debug.logs", "doctor", "doctor.bundle", "doctor.bundle.preview", "manifest.diff", "manifest.explain", "manifest.validate", "open", "operation.cancel",
 	"operation.get", "operation.list", "project.add", "project.get", "project.list", "project.remove", "project.trust",
-	"runtime.logs", "runtime.metrics", "runtime.plan", "runtime.status", "runtime.operation", "ui", "version",
+	"runtime.logs", "runtime.metrics", "runtime.plan", "runtime.status", "runtime.operation", "settings.apply", "settings.export", "settings.show", "ui", "version",
 }
 
 func newSchemaCommand(options *rootOptions) *cobra.Command {
@@ -52,35 +52,27 @@ func commandDataSchema(command string) map[string]any {
 	if schema, ok := supportCommandDataSchema(command); ok {
 		return schema
 	}
+	references := map[string]string{
+		"project.get": "Project", "project.add": "ManifestProposal", "project.trust": "AcceptedManifestProposal",
+		"settings.show": "DaemonSettingsStatus", "settings.apply": "DaemonSettingsStatus",
+		"operation.get": "Operation", "operation.cancel": "Operation", "runtime.operation": "Operation",
+		"runtime.status": "RuntimeObservation", "runtime.plan": "RuntimePlan",
+		"manifest.explain": "EffectiveManifest", "manifest.diff": "ManifestDiff", "manifest.validate": "ManifestValidation",
+	}
+	if reference, ok := references[command]; ok {
+		return openAPIRef(reference)
+	}
 	switch command {
-	case "project.get":
-		return openAPIRef("Project")
 	case "project.list":
 		return map[string]any{"type": "array", "items": openAPIRef("Project")}
-	case "project.add":
-		return openAPIRef("ManifestProposal")
-	case "project.trust":
-		return openAPIRef("AcceptedManifestProposal")
-	case "operation.get", "operation.cancel":
-		return openAPIRef("Operation")
-	case "runtime.operation":
-		return openAPIRef("Operation")
+	case "settings.export":
+		return map[string]any{"type": "object", "required": []string{"path", "revision"}}
 	case "operation.list":
 		return map[string]any{"type": "array", "items": openAPIRef("Operation")}
-	case "runtime.status":
-		return openAPIRef("RuntimeObservation")
-	case "runtime.plan":
-		return openAPIRef("RuntimePlan")
 	case "runtime.logs":
 		return map[string]any{"type": "array", "items": openAPIRef("RuntimeLogEntry")}
 	case "runtime.metrics":
 		return map[string]any{"type": "array", "items": openAPIRef("RuntimeMetricSample")}
-	case "manifest.explain":
-		return openAPIRef("EffectiveManifest")
-	case "manifest.diff":
-		return openAPIRef("ManifestDiff")
-	case "manifest.validate":
-		return openAPIRef("ManifestValidation")
 	case "project.remove":
 		return map[string]any{"type": "object", "required": []string{"id", "slug", "removed", "repositoryFilesChanged"}}
 	case "open":

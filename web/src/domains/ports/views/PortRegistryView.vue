@@ -2,10 +2,13 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
+import { loadDaemonSettings } from '../../system/settingsApi'
 import { loadPortRegistry, suggestPort } from '../api'
 
 const registry = useQuery({ queryKey: ['ports'], queryFn: loadPortRegistry, refetchInterval: 5_000 })
-const suggestion = useMutation({ mutationFn: () => suggestPort() })
+const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
+const preferred = computed(() => settings.data.value?.settings.ports ?? { rangeStart: 15_000, rangeEnd: 19_999, excluded: [] })
+const suggestion = useMutation({ mutationFn: () => suggestPort(preferred.value.rangeStart, preferred.value.rangeEnd, preferred.value.excluded) })
 const facts = computed(() => registry.data.value?.facts ?? [])
 const conflicts = computed(() => registry.data.value?.conflicts ?? [])
 const conflictingPorts = computed(() => new Set(conflicts.value.map((conflict) => conflict.port)))
@@ -28,7 +31,7 @@ const managedPorts = computed(() => new Set(facts.value.filter((fact) => fact.pr
         <article :class="{ danger: conflicts.length }"><span>Conflicts</span><strong>{{ conflicts.length }}</strong><small>{{ conflicts.length ? 'Action recommended' : 'No overlap detected' }}</small></article>
       </div>
 
-      <p v-if="suggestion.data.value" class="suggestion" role="status"><strong>{{ suggestion.data.value.port }}</strong>/tcp is free in the preferred 15000–19999 range.</p>
+      <p v-if="suggestion.data.value" class="suggestion" role="status"><strong>{{ suggestion.data.value.port }}</strong>/tcp is free in the preferred {{ preferred.rangeStart }}–{{ preferred.rangeEnd }} range.</p>
       <p v-else-if="suggestion.isError.value" class="message message--error" role="alert">No free port could be suggested. Refresh the registry and try again.</p>
       <div v-for="warning in registry.data.value?.warnings ?? []" :key="warning" class="warning">Partial data: {{ warning }}</div>
 

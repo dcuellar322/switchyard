@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -7,6 +7,7 @@ import type { ManifestProposal, Project } from '../../../api/generated/types.gen
 import AIFieldReview from '../components/AIFieldReview.vue'
 import AIEvidenceConsent from '../components/AIEvidenceConsent.vue'
 import { useAssistedOnboarding } from '../composables/useAssistedOnboarding'
+import { loadDaemonSettings } from '../../system/settingsApi'
 import {
   approveProposal,
   loadProjects,
@@ -17,6 +18,8 @@ import {
 const router = useRouter()
 const queryClient = useQueryClient()
 const repositoryPath = ref('')
+const allowOutsideRoots = ref(false)
+const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
 const projects = ref<Array<Project>>([])
 const proposal = ref<ManifestProposal>()
 const pending = ref(false)
@@ -45,7 +48,7 @@ async function scan() {
   pending.value = true
   error.value = ''
   try {
-    proposal.value = await scanRepository(repositoryPath.value)
+    proposal.value = await scanRepository(repositoryPath.value, allowOutsideRoots.value)
     assisted.reset()
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Repository scan failed.'
@@ -92,9 +95,12 @@ async function accept() {
     <form class="scan-form" @submit.prevent="scan">
       <label for="repository-path">Repository path</label>
       <div class="scan-form__controls">
-        <input id="repository-path" v-model="repositoryPath" required autocomplete="off" placeholder="/Users/you/dev/project" />
+        <input id="repository-path" v-model="repositoryPath" required autocomplete="off" list="project-roots" placeholder="/Users/you/dev/project" />
+        <datalist id="project-roots"><option v-for="root in settings.data.value?.settings.projectRoots ?? []" :key="root" :value="root" /></datalist>
         <button type="submit" :disabled="busy">{{ busy ? 'Scanning…' : 'Scan repository' }}</button>
       </div>
+      <p v-if="settings.data.value" class="root-policy">Approved roots: <code>{{ settings.data.value.settings.projectRoots.join(', ') }}</code></p>
+      <label class="outside-root"><input v-model="allowOutsideRoots" type="checkbox" /><span><strong>Approve this one scan outside configured roots</strong><small>The repository is still untrusted and no repository command is executed.</small></span></label>
       <p v-if="displayedError" class="message message--error" role="alert">{{ displayedError }}</p>
     </form>
 
@@ -193,6 +199,7 @@ async function accept() {
 .scan-form label { display:block; margin-bottom:9px; font-weight:700; }
 .scan-form__controls { display:flex; gap:10px; }
 input { min-width:0; flex:1; padding:11px 13px; color:var(--text); border:1px solid #344157; border-radius:9px; background:#0b1017; }
+.root-policy{margin:10px 0 0;color:var(--muted);font-size:11px}.root-policy code{overflow-wrap:anywhere}.outside-root{display:flex;align-items:flex-start;gap:9px;margin-top:12px;color:var(--muted)}.outside-root input{flex:0 0 auto;width:17px;height:17px}.outside-root span{display:grid;gap:3px}.outside-root strong{color:var(--text);font-size:12px}.outside-root small{font-size:10px}
 button { padding:10px 15px; border:0; border-radius:9px; color:#07111f; background:var(--accent); font-weight:800; cursor:pointer; }
 button:disabled { opacity:.48; cursor:not-allowed; }
 .button--secondary { border:1px solid #40506a; color:var(--text); background:transparent; }

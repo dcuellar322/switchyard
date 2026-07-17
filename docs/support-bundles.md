@@ -19,9 +19,10 @@ The preview contains the same document later stored in `manifest.json`:
 - Switchyard version, commit, API version, and database schema version;
 - platform and executable adapter availability without executable paths;
 - Docker Engine connectivity when host observation succeeds;
-- an allowlisted configuration snapshot containing binding modes, retention
-  bounds, provider/model presence, and booleans for remote or credential-reference
-  configuration;
+- an allowlisted configuration snapshot containing binding modes, settings
+  revision, root and excluded-port counts (never root paths), preferred range,
+  tool/appearance choices, retention bounds, provider/model presence, and
+  booleans for remote or credential-reference configuration;
 - at most 100 recent internal warnings and errors after a second redaction and
   local home/data-directory path replacement pass;
 - explicit included and excluded field lists.

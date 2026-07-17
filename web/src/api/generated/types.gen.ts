@@ -4,6 +4,76 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type DaemonSettingsStatus = {
+    settings: DaemonSettings;
+    pendingRestart: Array<'retention' | 'ai.providers'>;
+};
+
+export type UpdateDaemonSettingsRequest = {
+    expectedRevision: number;
+    settings: DaemonSettings;
+};
+
+export type DaemonSettings = {
+    revision: number;
+    projectRoots: Array<string>;
+    ports: PortPreferences;
+    retention: RetentionPreferences;
+    tools: ToolPreferences;
+    ai: AiPreferences;
+    permissions: PermissionPreferences;
+    appearance: AppearancePreferences;
+    updatedAt: string;
+};
+
+export type PortPreferences = {
+    rangeStart: number;
+    rangeEnd: number;
+    excluded: Array<number>;
+};
+
+export type RetentionPreferences = {
+    logAgeSeconds: number;
+    logMaximumBytes: number;
+    metricRawSeconds: number;
+    metricMinuteSeconds: number;
+    metricQuarterHourSeconds: number;
+    maximumMetricHistoryPoints: number;
+};
+
+export type ToolPreferences = {
+    terminal: 'integrated' | 'system';
+    editor: 'vscode' | 'none';
+};
+
+export type AiPreferences = {
+    defaultProvider: 'none' | 'codex' | 'claude' | 'openai-compatible';
+    providers: [
+        AiProviderPreferences,
+        AiProviderPreferences,
+        AiProviderPreferences
+    ];
+};
+
+export type AiProviderPreferences = {
+    id: 'codex' | 'claude' | 'openai-compatible';
+    enabled: boolean;
+    executable?: string;
+    endpoint?: string;
+    model?: string;
+    credentialReference?: string;
+};
+
+export type PermissionPreferences = {
+    defaultAgentProfile: 'observe' | 'develop' | 'maintain' | 'admin';
+};
+
+export type AppearancePreferences = {
+    density: 'comfortable' | 'compact';
+    timeDisplay: 'relative' | 'absolute';
+    theme: 'dark' | 'high-contrast';
+};
+
 export type DiagnosticEvidence = {
     id: string;
     kind: string;
@@ -533,6 +603,7 @@ export type ActionExecutionRequest = {
 
 export type CreateManifestProposalRequest = {
     path: string;
+    allowOutsideRoots?: boolean;
 };
 
 export type Project = {
@@ -1413,6 +1484,59 @@ export type GetHostResponses = {
 };
 
 export type GetHostResponse = GetHostResponses[keyof GetHostResponses];
+
+export type GetDaemonSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings';
+};
+
+export type GetDaemonSettingsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetDaemonSettingsError = GetDaemonSettingsErrors[keyof GetDaemonSettingsErrors];
+
+export type GetDaemonSettingsResponses = {
+    /**
+     * Current revisioned settings
+     */
+    200: DaemonSettingsStatus;
+};
+
+export type GetDaemonSettingsResponse = GetDaemonSettingsResponses[keyof GetDaemonSettingsResponses];
+
+export type UpdateDaemonSettingsData = {
+    body: UpdateDaemonSettingsRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/settings';
+};
+
+export type UpdateDaemonSettingsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type UpdateDaemonSettingsError = UpdateDaemonSettingsErrors[keyof UpdateDaemonSettingsErrors];
+
+export type UpdateDaemonSettingsResponses = {
+    /**
+     * Updated settings and fields awaiting daemon restart
+     */
+    200: DaemonSettingsStatus;
+};
+
+export type UpdateDaemonSettingsResponse = UpdateDaemonSettingsResponses[keyof UpdateDaemonSettingsResponses];
 
 export type GetResourceOverviewData = {
     body?: never;

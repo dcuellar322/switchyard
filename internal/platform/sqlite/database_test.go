@@ -27,8 +27,8 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SchemaVersion() error = %v", err)
 	}
-	if version != 16 {
-		t.Fatalf("SchemaVersion() = %d, want 16", version)
+	if version != 17 {
+		t.Fatalf("SchemaVersion() = %d, want 17", version)
 	}
 	info, err := os.Stat(path)
 	if err != nil {
@@ -77,7 +77,7 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 	if err := database.Close(); err != nil {
 		t.Fatal(err)
 	}
-	backupPath := preMigrationBackupPath(path, 3, 16)
+	backupPath := preMigrationBackupPath(path, 3, 17)
 	for _, candidate := range []string{path, backupPath} {
 		check, err := sql.Open("sqlite", candidate)
 		if err != nil {
@@ -93,7 +93,7 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 		_ = check.Close()
 	}
 	status, err := InspectMigrations(ctx, path)
-	if err != nil || status.CurrentVersion != 16 || status.MigrationRequired {
+	if err != nil || status.CurrentVersion != 17 || status.MigrationRequired {
 		t.Fatalf("status=%#v error=%v", status, err)
 	}
 }

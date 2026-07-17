@@ -25,6 +25,27 @@
   text-rendering: optimizeLegibility;
 }
 
+html[data-theme="high-contrast"] {
+  --bg: #000;
+  --panel: #080b0f;
+  --panel-2: #101722;
+  --panel-3: #172234;
+  --border: #718099;
+  --text: #fff;
+  --muted: #c4cfdf;
+  --soft: #aebbd0;
+  --accent: #9fc1ff;
+  --accent-2: #c3a9ff;
+  --green: #70f0b5;
+  --yellow: #ffe080;
+  --red: #ff9696;
+  --cyan: #8cecff;
+}
+
+html[data-compact="true"] body {
+  font-size: 13px;
+}
+
 * {
   box-sizing: border-box;
 }

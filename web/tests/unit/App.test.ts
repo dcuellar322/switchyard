@@ -21,6 +21,13 @@ vi.mock("../../src/domains/system/api", () => ({
   }),
 }));
 
+vi.mock("../../src/domains/system/settingsApi", () => ({
+  loadDaemonSettings: vi.fn().mockResolvedValue({
+    settings: { appearance: { density: "comfortable", timeDisplay: "relative", theme: "dark" } },
+    pendingRestart: [],
+  }),
+}));
+
 vi.mock("../../src/domains/projects/api", () => ({
   loadProjects: vi
     .fn()

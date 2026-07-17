@@ -30,6 +30,9 @@
   in release-build CI. The Inspector starts a real isolated daemon and separate
   stdio process.
 - Added a public MCP schema/tool reference and an architecture note.
+- Added a durable default MCP profile. `switchyard mcp serve` loads it from the
+  daemon when `--profile` is omitted, while an explicit flag remains the
+  authoritative per-session override.
 
 ## Files and modules added
 

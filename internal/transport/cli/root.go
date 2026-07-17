@@ -109,6 +109,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newPluginCommand(options), newDiagnoseCommand(options), newAutomationCommand(options),
 		newMachineCommand(options),
 		newTeamCommand(options), newTelemetryCommand(options),
+		newSettingsCommand(options),
 		newDataCommand(options),
 		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"),
 		newLifecycleCommand(options, "pause"), newLifecycleCommand(options, "unpause"), newLifecycleCommand(options, "rebuild"),

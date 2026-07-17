@@ -66,7 +66,8 @@ func newProjectGetCommand(options *rootOptions) *cobra.Command {
 }
 
 func newAddCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{Use: "add <repository>", Short: "Scan a repository and create a reviewable proposal", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
+	allowOutsideRoots := false
+	command := &cobra.Command{Use: "add <repository>", Short: "Scan a repository and create a reviewable proposal", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
 			return err
@@ -75,7 +76,7 @@ func newAddCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		proposal, err := client.CreateManifestProposal(command.Context(), args[0], key)
+		proposal, err := client.CreateManifestProposalWithRootOverride(command.Context(), args[0], key, allowOutsideRoots)
 		if err != nil {
 			return err
 		}
@@ -90,6 +91,8 @@ func newAddCommand(options *rootOptions) *cobra.Command {
 			return err
 		})
 	}}
+	command.Flags().BoolVar(&allowOutsideRoots, "allow-outside-roots", false, "explicitly approve this one scan outside configured project roots")
+	return command
 }
 
 func newProjectTrustCommand(options *rootOptions) *cobra.Command {

@@ -16,7 +16,8 @@ func (h *handler) CreateManifestProposal(w http.ResponseWriter, r *http.Request,
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide exactly one non-empty repository path.")
 		return
 	}
-	_, proposal, err := h.catalog.ScanAs(r.Context(), request.Path, catalogMutationActor(r))
+	allowOutsideRoots := request.AllowOutsideRoots != nil && *request.AllowOutsideRoots
+	_, proposal, err := h.catalog.ScanWithRootOverrideAs(r.Context(), request.Path, allowOutsideRoots, catalogMutationActor(r))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return

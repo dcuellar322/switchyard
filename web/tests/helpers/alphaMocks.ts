@@ -224,6 +224,26 @@ function actions(projectId: string) {
 }
 
 export async function installAlphaMocks(page: Page, empty = false) {
+  await page.route("**/api/v1/settings", (route) =>
+    json(route, {
+      settings: {
+        revision: 4,
+        projectRoots: ["/Users/dev/projects"],
+        ports: { rangeStart: 15000, rangeEnd: 19999, excluded: [15432] },
+        retention: { logAgeSeconds: 604800, logMaximumBytes: 268435456, metricRawSeconds: 3600, metricMinuteSeconds: 86400, metricQuarterHourSeconds: 2592000, maximumMetricHistoryPoints: 1000 },
+        tools: { terminal: "integrated", editor: "vscode" },
+        ai: { defaultProvider: "codex", providers: [
+          { id: "codex", enabled: true, executable: "codex" },
+          { id: "claude", enabled: true, executable: "claude" },
+          { id: "openai-compatible", enabled: false, credentialReference: "env:OPENAI_API_KEY" },
+        ] },
+        permissions: { defaultAgentProfile: "observe" },
+        appearance: { density: "comfortable", timeDisplay: "relative", theme: "dark" },
+        updatedAt: observedAt,
+      },
+      pendingRestart: [],
+    }),
+  );
   await page.route("**/api/v1/terminal-sessions**", (route) => json(route, []));
   await page.route("**/api/v1/agents/sessions**", (route) => json(route, []));
   await page.route("**/api/v1/projects/*/environments", (route) => json(route, []));

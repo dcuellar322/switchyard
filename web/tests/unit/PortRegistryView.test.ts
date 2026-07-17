@@ -13,6 +13,12 @@ vi.mock('../../src/domains/ports/api', () => ({
   }),
   suggestPort: vi.fn().mockResolvedValue({ port: 18082, rangeStart: 15000, rangeEnd: 19999, protocol: 'tcp', observedAt: '2026-07-16T12:00:00Z' }),
 }))
+vi.mock('../../src/domains/system/settingsApi', () => ({
+  loadDaemonSettings: vi.fn().mockResolvedValue({
+    settings: { ports: { rangeStart: 16000, rangeEnd: 16999, excluded: [16001] } },
+    pendingRestart: [],
+  }),
+}))
 
 import PortRegistryView from '../../src/domains/ports/views/PortRegistryView.vue'
 
@@ -26,4 +32,5 @@ test('renders conflict provenance and a current free-port suggestion', async () 
   expect(screen.getAllByText('conflict').length).toBeGreaterThan(0)
   await fireEvent.click(screen.getByRole('button', { name: 'Find next free port' }))
   expect((await screen.findAllByText(/18082/)).length).toBeGreaterThan(0)
+  expect(screen.getByText(/16000–16999/)).toBeInTheDocument()
 })

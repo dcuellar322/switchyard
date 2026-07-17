@@ -12,7 +12,7 @@ switchyard list
 switchyard add <repository>
 switchyard project list
 switchyard project get <id|unique-slug|path>
-switchyard project add <repository>
+switchyard project add <repository> [--allow-outside-roots]
 switchyard project trust <project> --yes
 switchyard project remove <project> --yes
 
@@ -35,6 +35,9 @@ switchyard doctor
 switchyard doctor --bundle --preview
 switchyard doctor --bundle [--output <new-file.zip>]
 switchyard debug logs [--level debug|info|warn|error] [--limit 200]
+switchyard settings show
+switchyard settings export <new-json-file>
+switchyard settings apply <json-file> --yes
 ```
 
 Selection checks opaque ID first, then an exact unique slug, then a canonical
@@ -42,6 +45,14 @@ repository path. Missing and ambiguous selections fail instead of guessing.
 Catalog removal never changes repository files. Trust and removal require
 `--yes`; Switchyard does not hide an interactive confirmation inside automation
 mode.
+
+Project discovery is confined to the canonical roots shown in Settings. The
+`--allow-outside-roots` flag is an explicit one-request exception: it permits
+deterministic reads but does not trust the repository or execute its code. MCP
+proposal creation has no outside-root override. Settings export writes a new
+private full document; apply is revision-checked, strict, bounded, requires
+`--yes`, and reports any fields waiting for daemon restart. See the
+[durable settings guide](settings.md).
 
 `doctor --bundle --preview` prints the exact support evidence allowlist and
 denylist without writing a file. Removing `--preview` writes a new mode-`0600`

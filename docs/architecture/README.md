@@ -110,6 +110,7 @@ application interface or a typed event.
 | `fleet` | Authenticated peer identities, bounded inventory, grants, remote operations, and audit |
 | `team` | Publisher trust, signed portable bundles, restrictive policy, registry metadata, and encrypted sync |
 | `telemetry` | Explicit consent, fixed anonymous counters, payload preview, delivery, and opt-out deletion |
+| `settings` | Revisioned local preferences, safe project roots, adapter choices, and restart-effect reporting |
 | `platform` | OS capabilities without product policy |
 
 `foundation` is limited to stable primitives such as clocks, IDs, event

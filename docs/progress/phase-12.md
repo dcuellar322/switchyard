@@ -37,6 +37,10 @@
   CPU/memory and link into durable `?project=` history/storage context.
 - Added daemon flags for sample interval, each metric retention tier, and the
   maximum history response size.
+- Promoted log and metric retention bounds into revisioned durable settings.
+  Changes are reported as pending until restart so samplers, rollups, and
+  pruning jobs always begin together with one coherent policy; flags continue
+  to seed a new database.
 
 ## Architecture decisions
 

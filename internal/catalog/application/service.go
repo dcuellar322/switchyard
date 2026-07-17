@@ -43,6 +43,12 @@ type Repository interface {
 	RemoveProject(context.Context, string, time.Time, MutationActor) error
 }
 
+// ProjectRootPolicy authorizes a canonical repository location without
+// coupling catalog behavior to settings persistence.
+type ProjectRootPolicy interface {
+	AuthorizeProjectRoot(context.Context, string, bool) error
+}
+
 // MutationActor is the non-secret principal recorded with catalog trust changes.
 type MutationActor struct {
 	Type string
@@ -55,12 +61,17 @@ var systemActor = MutationActor{Type: "system", ID: "catalog-service"}
 type Service struct {
 	repository Repository
 	scanners   []discovery.Scanner
+	rootPolicy ProjectRootPolicy
 	now        func() time.Time
 }
 
 // NewService creates project onboarding use cases with explicit scanner adapters.
-func NewService(repository Repository, scanners []discovery.Scanner) *Service {
-	return &Service{repository: repository, scanners: slices.Clone(scanners), now: time.Now}
+func NewService(repository Repository, scanners []discovery.Scanner, policies ...ProjectRootPolicy) *Service {
+	service := &Service{repository: repository, scanners: slices.Clone(scanners), now: time.Now}
+	if len(policies) > 0 {
+		service.rootPolicy = policies[0]
+	}
+	return service
 }
 
 // Scan creates a pending project and reviewable proposal without executing repository code.
@@ -70,9 +81,20 @@ func (s *Service) Scan(ctx context.Context, path string) (catalog.Project, disco
 
 // ScanAs creates a proposal and records the initiating principal.
 func (s *Service) ScanAs(ctx context.Context, path string, actor MutationActor) (catalog.Project, discoveryDomain.Proposal, error) {
+	return s.ScanWithRootOverrideAs(ctx, path, false, actor)
+}
+
+// ScanWithRootOverrideAs requires an explicit request signal before discovery
+// may inspect a repository outside the configured project roots.
+func (s *Service) ScanWithRootOverrideAs(ctx context.Context, path string, allowOutsideRoots bool, actor MutationActor) (catalog.Project, discoveryDomain.Proposal, error) {
 	root, err := discovery.SelectRoot(path)
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
+	}
+	if s.rootPolicy != nil {
+		if err := s.rootPolicy.AuthorizeProjectRoot(ctx, root.Path, allowOutsideRoots); err != nil {
+			return catalog.Project{}, discoveryDomain.Proposal{}, err
+		}
 	}
 	if project, proposal, findErr := s.repository.FindProposalByLocation(ctx, root.Path); findErr == nil {
 		return project, proposal, nil

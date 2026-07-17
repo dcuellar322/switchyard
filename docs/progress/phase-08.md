@@ -23,6 +23,9 @@
   commands, a live port registry, and project Git/quick-action UI slices.
 - Added one deterministic port-conflict visual reference and extended real
   browser onboarding coverage through Git, actions, and port evidence.
+- Added durable preferred port ranges and exclusions used by browser
+  suggestions, plus durable terminal/editor preferences that filter built-in
+  quick actions without changing explicitly accepted manifest actions.
 
 ## Files and modules added
 
@@ -43,8 +46,8 @@
 No new ADR was required. The implementation realizes the existing modular
 monolith, manifest precedence, SQLite, local transport security, log/audit
 redaction, and platform-order decisions. Port, source-control, and action policy
-remain separate application boundaries. macOS is the first native launcher;
-other platforms return explicit unsupported errors in accordance with
+remain separate application boundaries. macOS was the first native launcher;
+Phase 18 subsequently added the Linux and Windows adapters required by
 ADR-0015.
 
 Action commands are never built by UI or transport code. The generated API
@@ -126,8 +129,6 @@ environment values.
 
 - Automatic repository rewriting for port remediation is intentionally out of
   scope. The registry explains conflicts and suggests a free port only.
-- Linux and Windows native launch adapters remain in their planned platform
-  phases. All non-macOS launch attempts fail explicitly.
 - Git commit, merge, rebase, and stash mutation UI is intentionally deferred.
 - Action output is bounded for process safety but is not yet a first-class log
   stream; persistent process and Compose logs continue to use the Phase 7

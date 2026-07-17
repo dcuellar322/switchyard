@@ -26,6 +26,8 @@ import (
 	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
 	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
 	session "switchyard.dev/switchyard/internal/session/application"
+	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
+	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
 	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
 	"switchyard.dev/switchyard/internal/system/application"
 	teamApplication "switchyard.dev/switchyard/internal/team/application"
@@ -73,6 +75,7 @@ type handler struct {
 	fleet                   fleetService
 	team                    teamService
 	telemetry               telemetryService
+	settings                settingsService
 }
 
 func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
@@ -96,6 +99,7 @@ func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
 type catalogService interface {
 	Scan(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	ScanAs(context.Context, string, catalogApplication.MutationActor) (catalogDomain.Project, discoveryDomain.Proposal, error)
+	ScanWithRootOverrideAs(context.Context, string, bool, catalogApplication.MutationActor) (catalogDomain.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
 	Validate(context.Context, string) (discoveryDomain.Proposal, error)
 	Accept(context.Context, string) (catalogDomain.Project, discoveryDomain.Proposal, error)
@@ -146,6 +150,11 @@ type telemetryService interface {
 	Status(context.Context) (telemetryDomain.Status, error)
 	Configure(context.Context, bool, string, bool, telemetryApplication.Actor) (telemetryDomain.Status, error)
 	Send(context.Context) (telemetryDomain.Status, error)
+}
+
+type settingsService interface {
+	Status(context.Context) (settingsApplication.Status, error)
+	Update(context.Context, int64, settingsDomain.Settings, settingsApplication.Actor) (settingsApplication.Status, error)
 }
 
 type runtimeService interface {

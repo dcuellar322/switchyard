@@ -80,14 +80,14 @@ func RunDaemon(ctx context.Context, config Config) error {
 	defer closeInternalLog(config.Logger, internalLog)
 	defer releaseDaemonLock(config.Logger, lock)
 
-	database, err := sqlite.Open(ctx, filepath.Join(config.DataDir, "switchyard.db"))
+	database, settingsService, config, err := openConfiguredDatabase(ctx, config)
 	if err != nil {
 		return err
 	}
 	defer closeDatabase(config.Logger, database)
 
 	journal := sqlite.NewJournal(database)
-	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults())
+	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults(), settingsService)
 	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), sourcecontrolAdapters.NewGit())
 	environmentService := environmentsApplication.NewService(
 		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(gitService),
@@ -148,7 +148,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	if err := actionAudits.Recover(ctx, time.Now().UTC()); err != nil {
 		return err
 	}
-	actionCatalog := actionsApplication.NewCatalogSource(catalogService)
+	actionCatalog := actionsApplication.NewCatalogSource(catalogService, settingsService)
 	actionService := actionsApplication.NewService(
 		actionCatalog,
 		actionsAdapters.NewRunner(actionsAdapters.NewLauncher()),
@@ -236,7 +236,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		Ports: portService, Git: gitService, Actions: actionService,
 		AI: aiService, Resources: resourceService, Plugins: extensions.plugin, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
-		Fleet: fleetService, Team: extensions.shared.team, Telemetry: extensions.shared.telemetry,
+		Fleet: fleetService, Team: extensions.shared.team, Telemetry: extensions.shared.telemetry, Settings: settingsService,
 		Terminals: terminalService, Terminal: eventtransport.NewTerminal(terminalService, func(actorContext context.Context) terminalDomain.Owner {
 			actorType, actorID := httpapi.RequestActor(actorContext)
 			return terminalDomain.Owner{Type: actorType, ID: actorID}

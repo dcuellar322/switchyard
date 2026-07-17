@@ -8,6 +8,7 @@ import (
 
 	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
 	"switchyard.dev/switchyard/internal/platform/daemonlog"
+	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
 	supportAdapters "switchyard.dev/switchyard/internal/support/adapters"
 	supportApplication "switchyard.dev/switchyard/internal/support/application"
 	"switchyard.dev/switchyard/internal/support/domain"
@@ -54,7 +55,7 @@ func WriteSupportBundle(path string, preview domain.Preview) (domain.BundleRecei
 	return (supportAdapters.ArchiveWriter{}).Write(path, preview)
 }
 
-func writeSupportConfiguration(config Config) error {
+func writeSupportConfiguration(config Config, preferences ...settingsDomain.Settings) error {
 	ipcMode := "default owner-only local IPC"
 	if strings.TrimSpace(config.IPCAddr) != "" {
 		ipcMode = "custom owner-only local IPC"
@@ -78,6 +79,17 @@ func writeSupportConfiguration(config Config) error {
 				CredentialReferenceConfigured: strings.TrimSpace(config.AIOpenAIAPIKeyEnv) != "",
 			},
 		},
+	}
+	if len(preferences) > 0 {
+		settings := preferences[0]
+		configuration.SettingsRevision = settings.Revision
+		configuration.ProjectRootCount = len(settings.ProjectRoots)
+		configuration.PreferredPortRange = fmt.Sprintf("%d-%d", settings.Ports.RangeStart, settings.Ports.RangeEnd)
+		configuration.ExcludedPortCount = len(settings.Ports.Excluded)
+		configuration.TerminalPreference = settings.Tools.Terminal
+		configuration.EditorPreference = settings.Tools.Editor
+		configuration.DefaultAgentProfile = settings.Permissions.DefaultAgentProfile
+		configuration.Appearance = settings.Appearance.Theme + "/" + settings.Appearance.Density + "/" + settings.Appearance.TimeDisplay
 	}
 	return supportAdapters.WriteConfiguration(config.DataDir, configuration)
 }

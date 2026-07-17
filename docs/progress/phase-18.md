@@ -54,9 +54,11 @@ workflow and visual suites, production web/Go builds, Clippy, Rust tests, and
 debug desktop packaging. Linux and Windows adapter suites compile from the
 local checkout and are required as native hosted jobs before merge. The
 GoReleaser v2 configuration and every GitHub workflow pass their configuration
-linters. A local v1 daemon smoke test reported API v1/schema 13, discovered and
-approved the repository deterministically, listed the project, inspected the
-database, and shut down cleanly.
+linters. A local v1 daemon smoke test now reports API v1/schema 17; database
+upgrade coverage preserves the revisioned settings singleton and value-free
+audit history alongside the earlier project, manifest, and operation records.
+The smoke discovered and approved the repository deterministically, listed the
+project, inspected the database, and shut down cleanly.
 
 Signed/notarized release artifacts are deliberately created only by a reviewed
 `v*` tag in the protected release environment. The workflow refuses partial

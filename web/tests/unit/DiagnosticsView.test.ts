@@ -8,10 +8,12 @@ const api = vi.hoisted(() => ({
   reviewHypothesis: vi.fn(), runSuggestedAction: vi.fn(), saveRecipe: vi.fn(),
   setRecipeEnabled: vi.fn(),
 }))
+const settingsAPI = vi.hoisted(() => ({ loadDaemonSettings: vi.fn() }))
 vi.mock('../../src/domains/diagnostics/api', () => api)
 vi.mock('../../src/domains/projects/api', () => ({
   loadProjects: vi.fn().mockResolvedValue([{ id: 'alpha', displayName: 'Alpha API' }]),
 }))
+vi.mock('../../src/domains/system/settingsApi', () => settingsAPI)
 
 import DiagnosticsView from '../../src/domains/diagnostics/views/DiagnosticsView.vue'
 
@@ -33,6 +35,7 @@ beforeEach(() => {
   api.acknowledgeNotification.mockResolvedValue({ id: 'notification-1' })
   api.reviewHypothesis.mockResolvedValue({ id: 'feedback-1' })
   api.runSuggestedAction.mockResolvedValue({ id: 'operation-1' })
+  settingsAPI.loadDaemonSettings.mockReset().mockResolvedValue({ settings: { ai: { defaultProvider: 'none' } } })
 })
 
 function renderView() {
@@ -75,4 +78,25 @@ test('acknowledges a diagnostic alert locally', async () => {
   await fireEvent.click(screen.getByRole('button', { name: 'Acknowledge' }))
   await waitFor(() => expect(api.acknowledgeNotification).toHaveBeenCalledWith('notification-1'))
   expect(await screen.findByRole('status')).toHaveTextContent('acknowledged locally')
+})
+
+test('keeps diagnosis deterministic when the durable default is none', async () => {
+  api.diagnoseProject.mockResolvedValue(diagnosis)
+  api.loadProviders.mockResolvedValue([{ id: 'codex', name: 'Codex', available: true }])
+  renderView()
+  await screen.findByText('Service is repeatedly crashing')
+
+  expect(screen.getByLabelText('Optional AI')).toHaveValue('')
+  await fireEvent.click(screen.getByRole('button', { name: 'Run diagnosis' }))
+  await waitFor(() => expect(api.diagnoseProject).toHaveBeenCalledWith('alpha', undefined))
+})
+
+test('prefers an available durable AI default without hiding the deterministic option', async () => {
+  api.loadProviders.mockResolvedValue([{ id: 'codex', name: 'Codex', available: true }])
+  settingsAPI.loadDaemonSettings.mockResolvedValue({ settings: { ai: { defaultProvider: 'codex' } } })
+  renderView()
+  await screen.findByText('Service is repeatedly crashing')
+
+  await waitFor(() => expect(screen.getByLabelText('Optional AI')).toHaveValue('codex'))
+  expect(screen.getByRole('option', { name: 'Deterministic only' })).toBeInTheDocument()
 })

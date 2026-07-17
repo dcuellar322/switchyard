@@ -46,12 +46,20 @@ type RetentionConfiguration struct {
 
 // SanitizedConfiguration is the allowlisted support-safe process configuration.
 type SanitizedConfiguration struct {
-	HTTPBinding        string                  `json:"httpBinding"`
-	IPCMode            string                  `json:"ipcMode"`
-	RoutingEnabled     bool                    `json:"routingEnabled"`
-	RemoteAgentEnabled bool                    `json:"remoteAgentEnabled"`
-	Retention          RetentionConfiguration  `json:"retention"`
-	Providers          []ProviderConfiguration `json:"providers"`
+	HTTPBinding         string                  `json:"httpBinding"`
+	IPCMode             string                  `json:"ipcMode"`
+	RoutingEnabled      bool                    `json:"routingEnabled"`
+	RemoteAgentEnabled  bool                    `json:"remoteAgentEnabled"`
+	SettingsRevision    int64                   `json:"settingsRevision,omitempty"`
+	ProjectRootCount    int                     `json:"projectRootCount,omitempty"`
+	PreferredPortRange  string                  `json:"preferredPortRange,omitempty"`
+	ExcludedPortCount   int                     `json:"excludedPortCount,omitempty"`
+	TerminalPreference  string                  `json:"terminalPreference,omitempty"`
+	EditorPreference    string                  `json:"editorPreference,omitempty"`
+	DefaultAgentProfile string                  `json:"defaultAgentProfile,omitempty"`
+	Appearance          string                  `json:"appearance,omitempty"`
+	Retention           RetentionConfiguration  `json:"retention"`
+	Providers           []ProviderConfiguration `json:"providers"`
 }
 
 // InternalLogEntry is an allowlisted redacted daemon event. It never contains
