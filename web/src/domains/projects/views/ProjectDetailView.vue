@@ -50,7 +50,7 @@ async function selectTab(tab: ProjectTab) {
         :action-pending="customAction.isPending.value" :lifecycle-pending="lifecycle.isPending.value"
         :operation-error="operationError" :partial="isPartial"
         :docker-unavailable="runtime.data.value?.driver === 'compose' && runtime.data.value.engine?.connected === false"
-        @action="runAction" @lifecycle="runLifecycle"
+        @action="runAction" @lifecycle="runLifecycle" @terminal="selectTab('terminal')"
       />
       <ProjectTabList :active="activeTab" @select="selectTab" />
 

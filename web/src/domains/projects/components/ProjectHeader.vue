@@ -8,7 +8,7 @@ import type {
 } from "../../../api/generated/types.gen";
 import { projectInitials, stateLabel } from "../../../lib/format";
 
-defineProps<{
+const props = defineProps<{
   project: Project;
   state: string;
   stateTone: string;
@@ -21,10 +21,19 @@ defineProps<{
   partial: boolean;
   dockerUnavailable: boolean;
 }>();
-defineEmits<{
+const emit = defineEmits<{
   action: [action: ActionDefinition | undefined];
   lifecycle: [action: RuntimeAction];
+  terminal: [];
 }>();
+
+function openTerminal() {
+  if (props.terminalAction) {
+    emit("action", props.terminalAction);
+    return;
+  }
+  emit("terminal");
+}
 </script>
 
 <template>
@@ -55,11 +64,7 @@ defineEmits<{
       >
         ↗ Open app
       </button>
-      <button
-        type="button"
-        :disabled="actionPending || !terminalAction"
-        @click="$emit('action', terminalAction)"
-      >
+      <button type="button" :disabled="actionPending" @click="openTerminal">
         ⌘ Terminal
       </button>
       <button

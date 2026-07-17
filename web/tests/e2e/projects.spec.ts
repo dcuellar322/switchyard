@@ -36,8 +36,13 @@ test("scans a repository into an evidence-backed review", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Services" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Live logs" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Git" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "⌘ Terminal" })).toBeEnabled();
-  await page.getByRole("tab", { name: "terminal" }).click();
+  const terminalShortcut = page.getByRole("button", { name: "⌘ Terminal" });
+  await expect(terminalShortcut).toBeEnabled();
+  await terminalShortcut.click();
+  await expect(page.getByRole("tab", { name: "terminal" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
   await page
     .getByRole("combobox", { name: "Shell", exact: true })
     .selectOption("sh");
