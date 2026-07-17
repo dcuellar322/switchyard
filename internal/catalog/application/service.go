@@ -277,6 +277,15 @@ func (s *Service) TrustProjectAs(ctx context.Context, projectID string, actor Mu
 	if err != nil {
 		return catalog.Project{}, discoveryDomain.Proposal{}, err
 	}
+	if proposal.Status == discoveryDomain.StatusAccepted {
+		project, projectErr := s.repository.GetProject(ctx, projectID)
+		if projectErr != nil {
+			return catalog.Project{}, discoveryDomain.Proposal{}, projectErr
+		}
+		if project.TrustState == catalog.TrustTrusted {
+			return project, proposal, nil
+		}
+	}
 	return s.AcceptAs(ctx, proposal.ID, actor)
 }
 

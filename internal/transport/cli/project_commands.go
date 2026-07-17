@@ -68,6 +68,10 @@ func newProjectGetCommand(options *rootOptions) *cobra.Command {
 func newAddCommand(options *rootOptions) *cobra.Command {
 	allowOutsideRoots := false
 	command := &cobra.Command{Use: "add <repository>", Short: "Scan a repository and create a reviewable proposal", Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
+		repository, err := resolveRepositoryPath(args[0])
+		if err != nil {
+			return err
+		}
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
 			return err
@@ -76,23 +80,41 @@ func newAddCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		proposal, err := client.CreateManifestProposalWithRootOverride(command.Context(), args[0], key, allowOutsideRoots)
+		proposal, err := client.CreateManifestProposalWithRootOverride(command.Context(), repository, key, allowOutsideRoots)
 		if err != nil {
 			return err
 		}
-		return writeResult(options, "project.add", proposal, func(w io.Writer) error {
-			name := proposal.Id
-			if metadata, ok := proposal.Candidate["metadata"].(map[string]any); ok {
-				if candidateName, ok := metadata["name"].(string); ok {
-					name = candidateName
-				}
-			}
-			_, err := fmt.Fprintf(w, "proposal %s created for %s\nproject: %s\nevidence: %d\nvalid: %t\nunresolved: %s\n", proposal.Id, name, proposal.ProjectId, len(proposal.Evidence), proposal.Validation.Valid, strings.Join(proposal.Unresolved, ", "))
-			return err
-		})
+		return writeResult(options, "project.add", proposal, func(w io.Writer) error { return writeAddSummary(w, proposal) })
 	}}
 	command.Flags().BoolVar(&allowOutsideRoots, "allow-outside-roots", false, "explicitly approve this one scan outside configured project roots")
 	return command
+}
+
+func resolveRepositoryPath(value string) (string, error) {
+	absolute, err := filepath.Abs(value)
+	if err != nil {
+		return "", fmt.Errorf("resolve repository path: %w", err)
+	}
+	return filepath.Clean(absolute), nil
+}
+
+func writeAddSummary(writer io.Writer, proposal generated.ManifestProposal) error {
+	name := proposal.Id
+	if metadata, ok := proposal.Candidate["metadata"].(map[string]any); ok {
+		if candidateName, ok := metadata["name"].(string); ok {
+			name = candidateName
+		}
+	}
+	headline := fmt.Sprintf("proposal %s created for %s", proposal.Id, name)
+	if proposal.Status != generated.ManifestProposalStatusProposed {
+		headline = fmt.Sprintf("proposal %s is already %s for %s", proposal.Id, proposal.Status, name)
+	}
+	unresolved := strings.Join(proposal.Unresolved, ", ")
+	if unresolved == "" {
+		unresolved = "none"
+	}
+	_, err := fmt.Fprintf(writer, "%s\nproject: %s\nevidence: %d\nvalid: %t\nunresolved: %s\n", headline, proposal.ProjectId, len(proposal.Evidence), proposal.Validation.Valid, unresolved)
+	return err
 }
 
 func newProjectTrustCommand(options *rootOptions) *cobra.Command {

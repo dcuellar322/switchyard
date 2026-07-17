@@ -16,6 +16,10 @@
   `doctor`, and `schema cli` contracts.
 - Added safe on-demand daemon startup with private logging, detached process
   configuration, readiness polling, and reuse of an already healthy daemon.
+- Repository arguments are resolved against the invoking CLI process before
+  daemon startup, so relative paths cannot drift to the daemon's working
+  directory. Duplicate adds and repeat trust decisions are reported
+  idempotently, and empty unresolved fields render as `none`.
 - Added generated project/remove/trust and operation-list endpoints without
   importing persistence or runtime adapters into Cobra commands.
 
@@ -35,6 +39,7 @@
 ```text
 Golden human and JSON output tests: passed
 ID, slug, path, missing, and ambiguous selector tests: passed
+Client-relative add path, duplicate-add output, and repeat-trust tests: passed
 On-demand packaged daemon startup over Unix IPC: passed
 Packaged add/list/get/trust/manifest/open/operation/remove workflow: passed
 Machine not-found result: PROJECT_NOT_FOUND on stderr, exit 3

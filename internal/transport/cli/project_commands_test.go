@@ -1,12 +1,41 @@
 package cli
 
 import (
+	"bytes"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"switchyard.dev/switchyard/internal/transport/contract/generated"
 )
+
+func TestResolveRepositoryPathUsesClientWorkingDirectory(t *testing.T) {
+	root := t.TempDir()
+	t.Chdir(root)
+	resolved, err := resolveRepositoryPath(".")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resolved != root {
+		t.Fatalf("resolveRepositoryPath(.) = %q, want %q", resolved, root)
+	}
+}
+
+func TestAddSummaryDistinguishesAcceptedProposalAndEmptyUnresolvedFields(t *testing.T) {
+	var output bytes.Buffer
+	proposal := generated.ManifestProposal{
+		Id: "proposal-1", ProjectId: "project-1", Status: generated.ManifestProposalStatusAccepted,
+		Candidate: map[string]any{"metadata": map[string]any{"name": "Switchyard"}},
+		Evidence:  []generated.DiscoveryEvidence{}, Unresolved: []string{}, Validation: generated.ManifestValidation{Valid: true},
+	}
+	if err := writeAddSummary(&output, proposal); err != nil {
+		t.Fatal(err)
+	}
+	if value := output.String(); !strings.Contains(value, "is already accepted for Switchyard") || !strings.Contains(value, "unresolved: none") {
+		t.Fatalf("add summary = %q", value)
+	}
+}
 
 func TestSelectProjectByIDSlugAndPath(t *testing.T) {
 	t.Parallel()

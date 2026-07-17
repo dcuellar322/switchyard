@@ -61,6 +61,13 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	if trusted.TrustState != catalogDomain.TrustTrusted || trusted.ManifestRevision != 1 || accepted.Status != discoveryDomain.StatusAccepted {
 		t.Fatalf("unexpected accepted aggregate: %#v %#v", trusted, accepted)
 	}
+	retrusted, repeated, err := service.TrustProject(ctx, project.ID)
+	if err != nil {
+		t.Fatalf("repeat TrustProject() error = %v", err)
+	}
+	if retrusted.ManifestRevision != 1 || repeated.ID != accepted.ID || repeated.Status != discoveryDomain.StatusAccepted {
+		t.Fatalf("repeat trust changed aggregate: %#v %#v", retrusted, repeated)
+	}
 	effective, err := service.EffectiveManifest(ctx, project.ID, nil)
 	if err != nil {
 		t.Fatalf("EffectiveManifest() error = %v", err)
