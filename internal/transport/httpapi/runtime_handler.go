@@ -59,7 +59,7 @@ func (h *handler) PlanProjectRuntime(w http.ResponseWriter, r *http.Request, pro
 	if !ok {
 		return
 	}
-	plan, err := h.runtime.PlanServices(r.Context(), projectID, domain.Action(request.Action), request.RemoveVolumes != nil && *request.RemoveVolumes, runtimeServices(request))
+	plan, err := h.runtime.PlanSelection(r.Context(), projectID, domain.Action(request.Action), request.RemoveVolumes != nil && *request.RemoveVolumes, runtimeServices(request), runtimeProfiles(request))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -84,11 +84,12 @@ func (h *handler) CreateProjectOperation(
 	}
 	removeVolumes := request.RemoveVolumes != nil && *request.RemoveVolumes
 	services := runtimeServices(request)
-	if _, err := h.runtime.PlanServices(r.Context(), projectID, action, removeVolumes, services); err != nil {
+	profiles := runtimeProfiles(request)
+	if _, err := h.runtime.PlanSelection(r.Context(), projectID, action, removeVolumes, services, profiles); err != nil {
 		writeApplicationError(w, r, err)
 		return
 	}
-	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services})
+	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services, "profiles": profiles})
 	identity := identityFrom(r.Context())
 	operation, err := h.operations.Submit(r.Context(), operations.SubmitRequest{
 		ProjectID: projectID, Kind: "runtime." + string(action), Input: input,
@@ -99,6 +100,13 @@ func (h *handler) CreateProjectOperation(
 		return
 	}
 	writeJSON(w, http.StatusAccepted, operationResponse(operation))
+}
+
+func runtimeProfiles(request generated.RuntimeActionRequest) []string {
+	if request.Profiles == nil {
+		return nil
+	}
+	return *request.Profiles
 }
 
 func runtimeServices(request generated.RuntimeActionRequest) []string {

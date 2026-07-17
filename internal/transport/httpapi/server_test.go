@@ -104,6 +104,9 @@ func (runtimeStub) Plan(_ context.Context, projectID string, action runtimeDomai
 func (runtimeStub) PlanServices(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool, services []string) (runtimeDomain.Plan, error) {
 	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskSafe, Commands: []runtimeDomain.Command{}, Effects: []string{}, Services: services, RemoveVolumes: removeVolumes}, nil
 }
+func (runtimeStub) PlanSelection(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool, services, profiles []string) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskSafe, Commands: []runtimeDomain.Command{}, Effects: []string{}, Services: services, Profiles: profiles, RemoveVolumes: removeVolumes}, nil
+}
 func (runtimeStub) Logs(context.Context, string, string, string, int) ([]runtimeDomain.LogEntry, error) {
 	return []runtimeDomain.LogEntry{}, nil
 }
@@ -134,19 +137,19 @@ func TestRuntimeOperationUsesDurableCoordinatorBoundary(t *testing.T) {
 	}
 }
 
-func TestRuntimeOperationPersistsSelectedServices(t *testing.T) {
+func TestRuntimeOperationPersistsSelectedServicesAndProfiles(t *testing.T) {
 	t.Parallel()
 	operations := &recordingOperations{}
 	handler := NewIPC(Dependencies{
 		System: systemStub{}, Operations: operations, Runtime: runtimeStub{}, Sessions: session.NewManager(),
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
-	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"restart","services":["api"]}`))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"start","services":["api"],"profiles":["marketing"]}`))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set(idempotencyHeader, "runtime-service-key")
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, request)
-	if response.Code != http.StatusAccepted || !strings.Contains(string(operations.request.Input), `"services":["api"]`) {
+	if response.Code != http.StatusAccepted || !strings.Contains(string(operations.request.Input), `"services":["api"]`) || !strings.Contains(string(operations.request.Input), `"profiles":["marketing"]`) {
 		t.Fatalf("status=%d input=%s body=%s", response.Code, operations.request.Input, response.Body.String())
 	}
 }
@@ -176,6 +179,9 @@ func (runningRuntimeStub) Plan(context.Context, string, runtimeDomain.Action, bo
 	return runtimeDomain.Plan{}, nil
 }
 func (runningRuntimeStub) PlanServices(context.Context, string, runtimeDomain.Action, bool, []string) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{}, nil
+}
+func (runningRuntimeStub) PlanSelection(context.Context, string, runtimeDomain.Action, bool, []string, []string) (runtimeDomain.Plan, error) {
 	return runtimeDomain.Plan{}, nil
 }
 func (runningRuntimeStub) Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error) {

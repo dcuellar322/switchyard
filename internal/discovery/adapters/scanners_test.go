@@ -152,6 +152,9 @@ func TestComposeDiscoveryExcludesProfilesAndPrefersFrontendEndpoint(t *testing.T
 	if len(proposal.Candidate.Ports) != 3 {
 		t.Fatalf("default ports = %#v", proposal.Candidate.Ports)
 	}
+	if got := proposal.Candidate.Runtime.Compose.Profiles; !slices.Equal(got, []string{"marketing"}) {
+		t.Fatalf("compose profiles = %v", got)
+	}
 	primary := ""
 	for _, endpoint := range proposal.Candidate.Endpoints {
 		if endpoint.Primary {

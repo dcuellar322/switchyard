@@ -80,6 +80,7 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 	if compose := effective.Manifest.Runtime.Compose; compose != nil {
 		result.Compose = &domain.ComposeRuntime{
 			Files: append([]string(nil), compose.Files...), ProjectName: compose.ProjectName, Context: compose.Context,
+			Profiles: append([]string(nil), compose.Profiles...),
 		}
 	}
 	if process := effective.Manifest.Runtime.Process; process != nil {

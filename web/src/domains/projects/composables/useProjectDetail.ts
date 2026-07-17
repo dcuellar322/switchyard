@@ -93,8 +93,8 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
   });
 
   const lifecycle = useMutation({
-    mutationFn: (action: RuntimeAction) =>
-      runRuntimeAction(projectId.value, action),
+    mutationFn: ({ action, profiles }: { action: RuntimeAction; profiles: string[] }) =>
+      runRuntimeAction(projectId.value, action, profiles),
     onSuccess: trackOperation,
   });
   const customAction = useMutation({
@@ -181,10 +181,10 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     ),
   );
 
-  async function runLifecycle(action: RuntimeAction) {
+  async function runLifecycle(action: RuntimeAction, profiles: string[] = []) {
     operationError.value = "";
     try {
-      await lifecycle.mutateAsync(action);
+      await lifecycle.mutateAsync({ action, profiles });
     } catch (cause) {
       operationError.value =
         cause instanceof Error

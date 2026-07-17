@@ -119,7 +119,8 @@ See the [diagnostics and safe automation architecture](docs/architecture/intelli
 
 Trusted Docker Compose projects support reviewable lifecycle plans, durable
 start/stop/restart/pause/rebuild/teardown operations, live status, bounded logs,
-and current resource metrics. See the
+current resource metrics, optional trusted profiles at start, and all-profile
+project stops. See the
 [Compose runtime architecture](docs/architecture/docker-compose-runtime.md).
 
 Trusted native-process projects support shell-free uv/npm/script/Make-style

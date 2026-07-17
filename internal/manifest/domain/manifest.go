@@ -63,6 +63,7 @@ type ComposeConfig struct {
 	Files       []string `json:"files" yaml:"files" jsonschema:"required,minItems=1"`
 	ProjectName string   `json:"projectName,omitempty" yaml:"projectName,omitempty"`
 	Context     string   `json:"context,omitempty" yaml:"context,omitempty"`
+	Profiles    []string `json:"profiles,omitempty" yaml:"profiles,omitempty" jsonschema:"maxItems=32,uniqueItems=true"`
 }
 
 // ProcessConfig declares project-wide environment and native process definitions.
@@ -362,6 +363,19 @@ func validateRuntime(runtime Runtime) []error {
 	}
 	if runtime.Compose != nil && runtime.Process != nil {
 		problems = append(problems, errors.New("runtime cannot declare both compose and process configuration"))
+	}
+	if runtime.Compose != nil {
+		seen := make(map[string]struct{}, len(runtime.Compose.Profiles))
+		for _, profile := range runtime.Compose.Profiles {
+			if strings.TrimSpace(profile) == "" {
+				problems = append(problems, errors.New("compose profiles cannot contain an empty name"))
+				continue
+			}
+			if _, duplicate := seen[profile]; duplicate {
+				problems = append(problems, fmt.Errorf("compose profile %q is declared more than once", profile))
+			}
+			seen[profile] = struct{}{}
+		}
 	}
 	if runtime.Process != nil {
 		problems = append(problems, validateProcesses(*runtime.Process)...)

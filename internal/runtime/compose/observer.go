@@ -18,6 +18,9 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 		Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
 		Engine: &domain.EngineObservation{Context: config.Connection.ContextName},
 	}
+	if project.Compose != nil {
+		observation.AvailableProfiles = append([]string(nil), project.Compose.Profiles...)
+	}
 	engine, ping, version, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
 		return disconnectedObservation(project, config, err), nil
@@ -53,7 +56,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 		}
 		return observation.Services[i].RuntimeName < observation.Services[j].RuntimeName
 	})
-	observation.State = deriveProjectState(observation.Services, len(config.Services), observation.Origin)
+	observation.State = deriveProjectState(observation.Services, len(config.Services), observation.Origin, d.managed.ExpectedStopped(config.ProjectName))
 	return observation, nil
 }
 
@@ -65,11 +68,18 @@ func disconnectedObservation(project domain.ProjectRuntime, config normalizedCon
 	return domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindCompose, ProjectIdentity: config.ProjectName,
 		State: domain.StateUnknown, Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
-		Engine: &domain.EngineObservation{
+		AvailableProfiles: composeProfiles(project), Engine: &domain.EngineObservation{
 			Connected: false, Context: config.Connection.ContextName,
 			ErrorCode: "DOCKER_ENGINE_UNAVAILABLE", ErrorMessage: message,
 		},
 	}
+}
+
+func composeProfiles(project domain.ProjectRuntime) []string {
+	if project.Compose == nil {
+		return nil
+	}
+	return append([]string(nil), project.Compose.Profiles...)
 }
 
 func composeContainers(items []container.Summary, projectName string, activeServices []string) []container.Summary {
@@ -83,13 +93,22 @@ func composeContainers(items []container.Summary, projectName string, activeServ
 			continue
 		}
 		if len(active) > 0 {
-			if _, enabled := active[item.Labels[labelService]]; !enabled {
+			if _, enabled := active[item.Labels[labelService]]; !enabled && !activeContainerState(item.State) {
 				continue
 			}
 		}
 		result = append(result, item)
 	}
 	return result
+}
+
+func activeContainerState(state container.ContainerState) bool {
+	switch state {
+	case container.StateRunning, container.StatePaused, container.StateRestarting, container.StateCreated:
+		return true
+	default:
+		return false
+	}
 }
 
 func allContainersOwned(managed *managedContainers, project string, items []container.Summary) bool {
@@ -161,7 +180,7 @@ func healthStatus(item container.Summary) string {
 	return string(item.Health.Status)
 }
 
-func deriveProjectState(services []domain.ServiceObservation, declared int, origin domain.Origin) domain.ProjectState {
+func deriveProjectState(services []domain.ServiceObservation, declared int, origin domain.Origin, expectedStopped bool) domain.ProjectState {
 	if len(services) == 0 {
 		return domain.StateStopped
 	}
@@ -186,6 +205,9 @@ func deriveProjectState(services []domain.ServiceObservation, declared int, orig
 	}
 	if counts.running > 0 {
 		return domain.StatePartiallyRunning
+	}
+	if expectedStopped {
+		return domain.StateStopped
 	}
 	if counts.failed > 0 {
 		return domain.StateFailed

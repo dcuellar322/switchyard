@@ -192,9 +192,9 @@ export async function runProjectAction(projectId: string, actionId: string, conf
   return result.data
 }
 
-export async function runRuntimeAction(projectId: string, action: RuntimeAction): Promise<Operation> {
+export async function runRuntimeAction(projectId: string, action: RuntimeAction, profiles: string[] = []): Promise<Operation> {
   const result = await createProjectOperation({
-    path: { projectId }, body: { action, removeVolumes: false },
+    path: { projectId }, body: { action, removeVolumes: false, ...(profiles.length > 0 ? { profiles } : {}) },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) throw new Error(`The ${action} operation could not be queued.`)

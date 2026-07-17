@@ -832,6 +832,7 @@ export type RuntimeActionRequest = {
     action: RuntimeAction;
     removeVolumes?: boolean;
     services?: Array<string>;
+    profiles?: Array<string>;
 };
 
 export type RuntimeCommand = {
@@ -849,6 +850,7 @@ export type RuntimePlan = {
     commands: Array<RuntimeCommand>;
     effects: Array<string>;
     services: Array<string>;
+    profiles?: Array<string>;
     removeVolumes: boolean;
 };
 
@@ -911,6 +913,7 @@ export type RuntimeObservation = {
     origin: 'switchyard' | 'external';
     engine?: RuntimeEngineObservation;
     services: Array<RuntimeServiceObservation>;
+    availableProfiles?: Array<string>;
     observedAt: string;
 };
 

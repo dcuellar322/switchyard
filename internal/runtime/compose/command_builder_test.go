@@ -21,7 +21,7 @@ func TestCommandBuilderDistinguishesStopAndTeardown(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if stop.Risk != domain.RiskCaution || !reflect.DeepEqual(lastArguments(stop.Commands[0], 1), []string{"stop"}) {
+	if stop.Risk != domain.RiskCaution || !reflect.DeepEqual(lastArguments(stop.Commands[0], 3), []string{"--profile", "*", "stop"}) {
 		t.Fatalf("stop plan = %#v", stop)
 	}
 	if !containsText(stop.Effects, "preserve volumes") {
@@ -32,11 +32,30 @@ func TestCommandBuilderDistinguishesStopAndTeardown(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if teardown.Risk != domain.RiskDestructive || !reflect.DeepEqual(lastArguments(teardown.Commands[0], 2), []string{"down", "--volumes"}) {
+	if teardown.Risk != domain.RiskDestructive || !reflect.DeepEqual(lastArguments(teardown.Commands[0], 4), []string{"--profile", "*", "down", "--volumes"}) {
 		t.Fatalf("teardown plan = %#v", teardown)
 	}
 	if !containsText(teardown.Effects, "remove named") {
 		t.Fatalf("teardown effects = %#v", teardown.Effects)
+	}
+}
+
+func TestCommandBuilderStartsTrustedOptionalProfiles(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	project := domain.ProjectRuntime{ProjectID: "project-1", Root: root, Compose: &domain.ComposeRuntime{Files: []string{"compose.yaml"}, Profiles: []string{"marketing"}}}
+	plan, err := (commandBuilder{}).Build(domain.PlanRequest{Project: project, Action: domain.ActionStart, Profiles: []string{"marketing"}}, normalizedConfig{ProjectName: "fixture"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(lastArguments(plan.Commands[0], 4), []string{"--profile", "marketing", "up", "--detach"}) {
+		t.Fatalf("arguments = %#v", plan.Commands[0].Arguments)
+	}
+	if !reflect.DeepEqual(plan.Profiles, []string{"marketing"}) {
+		t.Fatalf("profiles = %#v", plan.Profiles)
+	}
+	if _, err := (commandBuilder{}).Build(domain.PlanRequest{Project: project, Action: domain.ActionStart, Profiles: []string{"admin"}}, normalizedConfig{ProjectName: "fixture"}); err == nil {
+		t.Fatal("undeclared profile accepted")
 	}
 }
 

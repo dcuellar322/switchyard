@@ -11,12 +11,18 @@
   context resolution, API negotiation, and clear disconnected-engine behavior.
 - Added shell-free start, stop, restart, pause, unpause, rebuild, and teardown
   plans using the installed Compose CLI.
+- Added trusted optional-profile selection for start/rebuild. Project-wide stop
+  and teardown use Compose's all-profile selector so optional services cannot
+  be orphaned.
 - Added Engine SDK observation keyed exclusively by canonical Compose labels,
   including external-origin recognition, health, exit state, restart count,
   container metadata, and published ports.
 - Compose observation, log, and metric membership is intersected with the
   normalized default-profile service set, so stale containers from inactive
-  profiles cannot degrade or pollute the active project runtime.
+  profiles cannot degrade or pollute the active project runtime. Active
+  optional-profile containers remain visible.
+- A successful stop is treated as deliberate lifecycle intent, preventing a
+  forced container exit code from turning a stopped project into `failed`.
 - Added bounded Docker stdout/stderr streaming with service/run identity and
   current CPU, memory, and network sampling.
 - Added dynamically maintained Engine event subscriptions; a project-labelled
@@ -55,6 +61,8 @@ truth, and current-session ownership is conservative.
 - Runtime action validation and application driver routing.
 - Dynamic watcher identity attachment.
 - Compose action/risk/effect command construction and root-containment checks.
+- Trusted profile allowlisting, all-profile stop/teardown commands, and
+  deliberate-stop state derivation.
 - Context/config normalization and deterministic service ordering.
 - Label-only membership, one-off exclusion, external recognition, disconnected
   observations, inactive-profile exclusion, state derivation, and

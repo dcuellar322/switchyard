@@ -105,6 +105,56 @@
     color: #07111d;
     font-weight: 800;
   }
+  .start-options {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+    align-items: center;
+    gap: 18px;
+    margin: -8px 0 20px;
+    padding: 14px 16px;
+    border: 1px solid rgba(120, 166, 255, 0.35);
+    border-radius: 10px;
+    background: var(--panel-2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  }
+  .start-options p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .start-options fieldset {
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .start-options legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  .start-options label,
+  .start-options__actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .start-options__actions button {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-3);
+    color: var(--text);
+  }
+  .start-options__actions .primary {
+    border-color: rgba(120, 166, 255, 0.5);
+    background: var(--accent);
+    color: #07111d;
+    font-weight: 800;
+  }
   .message {
     padding: 10px 12px;
     border: 1px solid rgba(241, 199, 91, 0.25);
@@ -342,6 +392,8 @@
     :scope { padding: 18px; }
     .project-hero { align-items: flex-start; display: grid; }
     .hero-actions { flex-wrap: wrap; }
+    .start-options { grid-template-columns: 1fr; }
+    .start-options fieldset { flex-wrap: wrap; }
     .tabs { margin-inline: -18px; padding-inline: 18px; }
     .overview-side { grid-template-columns: 1fr; }
     .service-row { grid-template-columns: 1fr 1fr; }

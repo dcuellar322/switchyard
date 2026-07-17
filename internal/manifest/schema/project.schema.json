@@ -92,6 +92,14 @@
         },
         "context": {
           "type": "string"
+        },
+        "profiles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true
         }
       },
       "additionalProperties": false,

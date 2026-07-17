@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import type {
@@ -20,12 +21,45 @@ const props = defineProps<{
   operationError: string;
   partial: boolean;
   dockerUnavailable: boolean;
+  availableProfiles: string[];
 }>();
 const emit = defineEmits<{
   action: [action: ActionDefinition | undefined];
-  lifecycle: [action: RuntimeAction];
+  lifecycle: [action: RuntimeAction, profiles: string[]];
   terminal: [];
 }>();
+const showStartOptions = ref(false);
+const selectedProfiles = ref<string[]>([]);
+
+watch(() => props.active, (active) => {
+  if (active) closeStartOptions();
+});
+
+function requestLifecycle() {
+  if (props.active) {
+    emit("lifecycle", "stop", []);
+    return;
+  }
+  if (props.availableProfiles.length === 0) {
+    emit("lifecycle", "start", []);
+    return;
+  }
+  showStartOptions.value = true;
+}
+
+function startProject() {
+  emit("lifecycle", "start", [...selectedProfiles.value]);
+  closeStartOptions();
+}
+
+function closeStartOptions() {
+  showStartOptions.value = false;
+  selectedProfiles.value = [];
+}
+
+function profileLabel(profile: string) {
+  return profile.replaceAll(/[-_.]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 function openTerminal() {
   if (props.terminalAction) {
@@ -71,7 +105,7 @@ function openTerminal() {
         v-if="active"
         type="button"
         :disabled="lifecyclePending"
-        @click="$emit('lifecycle', 'restart')"
+        @click="$emit('lifecycle', 'restart', [])"
       >
         ↻ Restart
       </button>
@@ -79,12 +113,36 @@ function openTerminal() {
         class="primary"
         type="button"
         :disabled="lifecyclePending"
-        @click="$emit('lifecycle', active ? 'stop' : 'start')"
+        @click="requestLifecycle"
       >
         {{ active ? "■ Stop" : "▶ Start" }}
       </button>
     </div>
   </header>
+  <form
+    v-if="showStartOptions"
+    class="start-options"
+    role="dialog"
+    aria-labelledby="start-options-title"
+    @submit.prevent="startProject"
+    @keydown.esc="closeStartOptions"
+  >
+    <div>
+      <strong id="start-options-title">Start {{ project.displayName }} services</strong>
+      <p>Core services always start. Include any optional Compose profiles for this run.</p>
+    </div>
+    <fieldset>
+      <legend>Optional profiles</legend>
+      <label v-for="profile in availableProfiles" :key="profile">
+        <input v-model="selectedProfiles" type="checkbox" :value="profile" />
+        <span>{{ profileLabel(profile) }}</span>
+      </label>
+    </fieldset>
+    <div class="start-options__actions">
+      <button type="button" @click="closeStartOptions">Cancel</button>
+      <button class="primary" type="submit" :disabled="lifecyclePending">▶ Start services</button>
+    </div>
+  </form>
   <p v-if="operationError" class="message message--error" role="alert">
     {{ operationError }}
   </p>

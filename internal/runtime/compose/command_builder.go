@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 
 	"switchyard.dev/switchyard/internal/runtime/domain"
 )
@@ -29,6 +30,11 @@ func (commandBuilder) Build(request domain.PlanRequest, config normalizedConfig)
 	if err != nil {
 		return domain.Plan{}, err
 	}
+	profileArguments, selectedProfiles, err := composeProfileArguments(request)
+	if err != nil {
+		return domain.Plan{}, err
+	}
+	arguments = append(arguments, profileArguments...)
 	arguments = append(arguments, actionArguments...)
 	serviceIDs, runtimeNames, err := selectedComposeServices(request, config)
 	if err != nil {
@@ -39,13 +45,50 @@ func (commandBuilder) Build(request domain.PlanRequest, config normalizedConfig)
 		summary = fmt.Sprintf("%s (%d selected)", summary, len(runtimeNames))
 		effects = append(effects, "limit lifecycle action to selected services")
 	}
+	if len(selectedProfiles) > 0 {
+		summary = fmt.Sprintf("%s with %d optional profile(s)", summary, len(selectedProfiles))
+		effects = append(effects, "enable optional Compose profiles: "+strings.Join(selectedProfiles, ", "))
+	}
 	command := domain.Command{Executable: "docker", Arguments: arguments, WorkingDirectory: request.Project.Root}
 	return domain.Plan{
 		ProjectID: request.Project.ProjectID, Driver: domain.KindCompose, Action: request.Action,
-		Risk: risk, Summary: summary, Effects: effects, Services: serviceIDs, Commands: []domain.Command{command},
+		Risk: risk, Summary: summary, Effects: effects, Services: serviceIDs, Profiles: selectedProfiles, Commands: []domain.Command{command},
 		RemoveVolumes: request.RemoveVolumes,
 		DriverData:    executionPlan{project: request.Project, config: config, invocation: command},
 	}, nil
+}
+
+func composeProfileArguments(request domain.PlanRequest) ([]string, []string, error) {
+	if request.Action == domain.ActionStop || request.Action == domain.ActionTeardown {
+		return []string{"--profile", "*"}, nil, nil
+	}
+	if len(request.Profiles) == 0 {
+		return nil, nil, nil
+	}
+	if request.Action != domain.ActionStart && request.Action != domain.ActionRebuild {
+		return nil, nil, fmt.Errorf("compose profiles can be selected only for start or rebuild")
+	}
+	allowed := make(map[string]struct{})
+	if request.Project.Compose != nil {
+		for _, profile := range request.Project.Compose.Profiles {
+			allowed[profile] = struct{}{}
+		}
+	}
+	seen := make(map[string]struct{}, len(request.Profiles))
+	profiles := make([]string, 0, len(request.Profiles))
+	arguments := make([]string, 0, len(request.Profiles)*2)
+	for _, profile := range request.Profiles {
+		if _, duplicate := seen[profile]; duplicate {
+			return nil, nil, fmt.Errorf("duplicate selected Compose profile %q", profile)
+		}
+		if _, ok := allowed[profile]; !ok {
+			return nil, nil, fmt.Errorf("Compose profile %q is not declared by the trusted manifest", profile)
+		}
+		seen[profile] = struct{}{}
+		profiles = append(profiles, profile)
+		arguments = append(arguments, "--profile", profile)
+	}
+	return arguments, profiles, nil
 }
 
 func selectedComposeServices(request domain.PlanRequest, config normalizedConfig) ([]string, []string, error) {

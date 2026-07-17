@@ -161,6 +161,7 @@ type runtimeService interface {
 	Inspect(context.Context, string) (runtimeDomain.Observation, error)
 	Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error)
 	PlanServices(context.Context, string, runtimeDomain.Action, bool, []string) (runtimeDomain.Plan, error)
+	PlanSelection(context.Context, string, runtimeDomain.Action, bool, []string, []string) (runtimeDomain.Plan, error)
 	Metrics(context.Context, string, string) ([]runtimeDomain.MetricSample, error)
 }
 

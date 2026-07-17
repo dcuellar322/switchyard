@@ -18,6 +18,9 @@
   of the project detail quick-action rail at desktop and narrow widths.
 - Primary endpoint actions sort ahead of secondary browser endpoints so the
   project-level Open app control follows the reviewed manifest declaration.
+- Stopped Compose projects with optional profiles present a keyboard-accessible
+  Start chooser; core services remain the default and trusted profiles are
+  explicit opt-ins.
 - Added a host observation endpoint for CPU, memory, Docker storage, explicit
   attribution, timeout warnings, and short-lived request coalescing.
 - Corrected Compose ownership timing and reconciliation under concurrent
@@ -67,7 +70,7 @@ through typed server operations; Vue components do not know command syntax.
 
 - Shell routing, command palette filtering and keyboard execution, focus and
   tab navigation, Docker-unavailable project controls, and typed lifecycle
-  intent.
+  intent, including optional Compose-profile selection.
 - A 1,000-entry log profile asserting a bounded 500-entry result within the
   rendering data budget.
 - Host observation, Docker warning, cache coalescing, HTTP contract, and

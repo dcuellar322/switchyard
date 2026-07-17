@@ -87,10 +87,21 @@ func scanCompose(path string, contents []byte) ([]domain.Evidence, error) {
 	}
 	lines := strings.Split(string(contents), "\n")
 	serviceNames := make([]string, 0, len(document.Services))
+	profileSet := make(map[string]struct{})
 	for name := range document.Services {
 		serviceNames = append(serviceNames, name)
+		for _, profile := range document.Services[name].Profiles {
+			if profile != "" {
+				profileSet[profile] = struct{}{}
+			}
+		}
 	}
 	sort.Strings(serviceNames)
+	profiles := make([]string, 0, len(profileSet))
+	for profile := range profileSet {
+		profiles = append(profiles, profile)
+	}
+	sort.Strings(profiles)
 	var result []domain.Evidence
 	for _, name := range serviceNames {
 		// Compose excludes profiled services unless that profile is explicitly
@@ -120,7 +131,7 @@ func scanCompose(path string, contents []byte) ([]domain.Evidence, error) {
 			result = append(result, items...)
 		}
 	}
-	items, err := evidence("compose.project", path, 1, max(1, len(lines)), .99, map[string]any{"file": path, "projectName": document.Name})
+	items, err := evidence("compose.project", path, 1, max(1, len(lines)), .99, map[string]any{"file": path, "projectName": document.Name, "profiles": profiles})
 	return append(result, items...), err
 }
 

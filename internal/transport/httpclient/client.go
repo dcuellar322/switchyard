@@ -329,12 +329,20 @@ func (c *Client) PlanRuntime(ctx context.Context, projectID string, action gener
 
 // PlanRuntimeServices previews one lifecycle action for selected declared services.
 func (c *Client) PlanRuntimeServices(ctx context.Context, projectID string, action generated.RuntimeAction, removeVolumes bool, services []string) (generated.RuntimePlan, error) {
+	return c.PlanRuntimeSelection(ctx, projectID, action, removeVolumes, services, nil)
+}
+
+// PlanRuntimeSelection previews one lifecycle action for selected services and trusted Compose profiles.
+func (c *Client) PlanRuntimeSelection(ctx context.Context, projectID string, action generated.RuntimeAction, removeVolumes bool, services, profiles []string) (generated.RuntimePlan, error) {
 	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes}
 	if len(services) > 0 {
 		request.Services = &services
 	}
+	if len(profiles) > 0 {
+		request.Profiles = &profiles
+	}
 	response, err := c.generated.PlanProjectRuntimeWithResponse(ctx, projectID, generated.RuntimeActionRequest{
-		Action: request.Action, RemoveVolumes: request.RemoveVolumes, Services: request.Services,
+		Action: request.Action, RemoveVolumes: request.RemoveVolumes, Services: request.Services, Profiles: request.Profiles,
 	})
 	if err != nil {
 		return generated.RuntimePlan{}, fmt.Errorf("plan project runtime: %w", err)
@@ -365,9 +373,24 @@ func (c *Client) CreateRuntimeOperationForServices(
 	services []string,
 	idempotencyKey string,
 ) (generated.Operation, error) {
+	return c.CreateRuntimeOperationSelection(ctx, projectID, action, removeVolumes, services, nil, idempotencyKey)
+}
+
+// CreateRuntimeOperationSelection queues a lifecycle mutation for selected services and trusted Compose profiles.
+func (c *Client) CreateRuntimeOperationSelection(
+	ctx context.Context,
+	projectID string,
+	action generated.RuntimeAction,
+	removeVolumes bool,
+	services, profiles []string,
+	idempotencyKey string,
+) (generated.Operation, error) {
 	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes}
 	if len(services) > 0 {
 		request.Services = &services
+	}
+	if len(profiles) > 0 {
+		request.Profiles = &profiles
 	}
 	response, err := c.generated.CreateProjectOperationWithResponse(
 		ctx, projectID, &generated.CreateProjectOperationParams{IdempotencyKey: idempotencyKey},

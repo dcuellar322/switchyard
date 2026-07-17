@@ -100,6 +100,7 @@ type ComposeRuntime struct {
 	Files         []string
 	ProjectName   string
 	Context       string
+	Profiles      []string
 	PortOverrides map[string]int
 }
 
@@ -148,6 +149,7 @@ type PlanRequest struct {
 	Action        Action
 	RemoveVolumes bool
 	Services      []string
+	Profiles      []string
 }
 
 // Plan is an immutable, reviewable description of a lifecycle mutation.
@@ -161,6 +163,7 @@ type Plan struct {
 	Commands      []Command `json:"commands"`
 	Effects       []string  `json:"effects"`
 	Services      []string  `json:"services"`
+	Profiles      []string  `json:"profiles,omitempty"`
 	RemoveVolumes bool      `json:"removeVolumes"`
 	DriverData    any       `json:"-"`
 }
@@ -210,14 +213,15 @@ const (
 
 // Observation is a point-in-time project runtime snapshot.
 type Observation struct {
-	ProjectID       string               `json:"projectId"`
-	Driver          Kind                 `json:"driver"`
-	ProjectIdentity string               `json:"projectIdentity"`
-	State           ProjectState         `json:"state"`
-	Origin          Origin               `json:"origin"`
-	Engine          *EngineObservation   `json:"engine,omitempty"`
-	Services        []ServiceObservation `json:"services"`
-	ObservedAt      time.Time            `json:"observedAt"`
+	ProjectID         string               `json:"projectId"`
+	Driver            Kind                 `json:"driver"`
+	ProjectIdentity   string               `json:"projectIdentity"`
+	State             ProjectState         `json:"state"`
+	Origin            Origin               `json:"origin"`
+	Engine            *EngineObservation   `json:"engine,omitempty"`
+	Services          []ServiceObservation `json:"services"`
+	AvailableProfiles []string             `json:"availableProfiles,omitempty"`
+	ObservedAt        time.Time            `json:"observedAt"`
 }
 
 // EngineObservation reports a bounded Docker connection summary.

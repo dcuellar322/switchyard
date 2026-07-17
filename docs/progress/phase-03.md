@@ -18,7 +18,8 @@
   actions, uv/npm/Make/Just commands, tags, confidence by JSON Pointer, and
   unresolved fields.
 - Compose discovery models the default profile only, excluding explicitly
-  profiled optional services, and prefers conventional frontend service names
+  profiled optional services while recording their profile names as trusted
+  start-time options, and prefers conventional frontend service names
   when selecting the inferred primary browser endpoint.
 - Added the typed `v1alpha1` project manifest, generated draft 2020-12 JSON
   Schema, strict YAML parsing, domain validation, canonical containment,

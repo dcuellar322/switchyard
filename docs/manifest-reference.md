@@ -17,6 +17,11 @@ drivers are `compose`, `process`, and `external`. Process commands are argument
 arrays unless a manifest explicitly opts into reviewed shell behavior. Secret
 values are never manifest fields; use credential-store references.
 
+Compose `runtime.compose.profiles` is the allowlist of optional profile names
+that a person may select for `start` or `rebuild`. It does not enable those
+profiles by default. Deterministic Compose discovery records the names while
+keeping profiled services out of the core topology.
+
 Actions declare type, working directory, risk, timeout, and typed command or
 target data. Destructive actions still require operation preview and explicit
 confirmation. Health checks and resource policies affect readiness and

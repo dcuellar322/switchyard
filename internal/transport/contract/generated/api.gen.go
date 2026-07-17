@@ -3221,6 +3221,7 @@ type RuntimeAction string
 // RuntimeActionRequest defines model for RuntimeActionRequest.
 type RuntimeActionRequest struct {
 	Action        RuntimeAction `json:"action"`
+	Profiles      *[]string     `json:"profiles,omitempty"`
 	RemoveVolumes *bool         `json:"removeVolumes,omitempty"`
 	Services      *[]string     `json:"services,omitempty"`
 }
@@ -3288,14 +3289,15 @@ type RuntimeMetricSample struct {
 
 // RuntimeObservation defines model for RuntimeObservation.
 type RuntimeObservation struct {
-	Driver          RuntimeObservationDriver    `json:"driver"`
-	Engine          *RuntimeEngineObservation   `json:"engine,omitempty"`
-	ObservedAt      time.Time                   `json:"observedAt"`
-	Origin          RuntimeObservationOrigin    `json:"origin"`
-	ProjectId       string                      `json:"projectId"`
-	ProjectIdentity string                      `json:"projectIdentity"`
-	Services        []RuntimeServiceObservation `json:"services"`
-	State           RuntimeObservationState     `json:"state"`
+	AvailableProfiles *[]string                   `json:"availableProfiles,omitempty"`
+	Driver            RuntimeObservationDriver    `json:"driver"`
+	Engine            *RuntimeEngineObservation   `json:"engine,omitempty"`
+	ObservedAt        time.Time                   `json:"observedAt"`
+	Origin            RuntimeObservationOrigin    `json:"origin"`
+	ProjectId         string                      `json:"projectId"`
+	ProjectIdentity   string                      `json:"projectIdentity"`
+	Services          []RuntimeServiceObservation `json:"services"`
+	State             RuntimeObservationState     `json:"state"`
 }
 
 // RuntimeObservationDriver defines model for RuntimeObservation.Driver.
@@ -3313,6 +3315,7 @@ type RuntimePlan struct {
 	Commands      []RuntimeCommand  `json:"commands"`
 	Driver        RuntimePlanDriver `json:"driver"`
 	Effects       []string          `json:"effects"`
+	Profiles      *[]string         `json:"profiles,omitempty"`
 	ProjectId     string            `json:"projectId"`
 	RemoveVolumes bool              `json:"removeVolumes"`
 	Risk          RuntimePlanRisk   `json:"risk"`

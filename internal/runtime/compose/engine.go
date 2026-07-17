@@ -63,6 +63,7 @@ type managedContainers struct {
 	owned      map[string]map[string]struct{}
 	pending    map[string]ownershipIntent
 	operations map[string]string
+	actions    map[string]domain.Action
 	next       uint64
 }
 
@@ -78,13 +79,14 @@ type ownershipToken struct {
 
 func newManagedContainers() *managedContainers {
 	return &managedContainers{
-		owned: make(map[string]map[string]struct{}), pending: make(map[string]ownershipIntent), operations: make(map[string]string),
+		owned: make(map[string]map[string]struct{}), pending: make(map[string]ownershipIntent), operations: make(map[string]string), actions: make(map[string]domain.Action),
 	}
 }
 
 func (m *managedContainers) RecordAction(project string, action domain.Action, operationID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.actions[project] = action
 	switch action {
 	case domain.ActionStop, domain.ActionTeardown:
 		delete(m.owned, project)
@@ -97,6 +99,13 @@ func (m *managedContainers) RecordAction(project string, action domain.Action, o
 			m.operations[project] = operationID
 		}
 	}
+}
+
+func (m *managedContainers) ExpectedStopped(project string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	action := m.actions[project]
+	return action == domain.ActionStop || action == domain.ActionTeardown
 }
 
 func (m *managedContainers) CompletePending(project, operationID string) {

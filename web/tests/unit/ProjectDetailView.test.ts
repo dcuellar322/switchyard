@@ -181,7 +181,7 @@ test("keeps project controls usable and honest when Docker is unavailable", asyn
   expect(screen.getByRole("button", { name: "▶ Start" })).toBeEnabled();
   expect(screen.getByRole("button", { name: "⌘ Terminal" })).toBeEnabled();
   await fireEvent.click(screen.getByRole("button", { name: "▶ Start" }));
-  expect(runRuntimeAction).toHaveBeenCalledWith("alpha", "start");
+  expect(runRuntimeAction).toHaveBeenCalledWith("alpha", "start", []);
 
   const overview = screen.getByRole("tab", { name: "overview" });
   overview.focus();

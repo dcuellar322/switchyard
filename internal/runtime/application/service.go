@@ -58,11 +58,16 @@ func (s *Service) Plan(ctx context.Context, projectID string, action domain.Acti
 
 // PlanServices returns a side-effect-free preview scoped to declared service IDs.
 func (s *Service) PlanServices(ctx context.Context, projectID string, action domain.Action, removeVolumes bool, services []string) (domain.Plan, error) {
+	return s.PlanSelection(ctx, projectID, action, removeVolumes, services, nil)
+}
+
+// PlanSelection returns a side-effect-free preview scoped to declared service IDs and trusted Compose profiles.
+func (s *Service) PlanSelection(ctx context.Context, projectID string, action domain.Action, removeVolumes bool, services, profiles []string) (domain.Plan, error) {
 	project, driver, err := s.resolve(ctx, projectID)
 	if err != nil {
 		return domain.Plan{}, err
 	}
-	return driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes, Services: services})
+	return driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes, Services: services, Profiles: profiles})
 }
 
 // Execute applies a previously produced plan through its owning driver.

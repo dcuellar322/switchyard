@@ -46,6 +46,7 @@ function renderHeader(action?: ActionDefinition) {
       operationError: "",
       partial: false,
       dockerUnavailable: false,
+      availableProfiles: [],
     },
     global: { stubs: { RouterLink: { template: "<a><slot /></a>" } } },
   });
@@ -67,4 +68,29 @@ test("runs the resolved system terminal action when one is available", async () 
 
   expect(view.emitted("action")).toEqual([[terminalAction]]);
   expect(view.emitted("terminal")).toBeUndefined();
+});
+
+test("offers trusted Compose profiles when starting a stopped project", async () => {
+  const view = render(ProjectHeader, {
+    props: {
+      project,
+      state: "stopped",
+      stateTone: "neutral",
+      active: false,
+      actionPending: false,
+      lifecyclePending: false,
+      operationError: "",
+      partial: false,
+      dockerUnavailable: false,
+      availableProfiles: ["marketing"],
+    },
+    global: { stubs: { RouterLink: { template: "<a><slot /></a>" } } },
+  });
+
+  await fireEvent.click(view.getByRole("button", { name: "▶ Start" }));
+  expect(view.getByRole("dialog", { name: "Start Alpha App services" })).toBeInTheDocument();
+  await fireEvent.click(view.getByRole("checkbox", { name: "Marketing" }));
+  await fireEvent.click(view.getByRole("button", { name: "▶ Start services" }));
+
+  expect(view.emitted("lifecycle")).toEqual([["start", ["marketing"]]]);
 });

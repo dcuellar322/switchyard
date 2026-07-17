@@ -136,7 +136,7 @@ func applyEvidence(
 		}
 	case "compose.project":
 		file := textValue(data, "file")
-		candidate.Runtime = manifest.Runtime{Driver: "compose", Compose: &manifest.ComposeConfig{Files: []string{file}, ProjectName: textValue(data, "projectName")}}
+		candidate.Runtime = manifest.Runtime{Driver: "compose", Compose: &manifest.ComposeConfig{Files: []string{file}, ProjectName: textValue(data, "projectName"), Profiles: stringSlice(data["profiles"])}}
 		candidate.Lifecycle = composeLifecycle()
 		confidence["/runtime"] = item.Confidence
 	case "compose.service":

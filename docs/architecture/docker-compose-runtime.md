@@ -39,19 +39,27 @@ until a new managed lifecycle action establishes current-session ownership.
 
 | Action | Compose command suffix | Risk | Volume behavior |
 |---|---|---|---|
-| start | `up --detach` | safe | preserve |
-| stop | `stop` | caution | preserve containers and volumes |
+| start | `[--profile name] up --detach` | safe | preserve |
+| stop | `--profile * stop` | caution | preserve containers and volumes |
 | restart | `restart` | caution | preserve |
 | pause | `pause` | caution | preserve |
 | unpause | `unpause` | safe | preserve |
-| rebuild | `up --detach --build --force-recreate` | caution | preserve named volumes |
-| teardown | `down [--volumes]` | destructive | exactly matches the previewed flag |
+| rebuild | `[--profile name] up --detach --build --force-recreate` | caution | preserve named volumes |
+| teardown | `--profile * down [--volumes]` | destructive | exactly matches the previewed flag |
 
 Every command uses an argument array, a trusted working directory, canonical
 Compose file paths contained by the project root, and a two-second `os/exec`
 wait bound after cancellation. Teardown requires an explicit CLI confirmation;
 its plan endpoint is side-effect-free and therefore does not require mutation
 credentials.
+
+Optional profile names are discovered without executing repository commands
+and become part of the trusted manifest. Lifecycle requests may enable only
+those names. Observation continues to use the normalized default topology but
+also includes non-default containers while they are active; stale stopped
+profile containers do not degrade the project. A successful project-wide stop
+is retained as lifecycle intent so signal-based container exits are reported
+as stopped rather than failed.
 
 ## Observation and streams
 

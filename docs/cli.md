@@ -182,8 +182,9 @@ durable lifecycle operations:
 
 ```text
 switchyard status <project>
-switchyard plan <start|stop|restart|pause|unpause|rebuild|teardown> <project>
-switchyard start|stop|restart|pause|unpause|rebuild <project>
+switchyard plan <start|stop|restart|pause|unpause|rebuild|teardown> <project> [--profile name]
+switchyard start|rebuild <project> [--profile name]
+switchyard stop|restart|pause|unpause <project>
 switchyard teardown <project> [--volumes] --yes
 switchyard logs <project> [--service name] [--since 10m] [--run id] [--operation id] [--tail 200]
 switchyard logs <project> [--service name] [--run id] [--operation id] --export plain|ndjson
@@ -225,6 +226,13 @@ Lifecycle commands return a durable operation immediately. Read it with
 preserves containers and volumes. `teardown` is destructive, requires `--yes`,
 and removes volumes only when the reviewed plan and operation include
 `--volumes`.
+
+Compose discovery records profile names without adding their services to the
+default topology. `start` and `rebuild` may opt into one or more names declared
+by the trusted manifest with repeatable `--profile` flags. The project-detail
+Start control presents the same allowlisted choices. A project-wide `stop` and
+`teardown` select all Compose profiles, so optional services started during the
+run are not left behind.
 
 Native process runtimes support `start`, `stop`, and `restart`. They reject
 container-only pause, unpause, rebuild, teardown, and volume semantics. Start
