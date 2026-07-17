@@ -1,0 +1,34 @@
+name: Documentation correction
+description: Report an inaccurate command, stale claim, missing example, or accessibility problem
+title: "docs: "
+labels: [documentation, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for improving Switchyard documentation. Do not include private source, credentials, logs, or personal data.
+  - type: input
+    id: page
+    attributes:
+      label: Page or source file
+      description: Link the canonical page or repository Markdown file.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing?
+      description: Quote only the smallest relevant public passage and explain the impact.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+      description: Include a tested public example when applicable.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: This report contains no secrets, private source, logs, or personal data.
+          required: true

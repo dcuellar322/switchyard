@@ -1,0 +1,89 @@
+# Switchyard — Local Development Command Center
+
+> Open-source, local-first command center for projects, runtimes, logs, ports, Git, terminals, and coding agents.
+
+Canonical site: https://switchyard.davidcuellar.tech/
+Source: https://github.com/dcuellar322/switchyard
+
+## Documentation
+
+- [Adapter development guide](https://switchyard.davidcuellar.tech/docs/adapter-development/): Add a platform or runtime adapter without crossing Switchyard domain boundaries.
+- [ADR-0001: Modular monolith and domain dependency direction](https://switchyard.davidcuellar.tech/docs/adr/0001-modular-monolith/): Keep Switchyard cohesive while enforcing bounded-context dependency rules.
+- [ADR-0002: Go as the local control-plane language](https://switchyard.davidcuellar.tech/docs/adr/0002-go-control-plane/): Use one portable systems language for control-plane product behavior.
+- [ADR-0003: One Switchyard binary with daemon, CLI, and MCP subcommands](https://switchyard.davidcuellar.tech/docs/adr/0003-one-binary/): Ship one versioned executable over cohesive internal packages.
+- [ADR-0004: REST, WebSocket, and OpenAPI transport contracts](https://switchyard.davidcuellar.tech/docs/adr/0004-rest-websocket-openapi/): Keep browser and client contracts versioned, generated, and inspectable.
+- [ADR-0005: SQLite, sqlc, migrations, and file-based log segments](https://switchyard.davidcuellar.tech/docs/adr/0005-sqlite-persistence/): Store durable local state transactionally and high-volume logs in bounded files.
+- [ADR-0006: Docker SDK observation and Compose CLI lifecycle](https://switchyard.davidcuellar.tech/docs/adr/0006-docker-compose-runtime/): Observe Docker through its API and execute lifecycle through the installed Compose CLI.
+- [ADR-0007: Native process ownership and reconciliation](https://switchyard.davidcuellar.tech/docs/adr/0007-process-ownership/): Identify and stop managed process trees without trusting stale PIDs.
+- [ADR-0008: Project manifest precedence and provenance](https://switchyard.davidcuellar.tech/docs/adr/0008-manifest-precedence/): Resolve effective project configuration without losing source evidence.
+- [ADR-0009: Tauri as a thin desktop shell](https://switchyard.davidcuellar.tech/docs/adr/0009-thin-tauri-shell/): Keep native integration in Tauri and product policy in the Go control plane.
+- [ADR-0010: MCP-first provider-neutral agent integration](https://switchyard.davidcuellar.tech/docs/adr/0010-mcp-first-agents/): Give coding agents bounded project context and operations through shared use cases.
+- [ADR-0011: Agent permission profiles and no generic shell tool](https://switchyard.davidcuellar.tech/docs/adr/0011-agent-permissions/): Enforce least-privilege agent capabilities independently of prompts.
+- [ADR-0012: Versioned out-of-process plugin protocol](https://switchyard.davidcuellar.tech/docs/adr/0012-out-of-process-plugins/): Extend Switchyard through supervised capability-scoped processes.
+- [ADR-0013: Local IPC and browser session security](https://switchyard.davidcuellar.tech/docs/adr/0013-local-transport-security/): Protect privileged local clients and loopback browser mutations.
+- [ADR-0014: Bounded log retention and redaction](https://switchyard.davidcuellar.tech/docs/adr/0014-log-retention-redaction/): Keep log memory and disk bounded while applying one redaction policy to every sink.
+- [ADR-0015: Platform support order](https://switchyard.davidcuellar.tech/docs/adr/0015-platform-order/): Implement OS adapters in an explicit order behind platform-neutral contracts.
+- [ADR-0016: Optional peer federation and signed shared configuration](https://switchyard.davidcuellar.tech/docs/adr/0016-optional-federation/): Extend beyond one machine without weakening local-only defaults or ambient authority.
+- [ADR-0017: Static public site and documentation portal](https://switchyard.davidcuellar.tech/docs/adr/0017-static-public-site/): Keep the public website static, bounded, canonical, and backed by root documentation.
+- [Architecture decision records](https://switchyard.davidcuellar.tech/docs/adr/): Accepted technical decisions and the process for superseding them.
+- [Architecture overview](https://switchyard.davidcuellar.tech/docs/architecture/): Process topology, bounded contexts, dependency direction, and accepted Switchyard decisions.
+- [Agent integration](https://switchyard.davidcuellar.tech/docs/architecture/agent-integration/): Provider-neutral MCP, permission, audit, guidance, and agent-session architecture.
+- [AI-assisted onboarding](https://switchyard.davidcuellar.tech/docs/architecture/ai-assisted-onboarding/): Bounded evidence, schema-constrained proposals, validation, and human approval.
+- [Dashboard and product UI](https://switchyard.davidcuellar.tech/docs/architecture/dashboard-alpha/): Visual hierarchy, server-state ownership, routes, accessibility, and production UI states.
+- [Native desktop shell](https://switchyard.davidcuellar.tech/docs/architecture/desktop-shell/): Thin Tauri adapter, sidecar lifecycle, tray, updater, and deep-link boundaries.
+- [Ports, source control, and trusted actions](https://switchyard.davidcuellar.tech/docs/architecture/developer-workflows/): Project port evidence, Git observation, and risk-classified developer actions.
+- [Docker Compose runtime](https://switchyard.davidcuellar.tech/docs/architecture/docker-compose-runtime/): Compose lifecycle plans, Docker observation, reconciliation, and ownership rules.
+- [Intelligent diagnosis and safe automation](https://switchyard.davidcuellar.tech/docs/architecture/intelligent-diagnostics/): Deterministic rules, evidence-bound AI hypotheses, and reviewed automation recipes.
+- [Native process runtime](https://switchyard.davidcuellar.tech/docs/architecture/native-process-runtime/): Process identity, ownership, cancellation, log capture, and external observation.
+- [Health, logs, and resource intelligence](https://switchyard.davidcuellar.tech/docs/architecture/observability/): Health scheduling, redacted logs, bounded retention, metrics, and honest attribution.
+- [Durable operations and local transport](https://switchyard.davidcuellar.tech/docs/architecture/operations-kernel/): Operation state, idempotency, cancellation, local IPC, browser sessions, and audit.
+- [Out-of-process plugins](https://switchyard.davidcuellar.tech/docs/architecture/plugins/): Versioned protocol, trust, capabilities, supervision, and conformance boundaries.
+- [Project onboarding and manifest resolution](https://switchyard.davidcuellar.tech/docs/architecture/project-onboarding/): Safe discovery, evidence aggregation, trust, validation, precedence, and provenance.
+- [Embedded terminal and agent sessions](https://switchyard.davidcuellar.tech/docs/architecture/terminal-sessions/): PTY ownership, authenticated streams, bounded scrollback, and session audit.
+- [Workspace and worktree orchestration](https://switchyard.davidcuellar.tech/docs/architecture/workspaces/): Dependency graphs, coordinated lifecycle, port leases, environments, and local routing.
+- [Switchyard CLI contract](https://switchyard.davidcuellar.tech/docs/cli/): Commands, automation modes, JSON envelopes, and exit codes for the Switchyard CLI.
+- [v1 compatibility and deprecation policy](https://switchyard.davidcuellar.tech/docs/compatibility/): Stability promises for manifests, APIs, CLI output, MCP, plugins, and local data.
+- [Product concepts](https://switchyard.davidcuellar.tech/docs/concepts/): Mental models for Switchyard projects, runtimes, operations, trust, evidence, agents, workspaces, and adapters.
+- [Contributor documentation](https://switchyard.davidcuellar.tech/docs/contributing/): Architecture rules, accepted decisions, adapter boundaries, release evidence, and the focused contribution path.
+- [Engineering conventions](https://switchyard.davidcuellar.tech/docs/conventions/): Naming, error, logging, testing, migration, API, and generation rules for contributors.
+- [Desktop and headless installation](https://switchyard.davidcuellar.tech/docs/desktop-installation/): Install, upgrade, uninstall, or build Switchyard for desktop and CLI-only use.
+- [Optional peer federation](https://switchyard.davidcuellar.tech/docs/federation/): Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
+- [Generated CLI envelope schemas](https://switchyard.davidcuellar.tech/docs/generated/cli-schemas/): Versioned command output schemas emitted by the production Switchyard binary.
+- [Generated project manifest schema index](https://switchyard.davidcuellar.tech/docs/generated/manifest-schema/): Top-level project manifest fields generated from the committed canonical JSON Schema.
+- [Generated MCP tool index](https://switchyard.davidcuellar.tech/docs/generated/mcp-tools/): Tool names, profiles, risks, and descriptions generated from the MCP server registration.
+- [Generated local REST API index](https://switchyard.davidcuellar.tech/docs/generated/openapi/): Versioned local control-plane operations generated from the canonical OpenAPI contract.
+- [Generated plugin protocol index](https://switchyard.davidcuellar.tech/docs/generated/plugin-protocol/): Protocol identity and capabilities generated from the public Go plugin SDK.
+- [Generated settings field index](https://switchyard.davidcuellar.tech/docs/generated/settings-schema/): Durable non-secret settings fields generated from the canonical Go domain structs.
+- [Add your first project](https://switchyard.davidcuellar.tech/docs/getting-started/): Discover, review, approve, and operate a local repository with Switchyard.
+- [Product glossary](https://switchyard.davidcuellar.tech/docs/glossary/): Canonical meanings for Switchyard project, runtime, operation, port, and trust terms.
+- [How-to guides](https://switchyard.davidcuellar.tech/docs/how-to/): Focused instructions for installation, support evidence, plugins, team configuration, and migration work.
+- [Switchyard documentation](https://switchyard.davidcuellar.tech/docs/): Install Switchyard, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
+- [Project manifest v1 reference](https://switchyard.davidcuellar.tech/docs/manifest-reference/): Schema, precedence, provenance, services, actions, health, ports, and validation rules.
+- [MCP tools, resources, and permission profiles](https://switchyard.davidcuellar.tech/docs/mcp/): Bounded Switchyard MCP tools, resources, prompts, permissions, and agent workflows.
+- [Migrating alpha and beta data to v1](https://switchyard.davidcuellar.tech/docs/migration-v1/): Preview, back up, migrate, verify, and safely roll back pre-v1 local data.
+- [Platform support](https://switchyard.davidcuellar.tech/docs/platform-support/): Supported operating systems, packages, native capabilities, and WSL2 boundaries.
+- [Plugin SDK and compatibility policy](https://switchyard.davidcuellar.tech/docs/plugin-sdk/): Build and test capability-scoped out-of-process Switchyard plugins.
+- [Privacy](https://switchyard.davidcuellar.tech/docs/privacy/): What Switchyard stores locally, sends only by choice, and excludes from telemetry.
+- [Public site launch checklist](https://switchyard.davidcuellar.tech/docs/public-site-launch-checklist/): Repository, release, Cloudflare, DNS, GitHub, security, accessibility, and production smoke gates for the canonical site.
+- [Public site launch contract](https://switchyard.davidcuellar.tech/docs/public-site/): Canonical identity, domain, audience, privacy, and launch boundaries for the Switchyard website.
+- [Reference](https://switchyard.davidcuellar.tech/docs/reference/): Exact Switchyard commands, schemas, API operations, settings, tools, compatibility, and platform contracts.
+- [Release engineering](https://switchyard.davidcuellar.tech/docs/release/): Channels, signing, artifacts, attestations, SBOMs, and the reviewed release process.
+- [Threat model and v1 security review](https://switchyard.davidcuellar.tech/docs/security/threat-model/): Assets, trust boundaries, mitigations, residual risks, and release security review.
+- [Durable local settings](https://switchyard.davidcuellar.tech/docs/settings/): Project roots, ports, retention, tools, AI providers, permissions, and appearance.
+- [Start your first Docker Compose project](https://switchyard.davidcuellar.tech/docs/start/compose/): Review a discovered Compose topology, preview lifecycle, start it, and verify service health.
+- [Five-minute first-project path](https://switchyard.davidcuellar.tech/docs/start/): Go from a supported installation to one trusted, observable local project.
+- [Choose and verify an installation](https://switchyard.davidcuellar.tech/docs/start/install/): Select desktop or headless use, confirm platform requirements, and verify the authoritative release asset.
+- [Follow logs and verify project health](https://switchyard.davidcuellar.tech/docs/start/logs-health/): Separate process state from readiness and collect bounded redacted evidence.
+- [Start your first native-process project](https://switchyard.davidcuellar.tech/docs/start/native-process/): Review an argument-array command, start its process tree, follow output, and stop without orphans.
+- [Resolve a local port conflict](https://switchyard.davidcuellar.tech/docs/start/port-conflict/): Identify declaration, reservation, and live-binding evidence before choosing a safe port.
+- [Start your first workspace](https://switchyard.davidcuellar.tech/docs/start/workspace/): Coordinate related projects in dependency order with visible health gates and failure policy.
+- [Support bundles and internal debug logs](https://switchyard.davidcuellar.tech/docs/support-bundles/): Preview and export bounded, redacted evidence without exposing project source or secrets.
+- [Signed team configuration and encrypted sync](https://switchyard.davidcuellar.tech/docs/team-configuration/): Verify signed templates and policy packs and encrypt portable local configuration.
+- [Troubleshooting by symptom](https://switchyard.davidcuellar.tech/docs/troubleshooting/): Safe checks and bounded recovery steps for common Switchyard runtime and platform failures.
+- [Tutorials](https://switchyard.davidcuellar.tech/docs/tutorials/): Outcome-oriented paths from installation through a healthy project, resolved conflict, and coordinated workspace.
+
+## Agent integration
+
+- [Codex](https://switchyard.davidcuellar.tech/integrations/codex/)
+- [Claude Code](https://switchyard.davidcuellar.tech/integrations/claude-code/)
+- [MCP reference](https://switchyard.davidcuellar.tech/docs/mcp/)

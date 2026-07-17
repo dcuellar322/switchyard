@@ -1,4 +1,12 @@
-# Migrating alpha and beta data to v1
+---
+title: Migrating alpha and beta data to v1
+description: Preview, back up, migrate, verify, and safely roll back pre-v1 local data.
+category: how-to
+audience: [user, maintainer]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Normal v1 startup migrates an older Switchyard database automatically while
 holding the single-daemon lock. Before the first schema change, it runs SQLite

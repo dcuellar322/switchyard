@@ -1,4 +1,10 @@
-# ADR-0008: Project manifest precedence and provenance
+---
+title: "ADR-0008: Project manifest precedence and provenance"
+description: Resolve effective project configuration without losing source evidence.
+category: concept
+audience: [contributor, integrator]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

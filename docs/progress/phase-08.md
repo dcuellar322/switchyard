@@ -1,4 +1,10 @@
-# Phase 8: Ports, Git, and actions
+---
+title: "Phase 8: Ports, Git, and actions"
+description: Implementation evidence for Switchyard product phase 8.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

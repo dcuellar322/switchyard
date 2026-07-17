@@ -1,0 +1,23 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="Website and product privacy" eyebrow="Local by default" description="What Switchyard stores locally, sends only after an explicit preview, and excludes from diagnostics and optional anonymous metrics.">
+  <div class="principles"><section class="panel"><span>01</span><h2>Core workflows stay local.</h2><p>Projects, manifests, operations, audit history, logs, diagnoses, recipes, plugins, and settings remain on your machine unless you explicitly export or send them.</p></section><section class="panel"><span>02</span><h2>AI is optional and previewed.</h2><p>Deterministic workflows do not require a provider. Optional AI sends only the bounded, redacted evidence preview to the provider you select, under that provider's terms.</p></section><section class="panel"><span>03</span><h2>Metrics are off by default.</h2><p>There is no vendor-controlled telemetry destination. Optional anonymous counters require an explicit HTTPS endpoint and contain no project, path, command, log, or error detail.</p></section></div>
+  <section class="data panel"><div><p class="eyebrow">Excluded from support bundles</p><h2>Private material is not a diagnostic shortcut.</h2></div><ul><li>Source and database contents</li><li>Resolved secrets and arbitrary environment values</li><li>Terminal output and project application logs</li><li>Machine credentials and runtime-native identifiers</li></ul></section>
+  <p class="review">Novel secret formats remain a residual risk. Always inspect a generated preview before sharing it, and use a private route when context could expose people, systems, or proprietary work. <a href="/docs/privacy/">Read the complete product privacy contract →</a></p>
+</ContentPageLayout>
+
+<style>
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+  .principles section { padding: 1.4rem; }
+  .principles span { color: var(--sy-accent-primary); font: 800 0.8rem var(--sy-font-mono); }
+  .principles h2 { min-height: 4.5rem; }
+  .principles p, .review { color: var(--sy-text-muted); }
+  .data { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; padding: 1.5rem; }
+  .data h2 { margin: 0.4rem 0; }
+  .data li { margin-block: 0.5rem; color: var(--sy-text-muted); }
+  .review { max-width: 55rem; margin-top: 2rem; }
+  .review a { color: var(--sy-accent-primary); font-weight: 760; }
+  @media (max-width: 760px) { .principles, .data { grid-template-columns: 1fr; } .principles h2 { min-height: 0; } }
+</style>

@@ -1,4 +1,11 @@
-# Optional peer federation
+---
+title: Optional peer federation
+description: Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
+category: concept
+audience: [user, integrator, maintainer]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard can connect directly to another Switchyard daemon for bounded
 machine inventory and typed lifecycle operations. Federation is disabled by

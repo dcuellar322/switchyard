@@ -1,0 +1,57 @@
+{
+  "releases": [
+    {
+      "tag_name": "v1.1.0-nightly.20260717",
+      "name": "Switchyard v1.1.0 nightly",
+      "body": "Nightly validation build.",
+      "html_url": "https://github.com/dcuellar322/switchyard/releases/tag/v1.1.0-nightly.20260717",
+      "published_at": "2026-07-17T03:00:00Z",
+      "created_at": "2026-07-17T03:00:00Z",
+      "prerelease": true,
+      "draft": false,
+      "assets": [
+        { "name": "switchyard_Linux_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.1.0-nightly.20260717/switchyard_Linux_x86_64.tar.gz", "size": 10485760 }
+      ]
+    },
+    {
+      "tag_name": "v1.1.0-beta.1",
+      "name": "Switchyard v1.1.0 beta 1",
+      "body": "Beta validation build.",
+      "html_url": "https://github.com/dcuellar322/switchyard/releases/tag/v1.1.0-beta.1",
+      "published_at": "2026-07-16T03:00:00Z",
+      "created_at": "2026-07-16T03:00:00Z",
+      "prerelease": true,
+      "draft": false,
+      "assets": [
+        { "name": "Switchyard_1.1.0_amd64.AppImage", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.1.0-beta.1/Switchyard_1.1.0_amd64.AppImage", "size": 31457280 }
+      ]
+    },
+    {
+      "tag_name": "v1.0.0",
+      "name": "Switchyard v1.0.0",
+      "body": "First stable local development command center release.\n\n## Upgrade impact\n\nNo required action.",
+      "html_url": "https://github.com/dcuellar322/switchyard/releases/tag/v1.0.0",
+      "published_at": "2026-07-15T03:00:00Z",
+      "created_at": "2026-07-15T03:00:00Z",
+      "prerelease": false,
+      "draft": false,
+      "assets": [
+        { "name": "Switchyard_1.0.0_aarch64.dmg", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_aarch64.dmg", "size": 41943040 },
+        { "name": "Switchyard_1.0.0_x64.dmg", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_x64.dmg", "size": 41943040 },
+        { "name": "Switchyard_1.0.0_x64_en-US.msi", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_x64_en-US.msi", "size": 39845888 },
+        { "name": "Switchyard_1.0.0_amd64.AppImage", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_amd64.AppImage", "size": 44040192 },
+        { "name": "Switchyard_1.0.0_amd64.deb", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_amd64.deb", "size": 36700160 },
+        { "name": "Switchyard_1.0.0_amd64.rpm", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/Switchyard_1.0.0_amd64.rpm", "size": 36700160 },
+        { "name": "switchyard_Darwin_arm64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Darwin_arm64.tar.gz", "size": 15728640 },
+        { "name": "switchyard_Darwin_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Darwin_x86_64.tar.gz", "size": 15728640 },
+        { "name": "switchyard_Linux_arm64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Linux_arm64.tar.gz", "size": 15728640 },
+        { "name": "switchyard_Linux_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Linux_x86_64.tar.gz", "size": 15728640 },
+        { "name": "switchyard_Windows_arm64.zip", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Windows_arm64.zip", "size": 15728640 },
+        { "name": "switchyard_Windows_x86_64.zip", "browser_download_url": "https://github.com/dcuellar322/switchyard/releases/download/v1.0.0/switchyard_Windows_x86_64.zip", "size": 15728640 }
+      ]
+    }
+  ],
+  "checksums": {
+    "v1.0.0": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  Switchyard_1.0.0_aarch64.dmg\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  Switchyard_1.0.0_x64.dmg\ncccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  Switchyard_1.0.0_x64_en-US.msi\ndddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd  Switchyard_1.0.0_amd64.AppImage\neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  Switchyard_1.0.0_amd64.deb\nffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  Switchyard_1.0.0_amd64.rpm\n1111111111111111111111111111111111111111111111111111111111111111  switchyard_Darwin_arm64.tar.gz\n2222222222222222222222222222222222222222222222222222222222222222  switchyard_Darwin_x86_64.tar.gz\n3333333333333333333333333333333333333333333333333333333333333333  switchyard_Linux_arm64.tar.gz\n4444444444444444444444444444444444444444444444444444444444444444  switchyard_Linux_x86_64.tar.gz\n5555555555555555555555555555555555555555555555555555555555555555  switchyard_Windows_arm64.zip\n6666666666666666666666666666666666666666666666666666666666666666  switchyard_Windows_x86_64.zip"
+  }
+}

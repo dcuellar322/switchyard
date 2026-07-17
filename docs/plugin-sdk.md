@@ -1,4 +1,11 @@
-# Plugin SDK and compatibility policy
+---
+title: Plugin SDK and compatibility policy
+description: Build and test capability-scoped out-of-process Switchyard plugins.
+category: reference
+audience: [integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 The public Go package `switchyard.dev/switchyard/sdk/plugin` contains the wire
 types, manifest validation, bounded JSON-RPC server, client, and reusable

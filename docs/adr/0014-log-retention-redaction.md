@@ -1,4 +1,10 @@
-# ADR-0014: Bounded log retention and redaction
+---
+title: "ADR-0014: Bounded log retention and redaction"
+description: Keep log memory and disk bounded while applying one redaction policy to every sink.
+category: concept
+audience: [contributor, integrator]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

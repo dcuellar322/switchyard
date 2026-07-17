@@ -1,0 +1,44 @@
+.prose {
+  color: var(--sy-text-muted);
+  font-size: 1.02rem;
+}
+
+.prose h2,
+.prose h3 {
+  color: var(--sy-text-primary);
+  line-height: 1.2;
+}
+
+.prose h2 {
+  margin-top: 2.6rem;
+}
+
+.prose a {
+  color: var(--sy-accent-primary);
+  text-underline-offset: 0.2em;
+}
+
+.prose code {
+  border: 1px solid var(--sy-border-subtle);
+  border-radius: 0.35rem;
+  background: var(--sy-bg-soft);
+  color: var(--sy-text-primary);
+  padding: 0.08rem 0.32rem;
+  font-family: var(--sy-font-mono);
+  font-size: 0.9em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  border: 1px solid var(--sy-border-subtle);
+  border-radius: var(--sy-radius-md);
+  background: #070a0f;
+  color: #dce8f8;
+  padding: 1rem;
+}
+
+.prose pre code {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}

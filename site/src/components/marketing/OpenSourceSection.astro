@@ -1,0 +1,90 @@
+---
+import { REPOSITORY_URL } from '@/config/site'
+
+const proof = [
+  ['Apache-2.0', 'Patent-friendly open-source license'],
+  ['Public source', 'Architecture and progress documented in-repo'],
+  ['Signed releases', 'Checksums, SBOMs, attestations, and updater signatures'],
+  ['Open governance', 'Issues, Discussions, ADRs, and focused pull requests'],
+]
+---
+
+<section class="open-source" aria-labelledby="open-source-title">
+  <div class="container open-grid">
+    <div>
+      <p class="eyebrow">Open source is the product model</p>
+      <h2 id="open-source-title">Inspect the control plane you trust.</h2>
+      <p class="intro">Switchyard’s architecture, threat model, compatibility promises, implementation evidence, and release pipeline are public. You can use the product without an account and contribute without learning a private platform.</p>
+      <div class="actions">
+        <a class="button primary" href={REPOSITORY_URL}>View source <span aria-hidden="true">↗</span></a>
+        <a class="button" href="/contributing/">Contribute</a>
+      </div>
+    </div>
+    <div class="proof-grid">
+      {proof.map(([title, description]) => (
+        <article class="panel"><span aria-hidden="true">✓</span><h3>{title}</h3><p>{description}</p></article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .open-source {
+    border-block: 1px solid var(--sy-border-subtle);
+    background: var(--sy-bg-surface);
+    padding-block: clamp(5rem, 9vw, 8rem);
+  }
+
+  .open-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: center;
+    gap: clamp(2rem, 7vw, 7rem);
+  }
+
+  h2 {
+    max-width: 12ch;
+    margin: 0.5rem 0 1.2rem;
+    font-size: clamp(2.7rem, 5vw, 4.8rem);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .intro {
+    color: var(--sy-text-muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 2rem;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  article {
+    min-height: 12rem;
+    padding: 1.25rem;
+  }
+
+  article span {
+    color: var(--sy-status-success);
+    font-family: var(--sy-font-mono);
+  }
+
+  h3 { margin: 1.25rem 0 0.4rem; }
+  article p { margin: 0; color: var(--sy-text-muted); font-size: 0.87rem; }
+
+  @media (max-width: 850px) {
+    .open-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 520px) {
+    .proof-grid { grid-template-columns: 1fr; }
+  }
+</style>

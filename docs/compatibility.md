@@ -1,4 +1,11 @@
-# v1 compatibility and deprecation policy
+---
+title: v1 compatibility and deprecation policy
+description: Stability promises for manifests, APIs, CLI output, MCP, plugins, and local data.
+category: reference
+audience: [user, integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard follows semantic versioning for the product and publishes every
 machine-consumed contract with an independent version marker. SQLite remains

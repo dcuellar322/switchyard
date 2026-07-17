@@ -1,4 +1,10 @@
-# ADR-0012: Versioned out-of-process plugin protocol
+---
+title: "ADR-0012: Versioned out-of-process plugin protocol"
+description: Extend Switchyard through supervised capability-scoped processes.
+category: concept
+audience: [integrator, contributor]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

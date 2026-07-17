@@ -1,4 +1,11 @@
-# Durable operations and local transport
+---
+title: Durable operations and local transport
+description: Operation state, idempotency, cancellation, local IPC, browser sessions, and audit.
+category: concept
+audience: [contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 2 establishes the command foundation used by later project, runtime,
 workspace, UI, CLI, and agent adapters.

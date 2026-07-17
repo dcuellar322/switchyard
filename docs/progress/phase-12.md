@@ -1,4 +1,10 @@
-# Phase 12: Resource and storage intelligence
+---
+title: "Phase 12: Resource and storage intelligence"
+description: Implementation evidence for Switchyard product phase 12.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

@@ -1,4 +1,10 @@
-# Phase 15: Desktop application
+---
+title: "Phase 15: Desktop application"
+description: Implementation evidence for Switchyard product phase 15.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

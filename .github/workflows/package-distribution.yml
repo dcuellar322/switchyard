@@ -1,0 +1,38 @@
+name: Package distribution drafts
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published stable tag to prepare
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    environment: package-distribution-review
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir site releases
+      - run: pnpm --dir site packages:draft --expect-tag "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: package-distribution-${{ env.RELEASE_TAG }}
+          path: site/.generated/package-drafts
+          if-no-files-found: error
+          retention-days: 14

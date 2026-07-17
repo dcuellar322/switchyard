@@ -1,4 +1,10 @@
-# ADR-0003: One Switchyard binary with daemon, CLI, and MCP subcommands
+---
+title: "ADR-0003: One Switchyard binary with daemon, CLI, and MCP subcommands"
+description: Ship one versioned executable over cohesive internal packages.
+category: concept
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

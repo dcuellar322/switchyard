@@ -1,4 +1,11 @@
-# Threat model and v1 security review
+---
+title: Threat model and v1 security review
+description: Assets, trust boundaries, mitigations, residual risks, and release security review.
+category: concept
+audience: [user, integrator, contributor, maintainer]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 This document records the v1 review of Switchyard's local trust boundaries.
 The secure default is a single user operating approved local repositories;

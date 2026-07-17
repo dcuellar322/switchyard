@@ -1,4 +1,13 @@
-# MCP reference
+---
+title: MCP tools, resources, and permission profiles
+description: Bounded Switchyard MCP tools, resources, prompts, permissions, and agent workflows.
+category: reference
+audience: [user, integrator]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+searchTerms: [Codex MCP, Claude Code MCP, switchyard_project_start, permission profile]
+---
 
 Switchyard's MCP server makes local project operations available to Codex,
 Claude Code, and other MCP clients without asking them to guess Docker or shell

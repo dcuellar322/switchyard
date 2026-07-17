@@ -1,0 +1,23 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import { PRODUCT_NAME, REPOSITORY_URL } from '@/config/site'
+---
+
+<ContentPageLayout title="Brand" eyebrow="Identity and attribution" description={`Use the ${PRODUCT_NAME} name and visual identity clearly, accurately, and without implying endorsement or official distribution.`}>
+  <section class="identity panel"><div class="mark" aria-hidden="true">S</div><div><p class="eyebrow">Canonical product name</p><h2>Switchyard — Local Development Command Center</h2><p>Use the full differentiated name on first reference. “Switchyard” is acceptable afterward when context is unambiguous.</p></div></section>
+  <div class="guidance"><section><h2>Do</h2><ul><li>Link to the canonical website or source repository.</li><li>State clearly when a package, integration, or article is community-maintained.</li><li>Preserve the Apache-2.0 license and required notices.</li><li>Use screenshots only when they contain no private paths or data.</li></ul></section><section><h2>Do not</h2><ul><li>Imply endorsement, partnership, or official distribution.</li><li>Use the mark for an incompatible fork or unrelated command center.</li><li>Present guessed download URLs or unsigned artifacts as official.</li><li>Alter the name to create a confusingly similar service.</li></ul></section></div>
+  <aside class="source panel"><div><strong>Asset source of truth</strong><span>The repository contains the current favicon, social card, tokens, and approved product screenshots.</span></div><a class="button" href={`${REPOSITORY_URL}/tree/master/site/public`}>Browse public assets</a></aside>
+</ContentPageLayout>
+
+<style>
+  .identity { display: flex; align-items: center; gap: 1.5rem; padding: 2rem; }
+  .mark { display: grid; flex: 0 0 auto; width: 7rem; height: 7rem; place-items: center; border-radius: 1.5rem; background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary)); color: #08101e; font-size: 3.5rem; font-weight: 900; }
+  .identity h2 { margin: 0.35rem 0; }
+  .identity p:not(.eyebrow), .source span { color: var(--sy-text-muted); }
+  .guidance { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .guidance section { padding: 1rem; }
+  .guidance li { margin-block: 0.65rem; color: var(--sy-text-muted); }
+  .source { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; padding: 1.2rem; }
+  .source div { display: grid; margin-right: auto; }
+  @media (max-width: 680px) { .identity { align-items: flex-start; flex-direction: column; } .guidance { grid-template-columns: 1fr; } .source { align-items: stretch; flex-direction: column; } }
+</style>

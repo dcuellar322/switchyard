@@ -1,0 +1,43 @@
+---
+import releaseManifest from '@/data/release-manifest.json'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+const stable = (releaseManifest as ReleaseManifest).channels.stable
+const published = stable
+  ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(stable.publishedAt))
+  : undefined
+---
+
+<section class="release container" aria-labelledby="latest-release-title">
+  <div>
+    <p class="eyebrow">Release status</p>
+    <h2 id="latest-release-title">{stable ? `Stable ${stable.tag}` : 'Source available. Binaries pending.'}</h2>
+  </div>
+  <div class="panel release-card">
+    {stable ? (
+      <>
+        <div><strong>{stable.title}</strong><span>Published {published} · {stable.assets.length} verified artifacts</span></div>
+        <p>{stable.summary ?? 'Read the reviewed GitHub release notes for highlights and upgrade guidance.'}</p>
+        <nav aria-label="Latest release links"><a href={`/changelog/${stable.tag}/`}>What changed</a><a href="/download/">Download</a><a href="/download/verify/">Verify</a></nav>
+      </>
+    ) : (
+      <>
+        <div><strong>No public GitHub Release has been published.</strong><span>The site will expose direct downloads only after reviewed release metadata and required integrity artifacts exist.</span></div>
+        <nav aria-label="Current availability"><a href="/docs/getting-started/">Build from source</a><a href="/changelog/">Release policy</a></nav>
+      </>
+    )}
+  </div>
+</section>
+
+<style>
+  .release { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 3rem; padding-block: clamp(4rem, 8vw, 7rem); }
+  h2 { max-width: 12ch; margin: 0.4rem 0; font-size: clamp(2.5rem, 4.8vw, 4.7rem); letter-spacing: -0.055em; line-height: 0.98; }
+  .release-card { display: grid; align-content: center; gap: 1rem; padding: clamp(1.4rem, 3vw, 2.4rem); }
+  .release-card div { display: grid; gap: 0.25rem; }
+  .release-card strong { font-size: 1.1rem; }
+  .release-card span, .release-card p { color: var(--sy-text-muted); }
+  .release-card p { margin: 0; }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+  nav a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  @media (max-width: 760px) { .release { grid-template-columns: 1fr; gap: 1.4rem; } }
+</style>

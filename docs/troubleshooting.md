@@ -1,4 +1,13 @@
-# Troubleshooting
+---
+title: Troubleshooting by symptom
+description: Safe checks and bounded recovery steps for common Switchyard runtime and platform failures.
+category: troubleshooting
+audience: [user, contributor]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+searchTerms: [Docker unavailable, port in use, logs unavailable, daemon disconnected, WSL localhost]
+---
 
 Start with `switchyard doctor`, then `switchyard debug logs --level warn` and
 `switchyard data inspect`. Preview `switchyard doctor --bundle --preview`

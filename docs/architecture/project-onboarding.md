@@ -1,4 +1,11 @@
-# Project onboarding and manifest resolution
+---
+title: Project onboarding and manifest resolution
+description: Safe discovery, evidence aggregation, trust, validation, precedence, and provenance.
+category: concept
+audience: [user, contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 3 introduces the catalog, deterministic discovery, and canonical project
 manifest. Repository content remains untrusted until a person accepts a

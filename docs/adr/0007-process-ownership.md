@@ -1,4 +1,10 @@
-# ADR-0007: Native process ownership and reconciliation
+---
+title: "ADR-0007: Native process ownership and reconciliation"
+description: Identify and stop managed process trees without trusting stale PIDs.
+category: concept
+audience: [contributor]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

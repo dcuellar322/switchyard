@@ -1,4 +1,11 @@
-# Privacy
+---
+title: Privacy
+description: What Switchyard stores locally, sends only by choice, and excludes from telemetry.
+category: concept
+audience: [user, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard is local-first and has no required product telemetry or cloud
 account. Project metadata, manifests, operations, audit history, logs,

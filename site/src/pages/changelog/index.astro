@@ -1,0 +1,42 @@
+---
+import releaseManifest from '@/data/release-manifest.json'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+const manifest = releaseManifest as ReleaseManifest
+const releases = manifest.releases
+const date = (value: string) => new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(value))
+---
+
+<ContentPageLayout title="Changelog" eyebrow="Release stories" description="Reviewed Switchyard releases, human-readable highlights, integrity links, and upgrade guidance from the authoritative GitHub release record.">
+  <section class="release-policy panel">
+    <div><p class="eyebrow">Current status</p><h2>{releases.length > 0 ? `${releases.length} published release${releases.length === 1 ? '' : 's'}` : 'No public releases yet'}</h2></div>
+    <p>{releases.length > 0 ? 'Each story below is generated from published GitHub Release metadata. Downloads appear only when the required artifact contract passes.' : 'The source repository is public, but no reviewed GitHub Release is available. This archive will populate automatically when one is published.'}</p>
+    <a class="button" href="/docs/release/">Release policy</a>
+  </section>
+  {releases.length > 0 ? (
+    <ol class="release-list">
+      {releases.map((release) => <li class="panel"><div><span class={`channel ${release.channel}`}>{release.channel}</span><time datetime={release.publishedAt}>{date(release.publishedAt)}</time></div><h2><a href={`/changelog/${release.tag}/`}>{release.title}</a></h2><p>{release.summary ?? `Release notes and verified artifacts for ${release.tag}.`}</p><span>{release.tag} · {release.assets.length} downloadable artifacts</span></li>)}
+    </ol>
+  ) : <div class="empty panel"><strong>The first release story will appear here.</strong><span>Until then, follow repository progress or build the current source.</span><a href="https://github.com/dcuellar322/switchyard">View source on GitHub →</a></div>}
+  <section class="archive-links"><a href="/changelog/rss.xml">Subscribe by RSS</a><a href="/roadmap/">Read the roadmap</a><a href="/docs/migration-v1/">Migration guidance</a><a href="/docs/compatibility/">Compatibility policy</a></section>
+</ContentPageLayout>
+
+<style>
+  .release-policy { display: grid; grid-template-columns: 1fr 1.6fr auto; align-items: center; gap: 1.4rem; padding: 1.5rem; }
+  .release-policy h2 { margin: 0.2rem 0; font-size: 1.55rem; }
+  .release-policy p { color: var(--sy-text-muted); }
+  .release-list { display: grid; gap: 0.8rem; margin: 3rem 0; padding: 0; list-style: none; }
+  .release-list li { padding: 1.5rem; }
+  .release-list li > div { display: flex; justify-content: space-between; gap: 1rem; color: var(--sy-text-soft); font-size: 0.75rem; }
+  .release-list h2 { margin: 0.75rem 0 0.35rem; }
+  .release-list h2 a { text-decoration: none; }
+  .release-list p, .release-list li > span { color: var(--sy-text-muted); }
+  .channel { border-radius: 999px; padding: 0.15rem 0.5rem; background: var(--sy-bg-elevated); font-family: var(--sy-font-mono); text-transform: uppercase; }
+  .channel.stable { color: var(--sy-status-success); }
+  .empty { display: grid; gap: 0.5rem; margin: 3rem 0; padding: 2rem; }
+  .empty span { color: var(--sy-text-muted); }
+  .empty a, .archive-links a { color: var(--sy-accent-primary); font-weight: 730; text-decoration: none; }
+  .archive-links { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 3rem; }
+  @media (max-width: 760px) { .release-policy { grid-template-columns: 1fr; align-items: start; } }
+</style>

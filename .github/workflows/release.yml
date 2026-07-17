@@ -61,8 +61,6 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: release --clean --skip=publish
-      - uses: sigstore/cosign-installer@v4
-      - run: cosign sign-blob --yes --bundle dist/checksums.txt.sigstore.json dist/checksums.txt
       - uses: actions/upload-artifact@v6
         with:
           name: switchyard-cli
@@ -84,13 +82,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
-            os: macos-latest
+          - name: macOS arm64
+            artifact: macos-arm64
+            os: macos-15
+            bundles: app,dmg
+          - name: macOS Intel
+            artifact: macos-amd64
+            os: macos-15-intel
             bundles: app,dmg
           - name: Linux
+            artifact: linux-amd64
             os: ubuntu-latest
             bundles: appimage,deb,rpm
           - name: Windows
+            artifact: windows-amd64
             os: windows-latest
             bundles: msi,nsis
     steps:
@@ -149,14 +154,14 @@ jobs:
         with:
           path: desktop/src-tauri/target/release/bundle
           format: cyclonedx-json
-          output-file: desktop-${{ runner.os }}.cyclonedx.json
-          artifact-name: desktop-${{ runner.os }}-sbom
+          output-file: desktop-${{ matrix.artifact }}.cyclonedx.json
+          artifact-name: desktop-${{ matrix.artifact }}-sbom
       - uses: actions/upload-artifact@v6
         with:
-          name: switchyard-desktop-${{ runner.os }}
+          name: switchyard-desktop-${{ matrix.artifact }}
           path: |
             desktop/src-tauri/target/release/bundle/**/*
-            desktop-${{ runner.os }}.cyclonedx.json
+            desktop-${{ matrix.artifact }}.cyclonedx.json
           if-no-files-found: error
 
   publish:
@@ -164,11 +169,23 @@ jobs:
     needs: [metadata, cli, desktop]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.metadata.outputs.tag }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v7
         with:
           pattern: switchyard-*
           path: release
           merge-multiple: true
+      - run: pnpm --dir site releases:prepare-files release "${{ needs.metadata.outputs.channel }}"
+      - uses: sigstore/cosign-installer@v4
+      - run: cosign sign-blob --yes --bundle release/checksums.txt.sigstore.json release/checksums.txt
       - uses: actions/attest@v4
         with:
           subject-path: release/**/*

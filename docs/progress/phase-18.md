@@ -1,4 +1,10 @@
-# Phase 18: Cross-platform hardening and open-source v1.0
+---
+title: "Phase 18: Cross-platform hardening and open-source v1.0"
+description: Implementation evidence for Switchyard product phase 18.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

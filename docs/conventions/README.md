@@ -1,4 +1,11 @@
-# Engineering conventions
+---
+title: Engineering conventions
+description: Naming, error, logging, testing, migration, API, and generation rules for contributors.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+slug: docs/conventions
+---
 
 `AGENTS.md` and the accepted ADRs are normative. This document makes the
 cross-cutting implementation conventions explicit.

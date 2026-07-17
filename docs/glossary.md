@@ -1,4 +1,11 @@
-# Product glossary
+---
+title: Product glossary
+description: Canonical meanings for Switchyard project, runtime, operation, port, and trust terms.
+category: reference
+audience: [user, contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 These terms have one canonical meaning across domain code, APIs, UI, CLI, MCP,
 documentation, and tests.

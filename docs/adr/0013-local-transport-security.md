@@ -1,4 +1,10 @@
-# ADR-0013: Local IPC and browser session security
+---
+title: "ADR-0013: Local IPC and browser session security"
+description: Protect privileged local clients and loopback browser mutations.
+category: concept
+audience: [contributor, integrator]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

@@ -1,4 +1,11 @@
-# Signed team configuration and encrypted sync
+---
+title: Signed team configuration and encrypted sync
+description: Verify signed templates and policy packs and encrypt portable local configuration.
+category: how-to
+audience: [user, integrator, maintainer]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard can share portable project templates, policy packs, curated plugin
 metadata, and enterprise configuration without a hosted account. This feature
@@ -102,4 +109,3 @@ Back up signing keys and age identities with the same controls used for other
 developer credentials. Losing an age identity makes its encrypted exports
 unrecoverable. Losing a signing key does not affect installed bundles, but new
 revisions must use a newly trusted publisher.
-

@@ -1,6 +1,12 @@
 packages:
   - web
+  - site
 
 allowBuilds:
   esbuild: true
+  sharp: true
   vue-demi: true
+  workerd: true
+
+minimumReleaseAgeExclude:
+  - astro@7.1.0

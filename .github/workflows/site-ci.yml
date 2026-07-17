@@ -1,0 +1,50 @@
+name: Public site CI
+
+on:
+  pull_request:
+    paths: ["site/**", "docs/**", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
+  push:
+    branches: [master, main]
+    paths: ["site/**", "docs/**", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache-dependency-path: go.sum
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm site:generate
+      - run: git diff --exit-code -- docs/generated site/public/llms.txt site/public/llms-full.txt
+      - run: pnpm site:check
+      - run: pnpm site:lint
+      - run: pnpm site:test
+      - run: pnpm site:build
+      - run: pnpm site:validate
+      - run: pnpm --dir site exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm site:test:e2e
+      - run: pnpm site:test:visual
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: public-site-${{ github.sha }}
+          path: |
+            site/dist
+            site/playwright-report
+            site/test-results
+          retention-days: 7

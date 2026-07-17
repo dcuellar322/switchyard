@@ -1,0 +1,28 @@
+name: Distribution status monitor
+
+on:
+  schedule:
+    - cron: "23 9 * * *"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir site releases
+      - run: pnpm --dir site distributions:check
+      - run: git diff --exit-code -- site/src/data/distribution-status.json

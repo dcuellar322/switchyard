@@ -1,0 +1,35 @@
+---
+import releaseManifest from '@/data/release-manifest.json'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+const manifest = releaseManifest as ReleaseManifest
+const stable = manifest.channels.stable
+const archives = stable?.assets.filter((asset) => asset.packageType === 'tar.gz' || asset.packageType === 'zip') ?? []
+---
+
+<ContentPageLayout title="Headless and CLI installation" eyebrow="One Go binary" description="Use Switchyard on SSH hosts, CI workers, WSL2, or any machine where you do not want the native desktop shell.">
+  <section class="panel cli-card">
+    <div><p class="eyebrow">Stable archives</p><h2>{stable ? stable.tag : 'No stable release published'}</h2><p>Release archives include the Switchyard binary, license, README, CLI contract, and compatibility policy. The binary serves the browser UI and MCP surface without a JavaScript runtime.</p></div>
+    {archives.length > 0 ? <ul>{archives.map((asset) => <li><a href={asset.downloadUrl}>{asset.name}</a><span>{asset.architecture} · {Math.round(asset.sizeBytes / 1024 / 1024)} MiB</span></li>)}</ul> : <div class="unavailable"><strong>Verified archives will appear here after the first GitHub Release.</strong><p>Until then, build the binary from the reviewed source tree.</p></div>}
+  </section>
+  <section class="source-build"><div><p class="eyebrow">Build from source</p><h2>Use the pinned toolchain.</h2><p>This produces an unsigned local binary. It has no updater authority and should not be redistributed as an official release.</p></div><pre><code>pnpm install --frozen-lockfile
+make build
+install -m 0755 bin/switchyard "$HOME/.local/bin/switchyard"
+switchyard doctor</code></pre></section>
+</ContentPageLayout>
+
+<style>
+  .cli-card { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; padding: 1.6rem; }
+  h2 { margin: 0.35rem 0; }
+  .cli-card p:not(.eyebrow), .source-build p { color: var(--sy-text-muted); }
+  ul { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--sy-border-subtle); padding: 0.65rem 0; }
+  li a { color: var(--sy-accent-primary); overflow-wrap: anywhere; }
+  li span { color: var(--sy-text-soft); font-family: var(--sy-font-mono); font-size: 0.72rem; }
+  .unavailable { border: 1px dashed var(--sy-border-subtle); border-radius: 0.7rem; padding: 1.2rem; }
+  .unavailable strong { color: var(--sy-status-warning); }
+  .source-build { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; margin-top: 3rem; }
+  pre { overflow-x: auto; margin: 0; border: 1px solid var(--sy-border-subtle); border-radius: var(--sy-radius-md); background: #070a0f; color: #dce8f8; padding: 1.2rem; }
+  @media (max-width: 720px) { .cli-card, .source-build { grid-template-columns: 1fr; } }
+</style>

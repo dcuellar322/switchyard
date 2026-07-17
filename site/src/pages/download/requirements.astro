@@ -1,0 +1,25 @@
+---
+import { platformGuides } from '@/content/download/platforms'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="System requirements" eyebrow="Before downloading" description="Switchyard runs without a cloud account. Runtime integrations are optional and reported as capabilities rather than hidden installation assumptions.">
+  <div class="requirements-grid">{platformGuides.map((guide) => <article class="panel"><h2>{guide.shortName}</h2><p>{guide.requirements}</p><span>{guide.primaryFormat}</span><a href={`/download/${guide.slug}/`}>Install guide →</a></article>)}</div>
+  <section class="shared panel"><h2>Shared requirements</h2><dl><div><dt>Docker</dt><dd>Optional. Install Docker Engine/Desktop and the Compose plugin only for Compose projects.</dd></div><div><dt>Git</dt><dd>Required for repository metadata, worktrees, source-control status, and repository-scoped actions.</dd></div><div><dt>Browser</dt><dd>A current Chromium, Firefox, or Safari-family browser for the loopback web UI.</dd></div><div><dt>Local storage</dt><dd>Space for the SQLite control database, bounded logs, metric history, and desktop preferences.</dd></div></dl></section>
+</ContentPageLayout>
+
+<style>
+  .requirements-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  article { display: grid; padding: 1.3rem; }
+  article h2 { margin: 0; }
+  article p { color: var(--sy-text-muted); }
+  article span { color: var(--sy-text-soft); font-family: var(--sy-font-mono); font-size: 0.74rem; }
+  article a { margin-top: 1rem; color: var(--sy-accent-primary); font-weight: 750; text-decoration: none; }
+  .shared { margin-top: 2rem; padding: 1.5rem; }
+  .shared h2 { margin-top: 0; }
+  dl { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  dl div { border-top: 1px solid var(--sy-border-subtle); padding-top: 0.8rem; }
+  dt { font-weight: 800; }
+  dd { margin: 0.3rem 0 0; color: var(--sy-text-muted); font-size: 0.86rem; }
+  @media (max-width: 680px) { .requirements-grid, dl { grid-template-columns: 1fr; } }
+</style>

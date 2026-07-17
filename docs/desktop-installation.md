@@ -1,4 +1,12 @@
-# Desktop and headless installation
+---
+title: Desktop and headless installation
+description: Install, upgrade, uninstall, or build Switchyard for desktop and CLI-only use.
+category: how-to
+audience: [user]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 ## macOS desktop
 

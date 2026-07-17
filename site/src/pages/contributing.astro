@@ -1,0 +1,38 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+const steps = [
+  { number: '01', title: 'Choose a bounded issue', body: 'Start with a confirmed defect, good-first-issue query, or focused proposal. Keep one coherent vertical slice per change.', link: 'https://github.com/dcuellar322/switchyard/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22', label: 'Find a starter issue' },
+  { number: '02', title: 'Read the architecture rules', body: 'Begin with AGENTS.md, the relevant implementation-plan phase, and accepted ADRs. Create an ADR before reversing an accepted decision.', link: '/docs/architecture/', label: 'Architecture overview' },
+  { number: '03', title: 'Bootstrap locally', body: 'Use the pinned Go, Node, pnpm, and Rust toolchains. The repository bootstrap generates all contracts and installs frontend dependencies.' },
+  { number: '04', title: 'Implement and verify', body: 'Add behavior and tests together. Cover failure, cancellation, permission, and reconciliation paths when they apply.' },
+  { number: '05', title: 'Submit a small pull request', body: 'Explain the user-visible outcome and architecture impact, include validation evidence, and complete the repository checklist.', link: 'https://github.com/dcuellar322/switchyard/compare', label: 'Open a pull request' },
+]
+---
+
+<ContentPageLayout title="Contribute to Switchyard" eyebrow="Small, explicit, reviewable" description="A short path from a bounded problem to a high-quality pull request. The full contributor contract remains authoritative in the repository.">
+  <div class="steps">{steps.map((step) => <section class="step panel"><span>{step.number}</span><div><h2>{step.title}</h2><p>{step.body}</p>{step.number === '03' && <pre><code>git clone https://github.com/dcuellar322/switchyard.git
+cd switchyard
+make bootstrap
+make repository-check</code></pre>}{step.link && <a href={step.link}>{step.label} →</a>}</div></section>)}</div>
+  <section class="rules"><div><p class="eyebrow">Before requesting review</p><h2>Complete the focused quality gate.</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable contracts.</li><li>Update the relevant progress evidence honestly.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/switchyard/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/switchyard/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
+  <div class="conduct panel"><strong>Community conduct</strong><span>Participation is governed by the Contributor Covenant. Be respectful, specific, and constructive.</span><a href="https://github.com/dcuellar322/switchyard/blob/master/CODE_OF_CONDUCT.md">Read the code of conduct →</a></div>
+</ContentPageLayout>
+
+<style>
+  .steps { display: grid; gap: 0.75rem; }
+  .step { display: grid; grid-template-columns: 5rem 1fr; gap: 1rem; padding: 1.4rem; }
+  .step > span { color: var(--sy-accent-primary); font: 800 1rem var(--sy-font-mono); }
+  .step h2 { margin: 0; }
+  .step p { color: var(--sy-text-muted); }
+  .step a, .rules a, .conduct a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  pre { overflow: auto; border: 1px solid var(--sy-border-subtle); border-radius: 0.7rem; background: var(--sy-bg-canvas); padding: 1rem; color: var(--sy-text-primary); }
+  .rules { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 2rem; margin-top: 5rem; }
+  .rules h2 { max-width: 10ch; margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
+  .rules > .panel { padding: 1.5rem; }
+  .rules li { margin-block: 0.45rem; color: var(--sy-text-muted); }
+  .rules nav { display: grid; gap: 0.45rem; margin-top: 1.2rem; }
+  .conduct { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: 3rem; padding: 1.2rem; }
+  .conduct span { color: var(--sy-text-muted); }
+  @media (max-width: 720px) { .rules, .conduct { grid-template-columns: 1fr; } .step { grid-template-columns: 2.5rem 1fr; } }
+</style>

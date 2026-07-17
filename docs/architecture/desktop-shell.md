@@ -1,4 +1,12 @@
-# Native desktop shell
+---
+title: Native desktop shell
+description: Thin Tauri adapter, sidecar lifecycle, tray, updater, and deep-link boundaries.
+category: concept
+audience: [user, contributor]
+platforms: [macos, linux, windows]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 15 packages Switchyard as a Tauri 2 application while preserving
 ADR-0009: Rust is a native adapter, not a second control plane. The bundled Go

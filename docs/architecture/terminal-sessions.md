@@ -1,4 +1,12 @@
-# Embedded terminal and agent sessions
+---
+title: Embedded terminal and agent sessions
+description: PTY ownership, authenticated streams, bounded scrollback, and session audit.
+category: concept
+audience: [user, contributor, integrator]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard owns interactive PTYs in the Go control plane. The browser is a
 bounded input/output adapter; Vue, xterm.js, HTTP, and WebSocket handlers do not

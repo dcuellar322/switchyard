@@ -1,0 +1,29 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+const lanes = [
+  { status: 'Implemented in source', tone: 'done', note: 'Available in the repository today; public binary availability is tracked separately.', items: ['Project discovery and explicit trust', 'Compose and native-process lifecycle', 'Logs, health, ports, Git, terminals, and resources', 'Permissioned MCP tools and provider-neutral agent workflows', 'Desktop, web, CLI, plugin, and federation adapters'] },
+  { status: 'Committed for public release', tone: 'next', note: 'Required launch work with no date promise until signed artifacts and hosting are operational.', items: ['Reviewed stable GitHub Release', 'Signed desktop installers and CLI archives', 'Canonical Cloudflare Pages deployment', 'Homebrew and WinGet publication after stable validation', 'Production accessibility and download smoke checks'] },
+  { status: 'Exploratory', tone: 'later', note: 'Direction, not a commitment. These items require evidence and a reviewed plan change.', items: ['Additional package ecosystems based on demand', 'Broader federation workflows', 'Community integration adapters', 'Optional hosted coordination that preserves local-first boundaries'] },
+]
+---
+
+<ContentPageLayout title="Roadmap" eyebrow="Direction without false promises" description="What is implemented, what is committed for the first public release, and what remains exploratory. GitHub stays authoritative for scoped work and accepted changes.">
+  <div class="roadmap">{lanes.map((lane) => <section class={`lane panel ${lane.tone}`}><div><span>{lane.status}</span><p>{lane.note}</p></div><ul>{lane.items.map((item) => <li>{item}</li>)}</ul></section>)}</div>
+  <aside class="source panel"><div><strong>Plans are not release promises.</strong><span>Accepted ADRs and merged code define the product. Roadmap changes should arrive as focused proposals with user evidence.</span></div><a class="button" href="https://github.com/dcuellar322/switchyard/issues">Browse issues</a><a class="button quiet" href="/community/">Propose a direction</a></aside>
+</ContentPageLayout>
+
+<style>
+  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+  .lane { overflow: hidden; }
+  .lane > div { min-height: 10rem; padding: 1.4rem; border-bottom: 1px solid var(--sy-border-subtle); }
+  .lane > div > span { font-size: 1.1rem; font-weight: 800; }
+  .lane.done > div > span { color: var(--sy-status-success); }
+  .lane.next > div > span { color: var(--sy-accent-primary); }
+  .lane.later > div > span { color: var(--sy-status-warning); }
+  .lane p, .source span { color: var(--sy-text-muted); }
+  .lane ul { display: grid; gap: 0.8rem; margin: 0; padding: 1.4rem 1.4rem 1.4rem 2.6rem; }
+  .source { display: flex; align-items: center; gap: 0.7rem; margin-top: 2rem; padding: 1.2rem; }
+  .source div { display: grid; margin-right: auto; }
+  @media (max-width: 860px) { .roadmap { grid-template-columns: 1fr; } .lane > div { min-height: 0; } .source { align-items: stretch; flex-direction: column; } }
+</style>

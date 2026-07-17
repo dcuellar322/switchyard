@@ -1,4 +1,10 @@
-# Phase 4: Complete CLI contract
+---
+title: "Phase 4: Complete CLI contract"
+description: Implementation evidence for Switchyard product phase 4.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

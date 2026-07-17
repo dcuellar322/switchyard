@@ -1,0 +1,140 @@
+---
+import { REPOSITORY_URL } from '@/config/site'
+
+const year = new Date().getUTCFullYear()
+---
+
+<footer class="site-footer">
+  <div class="footer-grid container">
+    <div class="footer-brand">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <div>
+        <strong>Switchyard</strong>
+        <p>Your local development command center.</p>
+        <small>An open-source project by David Cuellar.</small>
+      </div>
+    </div>
+    <nav aria-label="Product links">
+      <strong>Product</strong>
+      <a href="/features/">Features</a>
+      <a href="/download/">Download</a>
+      <a href="/changelog/">Changelog</a>
+      <a href="/roadmap/">Roadmap</a>
+    </nav>
+    <nav aria-label="Documentation links">
+      <strong>Learn</strong>
+      <a href="/docs/">Documentation</a>
+      <a href="/docs/start/">Quickstart</a>
+      <a href="/integrations/codex/">Codex</a>
+      <a href="/integrations/claude-code/">Claude Code</a>
+    </nav>
+    <nav aria-label="Community links">
+      <strong>Open source</strong>
+      <a href={REPOSITORY_URL}>GitHub</a>
+      <a href="/community/">Community</a>
+      <a href="/contributing/">Contributing</a>
+      <a href="/security/">Security</a>
+    </nav>
+  </div>
+  <div class="footer-meta container">
+    <span>© {year} Switchyard contributors · Apache-2.0</span>
+    <span><a href="/privacy/">Privacy</a> · <a href="/brand/">Brand</a> · <a href="/about/">About</a></span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 6rem;
+    border-top: 1px solid var(--sy-border-subtle);
+    background: color-mix(in srgb, var(--sy-bg-surface) 86%, transparent);
+    padding: 3.5rem 0 1.5rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.7fr repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    display: flex;
+    gap: 0.8rem;
+  }
+
+  .brand-mark {
+    display: grid;
+    flex: 0 0 auto;
+    width: 2.3rem;
+    height: 2.3rem;
+    place-items: center;
+    border-radius: 0.7rem;
+    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
+    color: #08101e;
+    font-weight: 900;
+  }
+
+  .footer-brand p {
+    margin: 0.25rem 0;
+    color: var(--sy-text-muted);
+  }
+
+  .footer-brand small {
+    color: var(--sy-text-soft);
+  }
+
+  nav {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+  }
+
+  nav strong {
+    margin-bottom: 0.35rem;
+    font-size: 0.82rem;
+  }
+
+  nav a {
+    color: var(--sy-text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--sy-accent-primary);
+  }
+
+  .footer-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--sy-border-subtle);
+    padding-top: 1.2rem;
+    color: var(--sy-text-soft);
+    font-size: 0.78rem;
+  }
+
+  .footer-meta a {
+    color: inherit;
+  }
+
+  @media (max-width: 780px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-meta {
+      flex-direction: column;
+    }
+  }
+</style>

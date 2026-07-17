@@ -1,0 +1,43 @@
+{
+  "name": "@switchyard/site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "generate": "node --import tsx scripts/generate-all.ts",
+    "build": "astro build && node --import tsx scripts/postbuild.ts",
+    "check": "astro check",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run --coverage",
+    "test:e2e": "playwright test tests/e2e",
+    "test:visual": "playwright test tests/visual --project=chromium",
+    "validate": "node --import tsx scripts/validate-content.ts && node --import tsx scripts/validate-build.ts",
+    "releases": "node --import tsx scripts/fetch-releases.ts",
+    "releases:prepare-files": "node --import tsx scripts/prepare-release-files.ts",
+    "packages:draft": "node --import tsx scripts/generate-package-drafts.ts",
+    "distributions:check": "node --import tsx scripts/check-distributions.ts",
+    "smoke": "node --import tsx scripts/smoke-production.ts"
+  },
+  "dependencies": {
+    "@astrojs/rss": "4.0.19",
+    "@astrojs/starlight": "0.41.3",
+    "astro": "7.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@axe-core/playwright": "4.12.1",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.61.1",
+    "@types/node": "26.1.1",
+    "@vitest/coverage-v8": "4.1.10",
+    "eslint": "10.7.0",
+    "eslint-config-prettier": "10.1.8",
+    "sharp": "0.34.5",
+    "tsx": "4.20.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vitest": "4.1.10",
+    "wrangler": "4.111.0"
+  }
+}

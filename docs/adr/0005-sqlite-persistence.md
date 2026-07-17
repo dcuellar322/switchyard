@@ -1,4 +1,10 @@
-# ADR-0005: SQLite, sqlc, migrations, and file-based log segments
+---
+title: "ADR-0005: SQLite, sqlc, migrations, and file-based log segments"
+description: Store durable local state transactionally and high-volume logs in bounded files.
+category: concept
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "switchyard.distribution-status/v1",
+  "homebrew": {
+    "available": false,
+    "installCommand": "brew install --cask dcuellar322/tap/switchyard",
+    "packageUrl": "https://github.com/dcuellar322/homebrew-tap"
+  },
+  "winget": {
+    "available": false,
+    "installCommand": "winget install --id DavidCuellar.Switchyard --exact",
+    "packageUrl": "https://github.com/microsoft/winget-pkgs/tree/master/manifests/d/DavidCuellar/Switchyard"
+  }
+}

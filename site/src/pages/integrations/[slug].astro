@@ -1,0 +1,38 @@
+---
+import { integrations, type Integration } from '@/content/marketing/integrations'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+export function getStaticPaths() {
+  return integrations.map((integration) => ({ params: { slug: integration.slug }, props: { integration } }))
+}
+
+interface Props { integration: Integration }
+const { integration } = Astro.props as Props
+const agentIntegration = integration.slug === 'codex' || integration.slug === 'claude-code' || integration.slug === 'mcp'
+const installCommand = integration.slug === 'codex' ? 'switchyard agent install codex --profile observe' : integration.slug === 'claude-code' ? 'switchyard agent install claude --profile observe' : integration.slug === 'mcp' ? 'switchyard mcp serve --transport stdio --profile observe' : undefined
+---
+
+<ContentPageLayout title={`${integration.name} integration`} eyebrow="Integration" description={integration.description}>
+  <section class="setup-grid"><div><p class="eyebrow">Safe setup</p><h2>Connect in three reviewed steps.</h2></div><ol>{integration.setup.map((step) => <li>{step}</li>)}</ol></section>
+  {installCommand && <section class="command panel"><div><h2>Start with observation only.</h2><p>Expand to `develop` after reviewing project scope and the mutation tools that become available.</p></div><pre tabindex="0"><code>{installCommand}</code></pre></section>}
+  {agentIntegration && <div class="agent-grid"><article class="panel"><h2>Permission profiles</h2><p><strong>observe</strong> reads bounded state. <strong>develop</strong> adds lifecycle and approved actions. <strong>maintain</strong> adds rebuild and proposal creation. <strong>admin</strong> is explicit and never the default.</p></article><article class="panel"><h2>Safe workflow</h2><p>List projects, read status, queue one mutation with a stable request ID, wait for the durable operation, then verify health and redacted errors.</p></article><article class="panel"><h2>Authorization failures</h2><p>A missing tool means the profile or project scope does not grant it. Change the reviewed local configuration; prompt text cannot grant capability.</p></article><article class="panel"><h2>Remove the integration</h2><p>Remove the client MCP entry created by the installer. This does not delete Switchyard projects, local data, or the daemon.</p></article></div>}
+  <section class="docs-link panel"><div><p class="eyebrow">Canonical contract</p><h2>Read exact behavior and limits.</h2></div><a class="button" href={integration.docsHref}>Open reference</a></section>
+</ContentPageLayout>
+
+<style>
+  .setup-grid { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 3rem; }
+  h2 { margin: 0.35rem 0; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; }
+  ol { display: grid; gap: 1rem; margin: 0; padding-left: 1.4rem; color: var(--sy-text-muted); }
+  li { border-bottom: 1px solid var(--sy-border-subtle); padding: 0 0 0.8rem 0.4rem; }
+  .command { display: grid; grid-template-columns: 0.8fr 1.2fr; align-items: center; gap: 2rem; margin-top: 3rem; padding: 1.5rem; }
+  .command h2 { font-size: 1.4rem; }
+  .command p, article p { color: var(--sy-text-muted); font-size: 0.88rem; }
+  pre { overflow-x: auto; margin: 0; border-radius: 0.65rem; background: #070a0f; color: var(--sy-status-success); padding: 1rem; }
+  .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  article { padding: 1.3rem; }
+  article h2 { font-size: 1.08rem; }
+  .docs-link { display: flex; align-items: center; gap: 2rem; margin-top: 2rem; padding: 1.4rem; }
+  .docs-link h2 { font-size: 1.25rem; }
+  .docs-link a { margin-left: auto; }
+  @media (max-width: 700px) { .setup-grid, .command, .agent-grid { grid-template-columns: 1fr; } .docs-link { align-items: stretch; flex-direction: column; } .docs-link a { margin-left: 0; } }
+</style>

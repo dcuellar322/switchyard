@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+---
+
+<BaseLayout title="Page not found" noindex>
+  <section class="not-found container">
+    <p class="eyebrow">404 · Route not found</p>
+    <h1>This track does not reach a page.</h1>
+    <p>Return to the command center or search the documentation for the workflow you need.</p>
+    <div class="actions">
+      <a class="button primary" href="/">Go home</a>
+      <a class="button" href="/docs/">Search docs</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 62vh;
+    padding-block: clamp(5rem, 12vw, 10rem);
+    text-align: center;
+  }
+
+  h1 {
+    max-width: 18ch;
+    margin: 0.5rem auto;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    line-height: 1;
+  }
+
+  p:not(.eyebrow) {
+    max-width: 42rem;
+    margin: 1.2rem auto;
+    color: var(--sy-text-muted);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+</style>

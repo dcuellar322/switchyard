@@ -1,4 +1,10 @@
-# ADR-0010: MCP-first provider-neutral agent integration
+---
+title: "ADR-0010: MCP-first provider-neutral agent integration"
+description: Give coding agents bounded project context and operations through shared use cases.
+category: concept
+audience: [integrator, contributor]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

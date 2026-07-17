@@ -1,4 +1,12 @@
-# Architecture overview
+---
+title: Architecture overview
+description: Process topology, bounded contexts, dependency direction, and accepted Switchyard decisions.
+category: concept
+audience: [contributor, integrator, maintainer]
+since: 1.0.0
+lastVerified: 2026-07-17
+slug: docs/architecture
+---
 
 Switchyard is a local-first modular monolith delivered primarily as one Go
 binary. The process hosts a daemon, CLI commands, local HTTP/WebSocket and IPC

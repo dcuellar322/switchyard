@@ -1,0 +1,81 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro'
+import { canonicalUrl, REPOSITORY_URL } from '@/config/site'
+
+const route = Astro.locals.starlightRoute
+const filePath = route.entry.filePath
+const sourcePath = filePath?.match(/(?:^|\/)(docs\/.*)$/)?.[1]
+const sourceUrl = sourcePath ? `${REPOSITORY_URL}/blob/master/${sourcePath}` : REPOSITORY_URL
+const issueTitle = encodeURIComponent(`docs: update ${route.entry.data.title}`)
+const issueBody = encodeURIComponent(`Documentation page: ${canonicalUrl(Astro.url.pathname).href}\n\nDescribe the correction or missing detail:`)
+const reportUrl = `${REPOSITORY_URL}/issues/new?template=documentation.yml&title=${issueTitle}&body=${issueBody}`
+const markdownUrl = route.id === 'docs/' || route.id === 'docs' ? '/docs/index.md' : `/${route.id}.md`
+const verified = route.entry.data.lastVerified
+---
+
+<section class="doc-actions" aria-label="Documentation page actions">
+  <div>
+    <strong>Use this page</strong>
+    {verified && <span>Last verified {new Date(verified).toLocaleDateString('en-US', { dateStyle: 'medium', timeZone: 'UTC' })}</span>}
+  </div>
+  <a href={markdownUrl}>Copy-ready Markdown</a>
+  <a href={sourceUrl}>Open source</a>
+  <button type="button" data-copy-canonical data-canonical={canonicalUrl(Astro.url.pathname).href}>Copy canonical link</button>
+  <a href={reportUrl}>Report a docs issue</a>
+  <span class="copy-status" aria-live="polite" data-copy-status></span>
+</section>
+
+<Default>
+  <slot />
+</Default>
+
+<style>
+  .doc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 3rem;
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 0.8rem;
+    background: var(--sy-bg-surface);
+    padding: 0.85rem;
+  }
+
+  .doc-actions > div {
+    display: grid;
+    margin-right: auto;
+  }
+
+  .doc-actions strong { font-size: 0.78rem; }
+  .doc-actions div span { color: var(--sy-text-soft); font-size: 0.67rem; }
+
+  .doc-actions a,
+  .doc-actions button {
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--sy-bg-elevated);
+    color: var(--sy-text-muted);
+    padding: 0.42rem 0.55rem;
+    font: inherit;
+    font-size: 0.7rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .doc-actions a:hover,
+  .doc-actions button:hover { border-color: var(--sy-accent-primary); color: var(--sy-text-primary); }
+  .copy-status { width: 100%; color: var(--sy-status-success); font-size: 0.7rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-canonical]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const value = button.dataset.canonical
+      if (!value) return
+      await navigator.clipboard.writeText(value)
+      const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]')
+      if (status) status.textContent = 'Canonical link copied.'
+    })
+  })
+</script>

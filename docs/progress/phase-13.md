@@ -1,4 +1,10 @@
-# Phase 13: Workspaces, dependencies, worktrees, and local routing
+---
+title: "Phase 13: Workspaces, dependencies, worktrees, and local routing"
+description: Implementation evidence for Switchyard product phase 13.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

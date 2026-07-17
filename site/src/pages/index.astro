@@ -1,0 +1,22 @@
+---
+import FeatureGrid from '@/components/marketing/FeatureGrid.astro'
+import FinalCta from '@/components/marketing/FinalCta.astro'
+import Hero from '@/components/marketing/Hero.astro'
+import IntegrationStrip from '@/components/marketing/IntegrationStrip.astro'
+import LatestRelease from '@/components/marketing/LatestRelease.astro'
+import OpenSourceSection from '@/components/marketing/OpenSourceSection.astro'
+import ProblemWorkflow from '@/components/marketing/ProblemWorkflow.astro'
+import TrustSection from '@/components/marketing/TrustSection.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+---
+
+<BaseLayout description="Bring Docker Compose, native processes, Git, ports, logs, terminals, and permissioned coding agents into one local-first command center.">
+  <Hero />
+  <ProblemWorkflow />
+  <FeatureGrid />
+  <TrustSection />
+  <LatestRelease />
+  <IntegrationStrip />
+  <OpenSourceSection />
+  <FinalCta />
+</BaseLayout>

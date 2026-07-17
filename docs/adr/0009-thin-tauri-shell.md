@@ -1,4 +1,10 @@
-# ADR-0009: Tauri as a thin desktop shell
+---
+title: "ADR-0009: Tauri as a thin desktop shell"
+description: Keep native integration in Tauri and product policy in the Go control plane.
+category: concept
+audience: [contributor]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

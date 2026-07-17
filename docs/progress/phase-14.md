@@ -1,4 +1,10 @@
-# Phase 14: Embedded terminals and agent sessions
+---
+title: "Phase 14: Embedded terminals and agent sessions"
+description: Implementation evidence for Switchyard product phase 14.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

@@ -1,0 +1,34 @@
+---
+import distributionStatus from '@/data/distribution-status.json'
+import releaseManifest from '@/data/release-manifest.json'
+import type { DistributionStatus } from '@/lib/distribution/types'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+const status = distributionStatus as DistributionStatus
+const stable = (releaseManifest as ReleaseManifest).channels.stable
+const methods = [
+  { name: 'Homebrew', platform: 'macOS', ...status.homebrew },
+  { name: 'WinGet', platform: 'Windows', ...status.winget },
+].filter((method) => method.available && stable && method.verifiedVersion === stable.version)
+---
+
+{methods.length > 0 && (
+  <section class="package-methods" aria-labelledby="package-methods-title">
+    <div><p class="eyebrow">Package managers</p><h2 id="package-methods-title">Install the same reviewed stable release.</h2></div>
+    <div class="method-grid">{methods.map((method) => <article class="panel"><span>{method.platform}</span><h3>{method.name}</h3><pre><code>{method.installCommand}</code></pre><div><small>Verified {method.verifiedVersion}</small><a href={method.packageUrl}>Package record →</a></div></article>)}</div>
+  </section>
+)}
+
+<style>
+  .package-methods { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 3rem; margin-top: 5rem; }
+  .package-methods h2 { margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
+  .method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  article { padding: 1.2rem; }
+  article > span { color: var(--sy-text-soft); font-size: 0.75rem; }
+  article h3 { margin: 0.3rem 0; }
+  pre { overflow: auto; border-radius: 0.5rem; background: var(--sy-bg-canvas); padding: 0.8rem; font-size: 0.72rem; }
+  article div { display: flex; justify-content: space-between; gap: 1rem; }
+  article small { color: var(--sy-text-muted); }
+  article a { color: var(--sy-accent-primary); font-size: 0.75rem; font-weight: 730; }
+  @media (max-width: 760px) { .package-methods, .method-grid { grid-template-columns: 1fr; } }
+</style>

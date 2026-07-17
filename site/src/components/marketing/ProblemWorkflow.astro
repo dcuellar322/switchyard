@@ -1,0 +1,156 @@
+<section class="problem" aria-labelledby="problem-title">
+  <div class="container">
+    <div class="before" aria-label="A fragmented local development workflow">
+      <div><strong>8</strong><span>terminal tabs</span></div>
+      <i>·</i>
+      <div><strong>5</strong><span>start commands</span></div>
+      <i>·</i>
+      <div><strong>3</strong><span>log locations</span></div>
+      <i>·</i>
+      <div><strong>1</strong><span>port collision</span></div>
+    </div>
+    <div class="convergence" aria-hidden="true"><span></span><span></span><span></span><b>↓</b></div>
+    <h2 id="problem-title">One project-oriented control plane.</h2>
+    <p>Switchyard models the repository, services, commands, ports, logs, health, resources, and agents as one project—then exposes that same truth to the desktop, browser, CLI, and MCP.</p>
+    <ol class="workflow">
+      <li>
+        <span class="step-number">01</span>
+        <div><h3>Add a repository</h3><p>Deterministic scanners inspect known project files without executing repository code.</p></div>
+      </li>
+      <li>
+        <span class="step-number">02</span>
+        <div><h3>Review and approve</h3><p>See evidence for runtimes, ports, health, and actions. AI is optional and never accepts its own proposal.</p></div>
+      </li>
+      <li>
+        <span class="step-number">03</span>
+        <div><h3>Operate from one place</h3><p>Start, stop, inspect, open, automate, and troubleshoot through durable, typed operations.</p></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<style>
+  .problem {
+    border-block: 1px solid var(--sy-border-subtle);
+    background: color-mix(in srgb, var(--sy-bg-surface) 62%, transparent);
+    padding-block: clamp(4rem, 8vw, 7rem);
+    text-align: center;
+  }
+
+  .before {
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.7rem, 2.3vw, 2rem);
+  }
+
+  .before div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+  }
+
+  .before strong {
+    color: var(--sy-text-primary);
+    font-family: var(--sy-font-mono);
+    font-size: 1.55rem;
+  }
+
+  .before span,
+  .before i {
+    color: var(--sy-text-muted);
+    font-size: 0.88rem;
+    font-style: normal;
+  }
+
+  .convergence {
+    display: grid;
+    width: min(34rem, 70%);
+    height: 3.4rem;
+    place-items: end center;
+    margin: 1.2rem auto;
+    color: var(--sy-accent-primary);
+  }
+
+  .convergence::before,
+  .convergence span {
+    position: absolute;
+    width: 1px;
+    height: 2.3rem;
+    background: linear-gradient(transparent, var(--sy-border-subtle));
+    content: '';
+  }
+
+  .convergence span:first-child { transform: translateX(-11rem) rotate(-68deg); }
+  .convergence span:nth-child(2) { transform: translateX(-4rem) rotate(-40deg); }
+  .convergence span:nth-child(3) { transform: translateX(8rem) rotate(55deg); }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(2.4rem, 5vw, 4.8rem);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .problem > .container > p {
+    max-width: 50rem;
+    margin: 1.3rem auto 0;
+    color: var(--sy-text-muted);
+    font-size: 1.08rem;
+  }
+
+  .workflow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 3.5rem 0 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  .workflow li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.9rem;
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: var(--sy-radius-md);
+    background: var(--sy-bg-surface);
+    padding: 1.25rem;
+  }
+
+  .step-number {
+    color: var(--sy-accent-primary);
+    font-family: var(--sy-font-mono);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .workflow p {
+    margin: 0.45rem 0 0;
+    color: var(--sy-text-muted);
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 760px) {
+    .before {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .before div {
+      justify-content: center;
+    }
+
+    .before i {
+      display: none;
+    }
+
+    .workflow {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

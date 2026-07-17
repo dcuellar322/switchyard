@@ -1,4 +1,10 @@
-# Phase 0: Product charter and architectural guardrails
+---
+title: "Phase 0: Product charter and architectural guardrails"
+description: Implementation evidence for Switchyard product phase 0.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

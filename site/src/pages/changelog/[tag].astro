@@ -1,0 +1,42 @@
+---
+import releaseManifest from '@/data/release-manifest.json'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import type { ReleaseChannel, ReleaseManifest } from '@/lib/releases/types'
+
+export function getStaticPaths() {
+  const manifest = releaseManifest as ReleaseManifest
+  return manifest.releases.map((release) => ({ params: { tag: release.tag }, props: { release } }))
+}
+
+interface Props { release: ReleaseChannel }
+const { release } = Astro.props as Props
+const published = new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(release.publishedAt))
+const breaking = /breaking|migration|required action/i.test(release.notes ?? '')
+---
+
+<ContentPageLayout title={release.title} eyebrow={`${release.channel} release · ${release.tag}`} description={release.summary ?? `Release notes, downloads, verification, and upgrade guidance for Switchyard ${release.tag}.`}>
+  <section class="release-meta panel"><div><strong>{release.tag}</strong><span>Published {published}</span></div><div><strong>{release.assets.length}</strong><span>downloadable artifacts</span></div><div><strong>{release.channel}</strong><span>release channel</span></div></section>
+  {breaking && <aside class="warning panel" role="note"><strong>Review upgrade guidance before installing.</strong><span>These release notes contain a breaking-change or migration notice.</span><a href="/docs/migration-v1/">Open migration guide →</a></aside>}
+  <article class="notes panel"><h2>Release notes</h2>{release.notes ? <pre>{release.notes}</pre> : <p>The publisher did not include a release narrative. Use the source comparison and migration references below before upgrading.</p>}</article>
+  <section class="next"><a class="button primary" href={`/download/?channel=${release.channel}`}>Download {release.tag}</a><a class="button" href="/download/verify/">Verify artifacts</a><a class="button" href={release.releaseNotesUrl}>GitHub release</a><a class="button quiet" href={`https://github.com/dcuellar322/switchyard/tree/${release.tag}`}>Source tag</a></section>
+  <section class="related"><h2>Upgrade references</h2><div><a class="panel" href="/docs/migration-v1/"><strong>Migration guide</strong><span>Required changes and safe rollout steps.</span></a><a class="panel" href="/docs/compatibility/"><strong>Compatibility policy</strong><span>Versioning and support guarantees.</span></a><a class="panel" href="/docs/release/"><strong>Release integrity</strong><span>Signing, provenance, and artifact policy.</span></a></div></section>
+</ContentPageLayout>
+
+<style>
+  .release-meta { display: grid; grid-template-columns: repeat(3, 1fr); padding: 1.2rem; }
+  .release-meta div { display: grid; gap: 0.15rem; padding: 0.4rem 1rem; border-right: 1px solid var(--sy-border-subtle); }
+  .release-meta div:last-child { border: 0; }
+  .release-meta span, .notes p { color: var(--sy-text-muted); font-size: 0.8rem; }
+  .warning { display: grid; gap: 0.3rem; margin-top: 1rem; border-color: var(--sy-status-warning); padding: 1.2rem; }
+  .warning span { color: var(--sy-text-muted); }
+  .warning a { color: var(--sy-accent-primary); font-weight: 730; }
+  .notes { margin-top: 1rem; padding: clamp(1.3rem, 3vw, 2.2rem); }
+  .notes h2 { margin-top: 0; }
+  pre { margin: 0; white-space: pre-wrap; color: var(--sy-text-muted); font: inherit; }
+  .next { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+  .related { margin-top: 4rem; }
+  .related > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+  .related a { display: grid; gap: 0.4rem; padding: 1.2rem; text-decoration: none; }
+  .related span { color: var(--sy-text-muted); }
+  @media (max-width: 680px) { .release-meta, .related > div { grid-template-columns: 1fr; } .release-meta div { border-right: 0; border-bottom: 1px solid var(--sy-border-subtle); } }
+</style>

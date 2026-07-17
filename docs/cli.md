@@ -1,4 +1,13 @@
-# Switchyard CLI contract
+---
+title: Switchyard CLI contract
+description: Commands, automation modes, JSON envelopes, and exit codes for the Switchyard CLI.
+category: reference
+audience: [user, integrator]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+searchTerms: [switchyard command, jsonl, exit code, shell completion]
+---
 
 The `switchyard` binary is both the daemon and its terminal client. Client
 commands use private local IPC and start the same binary as a detached daemon

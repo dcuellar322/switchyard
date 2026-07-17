@@ -1,4 +1,12 @@
-# Docker Compose runtime
+---
+title: Docker Compose runtime
+description: Compose lifecycle plans, Docker observation, reconciliation, and ownership rules.
+category: concept
+audience: [user, contributor, integrator]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 The Compose runtime implements [ADR-0006](../adr/0006-docker-compose-runtime.md):
 the installed `docker compose` plugin owns lifecycle semantics, while the

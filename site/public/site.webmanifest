@@ -1,0 +1,12 @@
+{
+  "name": "Switchyard — Local Development Command Center",
+  "short_name": "Switchyard",
+  "description": "An open-source, local-first development command center.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0d12",
+  "theme_color": "#0a0d12",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -1,0 +1,24 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="Security" eyebrow="Private reporting · local-first boundaries" description="Report vulnerabilities privately and understand the product security baseline before trusting a repository, plugin, agent, or release artifact.">
+  <section class="report panel"><div><span>Private channel</span><h2>Do not open a public issue.</h2><p>Include affected versions, impact, the smallest safe reproduction, and a suggested mitigation when available. Do not attach secrets or unrelated private repository material.</p></div><a class="button primary" href="https://github.com/dcuellar322/switchyard/security/advisories/new">Open a private advisory</a></section>
+  <section class="baseline"><div><p class="eyebrow">Security baseline</p><h2>Trust is explicit and bounded.</h2></div><ul class="panel"><li>Repositories are untrusted until approved; deterministic discovery never executes commands.</li><li>Browser access is loopback-only, authenticated, CSRF-protected, and origin-checked.</li><li>Secrets use operating-system storage and shared redaction before display, persistence, export, or provider use.</li><li>Agent and plugin capabilities are permission-checked and audited; no generic shell MCP tool exists.</li><li>Destructive actions require a risk level, preview, and explicit authorization.</li><li>Release artifacts expose checksums, signing, provenance, and SBOM guidance beside downloads.</li></ul></section>
+  <nav class="links"><a href="https://github.com/dcuellar322/switchyard/blob/master/SECURITY.md">Supported versions</a><a href="/docs/security/threat-model/">Threat model</a><a href="/download/verify/">Verify downloads</a><a href="/privacy/">Privacy boundaries</a></nav>
+</ContentPageLayout>
+
+<style>
+  .report { display: flex; align-items: center; gap: 2rem; border-color: var(--sy-status-warning); padding: 1.5rem; }
+  .report div { margin-right: auto; }
+  .report span { color: var(--sy-status-warning); font: 800 0.7rem var(--sy-font-mono); text-transform: uppercase; }
+  .report h2 { margin: 0.35rem 0; }
+  .report p { max-width: 45rem; color: var(--sy-text-muted); }
+  .baseline { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 2rem; margin-top: 5rem; }
+  .baseline h2 { max-width: 9ch; margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
+  .baseline ul { margin: 0; padding: 1.5rem 1.5rem 1.5rem 3rem; }
+  .baseline li { margin-block: 0.75rem; color: var(--sy-text-muted); }
+  .links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .links a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  @media (max-width: 720px) { .report { align-items: stretch; flex-direction: column; } .baseline { grid-template-columns: 1fr; } }
+</style>

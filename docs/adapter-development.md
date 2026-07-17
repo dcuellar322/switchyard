@@ -1,4 +1,11 @@
-# Adapter development guide
+---
+title: Adapter development guide
+description: Add a platform or runtime adapter without crossing Switchyard domain boundaries.
+category: contributor
+audience: [contributor, maintainer]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Add operating-system or external-tool behavior behind an application-owned
 interface. Keep domains platform-neutral and preserve the dependency direction

@@ -1,4 +1,10 @@
-# Phase 10: MCP server and agent guidance
+---
+title: "Phase 10: MCP server and agent guidance"
+description: Implementation evidence for Switchyard product phase 10.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

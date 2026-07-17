@@ -1,0 +1,22 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import { REPOSITORY_URL } from '@/config/site'
+---
+
+<ContentPageLayout title="About Switchyard" eyebrow="Open-source local infrastructure" description="One project-oriented control plane for the repetitive work around local development—without moving your repositories, secrets, or deterministic workflows into a hosted service.">
+  <section class="story"><div><p class="eyebrow">Why it exists</p><h2>Local development has a coordination problem.</h2></div><div><p>Starting a project is rarely one command. It means remembering runtimes, Compose services, ports, logs, health checks, Git state, terminal context, and which tools may safely act. Switchyard makes that operational state visible and consistent across projects.</p><p>The Go control plane owns lifecycle and policy. The web UI, CLI, desktop shell, MCP server, plugins, and optional federation remain adapters over shared application services.</p></div></section>
+  <section class="values"><article class="panel"><h2>Local first</h2><p>No account or hosted control plane is required. The daemon binds locally and users control every export or provider request.</p></article><article class="panel"><h2>Deterministic first</h2><p>Core discovery, lifecycle, diagnosis, and reconciliation work without AI. Provider assistance stays optional, bounded, and reviewed.</p></article><article class="panel"><h2>Open by design</h2><p>The source is Apache-2.0, contracts are generated, architecture decisions are recorded, and release provenance is inspectable.</p></article></section>
+  <aside class="credit panel"><div><strong>Created by David Cuellar, built in public.</strong><span>Contributors retain credit through repository history and release stories. Third-party notices remain versioned with the source.</span></div><a class="button primary" href={REPOSITORY_URL}>Explore the source</a><a class="button" href={`${REPOSITORY_URL}/blob/master/NOTICE`}>Attributions</a><a class="button" href="/contributing/">Contribute</a></aside>
+</ContentPageLayout>
+
+<style>
+  .story { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 3rem; }
+  .story h2 { max-width: 10ch; margin: 0.4rem 0; font-size: clamp(2.5rem, 5vw, 5rem); line-height: 0.98; }
+  .story > div:last-child { color: var(--sy-text-muted); font-size: 1.06rem; }
+  .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 5rem; }
+  .values article { padding: 1.4rem; }
+  .values p, .credit span { color: var(--sy-text-muted); }
+  .credit { display: flex; align-items: center; gap: 0.7rem; margin-top: 3rem; padding: 1.2rem; }
+  .credit div { display: grid; margin-right: auto; }
+  @media (max-width: 760px) { .story, .values { grid-template-columns: 1fr; } .credit { align-items: stretch; flex-direction: column; } }
+</style>

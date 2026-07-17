@@ -1,4 +1,11 @@
-# Architecture decision records
+---
+title: Architecture decision records
+description: Accepted technical decisions and the process for superseding them.
+category: contributor
+audience: [contributor, maintainer, integrator]
+lastVerified: 2026-07-17
+slug: docs/adr
+---
 
 ADRs use the status values `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
 Changing an accepted decision requires a new ADR that links to and supersedes
@@ -27,3 +34,4 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0014: Log retention and redaction](0014-log-retention-redaction.md)
 - [ADR-0015: Platform support order](0015-platform-order.md)
 - [ADR-0016: Optional peer federation and signed shared configuration](0016-optional-federation.md)
+- [ADR-0017: Static public site and documentation portal](0017-static-public-site.md)

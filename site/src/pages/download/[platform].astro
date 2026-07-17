@@ -1,0 +1,55 @@
+---
+import ReleaseDownloadCard from '@/components/download/ReleaseDownloadCard.astro'
+import { platformGuides, type PlatformGuide } from '@/content/download/platforms'
+import releaseManifest from '@/data/release-manifest.json'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import { recommendAsset } from '@/lib/releases/recommend'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+export function getStaticPaths() {
+  return platformGuides.map((guide) => ({ params: { platform: guide.slug }, props: { guide } }))
+}
+
+interface Props { guide: PlatformGuide }
+const { guide } = Astro.props as Props
+const manifest = releaseManifest as ReleaseManifest
+const release = manifest.channels.stable
+const primaryArchitecture = guide.architectures[0] ?? 'amd64'
+const asset = recommendAsset(release, guide.releasePlatform, primaryArchitecture)
+const alternatives = release?.assets.filter((candidate) => {
+  const platform = guide.releasePlatform === 'wsl' ? 'linux' : guide.releasePlatform
+  return candidate.platform === platform && candidate.name !== asset?.name
+}) ?? []
+---
+
+<ContentPageLayout title={`Install Switchyard on ${guide.shortName}`} eyebrow="Platform install" description={`${guide.requirements} The site recommends a package only when it is present in authoritative GitHub Release metadata.`}>
+  <div class="platform-layout">
+    <div>
+      <ReleaseDownloadCard release={release} asset={asset} label={`${guide.shortName} · ${primaryArchitecture}`} />
+      {alternatives.length > 0 && <section class="alternatives panel"><h2>Alternative packages</h2><ul>{alternatives.map((alternative) => <li><a href={alternative.downloadUrl}>{alternative.name}</a><span>{alternative.architecture} · {alternative.packageType}</span></li>)}</ul></section>}
+    </div>
+    <aside class="panel"><p class="eyebrow">Install path</p><ol>{guide.install.map((step) => <li>{step}</li>)}</ol><h2>Verify first</h2><p>{guide.verify}</p><a href="/download/verify/">Open verification guide →</a></aside>
+  </div>
+  <section class="after-install panel"><div><p class="eyebrow">Observable success</p><h2>Confirm the local control plane.</h2><p>After installation, `switchyard doctor` reports platform capabilities and `switchyard ui` opens the loopback browser surface. No account or cloud connection is required.</p></div><pre><code>switchyard doctor
+switchyard ui</code></pre></section>
+</ContentPageLayout>
+
+<style>
+  .platform-layout { display: grid; grid-template-columns: 1.3fr 0.7fr; align-items: start; gap: 1rem; }
+  aside { padding: 1.4rem; }
+  aside ol { display: grid; gap: 1rem; padding-left: 1.2rem; color: var(--sy-text-muted); }
+  aside h2 { margin-top: 2rem; font-size: 1.1rem; }
+  aside p:not(.eyebrow) { color: var(--sy-text-muted); font-size: 0.88rem; }
+  aside a { color: var(--sy-accent-primary); font-weight: 750; text-decoration: none; }
+  .alternatives { margin-top: 1rem; padding: 1.4rem; }
+  .alternatives h2 { margin-top: 0; font-size: 1.15rem; }
+  .alternatives ul { display: grid; gap: 0.5rem; padding: 0; list-style: none; }
+  .alternatives li { display: flex; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--sy-border-subtle); padding-top: 0.6rem; }
+  .alternatives a { overflow-wrap: anywhere; color: var(--sy-accent-primary); }
+  .alternatives span { flex: 0 0 auto; color: var(--sy-text-soft); font-family: var(--sy-font-mono); font-size: 0.72rem; }
+  .after-install { display: grid; grid-template-columns: 1fr 0.8fr; align-items: center; gap: 2rem; margin-top: 3rem; padding: 1.8rem; }
+  .after-install h2 { margin: 0.35rem 0; }
+  .after-install p:not(.eyebrow) { color: var(--sy-text-muted); }
+  pre { overflow-x: auto; margin: 0; border-radius: 0.7rem; background: #070a0f; color: var(--sy-status-success); padding: 1rem; }
+  @media (max-width: 780px) { .platform-layout, .after-install { grid-template-columns: 1fr; } }
+</style>

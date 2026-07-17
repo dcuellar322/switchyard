@@ -1,4 +1,11 @@
-# Agent integration
+---
+title: Agent integration
+description: Provider-neutral MCP, permission, audit, guidance, and agent-session architecture.
+category: concept
+audience: [user, integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard exposes the same application use cases used by its CLI and browser
 through a permission-scoped Model Context Protocol server. The MCP process is a

@@ -1,4 +1,10 @@
-# ADR-0004: REST, WebSocket, and OpenAPI transport contracts
+---
+title: "ADR-0004: REST, WebSocket, and OpenAPI transport contracts"
+description: Keep browser and client contracts versioned, generated, and inspectable.
+category: concept
+audience: [contributor, integrator, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

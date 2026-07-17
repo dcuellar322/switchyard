@@ -1,4 +1,11 @@
-# AI-assisted onboarding
+---
+title: AI-assisted onboarding
+description: Bounded evidence, schema-constrained proposals, validation, and human approval.
+category: concept
+audience: [user, integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 11 adds an optional provider step after deterministic discovery. AI is a
 proposal source, not an authority: the deterministic scanner remains usable

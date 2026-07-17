@@ -1,0 +1,19 @@
+---
+import { features } from '@/content/marketing/features'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="A command center built around projects" eyebrow="Product" description="One local control plane gives the desktop, browser, CLI, and coding agents the same reviewed project truth.">
+  <div class="feature-list">{features.map((feature) => <a class="panel" href={`/features/${feature.slug}/`}><span aria-hidden="true">{feature.icon}</span><div><h2>{feature.title}</h2><p>{feature.summary}</p></div><b aria-hidden="true">→</b></a>)}</div>
+</ContentPageLayout>
+
+<style>
+  .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .feature-list a { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 1rem; padding: 1.2rem; text-decoration: none; }
+  .feature-list a:hover { border-color: var(--sy-accent-primary); }
+  .feature-list > a > span { display: grid; width: 2.4rem; height: 2.4rem; place-items: center; border-radius: 0.65rem; background: var(--sy-bg-elevated); color: var(--sy-accent-primary); font-family: var(--sy-font-mono); }
+  h2 { margin: 0; font-size: 1.08rem; }
+  p { margin: 0.4rem 0 0; color: var(--sy-text-muted); font-size: 0.87rem; }
+  b { color: var(--sy-accent-primary); }
+  @media (max-width: 700px) { .feature-list { grid-template-columns: 1fr; } }
+</style>

@@ -1,4 +1,11 @@
-# Workspace and worktree orchestration
+---
+title: Workspace and worktree orchestration
+description: Dependency graphs, coordinated lifecycle, port leases, environments, and local routing.
+category: concept
+audience: [user, contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 13 adds coordination without turning the workspace domain into a second
 runtime engine. The workspace application service validates and schedules a

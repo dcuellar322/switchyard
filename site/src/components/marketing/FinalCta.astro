@@ -1,0 +1,71 @@
+---
+import DownloadButton from '@/components/download/DownloadButton.astro'
+---
+
+<section class="final-cta container" aria-labelledby="final-cta-title">
+  <div class="cta-panel">
+    <div>
+      <p class="eyebrow">Ready when your projects are</p>
+      <h2 id="final-cta-title">Bring your local projects into one command center.</h2>
+    </div>
+    <div class="actions">
+      <DownloadButton />
+      <a class="button" href="/docs/start/">Five-minute quickstart</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .final-cta {
+    padding-top: clamp(5rem, 10vw, 9rem);
+  }
+
+  .cta-panel {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: end;
+    gap: 2rem;
+    border: 1px solid color-mix(in srgb, var(--sy-accent-primary) 55%, var(--sy-border-subtle));
+    border-radius: var(--sy-radius-lg);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--sy-accent-primary) 12%, var(--sy-bg-surface)), color-mix(in srgb, var(--sy-accent-secondary) 14%, var(--sy-bg-surface)));
+    box-shadow: var(--sy-shadow);
+    padding: clamp(1.8rem, 5vw, 4rem);
+  }
+
+  .cta-panel::after {
+    position: absolute;
+    right: -8rem;
+    bottom: -11rem;
+    width: 28rem;
+    height: 28rem;
+    border: 1px solid rgb(120 166 255 / 20%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3rem rgb(120 166 255 / 4%), 0 0 0 7rem rgb(158 123 255 / 4%);
+    content: '';
+    pointer-events: none;
+  }
+
+  h2 {
+    max-width: 14ch;
+    margin: 0.5rem 0 0;
+    font-size: clamp(2.5rem, 5vw, 4.6rem);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.7rem;
+  }
+
+  @media (max-width: 760px) {
+    .cta-panel { grid-template-columns: 1fr; }
+    .actions { justify-content: flex-start; }
+  }
+</style>

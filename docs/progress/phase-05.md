@@ -1,4 +1,10 @@
-# Phase 5: Docker Compose runtime
+---
+title: "Phase 5: Docker Compose runtime"
+description: Implementation evidence for Switchyard product phase 5.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

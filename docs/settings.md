@@ -1,4 +1,11 @@
-# Durable local settings
+---
+title: Durable local settings
+description: Project roots, ports, retention, tools, AI providers, permissions, and appearance.
+category: reference
+audience: [user, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard stores one revisioned settings document in its private SQLite
 database. The browser, CLI, daemon, and MCP adapter read the same application

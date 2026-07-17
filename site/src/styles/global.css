@@ -1,0 +1,126 @@
+@import './tokens.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--sy-bg-canvas);
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 78% 7%, rgb(120 166 255 / 11%), transparent 29rem),
+    radial-gradient(circle at 18% 32%, rgb(158 123 255 / 8%), transparent 25rem),
+    var(--sy-bg-canvas);
+  color: var(--sy-text-primary);
+  font-family: var(--sy-font-sans);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--sy-accent-primary);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  transform: translateY(-180%);
+  border-radius: var(--sy-radius-sm);
+  background: var(--sy-text-primary);
+  color: var(--sy-bg-canvas);
+  padding: 0.6rem 0.9rem;
+  font-weight: 800;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.container {
+  width: min(calc(100% - 2rem), var(--sy-content));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  color: var(--sy-accent-primary);
+  font-family: var(--sy-font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 1px solid var(--sy-border-subtle);
+  border-radius: 0.78rem;
+  background: var(--sy-bg-surface);
+  color: var(--sy-text-primary);
+  padding: 0.68rem 1rem;
+  font-weight: 760;
+  line-height: 1.1;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.button:hover {
+  border-color: var(--sy-accent-primary);
+  transform: translateY(-1px);
+}
+
+.button.primary {
+  border-color: transparent;
+  background: linear-gradient(120deg, var(--sy-accent-primary), var(--sy-accent-secondary));
+  color: #07101f;
+}
+
+.button.quiet {
+  background: transparent;
+}
+
+.panel {
+  border: 1px solid var(--sy-border-subtle);
+  border-radius: var(--sy-radius-md);
+  background: color-mix(in srgb, var(--sy-bg-surface) 92%, transparent);
+}
+
+.muted {
+  color: var(--sy-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

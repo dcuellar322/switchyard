@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets'
+import dashboard from '../../../../web/tests/visual/dashboard.spec.ts-snapshots/dashboard-alpha.png'
+import diagnostic from '../../../../web/tests/visual/diagnostics.spec.ts-snapshots/diagnostic-automation-review.png'
+import plugins from '../../../../web/tests/visual/plugins.spec.ts-snapshots/plugin-permission-review.png'
+import ports from '../../../../web/tests/visual/ports.spec.ts-snapshots/port-registry.png'
+import project from '../../../../web/tests/visual/project.spec.ts-snapshots/project-alpha.png'
+import terminal from '../../../../web/tests/visual/project.spec.ts-snapshots/project-terminal.png'
+import workspace from '../../../../web/tests/visual/workspaces.spec.ts-snapshots/workspace-progress.png'
+import { features, type Feature } from '@/content/marketing/features'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+export function getStaticPaths() {
+  return features.map((feature) => ({ params: { slug: feature.slug }, props: { feature } }))
+}
+
+interface Props { feature: Feature }
+const { feature } = Astro.props as Props
+const media = feature.slug === 'projects' ? dashboard : feature.slug === 'ports-git-actions' ? ports : feature.slug === 'workspaces-worktrees' ? workspace : feature.slug === 'terminals' || feature.slug === 'agents-mcp' ? terminal : feature.slug === 'plugins' ? plugins : feature.slug === 'security-local-first' ? diagnostic : project
+---
+
+<ContentPageLayout title={feature.title} eyebrow="Switchyard capability" description={feature.description}>
+  <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Download Switchyard</a><a class="button" href={feature.docsHref}>Read the architecture</a></div></Fragment>
+  <figure class="product-shot panel"><Image src={media} alt={`Switchyard product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Production product UI captured from a deterministic, sanitized fixture.</figcaption></figure>
+  <section class="proof"><div><p class="eyebrow">What is implemented</p><h2>Operational proof, not a feature label.</h2></div><ul>{feature.proof.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul></section>
+  <section class="boundary panel"><div><p class="eyebrow">Product boundary</p><h2>Complements the toolchain.</h2></div><p>Switchyard centralizes project intent and safe local operation. It does not replace Docker, Git, terminals, editors, or coding agents, and it does not introduce a cloud control plane.</p></section>
+</ContentPageLayout>
+
+<style>
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.7rem; }
+  .product-shot { overflow: hidden; margin: 0; padding: 0.45rem; box-shadow: var(--sy-shadow); }
+  .product-shot :global(img) { width: 100%; border-radius: 0.65rem; }
+  figcaption { color: var(--sy-text-soft); padding: 0.55rem 0.55rem 0.2rem; font-size: 0.7rem; }
+  .proof { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 3rem; margin-top: 4rem; }
+  h2 { margin: 0.35rem 0; font-size: clamp(2.2rem, 4vw, 3.7rem); line-height: 1; }
+  ul { display: grid; gap: 0.7rem; margin: 0; padding: 0; list-style: none; }
+  li { display: flex; gap: 0.7rem; border-bottom: 1px solid var(--sy-border-subtle); padding: 0.8rem 0; font-weight: 700; }
+  li span { color: var(--sy-status-success); }
+  .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; padding: 1.5rem; }
+  .boundary h2 { font-size: 1.7rem; }
+  .boundary > p { color: var(--sy-text-muted); }
+  @media (max-width: 700px) { .proof, .boundary { grid-template-columns: 1fr; } }
+</style>

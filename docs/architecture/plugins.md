@@ -1,4 +1,11 @@
-# Out-of-process plugins
+---
+title: Out-of-process plugins
+description: Versioned protocol, trust, capabilities, supervision, and conformance boundaries.
+category: concept
+audience: [integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 16 applies ADR-0012 with a public Go SDK under `sdk/plugin` and an exact,
 versioned JSON-RPC 2.0 protocol over stdin/stdout. A plugin is always a separate

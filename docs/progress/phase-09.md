@@ -1,4 +1,10 @@
-# Phase 9: Dashboard alpha
+---
+title: "Phase 9: Dashboard alpha"
+description: Implementation evidence for Switchyard product phase 9.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

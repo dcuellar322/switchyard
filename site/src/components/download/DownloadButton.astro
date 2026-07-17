@@ -1,0 +1,36 @@
+---
+interface Props {
+  compact?: boolean
+  class?: string
+}
+
+const { compact = false, class: className = '' } = Astro.props
+---
+
+<a class:list={['button', 'primary', compact && 'compact', className]} href="/download/" data-download-button>
+  <span data-download-label>View downloads</span>
+  <span aria-hidden="true">↓</span>
+</a>
+
+<script>
+  const userAgent = navigator.userAgent.toLowerCase()
+  let platform = ''
+  let label = 'View all downloads'
+
+  if (userAgent.includes('mac')) {
+    platform = 'macos'
+    label = 'Download for macOS'
+  } else if (userAgent.includes('windows')) {
+    platform = 'windows'
+    label = 'Download for Windows'
+  } else if (userAgent.includes('linux')) {
+    platform = 'linux'
+    label = 'Install on Linux'
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-download-button]').forEach((link) => {
+    const labelElement = link.querySelector<HTMLElement>('[data-download-label]')
+    if (labelElement) labelElement.textContent = label
+    if (platform) link.href = `/download/?platform=${platform}`
+  })
+</script>

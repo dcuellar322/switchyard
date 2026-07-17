@@ -1,4 +1,10 @@
-# ADR-0016: Optional peer federation and signed shared configuration
+---
+title: "ADR-0016: Optional peer federation and signed shared configuration"
+description: Extend beyond one machine without weakening local-only defaults or ambient authority.
+category: concept
+audience: [integrator, contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-16

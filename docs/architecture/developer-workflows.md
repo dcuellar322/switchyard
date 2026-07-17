@@ -1,4 +1,11 @@
-# Ports, source control, and trusted actions
+---
+title: Ports, source control, and trusted actions
+description: Project port evidence, Git observation, and risk-classified developer actions.
+category: concept
+audience: [user, contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 8 adds three independent application boundaries for common local
 development work. They share catalog identity and the durable operation kernel,

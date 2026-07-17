@@ -1,4 +1,10 @@
-# Phase 3: Project catalog, manifests, and deterministic discovery
+---
+title: "Phase 3: Project catalog, manifests, and deterministic discovery"
+description: Implementation evidence for Switchyard product phase 3.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

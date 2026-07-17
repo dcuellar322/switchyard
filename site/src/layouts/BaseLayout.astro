@@ -1,0 +1,103 @@
+---
+import SiteFooter from '@/components/shared/SiteFooter.astro'
+import SiteHeader from '@/components/shared/SiteHeader.astro'
+import StructuredData from '@/components/seo/StructuredData.astro'
+import {
+  canonicalUrl,
+  isPreview,
+  PRODUCT_NAME,
+  REPOSITORY_URL,
+  SHORT_NAME,
+  SITE_DESCRIPTION,
+} from '@/config/site'
+import '@/styles/global.css'
+import '@/styles/prose.css'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: string
+  noindex?: boolean
+  structuredData?: Record<string, unknown> | Record<string, unknown>[]
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  image = '/social/default.svg',
+  noindex = false,
+  structuredData,
+} = Astro.props
+const pageTitle = title ? `${title} | ${PRODUCT_NAME}` : PRODUCT_NAME
+const canonical = canonicalUrl(Astro.url.pathname)
+const socialImage = canonicalUrl(image)
+const defaultStructuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SHORT_NAME,
+    alternateName: PRODUCT_NAME,
+    url: canonicalUrl('/').href,
+    description: SITE_DESCRIPTION,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: SHORT_NAME,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'macOS, Linux, Windows, WSL2',
+    description: SITE_DESCRIPTION,
+    url: canonicalUrl('/').href,
+    downloadUrl: canonicalUrl('/download/').href,
+    softwareVersion: '1.0',
+    license: 'https://www.apache.org/licenses/LICENSE-2.0',
+    codeRepository: REPOSITORY_URL,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: PRODUCT_NAME,
+    codeRepository: REPOSITORY_URL,
+    programmingLanguage: ['Go', 'TypeScript', 'Rust'],
+    license: 'https://www.apache.org/licenses/LICENSE-2.0',
+  },
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="Switchyard releases" href="/changelog/rss.xml" />
+    <meta name="theme-color" content="#0a0d12" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={PRODUCT_NAME} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    {(noindex || isPreview) && <meta name="robots" content="noindex, nofollow" />}
+    <StructuredData value={structuredData ?? defaultStructuredData} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <SiteHeader />
+    <main id="main-content">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

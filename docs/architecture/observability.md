@@ -1,4 +1,11 @@
-# Health, logs, and resource intelligence
+---
+title: Health, logs, and resource intelligence
+description: Health scheduling, redacted logs, bounded retention, metrics, and honest attribution.
+category: concept
+audience: [user, contributor, integrator]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 7 implements ADR-0014 as a boundary above both runtime drivers. Docker
 and native-process adapters still emit raw runtime observations and log lines;

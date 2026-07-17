@@ -1,4 +1,10 @@
-# ADR-0006: Docker SDK observation and Compose CLI lifecycle
+---
+title: "ADR-0006: Docker SDK observation and Compose CLI lifecycle"
+description: Observe Docker through its API and execute lifecycle through the installed Compose CLI.
+category: concept
+audience: [contributor, integrator]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

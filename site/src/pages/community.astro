@@ -1,0 +1,42 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+const routes = [
+  { need: 'Usage question', detail: 'Configuration, workflows, and integration help from other users.', label: 'Ask in Discussions', href: 'https://github.com/dcuellar322/switchyard/discussions' },
+  { need: 'Reproducible bug', detail: 'One behavior with a minimal safe reproduction and no private repository material.', label: 'Open a bug report', href: 'https://github.com/dcuellar322/switchyard/issues/new?template=bug_report.yml' },
+  { need: 'Focused proposal', detail: 'A concrete user problem, boundary, and outcome—not a speculative platform expansion.', label: 'Propose a feature', href: 'https://github.com/dcuellar322/switchyard/issues/new?template=feature_request.yml' },
+  { need: 'Documentation correction', detail: 'A wrong command, stale claim, missing example, or accessibility issue.', label: 'Report a docs problem', href: 'https://github.com/dcuellar322/switchyard/issues/new?template=documentation.yml' },
+  { need: 'Security concern', detail: 'Potential vulnerabilities must stay private until coordinated disclosure.', label: 'Report privately', href: 'https://github.com/dcuellar322/switchyard/security/advisories/new', private: true },
+  { need: 'Code contribution', detail: 'Pick a bounded issue, follow domain rules, add tests, and submit a focused change.', label: 'Start contributing', href: '/contributing/' },
+]
+---
+
+<ContentPageLayout title="Community" eyebrow="Choose the right public or private path" description="Get help, report a problem, shape a focused proposal, or contribute without exposing secrets, source, logs, or personal data.">
+  <section class="safety panel" role="note"><span aria-hidden="true">⌾</span><div><strong>Keep private material private.</strong><p>Never post credentials, private source, raw environment values, browser bootstrap URLs, database contents, or an unreviewed support bundle. Security reports belong in the private advisory flow.</p></div></section>
+  <div class="routes">{routes.map((route) => <article class:list={['panel', { private: route.private }]}><div><span>{route.private ? 'Private route' : 'Community route'}</span><h2>{route.need}</h2><p>{route.detail}</p></div><a href={route.href}>{route.label} <span aria-hidden="true">→</span></a></article>)}</div>
+  <section class="boundaries"><div><p class="eyebrow">Support boundaries</p><h2>Useful context, clear limits.</h2></div><div class="panel"><p>Community support has no response-time SLA and covers listed platforms and supported releases. Maintainers may request a minimal public fixture when private repository content prevents reproduction.</p><nav><a href="https://github.com/dcuellar322/switchyard/blob/master/SUPPORT.md">Full support policy</a><a href="/docs/troubleshooting/">Troubleshooting</a><a href="/docs/support-bundles/">Safe support bundles</a><a href="/security/">Security policy</a></nav></div></section>
+  <section class="contributor panel"><div><p class="eyebrow">Contributor showcase foundation</p><h2>Credit follows reviewed work.</h2><p>Release stories and repository history remain the source of contributor attribution. A dedicated showcase will appear after community contributions exist; it will never be filled with placeholder people or invented endorsements.</p></div><a class="button primary" href="https://github.com/dcuellar322/switchyard/graphs/contributors">Repository contributors</a></section>
+</ContentPageLayout>
+
+<style>
+  .safety { display: flex; gap: 1rem; border-color: color-mix(in srgb, var(--sy-status-warning) 60%, var(--sy-border-subtle)); padding: 1.2rem; }
+  .safety > span { color: var(--sy-status-warning); font-size: 1.5rem; }
+  .safety p { margin: 0.2rem 0 0; color: var(--sy-text-muted); }
+  .routes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-top: 1rem; }
+  .routes article { display: flex; min-height: 14rem; flex-direction: column; justify-content: space-between; padding: 1.35rem; }
+  .routes article.private { border-color: var(--sy-status-warning); }
+  .routes article > div > span { color: var(--sy-text-soft); font-family: var(--sy-font-mono); font-size: 0.7rem; text-transform: uppercase; }
+  .routes h2 { margin: 0.5rem 0; }
+  .routes p { color: var(--sy-text-muted); }
+  .routes a, .boundaries a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  .boundaries { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 2rem; margin-top: 5rem; }
+  .boundaries h2 { max-width: 10ch; margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
+  .boundaries > .panel { padding: 1.5rem; }
+  .boundaries > .panel > p { color: var(--sy-text-muted); }
+  .boundaries nav { display: grid; gap: 0.5rem; }
+  .contributor { display: flex; align-items: center; gap: 2rem; margin-top: 4rem; padding: 1.5rem; }
+  .contributor div { margin-right: auto; }
+  .contributor h2 { margin: 0.3rem 0; }
+  .contributor p:not(.eyebrow) { max-width: 46rem; color: var(--sy-text-muted); }
+  @media (max-width: 720px) { .routes, .boundaries { grid-template-columns: 1fr; } .contributor { align-items: stretch; flex-direction: column; } }
+</style>

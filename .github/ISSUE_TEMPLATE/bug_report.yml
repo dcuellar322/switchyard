@@ -36,8 +36,8 @@ body:
   - type: textarea
     id: diagnostics
     attributes:
-      label: Redacted diagnostics
-      description: Paste a previewed/redacted doctor result or relevant logs. Never include credentials or private source.
+      label: Minimal redacted evidence
+      description: Include only the smallest relevant lines after reviewing them. Do not upload a support bundle, raw log, credentials, private source, or environment values to a public issue.
       render: text
   - type: checkboxes
     id: safety

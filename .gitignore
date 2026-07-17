@@ -18,6 +18,12 @@ web/dist/*
 web/coverage/
 web/playwright-report/
 web/test-results/
+site/.astro/
+site/.generated/
+site/dist/
+site/coverage/
+site/playwright-report/
+site/test-results/
 
 # Local runtime state
 .switchyard-data/

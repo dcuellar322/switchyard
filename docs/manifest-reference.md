@@ -1,4 +1,12 @@
-# Project manifest v1 reference
+---
+title: Project manifest v1 reference
+description: Schema, precedence, provenance, services, actions, health, ports, and validation rules.
+category: reference
+audience: [user, integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+searchTerms: [project.yml, switchyard manifest, local overlay, manifest schema]
+---
 
 The portable manifest lives at `.switchyard/project.yml` and uses
 `schemaVersion: switchyard.dev/v1` with `kind: Project`. A machine-local overlay

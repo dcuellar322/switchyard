@@ -1,0 +1,31 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+
+const methods = [
+  { title: 'SHA-256 checksums', command: 'shasum -a 256 <download>\n# compare with checksums.txt', text: 'Download checksums.txt from the same GitHub Release and compare the exact asset name and digest.' },
+  { title: 'macOS signing and notarization', command: 'codesign --verify --deep --strict Switchyard.app\nspctl --assess --type execute --verbose Switchyard.app', text: 'Both commands must succeed and identify the expected publisher before first launch.' },
+  { title: 'Windows Authenticode', command: 'Get-AuthenticodeSignature .\\Switchyard_*.msi | Format-List', text: 'Require a Valid status and review the signer certificate rather than accepting filename or download location alone.' },
+  { title: 'Linux signatures', command: 'gpg --verify <download>.asc <download>', text: 'Use the maintainer key published with the release. A missing signature is shown as unavailable, never implied.' },
+  { title: 'GitHub artifact attestations', command: 'gh attestation verify <download> --repo dcuellar322/switchyard', text: 'GitHub verifies that the subject digest belongs to an attestation produced by the repository release workflow.' },
+  { title: 'SBOM inspection', command: 'jq . <download>.cyclonedx.json | less', text: 'Match the SBOM filename and release tag to the asset, then inspect components and hashes before policy checks.' },
+]
+---
+
+<ContentPageLayout title="Verify a Switchyard download" eyebrow="Download integrity" description="Treat the GitHub Release, cryptographic digest, platform identity, attestation, and SBOM as separate evidence. Reject a package when required evidence is missing or inconsistent.">
+  <div class="method-grid">{methods.map((method) => <article class="panel"><h2>{method.title}</h2><p>{method.text}</p><pre><code>{method.command}</code></pre></article>)}</div>
+  <section class="updater panel"><div><p class="eyebrow">Updater signatures</p><h2>Platform signing does not replace updater signing.</h2><p>Release desktop bundles include Tauri updater artifacts signed by the embedded updater key. Switchyard rejects an update payload without a valid updater signature even when the operating-system package signature is valid.</p></div><a class="button" href="/docs/release/">Release security details</a></section>
+  <section class="packages panel"><div><p class="eyebrow">Package managers</p><h2>Verify the package record against the stable release.</h2><p>Homebrew and WinGet methods appear on this site only when their published version matches the reviewed stable GitHub Release. Inspect the package manifest URL and SHA-256, then compare the installed version with <code>switchyard version</code>. Direct signed downloads remain available as the fallback.</p></div><a class="button" href="/download/">Distribution status</a></section>
+</ContentPageLayout>
+
+<style>
+  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  article { padding: 1.3rem; }
+  article h2 { margin-top: 0; font-size: 1.1rem; }
+  article p, .updater p:not(.eyebrow) { color: var(--sy-text-muted); font-size: 0.87rem; }
+  pre { overflow-x: auto; margin: 1rem 0 0; border-radius: 0.65rem; background: #070a0f; color: #dce8f8; padding: 0.85rem; font-size: 0.75rem; }
+  .updater, .packages { display: flex; align-items: center; gap: 2rem; margin-top: 2rem; padding: 1.5rem; }
+  .updater div, .packages div { margin-right: auto; }
+  .updater h2, .packages h2 { margin: 0.35rem 0; }
+  .packages p:not(.eyebrow) { color: var(--sy-text-muted); }
+  @media (max-width: 720px) { .method-grid { grid-template-columns: 1fr; } .updater, .packages { align-items: stretch; flex-direction: column; } }
+</style>

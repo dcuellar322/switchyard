@@ -1,12 +1,24 @@
-# Release engineering
+---
+title: Release engineering
+description: Channels, signing, artifacts, attestations, SBOMs, and the reviewed release process.
+category: contributor
+audience: [maintainer, contributor]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Tagged releases are built only from validated `v*` tags by
 `.github/workflows/release.yml`.
 The workflow cross-compiles CLI archives with GoReleaser, emits SHA-256
 checksums and per-archive SBOMs, builds native Tauri bundles on each operating
-system, signs updater payloads, applies Apple notarization and Windows
-Authenticode signing, generates desktop CycloneDX SBOMs, attests the combined
-artifact set, and creates a draft GitHub release for final human review.
+system and both macOS architectures, signs updater payloads, applies Apple
+notarization and Windows Authenticode signing, generates desktop CycloneDX
+SBOMs, attests the combined artifact set, and creates a draft GitHub release
+for final human review.
+Before that draft is created, the public-site release contract validates the
+complete stable platform matrix and replaces build-specific digest files with
+one aggregate `checksums.txt` covering every uploaded artifact.
 
 ## Release channels
 
@@ -48,5 +60,6 @@ signature tools (`codesign`/`spctl` or `Get-AuthenticodeSignature`), and GitHub'
 artifact attestation verification. Compare the included SBOM to the artifact
 name and release tag. Reject any updater artifact without its Tauri signature.
 
-The release workflow never publishes partial success: all CLI and three
-desktop jobs must complete before the draft release job runs.
+The release workflow never publishes partial success: the CLI build and all
+four native desktop matrix builds must complete before the draft release job
+runs.

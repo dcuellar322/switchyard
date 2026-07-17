@@ -1,4 +1,12 @@
-# Platform support
+---
+title: Platform support
+description: Supported operating systems, packages, native capabilities, and WSL2 boundaries.
+category: reference
+audience: [user, contributor]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard v1 supports native arm64 and amd64 installations on the following
 platform families. The control plane, CLI, browser UI, and MCP server share the

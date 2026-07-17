@@ -13,7 +13,7 @@ SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
 
 bootstrap: frontend-install generate
 
@@ -36,6 +36,35 @@ generate-check:
 
 frontend-build:
 	$(PNPM) --dir web build
+
+site-dev:
+	$(PNPM) --dir site dev
+
+site-generate:
+	$(PNPM) --dir site generate
+
+site-build:
+	$(PNPM) --dir site build
+
+site-check:
+	$(PNPM) --dir site check
+
+site-lint:
+	$(PNPM) --dir site lint
+
+site-test:
+	$(PNPM) --dir site test
+
+site-test-e2e:
+	$(PNPM) --dir site test:e2e
+
+site-test-visual:
+	$(PNPM) --dir site test:visual
+
+site-validate:
+	$(PNPM) --dir site validate
+
+site-quality: site-generate site-check site-lint site-test site-build site-validate
 
 desktop-prepare:
 	RUSTC="$$(rustup which rustc)" $(PNPM) desktop:prepare

@@ -1,4 +1,10 @@
-# ADR-0011: Agent permission profiles and no generic shell tool
+---
+title: "ADR-0011: Agent permission profiles and no generic shell tool"
+description: Enforce least-privilege agent capabilities independently of prompts.
+category: concept
+audience: [integrator, contributor]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

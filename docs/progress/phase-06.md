@@ -1,4 +1,10 @@
-# Phase 6: Native process runtime
+---
+title: "Phase 6: Native process runtime"
+description: Implementation evidence for Switchyard product phase 6.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

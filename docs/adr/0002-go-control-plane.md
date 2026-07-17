@@ -1,4 +1,10 @@
-# ADR-0002: Go as the local control-plane language
+---
+title: "ADR-0002: Go as the local control-plane language"
+description: Use one portable systems language for control-plane product behavior.
+category: concept
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

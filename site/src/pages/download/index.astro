@@ -1,0 +1,79 @@
+---
+import ReleaseDownloadCard from '@/components/download/ReleaseDownloadCard.astro'
+import PackageManagerMethods from '@/components/download/PackageManagerMethods.astro'
+import { platformGuides } from '@/content/download/platforms'
+import releaseManifest from '@/data/release-manifest.json'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import { recommendAsset } from '@/lib/releases/recommend'
+import type { ReleaseArchitecture, ReleaseChannelName, ReleaseManifest } from '@/lib/releases/types'
+
+const manifest = releaseManifest as ReleaseManifest
+const requestedChannel = Astro.url.searchParams.get('channel')
+const channel: ReleaseChannelName = requestedChannel === 'beta' || requestedChannel === 'nightly' ? requestedChannel : 'stable'
+const release = manifest.channels[channel]
+const selection = Astro.url.searchParams.get('platform')
+const selectedGuide = platformGuides.find((guide) => guide.slug === selection) ?? platformGuides[0]
+const requestedArchitecture = Astro.url.searchParams.get('architecture')
+const architecture: ReleaseArchitecture = requestedArchitecture === 'amd64' ? 'amd64' : 'arm64'
+const asset = selectedGuide ? recommendAsset(release, selectedGuide.releasePlatform, architecture) : undefined
+---
+
+<ContentPageLayout
+  title="Download Switchyard"
+  eyebrow="Trusted downloads"
+  description="Choose the desktop command center or a headless CLI. Every binary link comes directly from GitHub Release metadata, with verification beside the download."
+>
+  <section class="download-grid">
+    <aside class="selector panel" aria-label="Download selection">
+      <form method="get">
+        <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="beta" selected={channel === 'beta'}>Beta</option><option value="nightly" selected={channel === 'nightly'}>Nightly</option></select></label>
+        <fieldset><legend>Operating system</legend>{platformGuides.map((guide) => <label class="choice"><input type="radio" name="platform" value={guide.slug} checked={selectedGuide?.slug === guide.slug} /> <span><strong>{guide.shortName}</strong><small>{guide.primaryFormat}</small></span></label>)}</fieldset>
+        <fieldset><legend>Architecture</legend><label class="choice"><input type="radio" name="architecture" value="arm64" checked={architecture === 'arm64'} /> <span><strong>arm64</strong><small>Apple silicon and ARM systems</small></span></label><label class="choice"><input type="radio" name="architecture" value="amd64" checked={architecture === 'amd64'} /> <span><strong>amd64</strong><small>Intel and AMD 64-bit systems</small></span></label></fieldset>
+        <button class="button" type="submit">Update recommendation</button>
+      </form>
+      <p>Platform detection only highlights a choice. It never starts a download or hides another platform.</p>
+    </aside>
+    <div class="result">
+      <ReleaseDownloadCard release={release} asset={asset} label={`${selectedGuide?.shortName ?? 'Platform'} · ${architecture}`} />
+      {selectedGuide && <div class="requirements panel"><p class="eyebrow">Before you install</p><h2>{selectedGuide.primaryFormat}</h2><p>{selectedGuide.requirements}</p><a href={`/download/${selectedGuide.slug}/`}>Platform install guide →</a></div>}
+    </div>
+  </section>
+  <section class="all-platforms" aria-labelledby="all-platforms-title">
+    <div><p class="eyebrow">Every supported path</p><h2 id="all-platforms-title">All platforms stay visible.</h2></div>
+    <div class="platform-grid">{platformGuides.map((guide) => <a class="panel" href={`/download/${guide.slug}/`}><strong>{guide.shortName}</strong><span>{guide.primaryFormat}</span><b aria-hidden="true">→</b></a>)}<a class="panel" href="/download/cli/"><strong>Headless CLI</strong><span>macOS, Linux, and Windows archives</span><b aria-hidden="true">→</b></a></div>
+  </section>
+  <PackageManagerMethods />
+  <section class="trust-links panel"><div><strong>Verify before running</strong><span>Checksums, platform signatures, attestations, SBOMs, and updater expectations.</span></div><a class="button" href="/download/verify/">Verification guide</a><a class="button quiet" href="/download/requirements/">System requirements</a><a class="button quiet" href="/download/uninstall/">Uninstall and retained data</a></section>
+</ContentPageLayout>
+
+<style>
+  .download-grid { display: grid; grid-template-columns: 20rem 1fr; align-items: start; gap: 1.2rem; }
+  .selector { position: sticky; top: 6rem; padding: 1.2rem; }
+  form { display: grid; gap: 1.2rem; }
+  label { display: grid; gap: 0.35rem; color: var(--sy-text-muted); font-size: 0.78rem; font-weight: 700; }
+  select { width: 100%; border: 1px solid var(--sy-border-subtle); border-radius: 0.6rem; background: var(--sy-bg-elevated); color: var(--sy-text-primary); padding: 0.65rem; }
+  fieldset { display: grid; gap: 0.45rem; margin: 0; border: 0; padding: 0; }
+  legend { margin-bottom: 0.55rem; color: var(--sy-text-muted); font-size: 0.78rem; font-weight: 700; }
+  .choice { display: grid; grid-template-columns: auto 1fr; align-items: start; border: 1px solid var(--sy-border-subtle); border-radius: 0.6rem; padding: 0.65rem; cursor: pointer; }
+  .choice:has(input:checked) { border-color: var(--sy-accent-primary); background: color-mix(in srgb, var(--sy-accent-primary) 8%, transparent); }
+  .choice span { display: grid; }
+  .choice strong { color: var(--sy-text-primary); }
+  .choice small { color: var(--sy-text-soft); font-weight: 500; }
+  .selector > p { margin-bottom: 0; color: var(--sy-text-soft); font-size: 0.7rem; }
+  .result { display: grid; gap: 1rem; }
+  .requirements { padding: 1.4rem; }
+  .requirements h2 { margin: 0.3rem 0; font-size: 1.25rem; }
+  .requirements p:not(.eyebrow) { color: var(--sy-text-muted); }
+  .requirements a { color: var(--sy-accent-primary); font-weight: 750; text-decoration: none; }
+  .all-platforms { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 3rem; margin-top: 5rem; }
+  .all-platforms h2 { margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
+  .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .platform-grid a { display: grid; grid-template-columns: 1fr auto; padding: 1rem; text-decoration: none; }
+  .platform-grid span { grid-column: 1; color: var(--sy-text-muted); font-size: 0.78rem; }
+  .platform-grid b { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--sy-accent-primary); }
+  .trust-links { display: flex; align-items: center; gap: 0.6rem; margin-top: 4rem; padding: 1.2rem; }
+  .trust-links div { display: grid; margin-right: auto; }
+  .trust-links span { color: var(--sy-text-muted); font-size: 0.8rem; }
+  @media (max-width: 860px) { .download-grid, .all-platforms { grid-template-columns: 1fr; } .selector { position: static; } .trust-links { align-items: stretch; flex-direction: column; } }
+  @media (max-width: 540px) { .platform-grid { grid-template-columns: 1fr; } }
+</style>

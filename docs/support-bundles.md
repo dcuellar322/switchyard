@@ -1,4 +1,12 @@
-# Support bundles and internal debug logs
+---
+title: Support bundles and internal debug logs
+description: Preview and export bounded, redacted evidence without exposing project source or secrets.
+category: how-to
+audience: [user, contributor]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Switchyard maintains a dedicated private control-plane log at
 `<data-dir>/internal.ndjson`, with one rotated segment. It receives structured

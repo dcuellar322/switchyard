@@ -1,4 +1,10 @@
-# ADR-0001: Modular monolith and domain dependency direction
+---
+title: "ADR-0001: Modular monolith and domain dependency direction"
+description: Keep Switchyard cohesive while enforcing bounded-context dependency rules.
+category: concept
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

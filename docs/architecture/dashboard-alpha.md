@@ -1,4 +1,11 @@
-# Dashboard alpha
+---
+title: Dashboard and product UI
+description: Visual hierarchy, server-state ownership, routes, accessibility, and production UI states.
+category: concept
+audience: [contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 9 turns the browser client into the primary visual adapter over the
 Switchyard control plane. The dashboard does not own runtime policy: it reads

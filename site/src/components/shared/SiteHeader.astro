@@ -1,0 +1,221 @@
+---
+import { REPOSITORY_URL } from '@/config/site'
+
+const pathname = Astro.url.pathname
+const navigation = [
+  { href: '/features/', label: 'Product' },
+  { href: '/docs/', label: 'Docs' },
+  { href: '/download/', label: 'Download' },
+  { href: '/changelog/', label: 'Changelog' },
+  { href: '/community/', label: 'Community' },
+]
+
+const active = (href: string) => pathname === href || pathname.startsWith(href)
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="Switchyard home">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span class="brand-copy">
+        <strong>Switchyard</strong>
+        <small>Local development command center</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      {navigation.map((item) => (
+        <a href={item.href} aria-current={active(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+      <a href={REPOSITORY_URL}>GitHub</a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="search-link" href="/docs/" aria-label="Search documentation">⌕ <span>Search</span></a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change color theme">◐</button>
+      <a class="button primary compact" href="/download/">Download</a>
+      <details class="mobile-menu">
+        <summary aria-label="Open navigation menu">Menu</summary>
+        <nav aria-label="Mobile navigation">
+          {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+          <a href={REPOSITORY_URL}>GitHub</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    z-index: 50;
+    top: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--sy-border-subtle) 82%, transparent);
+    background: color-mix(in srgb, var(--sy-bg-canvas) 88%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .header-inner {
+    display: flex;
+    width: min(calc(100% - 2rem), var(--sy-content));
+    min-height: 4.7rem;
+    align-items: center;
+    gap: 1.4rem;
+    margin-inline: auto;
+  }
+
+  .brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border-radius: 0.7rem;
+    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
+    color: #08101e;
+    font-weight: 900;
+  }
+
+  .brand-copy {
+    display: grid;
+    line-height: 1.1;
+  }
+
+  .brand-copy strong {
+    font-size: 0.95rem;
+  }
+
+  .brand-copy small {
+    max-width: 9.5rem;
+    margin-top: 0.15rem;
+    color: var(--sy-text-muted);
+    font-size: 0.64rem;
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-left: auto;
+  }
+
+  .desktop-nav a,
+  .search-link {
+    border-radius: 0.55rem;
+    color: var(--sy-text-muted);
+    padding: 0.48rem 0.65rem;
+    font-size: 0.87rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .desktop-nav a:hover,
+  .desktop-nav a[aria-current='page'],
+  .search-link:hover {
+    background: var(--sy-bg-elevated);
+    color: var(--sy-text-primary);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .search-link {
+    display: inline-flex;
+    gap: 0.3rem;
+  }
+
+  .theme-toggle {
+    width: 2.45rem;
+    height: 2.45rem;
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 0.68rem;
+    background: var(--sy-bg-surface);
+    color: var(--sy-text-primary);
+    cursor: pointer;
+  }
+
+  .compact {
+    min-height: 2.45rem;
+    padding: 0.58rem 0.78rem;
+    font-size: 0.85rem;
+  }
+
+  .mobile-menu {
+    display: none;
+    position: relative;
+  }
+
+  .mobile-menu summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 750;
+  }
+
+  .mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-menu nav {
+    position: absolute;
+    top: 2.6rem;
+    right: 0;
+    display: grid;
+    width: 13rem;
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: var(--sy-radius-md);
+    background: var(--sy-bg-surface);
+    box-shadow: var(--sy-shadow);
+    padding: 0.55rem;
+  }
+
+  .mobile-menu nav a {
+    border-radius: 0.55rem;
+    padding: 0.65rem;
+    text-decoration: none;
+  }
+
+  .mobile-menu nav a:hover {
+    background: var(--sy-bg-elevated);
+  }
+
+  @media (max-width: 980px) {
+    .desktop-nav,
+    .search-link span {
+      display: none;
+    }
+
+    .header-actions {
+      margin-left: auto;
+    }
+
+    .mobile-menu {
+      display: block;
+    }
+  }
+
+  @media (max-width: 580px) {
+    .brand-copy small,
+    .theme-toggle,
+    .search-link {
+      display: none;
+    }
+
+    .header-inner {
+      min-height: 4.15rem;
+    }
+  }
+</style>
+
+<script>
+  import '@/scripts/theme'
+</script>

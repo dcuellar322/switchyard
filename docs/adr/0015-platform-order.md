@@ -1,4 +1,10 @@
-# ADR-0015: Platform support order
+---
+title: "ADR-0015: Platform support order"
+description: Implement OS adapters in an explicit order behind platform-neutral contracts.
+category: concept
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 - Status: Accepted
 - Date: 2026-07-15

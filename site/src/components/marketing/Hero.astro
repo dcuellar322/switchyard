@@ -1,0 +1,185 @@
+---
+import { Image } from 'astro:assets'
+import dashboard from '../../../../web/tests/visual/dashboard.spec.ts-snapshots/dashboard-alpha.png'
+import DownloadButton from '@/components/download/DownloadButton.astro'
+import { REPOSITORY_URL } from '@/config/site'
+import releaseManifest from '@/data/release-manifest.json'
+import type { ReleaseManifest } from '@/lib/releases/types'
+
+const stable = (releaseManifest as ReleaseManifest).channels.stable
+---
+
+<section class="hero container">
+  <div class="hero-copy">
+    <p class="eyebrow">Open source · Local first · Apache-2.0</p>
+    <h1>Your local development command center.</h1>
+    <p class="lede">Start, stop, inspect, and automate every local project from one place—Docker Compose, native processes, Git, ports, logs, terminals, and coding agents included.</p>
+    <div class="hero-actions">
+      <DownloadButton />
+      <a class="button" href={REPOSITORY_URL}>View on GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+    <p class="release-note"><span class:list={{ available: Boolean(stable) }}></span> {stable ? `${stable.tag} stable · macOS · Windows · Linux · WSL2` : 'Public binaries are not published yet · build from source today'}</p>
+    <div class="value-badges" aria-label="Product values">
+      <span>Local-first</span><span>Project-oriented</span><span>Agent-ready</span><span>Apache-2.0</span>
+    </div>
+  </div>
+  <figure class="product-frame">
+    <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>Switchyard · Dashboard</span></div>
+    <Image
+      src={dashboard}
+      alt="Switchyard dashboard showing running, stopped, and Docker-unavailable projects with Git, endpoint, and resource status."
+      widths={[640, 960, 1440]}
+      sizes="(max-width: 820px) 94vw, 52vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <figcaption>Real product UI · deterministic Playwright fixture</figcaption>
+  </figure>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    min-height: calc(100vh - 4.7rem);
+    grid-template-columns: minmax(0, 0.82fr) minmax(34rem, 1.18fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    padding-block: clamp(4rem, 8vw, 7.5rem);
+  }
+
+  h1 {
+    max-width: 10ch;
+    margin: 0.65rem 0 1.2rem;
+    font-size: clamp(3.25rem, 6.4vw, 6.75rem);
+    letter-spacing: -0.065em;
+    line-height: 0.91;
+  }
+
+  .lede {
+    max-width: 43rem;
+    color: var(--sy-text-muted);
+    font-size: clamp(1.05rem, 1.45vw, 1.28rem);
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.8rem;
+  }
+
+  .release-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.15rem 0;
+    color: var(--sy-text-soft);
+    font-family: var(--sy-font-mono);
+    font-size: 0.76rem;
+  }
+
+  .release-note span {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--sy-status-warning);
+  }
+
+  .release-note span.available {
+    background: var(--sy-status-success);
+    box-shadow: 0 0 1rem color-mix(in srgb, var(--sy-status-success) 65%, transparent);
+  }
+
+  .value-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .value-badges span {
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 999px;
+    background: var(--sy-bg-surface);
+    color: var(--sy-text-muted);
+    padding: 0.28rem 0.58rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .product-frame {
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 1.2rem;
+    background: #05070a;
+    box-shadow: var(--sy-shadow);
+    transform: perspective(1600px) rotateY(-3deg) rotateX(1.5deg);
+  }
+
+  .product-frame :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .frame-bar {
+    display: flex;
+    min-height: 2.2rem;
+    align-items: center;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--sy-border-subtle);
+    background: var(--sy-bg-surface);
+    padding-inline: 0.8rem;
+  }
+
+  .frame-bar i {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--sy-text-soft);
+  }
+
+  .frame-bar i:first-child { background: var(--sy-status-danger); }
+  .frame-bar i:nth-child(2) { background: var(--sy-status-warning); }
+  .frame-bar i:nth-child(3) { background: var(--sy-status-success); }
+
+  .frame-bar span {
+    margin-left: 0.5rem;
+    color: var(--sy-text-soft);
+    font-family: var(--sy-font-mono);
+    font-size: 0.67rem;
+  }
+
+  figcaption {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+  }
+
+  @media (max-width: 1040px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      max-width: 11ch;
+    }
+
+    .product-frame {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 580px) {
+    .hero {
+      min-height: auto;
+      padding-block: 3.5rem 2rem;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 15vw, 4.5rem);
+    }
+  }
+</style>

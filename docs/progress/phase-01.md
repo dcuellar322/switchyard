@@ -1,4 +1,10 @@
-# Phase 1: Walking skeleton and quality pipeline
+---
+title: "Phase 1: Walking skeleton and quality pipeline"
+description: Implementation evidence for Switchyard product phase 1.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

@@ -1,0 +1,17 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+    authors:
+      - dependabot[bot]
+  categories:
+    - title: User-visible changes
+      labels: [feature, enhancement]
+    - title: Fixes
+      labels: [bug, fix]
+    - title: Security and trust
+      labels: [security]
+    - title: Documentation
+      labels: [documentation]
+    - title: Contributor and internal changes
+      labels: ['*']

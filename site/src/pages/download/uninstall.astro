@@ -1,0 +1,24 @@
+---
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="Uninstall and retained data" eyebrow="Safe removal" description="Removing the desktop adapter does not silently delete repositories, containers, volumes, project definitions, logs, or the daemon database.">
+  <section class="choices"><article class="panel"><span>1</span><h2>Remove the application</h2><p>Remove the native desktop package through the operating system. This leaves the Go daemon data available to a later reinstall or CLI use.</p></article><article class="panel"><span>2</span><h2>Review local data</h2><p>Stop active operations and the daemon, then inspect the platform data directory before choosing backup or deletion.</p></article><article class="panel danger"><span>3</span><h2>Delete only by choice</h2><p>Permanently delete the data directory only after verifying a backup. Docker volumes and repositories remain separate explicit decisions.</p></article></section>
+  <section class="locations panel"><h2>Default durable data locations</h2><pre><code>macOS:   ~/Library/Application Support/Switchyard/
+Linux:  ~/.config/Switchyard/
+Windows: %AppData%\Switchyard\</code></pre><p>Never remove the data directory while the daemon is running. A newer database is rejected by an older binary instead of being silently downgraded.</p><a href="/docs/desktop-installation/#uninstall-and-data-choices">Complete uninstall procedure →</a></section>
+</ContentPageLayout>
+
+<style>
+  .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  article { padding: 1.3rem; }
+  article > span { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--sy-bg-elevated); color: var(--sy-accent-primary); font-family: var(--sy-font-mono); }
+  article h2 { font-size: 1.1rem; }
+  article p, .locations p { color: var(--sy-text-muted); font-size: 0.88rem; }
+  .danger { border-color: color-mix(in srgb, var(--sy-status-danger) 45%, var(--sy-border-subtle)); }
+  .locations { margin-top: 2rem; padding: 1.5rem; }
+  .locations h2 { margin-top: 0; }
+  pre { overflow-x: auto; border-radius: 0.65rem; background: #070a0f; color: #dce8f8; padding: 1rem; }
+  .locations a { color: var(--sy-accent-primary); font-weight: 750; }
+  @media (max-width: 720px) { .choices { grid-template-columns: 1fr; } }
+</style>

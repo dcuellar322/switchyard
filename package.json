@@ -20,7 +20,16 @@
     "typecheck": "pnpm --filter @switchyard/web typecheck",
     "test": "pnpm --filter @switchyard/web test",
     "test:e2e": "pnpm --filter @switchyard/web test:e2e",
-    "test:visual": "pnpm --filter @switchyard/web test:visual"
+    "test:visual": "pnpm --filter @switchyard/web test:visual",
+    "site:dev": "pnpm --filter @switchyard/site dev",
+    "site:generate": "pnpm --filter @switchyard/site generate",
+    "site:build": "pnpm --filter @switchyard/site build",
+    "site:check": "pnpm --filter @switchyard/site check",
+    "site:lint": "pnpm --filter @switchyard/site lint",
+    "site:test": "pnpm --filter @switchyard/site test",
+    "site:test:e2e": "pnpm --filter @switchyard/site test:e2e",
+    "site:test:visual": "pnpm --filter @switchyard/site test:visual",
+    "site:validate": "pnpm --filter @switchyard/site validate"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.11.4"

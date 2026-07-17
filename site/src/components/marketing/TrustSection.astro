@@ -1,0 +1,200 @@
+<section class="trust" aria-labelledby="trust-title">
+  <div class="trust-grid container">
+    <div class="trust-copy">
+      <p class="eyebrow">Local-first by architecture</p>
+      <h2 id="trust-title">Your source stays where your work happens.</h2>
+      <p>Switchyard’s public site is static. The product control plane runs locally, binds to user-scoped IPC and loopback, and requires explicit trust before repository commands can run.</p>
+      <ul>
+        <li><span>✓</span>No required cloud account</li>
+        <li><span>✓</span>Repository trust before execution</li>
+        <li><span>✓</span>Permission-scoped agent tools</li>
+        <li><span>✓</span>No generic MCP shell</li>
+        <li><span>✓</span>Telemetry disabled by default</li>
+      </ul>
+      <a class="button" href="/features/security-local-first/">Read the security model</a>
+    </div>
+    <div class="architecture panel" role="img" aria-label="Desktop, CLI, browser, and MCP connect to one local Go daemon, which controls Docker, processes, Git, ports, and SQLite.">
+      <p class="diagram-title">One local control plane</p>
+      <div class="clients"><span>Desktop</span><span>CLI</span><span>Browser</span><span>MCP</span></div>
+      <div class="connector" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="daemon"><span class="mark">S</span><div><strong>local Go daemon</strong><small>user-scoped IPC · loopback browser API</small></div><b>online</b></div>
+      <div class="connector downward" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="adapters"><span>Docker</span><span>Processes</span><span>Git</span><span>Ports</span><span>SQLite</span></div>
+      <div class="boundary"><span>LOCAL MACHINE TRUST BOUNDARY</span></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust {
+    border-block: 1px solid var(--sy-border-subtle);
+    background: linear-gradient(130deg, color-mix(in srgb, var(--sy-bg-surface) 88%, transparent), color-mix(in srgb, var(--sy-accent-secondary) 7%, var(--sy-bg-canvas)));
+    padding-block: clamp(5rem, 9vw, 8rem);
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    align-items: center;
+    gap: clamp(2rem, 6vw, 6rem);
+  }
+
+  h2 {
+    margin: 0.6rem 0 1.2rem;
+    font-size: clamp(2.5rem, 5vw, 4.7rem);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .trust-copy > p:not(.eyebrow) {
+    color: var(--sy-text-muted);
+  }
+
+  ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 1.7rem 0 2rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    font-size: 0.92rem;
+    font-weight: 650;
+  }
+
+  li span { color: var(--sy-status-success); }
+
+  .architecture {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.4rem, 3vw, 2.4rem);
+    box-shadow: var(--sy-shadow);
+  }
+
+  .architecture::before {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgb(120 166 255 / 4%) 1px, transparent 1px), linear-gradient(90deg, rgb(120 166 255 / 4%) 1px, transparent 1px);
+    background-size: 28px 28px;
+    content: '';
+    pointer-events: none;
+  }
+
+  .diagram-title {
+    position: relative;
+    margin-top: 0;
+    color: var(--sy-text-muted);
+    font-family: var(--sy-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .clients,
+  .adapters {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.55rem;
+  }
+
+  .clients span,
+  .adapters span {
+    border: 1px solid var(--sy-border-subtle);
+    border-radius: 0.55rem;
+    background: var(--sy-bg-elevated);
+    padding: 0.65rem 0.35rem;
+    color: var(--sy-text-muted);
+    font-family: var(--sy-font-mono);
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .adapters {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .connector {
+    position: relative;
+    width: 72%;
+    height: 2.4rem;
+    margin: auto;
+    border-bottom: 1px solid var(--sy-border-subtle);
+  }
+
+  .connector::after,
+  .connector i {
+    position: absolute;
+    bottom: -1.2rem;
+    left: 50%;
+    width: 1px;
+    height: 1.2rem;
+    background: var(--sy-border-subtle);
+    content: '';
+  }
+
+  .connector i:first-child { left: 16%; }
+  .connector i:nth-child(2) { left: 33%; }
+  .connector i:nth-child(3) { left: 83%; }
+
+  .daemon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 1.2rem 8%;
+    border: 1px solid color-mix(in srgb, var(--sy-accent-primary) 55%, var(--sy-border-subtle));
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--sy-accent-primary) 9%, var(--sy-bg-surface));
+    padding: 0.9rem;
+  }
+
+  .mark {
+    display: grid;
+    width: 2.3rem;
+    height: 2.3rem;
+    place-items: center;
+    border-radius: 0.65rem;
+    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
+    color: #07101f;
+    font-weight: 900;
+  }
+
+  .daemon div { display: grid; }
+  .daemon small { color: var(--sy-text-muted); font-size: 0.68rem; }
+  .daemon b { margin-left: auto; color: var(--sy-status-success); font-family: var(--sy-font-mono); font-size: 0.67rem; text-transform: uppercase; }
+  .downward { transform: rotate(180deg); }
+
+  .boundary {
+    position: relative;
+    margin-top: 1.6rem;
+    border-top: 1px dashed var(--sy-status-success);
+    text-align: center;
+  }
+
+  .boundary span {
+    position: relative;
+    top: -0.75rem;
+    background: var(--sy-bg-surface);
+    color: var(--sy-status-success);
+    padding-inline: 0.7rem;
+    font-family: var(--sy-font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  @media (max-width: 900px) {
+    .trust-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .clients { grid-template-columns: 1fr 1fr; }
+    .adapters { grid-template-columns: repeat(3, 1fr); }
+    .daemon { margin-inline: 0; }
+    .daemon b { display: none; }
+  }
+</style>

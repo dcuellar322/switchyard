@@ -1,0 +1,19 @@
+---
+import { integrations } from '@/content/marketing/integrations'
+import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+---
+
+<ContentPageLayout title="Integrations that preserve your workflow" eyebrow="Toolchain" description="Switchyard connects to existing local runtimes, editors, terminals, Git, and coding agents through explicit adapters and typed contracts.">
+  <div class="integration-grid">{integrations.map((integration) => <a class="panel" href={`/integrations/${integration.slug}/`}><h2>{integration.name}</h2><p>{integration.summary}</p><span>Integration guide →</span></a>)}</div>
+</ContentPageLayout>
+
+<style>
+  .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  a { min-height: 12rem; padding: 1.3rem; text-decoration: none; }
+  a:hover { border-color: var(--sy-accent-primary); }
+  h2 { margin: 0; font-size: 1.12rem; }
+  p { color: var(--sy-text-muted); font-size: 0.88rem; }
+  span { display: block; margin-top: 1.5rem; color: var(--sy-accent-primary); font-size: 0.8rem; font-weight: 750; }
+  @media (max-width: 800px) { .integration-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .integration-grid { grid-template-columns: 1fr; } }
+</style>

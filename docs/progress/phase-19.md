@@ -1,4 +1,10 @@
-# Phase 19: Post-v1 optional expansion
+---
+title: "Phase 19: Post-v1 optional expansion"
+description: Implementation evidence for Switchyard product phase 19.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-07-17
+---
 
 ## Implemented
 

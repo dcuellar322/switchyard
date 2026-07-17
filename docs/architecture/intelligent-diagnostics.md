@@ -1,4 +1,11 @@
-# Intelligent diagnosis and safe automation
+---
+title: Intelligent diagnosis and safe automation
+description: Deterministic rules, evidence-bound AI hypotheses, and reviewed automation recipes.
+category: concept
+audience: [user, integrator, contributor]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 17 adds troubleshooting assistance without granting a new execution
 authority. Deterministic rules always run first. Optional AI receives one

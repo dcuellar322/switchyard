@@ -14,6 +14,14 @@ Start with the [getting-started guide](docs/getting-started.md), then review
 [v1 compatibility policy](docs/compatibility.md), and
 [security model](docs/security/threat-model.md).
 
+The public website and documentation portal build from the separate `site/`
+workspace package. Its canonical origin is
+`https://switchyard.davidcuellar.tech`; until the production hostname is
+activated, the root Markdown remains authoritative. Run `make site-quality`
+for generated references, type checking, lint, unit tests, the static build,
+and content/metadata validation. Browser and visual checks are available as
+`make site-test-e2e` and `make site-test-visual`.
+
 ## Architecture at a glance
 
 ```text

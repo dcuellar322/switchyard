@@ -1,4 +1,12 @@
-# Native process runtime
+---
+title: Native process runtime
+description: Process identity, ownership, cancellation, log capture, and external observation.
+category: concept
+audience: [user, contributor, integrator]
+platforms: [macos, linux, windows, wsl]
+since: 1.0.0
+lastVerified: 2026-07-17
+---
 
 Phase 6 implements accepted ADR-0007 behind the driver-neutral runtime
 application boundary. The process driver owns command construction,
@@ -106,4 +114,3 @@ macOS and Linux create and signal real process groups. Windows builds retain a
 bounded single-process fallback; Job Object ownership, tree termination, and
 full Windows acceptance coverage remain part of Phase 18 cross-platform
 hardening. Interactive PTYs remain Phase 14 work.
-
