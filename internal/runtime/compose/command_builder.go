@@ -82,7 +82,7 @@ func composeProfileArguments(request domain.PlanRequest) ([]string, []string, er
 			return nil, nil, fmt.Errorf("duplicate selected Compose profile %q", profile)
 		}
 		if _, ok := allowed[profile]; !ok {
-			return nil, nil, fmt.Errorf("Compose profile %q is not declared by the trusted manifest", profile)
+			return nil, nil, fmt.Errorf("compose profile %q is not declared by the trusted manifest", profile)
 		}
 		seen[profile] = struct{}{}
 		profiles = append(profiles, profile)

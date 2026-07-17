@@ -106,9 +106,10 @@ func activeContainerState(state container.ContainerState) bool {
 	switch state {
 	case container.StateRunning, container.StatePaused, container.StateRestarting, container.StateCreated:
 		return true
-	default:
+	case container.StateRemoving, container.StateExited, container.StateDead:
 		return false
 	}
+	return false
 }
 
 func allContainersOwned(managed *managedContainers, project string, items []container.Summary) bool {
