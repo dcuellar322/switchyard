@@ -74,8 +74,9 @@ func (composeScanner) Scan(_ context.Context, root application.Root) ([]domain.E
 type composeDocument struct {
 	Name     string `yaml:"name"`
 	Services map[string]struct {
-		Command any   `yaml:"command"`
-		Ports   []any `yaml:"ports"`
+		Command  any      `yaml:"command"`
+		Ports    []any    `yaml:"ports"`
+		Profiles []string `yaml:"profiles"`
 	} `yaml:"services"`
 }
 
@@ -92,6 +93,12 @@ func scanCompose(path string, contents []byte) ([]domain.Evidence, error) {
 	sort.Strings(serviceNames)
 	var result []domain.Evidence
 	for _, name := range serviceNames {
+		// Compose excludes profiled services unless that profile is explicitly
+		// enabled. Discovery describes the default lifecycle, so optional
+		// services must not make an otherwise healthy project look incomplete.
+		if len(document.Services[name].Profiles) > 0 {
+			continue
+		}
 		line := findYAMLKey(lines, name)
 		items, err := evidence("compose.service", path, line, line, .98, map[string]any{"service": name})
 		if err != nil {

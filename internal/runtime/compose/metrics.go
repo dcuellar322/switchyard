@@ -21,7 +21,7 @@ func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest
 	if err != nil {
 		return fmt.Errorf("list Compose containers for metrics: %w", err)
 	}
-	items := composeContainers(containers.Items, config.ProjectName)
+	items := composeContainers(containers.Items, config.ProjectName, config.Services)
 	sampled := 0
 	var lastErr error
 	for _, item := range items {

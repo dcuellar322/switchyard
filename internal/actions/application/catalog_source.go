@@ -47,6 +47,7 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 		return domain.ProjectActions{}, err
 	}
 	actions := make(map[string]domain.Definition)
+	primaryEndpointActionID := ""
 	for _, action := range effective.Manifest.Actions {
 		actions[action.ID] = definition(action)
 	}
@@ -67,10 +68,14 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 	addDefault(actions, domain.Definition{ID: "claude", Name: "Start Claude Code", Type: "agent.start", Provider: "claude", WorkingDirectory: ".", Risk: domain.RiskInteractive})
 	addDefault(actions, domain.Definition{ID: "git-pull", Name: "Git pull", Type: "git.pull", WorkingDirectory: ".", Risk: domain.RiskNetworked, TimeoutSeconds: 300})
 	for _, endpoint := range effective.Manifest.Endpoints {
+		actionID := "open-" + endpoint.ID
 		addDefault(actions, domain.Definition{
-			ID: "open-" + endpoint.ID, Name: "Open " + endpoint.Name, Type: "browser.open",
+			ID: actionID, Name: "Open " + endpoint.Name, Type: "browser.open",
 			Target: resolveEndpoint(endpoint.URL, effective.Manifest.Ports), Risk: domain.RiskInteractive,
 		})
+		if endpoint.Primary {
+			primaryEndpointActionID = actionID
+		}
 	}
 	result := make([]domain.Definition, 0, len(actions))
 	for _, action := range actions {
@@ -79,8 +84,20 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 		}
 		result = append(result, action)
 	}
-	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
+	sortDefinitions(result, primaryEndpointActionID)
 	return domain.ProjectActions{ProjectID: project.ID, ProjectName: project.DisplayName, Root: project.PrimaryLocation, Actions: result}, nil
+}
+
+func sortDefinitions(result []domain.Definition, primaryEndpointActionID string) {
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].ID == primaryEndpointActionID {
+			return true
+		}
+		if result[j].ID == primaryEndpointActionID {
+			return false
+		}
+		return result[i].ID < result[j].ID
+	})
 }
 
 func definition(action manifestDomain.Action) domain.Definition {

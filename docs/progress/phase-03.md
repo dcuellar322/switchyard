@@ -17,6 +17,9 @@
 - Added deterministic aggregation of Compose services and ports, lifecycle
   actions, uv/npm/Make/Just commands, tags, confidence by JSON Pointer, and
   unresolved fields.
+- Compose discovery models the default profile only, excluding explicitly
+  profiled optional services, and prefers conventional frontend service names
+  when selecting the inferred primary browser endpoint.
 - Added the typed `v1alpha1` project manifest, generated draft 2020-12 JSON
   Schema, strict YAML parsing, domain validation, canonical containment,
   executable warnings, port validation, and loopback health-check policy.
@@ -28,6 +31,9 @@
 - Pending duplicate-root scans now rerun deterministic discovery and atomically
   supersede the prior proposal, so adding a portable manifest during review no
   longer requires removing and recreating the catalog project.
+- Rescanning a trusted project creates a new reviewable proposal while the
+  accepted snapshot remains active; accepting it appends a manifest revision
+  and refreshes catalog metadata without deleting project history.
 - Trust failures distinguish schema validation errors from unresolved fields
   and report their JSON pointers instead of rendering an empty error list.
 - Added generated onboarding, catalog, manifest explain/diff/validate APIs;
@@ -69,6 +75,7 @@
 ```text
 Go manifest/discovery/catalog/SQLite tests: passed
 Pending proposal refresh and actionable trust-error regressions: passed
+Trusted-project rescan, optional Compose profile, and frontend endpoint regressions: passed
 Go full package suite and architecture check: passed
 Vue typecheck, ESLint, and Vitest: passed
 Playwright: system and evidence-backed onboarding flows passed

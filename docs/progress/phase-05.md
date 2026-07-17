@@ -14,6 +14,9 @@
 - Added Engine SDK observation keyed exclusively by canonical Compose labels,
   including external-origin recognition, health, exit state, restart count,
   container metadata, and published ports.
+- Compose observation, log, and metric membership is intersected with the
+  normalized default-profile service set, so stale containers from inactive
+  profiles cannot degrade or pollute the active project runtime.
 - Added bounded Docker stdout/stderr streaming with service/run identity and
   current CPU, memory, and network sampling.
 - Added dynamically maintained Engine event subscriptions; a project-labelled
@@ -54,7 +57,8 @@ truth, and current-session ownership is conservative.
 - Compose action/risk/effect command construction and root-containment checks.
 - Context/config normalization and deterministic service ordering.
 - Label-only membership, one-off exclusion, external recognition, disconnected
-  observations, state derivation, and published-port mapping.
+  observations, inactive-profile exclusion, state derivation, and
+  published-port mapping.
 - Docker log demultiplexing, timestamp/level handling, identity preservation,
   and CPU/network calculations.
 - Event label filtering and durable operation progress-state compatibility.

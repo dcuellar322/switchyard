@@ -18,6 +18,8 @@ func TestInspectUsesComposeLabelsAndRecognizesExternalProject(t *testing.T) {
 			{ID: "owned-by-label", Image: "fixture:latest", State: container.ContainerState("running"), Created: 1,
 				Labels: map[string]string{labelProject: "fixture", labelService: "web", labelNumber: "1"},
 				Ports:  []container.PortSummary{{IP: netip.MustParseAddr("127.0.0.1"), PublicPort: 18080, PrivatePort: 8080, Type: "tcp"}}},
+			{ID: "inactive-profile", Image: "fixture:latest", State: container.ContainerState("exited"), Created: 1,
+				Labels: map[string]string{labelProject: "fixture", labelService: "marketing", labelNumber: "1"}},
 			{ID: "wrong-project", Labels: map[string]string{labelProject: "other", labelService: "web"}},
 			{ID: "oneoff", Labels: map[string]string{labelProject: "fixture", labelService: "web", labelOneoff: "True"}},
 		},

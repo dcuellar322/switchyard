@@ -31,7 +31,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	if err != nil {
 		return disconnectedObservation(project, config, err), nil
 	}
-	items := composeContainers(containers.Items, config.ProjectName)
+	items := composeContainers(containers.Items, config.ProjectName, config.Services)
 	ids := make([]string, 0, len(items))
 	allOwned := len(items) > 0
 	for _, item := range items {
@@ -72,11 +72,20 @@ func disconnectedObservation(project domain.ProjectRuntime, config normalizedCon
 	}
 }
 
-func composeContainers(items []container.Summary, projectName string) []container.Summary {
+func composeContainers(items []container.Summary, projectName string, activeServices []string) []container.Summary {
 	result := make([]container.Summary, 0, len(items))
+	active := make(map[string]struct{}, len(activeServices))
+	for _, service := range activeServices {
+		active[service] = struct{}{}
+	}
 	for _, item := range items {
 		if item.Labels[labelProject] != projectName || strings.EqualFold(item.Labels[labelOneoff], "True") || item.Labels[labelService] == "" {
 			continue
+		}
+		if len(active) > 0 {
+			if _, enabled := active[item.Labels[labelService]]; !enabled {
+				continue
+			}
 		}
 		result = append(result, item)
 	}

@@ -203,7 +203,15 @@ func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at ti
 	if _, err = tx.ExecContext(ctx, `INSERT INTO manifest_snapshots (project_id, revision, proposal_id, manifest_json, created_at) VALUES (?, ?, ?, ?, ?)`, proposal.ProjectID, revision, id, candidate, formatTime(at)); err != nil {
 		return catalog.Project{}, discovery.Proposal{}, err
 	}
-	if _, err = tx.ExecContext(ctx, `UPDATE projects SET trust_state = 'trusted', manifest_revision = ?, updated_at = ? WHERE id = ?`, revision, formatTime(at), proposal.ProjectID); err != nil {
+	if _, err = tx.ExecContext(ctx, `UPDATE projects SET slug = ?, display_name = ?, description = ?, trust_state = 'trusted', manifest_revision = ?, updated_at = ? WHERE id = ?`,
+		proposal.Candidate.Metadata.ID, proposal.Candidate.Metadata.Name, proposal.Candidate.Metadata.Description,
+		revision, formatTime(at), proposal.ProjectID); err != nil {
+		return catalog.Project{}, discovery.Proposal{}, err
+	}
+	if _, err = tx.ExecContext(ctx, `DELETE FROM project_tags WHERE project_id = ?`, proposal.ProjectID); err != nil {
+		return catalog.Project{}, discovery.Proposal{}, err
+	}
+	if err = insertProjectTags(ctx, tx, proposal.ProjectID, proposal.Candidate.Metadata.Tags); err != nil {
 		return catalog.Project{}, discovery.Proposal{}, err
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO audit_events

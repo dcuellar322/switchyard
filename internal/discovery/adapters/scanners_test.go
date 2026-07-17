@@ -115,6 +115,54 @@ func TestPortableProcessManifestWinsAsReviewedProposal(t *testing.T) {
 	}
 }
 
+func TestComposeDiscoveryExcludesProfilesAndPrefersFrontendEndpoint(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir()
+	compose := `services:
+  backend:
+    image: example/backend
+    ports:
+      - "8000:8000"
+  frontend:
+    image: example/frontend
+    ports:
+      - "8080:5173"
+      - "5173:5173"
+  marketing:
+    image: example/marketing
+    profiles: [marketing]
+    ports:
+      - "8081:8081"
+`
+	if err := os.WriteFile(filepath.Join(path, "compose.yaml"), []byte(compose), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	root, err := application.SelectRoot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	proposal := application.BuildProposal(root, "project_profiles", "proposal_profiles", items)
+	if got := serviceIDs(proposal.Candidate.Services); !slices.Equal(got, []string{"backend", "frontend"}) {
+		t.Fatalf("default services = %v", got)
+	}
+	if len(proposal.Candidate.Ports) != 3 {
+		t.Fatalf("default ports = %#v", proposal.Candidate.Ports)
+	}
+	primary := ""
+	for _, endpoint := range proposal.Candidate.Endpoints {
+		if endpoint.Primary {
+			primary = endpoint.ID
+		}
+	}
+	if primary != "frontend" {
+		t.Fatalf("primary endpoint = %q, endpoints = %#v", primary, proposal.Candidate.Endpoints)
+	}
+}
+
 func serviceIDs(services []manifest.Service) []string {
 	result := make([]string, 0, len(services))
 	for _, service := range services {

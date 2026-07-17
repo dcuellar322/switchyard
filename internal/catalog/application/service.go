@@ -33,6 +33,7 @@ var (
 type Repository interface {
 	CreateProposal(context.Context, catalog.Project, discoveryDomain.Proposal, MutationActor) error
 	ReplacePendingProposal(context.Context, string, catalog.Project, discoveryDomain.Proposal, MutationActor) error
+	CreateRescanProposal(context.Context, string, discoveryDomain.Proposal, MutationActor) error
 	CreateRevision(context.Context, string, discoveryDomain.Proposal, MutationActor) error
 	FindProposalByLocation(context.Context, string) (catalog.Project, discoveryDomain.Proposal, error)
 	GetProposal(context.Context, string) (discoveryDomain.Proposal, error)
@@ -98,20 +99,23 @@ func (s *Service) ScanWithRootOverrideAs(ctx context.Context, path string, allow
 		}
 	}
 	if project, proposal, findErr := s.repository.FindProposalByLocation(ctx, root.Path); findErr == nil {
-		if project.TrustState != catalog.TrustPending || proposal.Status != discoveryDomain.StatusProposed {
-			return project, proposal, nil
-		}
 		refreshed, scanErr := s.buildProposal(ctx, root, project.ID)
 		if scanErr != nil {
 			return catalog.Project{}, discoveryDomain.Proposal{}, scanErr
 		}
-		project.Slug = refreshed.Candidate.Metadata.ID
-		project.DisplayName = refreshed.Candidate.Metadata.Name
-		project.Description = refreshed.Candidate.Metadata.Description
-		project.Tags = slices.Clone(refreshed.Candidate.Metadata.Tags)
-		project.UpdatedAt = refreshed.CreatedAt
-		if replaceErr := s.repository.ReplacePendingProposal(ctx, proposal.ID, project, refreshed, normalizedActor(actor)); replaceErr != nil {
-			return catalog.Project{}, discoveryDomain.Proposal{}, replaceErr
+		if project.TrustState == catalog.TrustPending && proposal.Status == discoveryDomain.StatusProposed {
+			project.Slug = refreshed.Candidate.Metadata.ID
+			project.DisplayName = refreshed.Candidate.Metadata.Name
+			project.Description = refreshed.Candidate.Metadata.Description
+			project.Tags = slices.Clone(refreshed.Candidate.Metadata.Tags)
+			project.UpdatedAt = refreshed.CreatedAt
+			if replaceErr := s.repository.ReplacePendingProposal(ctx, proposal.ID, project, refreshed, normalizedActor(actor)); replaceErr != nil {
+				return catalog.Project{}, discoveryDomain.Proposal{}, replaceErr
+			}
+			return project, refreshed, nil
+		}
+		if createErr := s.repository.CreateRescanProposal(ctx, proposal.ID, refreshed, normalizedActor(actor)); createErr != nil {
+			return catalog.Project{}, discoveryDomain.Proposal{}, createErr
 		}
 		return project, refreshed, nil
 	} else if !errors.Is(findErr, ErrNotFound) {

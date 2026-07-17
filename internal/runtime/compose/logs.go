@@ -29,7 +29,7 @@ func (d *Driver) streamLogs(ctx context.Context, request domain.LogRequest, conf
 		return fmt.Errorf("list Compose containers for logs: %w", err)
 	}
 	group, groupCtx := errgroup.WithContext(ctx)
-	for _, item := range composeContainers(containers.Items, config.ProjectName) {
+	for _, item := range composeContainers(containers.Items, config.ProjectName, config.Services) {
 		item := item
 		group.Go(func() error { return streamContainerLogs(groupCtx, engine, request, item, sink) })
 	}

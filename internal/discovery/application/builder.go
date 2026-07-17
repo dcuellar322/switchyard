@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -61,9 +62,12 @@ func BuildProposal(root Root, projectID, proposalID string, items []domain.Evide
 	for index, service := range candidate.Services {
 		confidence["/services/"+strconv.Itoa(index)] = bestConfidence(items, "compose.service", service.Source.ComposeService)
 	}
+	primaryPortID := primaryEndpointPort(candidate.Ports)
 	for index, port := range candidate.Ports {
 		confidence["/ports/"+strconv.Itoa(index)] = bestConfidence(items, "compose.port", port.Service)
-		candidate.Endpoints = append(candidate.Endpoints, manifest.Endpoint{ID: port.ID, Name: port.ID, URL: "http://127.0.0.1:${ports." + port.ID + "}", Primary: index == 0})
+		candidate.Endpoints = append(candidate.Endpoints, manifest.Endpoint{
+			ID: port.ID, Name: port.ID, URL: "http://127.0.0.1:${ports." + port.ID + "}", Primary: port.ID == primaryPortID,
+		})
 	}
 	unresolved := unresolvedFields(candidate)
 	return domain.Proposal{
@@ -71,6 +75,31 @@ func BuildProposal(root Root, projectID, proposalID string, items []domain.Evide
 		SchemaVersion: manifest.SchemaVersion, Candidate: candidate, Evidence: items,
 		ConfidenceByField: confidence, Unresolved: unresolved, Status: domain.StatusProposed,
 	}
+}
+
+func primaryEndpointPort(ports []manifest.Port) string {
+	if len(ports) == 0 {
+		return ""
+	}
+	bestID, bestRank := ports[0].ID, frontendServiceRank(ports[0].Service)
+	for _, port := range ports[1:] {
+		if rank := frontendServiceRank(port.Service); rank > bestRank {
+			bestID, bestRank = port.ID, rank
+		}
+	}
+	return bestID
+}
+
+func frontendServiceRank(service string) int {
+	tokens := strings.FieldsFunc(strings.ToLower(service), func(r rune) bool {
+		return r == '-' || r == '_' || r == '.'
+	})
+	for rank, preferred := range []string{"site", "app", "client", "ui", "web", "frontend"} {
+		if slices.Contains(tokens, preferred) {
+			return rank + 1
+		}
+	}
+	return 0
 }
 
 func explicitManifest(items []domain.Evidence) (manifest.Manifest, bool) {

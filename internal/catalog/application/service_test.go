@@ -146,6 +146,59 @@ services:
 	}
 }
 
+func TestTrustedProjectRescanCreatesReviewableRevision(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = database.Close() })
+	service := application.NewService(sqlite.NewCatalogRepository(database), adapters.Defaults())
+	root := t.TempDir()
+	composePath := filepath.Join(root, "compose.yaml")
+	writeCompose := func(port string) {
+		t.Helper()
+		contents := "services:\n  frontend:\n    image: example/frontend\n    ports:\n      - \"" + port + ":5173\"\n"
+		if err := os.WriteFile(composePath, []byte(contents), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	writeCompose("8080")
+	project, first, err := service.Scan(ctx, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	trusted, _, err := service.TrustProject(ctx, project.ID)
+	if err != nil || trusted.ManifestRevision != 1 {
+		t.Fatalf("initial trust project=%#v error=%v", trusted, err)
+	}
+
+	writeCompose("8181")
+	rescannedProject, rescanned, err := service.Scan(ctx, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rescannedProject.TrustState != catalogDomain.TrustTrusted || rescannedProject.ManifestRevision != 1 {
+		t.Fatalf("rescan changed current trust = %#v", rescannedProject)
+	}
+	if rescanned.ID == first.ID || rescanned.Status != discoveryDomain.StatusProposed || rescanned.Candidate.Ports[0].Host != 8181 {
+		t.Fatalf("rescan proposal = %#v", rescanned)
+	}
+	current, err := service.EffectiveManifest(ctx, project.ID, nil)
+	if err != nil || current.Manifest.Ports[0].Host != 8080 {
+		t.Fatalf("rescan changed accepted manifest = %#v error=%v", current.Manifest, err)
+	}
+	updated, _, err := service.TrustProject(ctx, project.ID)
+	if err != nil || updated.ManifestRevision != 2 {
+		t.Fatalf("revision trust project=%#v error=%v", updated, err)
+	}
+	effective, err := service.EffectiveManifest(ctx, project.ID, nil)
+	if err != nil || effective.Manifest.Ports[0].Host != 8181 {
+		t.Fatalf("accepted revision = %#v error=%v", effective.Manifest, err)
+	}
+}
+
 func TestTrustReportsUnresolvedProposalFields(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
