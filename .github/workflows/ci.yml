@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -66,7 +66,7 @@ jobs:
             os: windows-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -121,7 +121,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -157,7 +157,7 @@ jobs:
             os: windows-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
@@ -175,7 +175,7 @@ jobs:
     needs: [go, go-lint, platforms, frontend, desktop, sidecar-cross-platform]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
