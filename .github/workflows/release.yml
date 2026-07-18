@@ -61,7 +61,7 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: release --clean --skip=publish
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: switchyard-cli
           path: |
@@ -156,7 +156,7 @@ jobs:
           format: cyclonedx-json
           output-file: desktop-${{ matrix.artifact }}.cyclonedx.json
           artifact-name: desktop-${{ matrix.artifact }}-sbom
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: switchyard-desktop-${{ matrix.artifact }}
           path: |

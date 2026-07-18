@@ -30,7 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --dir site releases
       - run: pnpm --dir site packages:draft --expect-tag "$RELEASE_TAG"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: package-distribution-${{ env.RELEASE_TAG }}
           path: site/.generated/package-drafts

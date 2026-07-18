@@ -39,7 +39,7 @@ jobs:
       - run: pnpm --dir site releases
       - run: pnpm site:build
       - run: pnpm site:validate
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: public-site-deploy-${{ github.sha }}
           path: site/dist

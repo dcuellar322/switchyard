@@ -39,7 +39,7 @@ jobs:
       - run: pnpm --dir site exec playwright install --with-deps chromium firefox webkit
       - run: pnpm site:test:e2e
       - run: pnpm site:test:visual
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: public-site-${{ github.sha }}

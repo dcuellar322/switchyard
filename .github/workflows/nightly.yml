@@ -37,7 +37,7 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: release --snapshot --clean
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: switchyard-nightly-${{ github.sha }}
           path: |
