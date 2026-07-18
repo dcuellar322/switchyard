@@ -127,7 +127,7 @@ jobs:
           $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
           $certificate = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $password
           "thumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_OUTPUT
-      - uses: crazy-max/ghaction-import-gpg@v6
+      - uses: crazy-max/ghaction-import-gpg@v7
         if: runner.os == 'Linux'
         with:
           gpg_private_key: ${{ secrets.LINUX_GPG_PRIVATE_KEY }}
