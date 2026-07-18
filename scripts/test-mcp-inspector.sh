@@ -37,17 +37,20 @@ inspect() {
     --provider inspector --agent-id smoke --profile observe --method "$1"
 }
 
-TOOLS=$(inspect tools/list)
-printf '%s\n' "$TOOLS" | rg -q 'switchyard_system_info'
-if printf '%s\n' "$TOOLS" | rg -q 'switchyard_project_teardown'; then
+TOOLS_FILE="$DATA_DIR/tools.json"
+inspect tools/list >"$TOOLS_FILE"
+grep -Fq 'switchyard_system_info' "$TOOLS_FILE"
+if grep -Fq 'switchyard_project_teardown' "$TOOLS_FILE"; then
   printf 'Observe profile unexpectedly exposed destructive teardown\n' >&2
   exit 1
 fi
 
-RESOURCES=$(inspect resources/list)
-printf '%s\n' "$RESOURCES" | rg -q 'switchyard://system'
+RESOURCES_FILE="$DATA_DIR/resources.json"
+inspect resources/list >"$RESOURCES_FILE"
+grep -Fq 'switchyard://system' "$RESOURCES_FILE"
 
-PROMPTS=$(inspect prompts/list)
-printf '%s\n' "$PROMPTS" | rg -q 'switchyard_start_and_verify'
+PROMPTS_FILE="$DATA_DIR/prompts.json"
+inspect prompts/list >"$PROMPTS_FILE"
+grep -Fq 'switchyard_start_and_verify' "$PROMPTS_FILE"
 
 printf 'MCP Inspector smoke passed (tools, resources, prompts; observe profile)\n'

@@ -86,7 +86,7 @@ test("manages a native process project through durable browser operations", asyn
     page.getByRole("heading", { name: "npm single-process fixture" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Start" }).click();
+  await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.getByText("Running", { exact: true }).first()).toBeVisible({
     timeout: 20_000,
   });
@@ -173,7 +173,7 @@ test("manages a real Compose project through the same browser workflow", async (
           new URL(response.url()).pathname,
         ),
     );
-    await page.getByRole("button", { name: "Start" }).click();
+    await page.getByRole("button", { name: "Start", exact: true }).click();
     const operation = (await (await operationResponse).json()) as {
       id: string;
     };
