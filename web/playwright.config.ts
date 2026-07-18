@@ -5,7 +5,7 @@ const daemonAddress = process.env.SWITCHYARD_E2E_DAEMON_ADDRESS ?? '127.0.0.1:29
 
 export default defineConfig({
   testDir: './tests',
-  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{platform}{ext}',
   // Runtime tests share one daemon, database, port registry, and Docker engine.
   // Keep tests within a file ordered so lifecycle-heavy scenarios cannot starve
   // or race one another; independent spec files may still run concurrently.
