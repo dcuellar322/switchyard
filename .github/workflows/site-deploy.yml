@@ -76,7 +76,7 @@ jobs:
       - if: steps.deployment.outputs.configured == 'true'
         run: pnpm install --frozen-lockfile
       - if: steps.deployment.outputs.configured == 'true'
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: public-site-deploy-${{ github.sha }}
           path: site/dist
@@ -114,7 +114,7 @@ jobs:
       - if: steps.deployment.outputs.configured == 'true'
         run: pnpm install --frozen-lockfile
       - if: steps.deployment.outputs.configured == 'true'
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: public-site-deploy-${{ github.sha }}
           path: site/dist
