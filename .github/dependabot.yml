@@ -11,6 +11,15 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # type-fest 3 fails with TypeScript 6, while 4 and 5 removed the export
+      # required by @testing-library/vue 8.1.0. No newer release is available.
+      - dependency-name: type-fest
+        versions: ["3.x", "4.x", "5.x"]
+      # TypeScript 7 does not yet expose the compiler API required by Astro,
+      # vue-tsc, and typescript-eslint.
+      - dependency-name: typescript
+        versions: ["7.x"]
     groups:
       frontend-minor-patch:
         update-types: [minor, patch]
