@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { Activity, Search } from "@lucide/vue";
-import { computed } from "vue";
+import { Activity, Search } from '@lucide/vue'
+import { computed } from 'vue'
 
-import { formatBytes } from "../../lib/format";
-import { useOperationStore } from "../../domains/operations/store";
-import { useHostObservation } from "../../domains/system/composables/useHostObservation";
+import { formatBytes } from '../../lib/format'
+import { useOperationStore } from '../../domains/operations/store'
+import { useHostObservation } from '../../domains/system/composables/useHostObservation'
 
-defineEmits<{ palette: [] }>();
-const host = useHostObservation();
-const operations = useOperationStore();
+defineEmits<{ palette: [] }>()
+const host = useHostObservation()
+const operations = useOperationStore()
 const activeCount = computed(
   () =>
     operations.operations.value.filter(
-      (item) => item.state === "queued" || item.state === "running",
+      (item) => item.state === 'queued' || item.state === 'running',
     ).length,
-);
+)
 </script>
 
 <template>
@@ -26,14 +26,13 @@ const activeCount = computed(
       aria-haspopup="dialog"
       @click="$emit('palette')"
     >
-      <Search :size="16" aria-hidden="true" /><span>Projects, commands, ports…</span
-      ><kbd>⌘ K</kbd>
+      <Search :size="16" aria-hidden="true" /><span>Projects, commands, ports…</span><kbd>⌘ K</kbd>
     </button>
     <div class="host-metrics" :aria-busy="host.isPending.value">
       <span class="metric-pill"
         >CPU
         <strong>{{
-          host.data.value ? `${host.data.value.cpuPercent.toFixed(0)}%` : "—"
+          host.data.value ? `${host.data.value.cpuPercent.toFixed(0)}%` : '—'
         }}</strong></span
       >
       <span class="metric-pill"
@@ -41,7 +40,7 @@ const activeCount = computed(
         <strong>{{
           host.data.value
             ? `${formatBytes(host.data.value.memoryUsedBytes)} / ${formatBytes(host.data.value.memoryTotalBytes, 0)}`
-            : "—"
+            : '—'
         }}</strong></span
       >
       <span
@@ -55,15 +54,13 @@ const activeCount = computed(
         <strong>{{
           host.data.value?.docker.connected
             ? formatBytes(host.data.value.docker.storageBytes)
-            : "offline"
+            : 'offline'
         }}</strong></span
       >
       <button
         class="operation-button"
         type="button"
-        :aria-label="
-          activeCount ? `${activeCount} active operations` : 'Open operations'
-        "
+        :aria-label="activeCount ? `${activeCount} active operations` : 'Open operations'"
         @click="operations.toggle()"
       >
         <Activity :size="18" aria-hidden="true" /><span v-if="activeCount">{{ activeCount }}</span>

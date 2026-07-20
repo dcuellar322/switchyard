@@ -85,6 +85,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 		Driver: domain.KindProcess, ProjectIdentity: project.ProjectSlug, ServiceIdentity: service.service.ID,
 		RunID: runID, Action: "start", OccurredAt: d.now().UTC(),
 	})
+	//nolint:gosec // G118: runtime supervision intentionally outlives the start request and is owned by Driver.
 	go d.monitor(managed, command, environment)
 	return managed, true, nil
 }
@@ -117,18 +118,26 @@ func (d *Driver) launch(
 	}
 	_ = stdoutWriter.Close()
 	_ = stderrWriter.Close()
-	ownership, err := newProcessOwnership(command)
+	pid, err := boundedPID(command.Process.Pid)
 	if err != nil {
 		_ = stdoutReader.Close()
 		_ = stderrReader.Close()
-		abortOwnedProcess(command, nil, int32(command.Process.Pid))
+		_ = command.Process.Kill()
+		_, _ = command.Process.Wait()
+		return nil, domain.ProcessIdentity{}, nil, err
+	}
+	ownership, err := newProcessOwnership(command, pid)
+	if err != nil {
+		_ = stdoutReader.Close()
+		_ = stderrReader.Close()
+		abortOwnedProcess(command, nil, pid)
 		return nil, domain.ProcessIdentity{}, nil, fmt.Errorf("establish process-tree ownership: %w", err)
 	}
-	identity, err := d.snapshotStartedProcess(ctx, int32(command.Process.Pid))
+	identity, err := d.snapshotStartedProcess(ctx, pid)
 	if err != nil {
 		_ = stdoutReader.Close()
 		_ = stderrReader.Close()
-		abortOwnedProcess(command, ownership, int32(command.Process.Pid))
+		abortOwnedProcess(command, ownership, pid)
 		return nil, domain.ProcessIdentity{}, nil, err
 	}
 	identity.ProcessGroup = ownership.Group()

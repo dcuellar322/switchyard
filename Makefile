@@ -12,6 +12,7 @@ OAPI_CODEGEN := $(GO) run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codeg
 SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
+PLATFORM_PACKAGES := ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
 
 .PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
 
@@ -95,9 +96,11 @@ run: frontend-build
 
 fmt:
 	GOCACHE=$(GOCACHE) $(GO) fmt ./...
+	$(PNPM) --dir web format
 
 fmt-check:
 	test -z "$$(gofmt -l $$(find cmd internal migrations tools web sdk examples test -name '*.go' -type f))"
+	$(PNPM) --dir web format:check
 
 archcheck:
 	GOCACHE=$(GOCACHE) $(GO) run ./tools/archcheck
@@ -141,8 +144,8 @@ migrate-check:
 	GOCACHE=$(GOCACHE) $(GO) test ./internal/platform/sqlite -run TestOpenMigratesEmptyDatabase -count=1
 
 platform-check:
-	GOOS=linux GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
-	GOOS=windows GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
+	GOOS=linux GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true $(PLATFORM_PACKAGES)
+	GOOS=windows GOARCH=amd64 GOCACHE=$(GOCACHE) $(GO) test -exec true $(PLATFORM_PACKAGES)
 
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...

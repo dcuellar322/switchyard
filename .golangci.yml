@@ -14,6 +14,7 @@ linters:
     - exhaustive
     - gocritic
     - gocyclo
+    - gosec
     - govet
     - ineffassign
     - nilerr
@@ -23,6 +24,15 @@ linters:
   settings:
     gocyclo:
       min-complexity: 20
+    gosec:
+      excludes:
+        # These rules are intentionally enforced at typed trust boundaries instead:
+        # subprocesses and repository paths are core product capabilities. Other
+        # false positives stay locally documented so new credential, permission,
+        # and cancellation findings remain enabled repository-wide.
+        - G204
+        - G304
+        - G703
     depguard:
       rules:
         project-dependencies:
@@ -39,7 +49,7 @@ linters:
     warn-unused: true
     rules:
       - path: _test\.go
-        linters: [gocyclo]
+        linters: [gocyclo, gosec]
 
 formatters:
   enable:

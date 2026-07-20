@@ -35,3 +35,16 @@ func TestInspectGovernanceReportsMissingRoadmapInventory(t *testing.T) {
 		}
 	}
 }
+
+func TestInspectProgressEvidenceRequiresStructureAndResolvedCriteria(t *testing.T) {
+	t.Parallel()
+	valid := []byte("## Implemented\nDone.\n## Architecture decisions\nNone.\n## Exit criteria\n- [x] Verified\n## Verification evidence\n`go test ./...` passed.\n")
+	if findings := inspectProgressEvidence("phase.md", valid); len(findings) != 0 {
+		t.Fatalf("valid progress evidence findings = %#v", findings)
+	}
+	incomplete := []byte("## Implemented\n## Exit criteria\n- [ ] Not verified\n")
+	findings := inspectProgressEvidence("phase.md", incomplete)
+	if len(findings) != 4 {
+		t.Fatalf("incomplete progress evidence findings = %#v", findings)
+	}
+}

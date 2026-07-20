@@ -6,14 +6,16 @@ const daemonAddress = process.env.SWITCHYARD_E2E_DAEMON_ADDRESS ?? '127.0.0.1:29
 export default defineConfig({
   testDir: './tests',
   snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{platform}{ext}',
-  // Runtime tests share one daemon, database, port registry, and Docker engine.
-  // Keep tests within a file ordered so lifecycle-heavy scenarios cannot starve
-  // or race one another; independent spec files may still run concurrently.
+  // Every browser flow shares one daemon, database, port registry, and Docker
+  // engine. Serial execution prevents settings, discovery, and lifecycle flows
+  // from racing each other or competing during cold Vite transforms.
   fullyParallel: false,
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   expect: {
+    timeout: 15_000,
     toHaveScreenshot: {
       threshold: 0.3,
       maxDiffPixelRatio: 0.02,
@@ -42,7 +44,7 @@ export default defineConfig({
           command: './scripts/run-e2e-daemon.sh',
           cwd: '..',
           url: `http://${daemonAddress}/api/v1/system`,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: false,
           timeout: 120_000,
           gracefulShutdown: { signal: 'SIGTERM', timeout: 5_000 },
         },
@@ -50,7 +52,7 @@ export default defineConfig({
           command: 'pnpm dev',
           env: { SWITCHYARD_E2E_DAEMON_ADDRESS: daemonAddress },
           url: 'http://127.0.0.1:4173',
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: false,
           timeout: 120_000,
         },
       ],

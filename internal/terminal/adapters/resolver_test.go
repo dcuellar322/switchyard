@@ -16,6 +16,9 @@ import (
 func TestComposeExecUsesDeclaredServiceAndArgumentArray(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "compose.yaml"), []byte("services: {}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	resolver := &Resolver{}
 	plan, err := resolver.composeExec(application.LaunchPlan{ProjectID: "project", WorkingDirectory: root}, manifestDomain.Manifest{
 		Runtime:  manifestDomain.Runtime{Driver: "compose", Compose: &manifestDomain.ComposeConfig{Files: []string{"compose.yaml"}, ProjectName: "declared", Context: "desktop-linux"}},
@@ -24,7 +27,11 @@ func TestComposeExecUsesDeclaredServiceAndArgumentArray(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"--context", "desktop-linux", "compose", "--project-directory", root, "--file", filepath.Join(root, "compose.yaml"), "--project-name", "worktree_name", "exec", "postgres", "psql"}
+	resolvedRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"--context", "desktop-linux", "compose", "--project-directory", resolvedRoot, "--file", filepath.Join(resolvedRoot, "compose.yaml"), "--project-name", "worktree_name", "exec", "postgres", "psql"}
 	if plan.Executable != "docker" || !reflect.DeepEqual(plan.Arguments, want) {
 		t.Fatalf("plan = %#v, want args %#v", plan, want)
 	}
@@ -42,6 +49,26 @@ func TestComposeExecRejectsUndeclaredServiceAndEscapingFile(t *testing.T) {
 	base.Runtime.Compose.Files = []string{"../compose.yaml"}
 	if _, err := resolver.composeExec(application.LaunchPlan{WorkingDirectory: root}, base, "", "api", "sh", "shell"); err == nil {
 		t.Fatal("escaping Compose file was accepted")
+	}
+}
+
+func TestComposeExecRejectsSymlinkEscapingTrustedRoot(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	outside := filepath.Join(t.TempDir(), "compose.yaml")
+	if err := os.WriteFile(outside, []byte("services: {}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "compose.yaml")
+	if err := os.Symlink(outside, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	manifest := manifestDomain.Manifest{
+		Runtime:  manifestDomain.Runtime{Driver: "compose", Compose: &manifestDomain.ComposeConfig{Files: []string{"compose.yaml"}}},
+		Services: []manifestDomain.Service{{ID: "api", Source: manifestDomain.ServiceSource{ComposeService: "api"}}},
+	}
+	if _, err := (&Resolver{}).composeExec(application.LaunchPlan{WorkingDirectory: root}, manifest, "", "api", "sh", "shell"); err == nil {
+		t.Fatal("symlinked Compose file outside the trusted root was accepted")
 	}
 }
 

@@ -1,11 +1,19 @@
 /* eslint-disable vue/one-component-per-file */
-import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-import { render, screen } from "@testing-library/vue";
-import { defineComponent } from "vue";
-import { createMemoryHistory, createRouter } from "vue-router";
-import { expect, test, vi } from "vitest";
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { render, screen } from '@testing-library/vue'
+import { defineComponent } from 'vue'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import { expect, test, vi } from 'vitest'
 
-vi.mock("../../src/domains/system/api", () => ({
+vi.mock('../../src/domains/system/api', () => ({
+  loadSystemInfo: vi.fn().mockResolvedValue({
+    version: '1.0.0',
+    commit: 'fixture',
+    apiVersion: 'v1',
+    databaseSchemaVersion: 1,
+    status: 'ready',
+    startedAt: '2026-07-15T12:00:00Z',
+  }),
   loadHostObservation: vi.fn().mockResolvedValue({
     cpuPercent: 12,
     memoryUsedBytes: 1_073_741_824,
@@ -14,62 +22,58 @@ vi.mock("../../src/domains/system/api", () => ({
       connected: true,
       storageBytes: 2_147_483_648,
       reclaimableBytes: 0,
-      attribution: "shared",
+      attribution: 'shared',
     },
-    observedAt: "2026-07-15T12:00:00Z",
+    observedAt: '2026-07-15T12:00:00Z',
     warnings: [],
   }),
-}));
+}))
 
-vi.mock("../../src/domains/system/settingsApi", () => ({
+vi.mock('../../src/domains/system/settingsApi', () => ({
   loadDaemonSettings: vi.fn().mockResolvedValue({
-    settings: { appearance: { density: "comfortable", timeDisplay: "relative", theme: "dark" } },
+    settings: { appearance: { density: 'comfortable', timeDisplay: 'relative', theme: 'dark' } },
     pendingRestart: [],
   }),
-}));
+}))
 
-vi.mock("../../src/domains/projects/api", () => ({
-  loadProjects: vi
-    .fn()
-    .mockResolvedValue([{ id: "project-1", displayName: "Alpha", tags: [] }]),
+vi.mock('../../src/domains/projects/api', () => ({
+  loadProjects: vi.fn().mockResolvedValue([{ id: 'project-1', displayName: 'Alpha', tags: [] }]),
   runProjectAction: vi.fn(),
   runRuntimeAction: vi.fn(),
-}));
+}))
 
-vi.mock("../../src/domains/ports/api", () => ({
-  loadPortRegistry: vi
-    .fn()
-    .mockResolvedValue({
-      facts: [],
-      conflicts: [],
-      warnings: [],
-      observedAt: "2026-07-15T12:00:00Z",
-    }),
-}));
+vi.mock('../../src/domains/ports/api', () => ({
+  loadPortRegistry: vi.fn().mockResolvedValue({
+    facts: [],
+    conflicts: [],
+    warnings: [],
+    observedAt: '2026-07-15T12:00:00Z',
+  }),
+}))
 
-vi.mock("../../src/domains/operations/api", () => ({
+vi.mock('../../src/domains/operations/api', () => ({
   loadOperations: vi.fn().mockResolvedValue([]),
   requestOperationCancellation: vi.fn(),
-}));
+}))
 
-import App from "../../src/app/App.vue";
+import App from '../../src/app/App.vue'
 
-test("renders the routed application shell with live host and catalog summaries", async () => {
+test('renders the routed application shell with live host and catalog summaries', async () => {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       {
-        path: "/",
-        component: defineComponent({ template: "<h1>Dashboard content</h1>" }),
+        path: '/',
+        component: defineComponent({ template: '<h1>Dashboard content</h1>' }),
       },
       {
-        path: "/:pathMatch(.*)*",
-        component: defineComponent({ template: "<div />" }),
+        path: '/:pathMatch(.*)*',
+        component: defineComponent({ template: '<div />' }),
       },
     ],
-  });
-  await router.push("/");
-  await router.isReady();
+  })
+  await router.push('/')
+  await router.isReady()
 
   render(App, {
     global: {
@@ -85,17 +89,12 @@ test("renders the routed application shell with live host and catalog summaries"
         ],
       ],
     },
-  });
+  })
 
-  expect(
-    await screen.findByRole("heading", { name: "Dashboard content" }),
-  ).toBeInTheDocument();
-  expect(await screen.findByText("12%")).toBeInTheDocument();
-  expect(
-    screen.getByRole("complementary", { name: "Primary navigation" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: /Projects, commands, ports/ }),
-  ).toBeInTheDocument();
-  expect(screen.getByText(/1 project indexed/)).toBeInTheDocument();
-});
+  expect(await screen.findByRole('heading', { name: 'Dashboard content' })).toBeInTheDocument()
+  expect(await screen.findByText('12%')).toBeInTheDocument()
+  expect(screen.getByRole('complementary', { name: 'Primary navigation' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /Projects, commands, ports/ })).toBeInTheDocument()
+  expect(screen.getByText(/1 project indexed/)).toBeInTheDocument()
+  expect(screen.getByText('1.0.0')).toBeInTheDocument()
+})

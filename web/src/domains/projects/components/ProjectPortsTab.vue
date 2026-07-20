@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { RouterLink } from 'vue-router'
 
-import type { PortFact } from "../../../api/generated/types.gen";
+import type { PortFact } from '../../../api/generated/types.gen'
 
-defineProps<{ ports: Array<PortFact> }>();
+defineProps<{ ports: Array<PortFact> }>()
 </script>
 
 <template>
@@ -20,9 +20,7 @@ defineProps<{ ports: Array<PortFact> }>();
         <dt>{{ fact.port }}/{{ fact.protocol }}</dt>
         <dd>{{ fact.serviceId ?? fact.kind }} · {{ fact.source }}</dd>
       </div>
-      <p v-if="!ports.length" class="panel-state">
-        No declared, reserved, or observed ports.
-      </p>
+      <p v-if="!ports.length" class="panel-state">No declared, reserved, or observed ports.</p>
     </div>
   </article>
 </template>

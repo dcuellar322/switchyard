@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery } from '@tanstack/vue-query'
 
-import { loadHostObservation } from "../api";
+import { loadHostObservation } from '../api'
 
 export function useHostObservation() {
   return useQuery({
-    queryKey: ["host-observation"],
+    queryKey: ['host-observation'],
     queryFn: loadHostObservation,
     refetchInterval: 15_000,
-  });
+  })
 }

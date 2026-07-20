@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"math"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -168,6 +169,9 @@ func number(value any) (int, bool) {
 	case int:
 		return value, true
 	case uint64:
+		if value > uint64(math.MaxInt) {
+			return 0, false
+		}
 		return int(value), true
 	case string:
 		parsed, err := strconv.Atoi(value)

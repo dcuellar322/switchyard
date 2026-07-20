@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Plus, ScanSearch } from "@lucide/vue";
-import { RouterLink } from "vue-router";
+import { Plus, ScanSearch } from '@lucide/vue'
+import { RouterLink } from 'vue-router'
 
-import { formatBytes } from "../../../lib/format";
-import DashboardProjectCard from "../components/DashboardProjectCard.vue";
-import { useDashboard } from "../composables/useDashboard";
+import { formatBytes } from '../../../lib/format'
+import DashboardProjectCard from '../components/DashboardProjectCard.vue'
+import { useDashboard } from '../composables/useDashboard'
 
-withDefaults(defineProps<{ catalogOnly?: boolean }>(), { catalogOnly: false });
+withDefaults(defineProps<{ catalogOnly?: boolean }>(), { catalogOnly: false })
 const {
   projects,
   projectList,
@@ -29,7 +29,7 @@ const {
   runLifecycle,
   clearFilters,
   markProjectAccess,
-} = useDashboard();
+} = useDashboard()
 </script>
 
 <template>
@@ -41,13 +41,13 @@ const {
       <div>
         <p v-if="catalogOnly" class="eyebrow">Project catalog</p>
         <h1 :id="catalogOnly ? 'projects-title' : 'dashboard-title'">
-          {{ catalogOnly ? "Projects" : "Your development yard" }}
+          {{ catalogOnly ? 'Projects' : 'Your development yard' }}
         </h1>
         <p>
           {{
             catalogOnly
-              ? "Managed repositories, runtimes, and trusted actions."
-              : "Your local development environment at a glance."
+              ? 'Managed repositories, runtimes, and trusted actions.'
+              : 'Your local development environment at a glance.'
           }}
         </p>
       </div>
@@ -61,11 +61,7 @@ const {
       </div>
     </header>
 
-    <div
-      v-if="!catalogOnly"
-      class="summary-grid"
-      aria-label="Environment summary"
-    >
+    <div v-if="!catalogOnly" class="summary-grid" aria-label="Environment summary">
       <article class="summary-card">
         <span>Running projects</span><strong>{{ runningCount }}</strong
         ><small>{{ serviceCount }} services currently running</small>
@@ -77,12 +73,10 @@ const {
       <article class="summary-card">
         <span>Port conflicts</span
         ><strong :class="{ conflict: ports.data.value?.conflicts.length }">{{
-          ports.data.value?.conflicts.length ?? "—"
+          ports.data.value?.conflicts.length ?? '—'
         }}</strong
         ><small>{{
-          ports.data.value?.conflicts.length
-            ? "Action recommended"
-            : "No managed overlap detected"
+          ports.data.value?.conflicts.length ? 'Action recommended' : 'No managed overlap detected'
         }}</small>
       </article>
       <article class="summary-card">
@@ -91,18 +85,14 @@ const {
           partialCount
             ? `${partialCount} projects have partial data`
             : repoAttention
-              ? "Review branch and working-tree state"
-              : "Git snapshots are current"
+              ? 'Review branch and working-tree state'
+              : 'Git snapshots are current'
         }}</small>
       </article>
     </div>
 
-    <div
-      v-if="host.data.value?.warnings.length"
-      class="partial-banner"
-      role="status"
-    >
-      Partial host data: {{ host.data.value.warnings.join(" ") }}
+    <div v-if="host.data.value?.warnings.length" class="partial-banner" role="status">
+      Partial host data: {{ host.data.value.warnings.join(' ') }}
     </div>
     <div v-if="operationError" class="error-banner" role="alert">
       {{ operationError }}
@@ -144,20 +134,12 @@ const {
       >
     </div>
 
-    <div
-      v-if="projects.isPending.value"
-      class="projects-grid"
-      aria-live="polite"
-    >
+    <div v-if="projects.isPending.value" class="projects-grid" aria-live="polite">
       <div v-for="index in 4" :key="index" class="project-skeleton">
         <span></span><span></span><span></span>
       </div>
     </div>
-    <div
-      v-else-if="projects.isError.value"
-      class="state-panel state-panel--error"
-      role="alert"
-    >
+    <div v-else-if="projects.isError.value" class="state-panel state-panel--error" role="alert">
       <strong>Project catalog unavailable</strong>
       <p>The daemon is connected, but the catalog query failed.</p>
       <button type="button" @click="projects.refetch()">Retry</button>
@@ -165,9 +147,7 @@ const {
     <div v-else-if="!projectList.length" class="empty-state">
       <div aria-hidden="true">◇</div>
       <h2>No projects registered</h2>
-      <p>
-        Scan a repository to review deterministic evidence before trusting it.
-      </p>
+      <p>Scan a repository to review deterministic evidence before trusting it.</p>
       <RouterLink class="button button--primary" :to="{ name: 'discovery' }"
         >Scan your first project</RouterLink
       >
@@ -176,9 +156,7 @@ const {
       <div aria-hidden="true">⌕</div>
       <h2>No projects match</h2>
       <p>Clear the search or broaden the status and tag filters.</p>
-      <button class="button" type="button" @click="clearFilters">
-        Clear filters
-      </button>
+      <button class="button" type="button" @click="clearFilters">Clear filters</button>
     </div>
     <div v-else class="projects-grid" :aria-busy="snapshots.isFetching.value">
       <DashboardProjectCard
@@ -190,10 +168,7 @@ const {
         @open="markProjectAccess"
       />
     </div>
-    <p
-      v-if="snapshots.isStale.value && snapshots.data.value"
-      class="stale-note"
-    >
+    <p v-if="snapshots.isStale.value && snapshots.data.value" class="stale-note">
       Showing cached project observations while a refresh is pending.
     </p>
   </section>
@@ -264,14 +239,10 @@ const {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: linear-gradient(
-    145deg,
-    rgba(20, 27, 37, 0.97),
-    rgba(15, 20, 28, 0.97)
-  );
+  background: linear-gradient(145deg, rgba(20, 27, 37, 0.97), rgba(15, 20, 28, 0.97));
 }
 .summary-card::after {
-  content: "";
+  content: '';
   position: absolute;
   top: -38px;
   right: -22px;

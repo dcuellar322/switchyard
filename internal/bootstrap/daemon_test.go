@@ -19,7 +19,7 @@ func TestValidateLoopbackAddress(t *testing.T) {
 			t.Errorf("validateLoopbackAddress(%q) error = %v", address, err)
 		}
 	}
-	for _, address := range []string{"0.0.0.0:19616", "192.0.2.1:19616", "missing-port"} {
+	for _, address := range []string{"0.0.0.0:19616", "[::]:19616", ":19616", "192.0.2.1:19616", "missing-port", "127.0.0.1:"} {
 		if err := validateLoopbackAddress(address); err == nil {
 			t.Errorf("validateLoopbackAddress(%q) error = nil", address)
 		}

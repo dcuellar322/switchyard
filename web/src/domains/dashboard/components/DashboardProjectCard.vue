@@ -1,83 +1,66 @@
 <script setup lang="ts">
-import { ArrowRight, Play, ScrollText, Square, Terminal } from "@lucide/vue";
-import { computed } from "vue";
-import { RouterLink } from "vue-router";
+import { ArrowRight, Play, ScrollText, Square, Terminal } from '@lucide/vue'
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
-import type { RuntimeAction } from "../../../api/generated/types.gen";
+import type { RuntimeAction } from '../../../api/generated/types.gen'
 import {
   formatBytes,
   isActiveState,
   projectInitials,
   stateLabel,
   tagTone,
-} from "../../../lib/format";
-import type { ProjectSnapshot } from "../api";
+} from '../../../lib/format'
+import type { ProjectSnapshot } from '../api'
 
-const props = defineProps<{ snapshot: ProjectSnapshot; pending?: boolean }>();
+const props = defineProps<{ snapshot: ProjectSnapshot; pending?: boolean }>()
 const emit = defineEmits<{
-  runtime: [snapshot: ProjectSnapshot, action: RuntimeAction];
-  open: [projectId: string];
-}>();
+  runtime: [snapshot: ProjectSnapshot, action: RuntimeAction]
+  open: [projectId: string]
+}>()
 
-const state = computed(() => props.snapshot.runtime?.state ?? "unknown");
+const state = computed(() => props.snapshot.runtime?.state ?? 'unknown')
 const dockerUnavailable = computed(
   () =>
-    props.snapshot.runtime?.driver === "compose" &&
+    props.snapshot.runtime?.driver === 'compose' &&
     props.snapshot.runtime.engine?.connected === false,
-);
+)
 const tone = computed(() => {
-  if (
-    dockerUnavailable.value ||
-    ["degraded", "partially_running", "failed"].includes(state.value)
-  )
-    return "degraded";
-  if (isActiveState(state.value)) return "running";
-  return "stopped";
-});
+  if (dockerUnavailable.value || ['degraded', 'partially_running', 'failed'].includes(state.value))
+    return 'degraded'
+  if (isActiveState(state.value)) return 'running'
+  return 'stopped'
+})
 const changeCount = computed(() => {
-  const changes = props.snapshot.git?.changes;
-  return changes
-    ? changes.staged + changes.modified + changes.untracked + changes.conflicted
-    : 0;
-});
+  const changes = props.snapshot.git?.changes
+  return changes ? changes.staged + changes.modified + changes.untracked + changes.conflicted : 0
+})
 const endpoints = computed(
-  () => props.snapshot.actions?.actions.filter((action) => action.type === "browser.open" && action.target) ?? [],
-);
+  () =>
+    props.snapshot.actions?.actions.filter(
+      (action) => action.type === 'browser.open' && action.target,
+    ) ?? [],
+)
 const endpointSummary = computed(() => {
-  const first = endpoints.value[0]?.target?.replace(/^https?:\/\//, "");
-  if (!first) return "Not declared";
-  return endpoints.value.length > 1 ? `${first} +${endpoints.value.length - 1}` : first;
-});
+  const first = endpoints.value[0]?.target?.replace(/^https?:\/\//, '')
+  if (!first) return 'Not declared'
+  return endpoints.value.length > 1 ? `${first} +${endpoints.value.length - 1}` : first
+})
 const endpointTitle = computed(() =>
-  endpoints.value.map((action) => `${action.name}: ${action.target}`).join("\n"),
-);
+  endpoints.value.map((action) => `${action.name}: ${action.target}`).join('\n'),
+)
 const memory = computed(
-  () =>
-    props.snapshot.metrics?.reduce(
-      (total, sample) => total + sample.memoryBytes,
-      0,
-    ) ?? 0,
-);
+  () => props.snapshot.metrics?.reduce((total, sample) => total + sample.memoryBytes, 0) ?? 0,
+)
 const cpu = computed(
-  () =>
-    props.snapshot.metrics?.reduce(
-      (total, sample) => total + sample.cpuPercent,
-      0,
-    ) ?? 0,
-);
-const primaryAction = computed<RuntimeAction>(() =>
-  isActiveState(state.value) ? "stop" : "start",
-);
-const services = computed(
-  () => props.snapshot.runtime?.services.slice(0, 4) ?? [],
-);
+  () => props.snapshot.metrics?.reduce((total, sample) => total + sample.cpuPercent, 0) ?? 0,
+)
+const primaryAction = computed<RuntimeAction>(() => (isActiveState(state.value) ? 'stop' : 'start'))
+const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? [])
 </script>
 
 <template>
-  <article
-    class="project-card"
-    :aria-label="`${snapshot.project.displayName} project`"
-  >
+  <article class="project-card" :aria-label="`${snapshot.project.displayName} project`">
     <div class="project-top">
       <div class="project-title-line">
         <div class="project-avatar" aria-hidden="true">
@@ -91,8 +74,7 @@ const services = computed(
         </div>
       </div>
       <span class="status" :class="`status--${tone}`">
-        <i aria-hidden="true"></i
-        >{{ dockerUnavailable ? "Docker unavailable" : stateLabel(state) }}
+        <i aria-hidden="true"></i>{{ dockerUnavailable ? 'Docker unavailable' : stateLabel(state) }}
       </span>
     </div>
 
@@ -100,22 +82,18 @@ const services = computed(
       <div class="meta-box">
         <span>Git</span
         ><strong
-          >{{
-            snapshot.git?.branch ?? (snapshot.git?.detached ? "detached" : "—")
-          }}
+          >{{ snapshot.git?.branch ?? (snapshot.git?.detached ? 'detached' : '—') }}
           ·
           <em :class="{ dirty: changeCount }">{{
-            changeCount ? `${changeCount} changes` : "clean"
+            changeCount ? `${changeCount} changes` : 'clean'
           }}</em></strong
         >
       </div>
       <div class="meta-box">
-        <span>Endpoints</span
-        ><strong :title="endpointTitle">{{ endpointSummary }}</strong>
+        <span>Endpoints</span><strong :title="endpointTitle">{{ endpointSummary }}</strong>
       </div>
       <div class="meta-box">
-        <span>Resources</span
-        ><strong>{{ formatBytes(memory) }} · {{ cpu.toFixed(1) }}%</strong>
+        <span>Resources</span><strong>{{ formatBytes(memory) }} · {{ cpu.toFixed(1) }}%</strong>
       </div>
     </div>
 
@@ -129,17 +107,12 @@ const services = computed(
         >{{ service.id }}</span
       >
       <span v-if="!services.length" class="service-chip">{{
-        snapshot.runtime?.driver ?? "runtime pending"
+        snapshot.runtime?.driver ?? 'runtime pending'
       }}</span>
-      <span
-        v-if="snapshot.runtime && snapshot.runtime.services.length > 4"
-        class="service-chip"
+      <span v-if="snapshot.runtime && snapshot.runtime.services.length > 4" class="service-chip"
         >+{{ snapshot.runtime.services.length - 4 }}</span
       >
-      <span
-        v-if="snapshot.warnings.length"
-        class="partial"
-        :title="snapshot.warnings.join('. ')"
+      <span v-if="snapshot.warnings.length" class="partial" :title="snapshot.warnings.join('. ')"
         >Partial data</span
       >
     </div>
@@ -157,7 +130,7 @@ const services = computed(
       >
         <Play v-if="primaryAction === 'start'" :size="15" aria-hidden="true" />
         <Square v-else :size="14" fill="currentColor" aria-hidden="true" />
-        {{ primaryAction === "start" ? "Start" : "Stop" }}
+        {{ primaryAction === 'start' ? 'Start' : 'Stop' }}
       </button>
       <RouterLink
         class="button"
@@ -184,8 +157,8 @@ const services = computed(
         class="button open-detail"
         :to="{ name: 'project', params: { projectId: snapshot.project.id } }"
         @click="emit('open', snapshot.project.id)"
-        >Open <ArrowRight :size="15" aria-hidden="true" /></RouterLink
-      >
+        >Open <ArrowRight :size="15" aria-hidden="true"
+      /></RouterLink>
     </div>
   </article>
 </template>
@@ -193,11 +166,7 @@ const services = computed(
 <style scoped>
 .project-card {
   border: 1px solid var(--border);
-  background: linear-gradient(
-    145deg,
-    rgba(19, 25, 34, 0.98),
-    rgba(14, 19, 27, 0.98)
-  );
+  background: linear-gradient(145deg, rgba(19, 25, 34, 0.98), rgba(14, 19, 27, 0.98));
   border-radius: 15px;
   padding: 17px;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.025);

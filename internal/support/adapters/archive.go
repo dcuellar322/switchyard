@@ -35,12 +35,9 @@ func (ArchiveWriter) Write(output string, preview domain.Preview) (domain.Bundle
 		return domain.BundleReceipt{}, fmt.Errorf("create support bundle: %w", err)
 	}
 	temporaryPath := temporary.Name()
-	committed := false
 	defer func() {
 		_ = temporary.Close()
-		if !committed {
-			_ = os.Remove(temporaryPath)
-		}
+		_ = os.Remove(temporaryPath)
 	}()
 	if err := temporary.Chmod(0o600); err != nil {
 		return domain.BundleReceipt{}, fmt.Errorf("restrict support bundle: %w", err)
@@ -77,10 +74,9 @@ func (ArchiveWriter) Write(output string, preview domain.Preview) (domain.Bundle
 	if err := temporary.Close(); err != nil {
 		return domain.BundleReceipt{}, fmt.Errorf("close support bundle: %w", err)
 	}
-	if err := os.Rename(temporaryPath, absolute); err != nil {
+	if err := commitExclusive(temporaryPath, absolute); err != nil {
 		return domain.BundleReceipt{}, fmt.Errorf("commit support bundle: %w", err)
 	}
-	committed = true
 	contents, err := os.Open(absolute)
 	if err != nil {
 		return domain.BundleReceipt{}, fmt.Errorf("verify support bundle: %w", err)

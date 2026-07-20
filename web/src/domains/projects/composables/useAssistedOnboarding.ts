@@ -44,7 +44,9 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
     evidencePreview.value = undefined
     evidenceConsented.value = false
   })
-  onUnmounted(() => { pollGeneration += 1 })
+  onUnmounted(() => {
+    pollGeneration += 1
+  })
 
   async function initializeProviders() {
     const [loadedProviders, settings] = await Promise.all([
@@ -57,9 +59,10 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
       selectedProvider.value = ''
       return
     }
-    selectedProvider.value = providers.value.find((provider) => provider.id === preferred && provider.available)?.id
-      ?? providers.value.find((provider) => provider.available)?.id
-      ?? ''
+    selectedProvider.value =
+      providers.value.find((provider) => provider.id === preferred && provider.available)?.id ??
+      providers.value.find((provider) => provider.available)?.id ??
+      ''
   }
 
   function reset() {
@@ -95,7 +98,11 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
       operation.value = await startAIEnhancement(sourceProposalId, selectedProvider.value, limits)
       const generation = ++pollGeneration
       pending.value = false
-      while (generation === pollGeneration && operation.value && ['queued', 'running'].includes(operation.value.state)) {
+      while (
+        generation === pollGeneration &&
+        operation.value &&
+        ['queued', 'running'].includes(operation.value.state)
+      ) {
         await new Promise((resolve) => window.setTimeout(resolve, 650))
         operation.value = await loadOperation(operation.value.id)
       }
@@ -107,7 +114,8 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
         evidenceConsented.value = false
       }
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Assisted onboarding became disconnected.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Assisted onboarding became disconnected.'
     } finally {
       pending.value = false
     }

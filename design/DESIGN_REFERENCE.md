@@ -3,7 +3,6 @@
 ## Files
 
 - `switchyard-interactive-mockup.html` — canonical interactive design reference.
-- `switchyard-ui-reference.html` — identical convenience copy.
 
 Open the HTML directly in a browser. It includes three primary views:
 

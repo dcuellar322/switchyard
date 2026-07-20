@@ -49,6 +49,7 @@ func DefaultConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("resolve user config directory: %w", err)
 	}
+	//nolint:gosec // G101: AIOpenAIAPIKeyEnv stores an environment-variable name, never credential material.
 	return Config{
 		DataDir:                    filepath.Join(base, "Switchyard"),
 		HTTPAddr:                   defaultHTTPAddress,

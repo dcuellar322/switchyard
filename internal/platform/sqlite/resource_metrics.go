@@ -131,18 +131,39 @@ func scanMetric(scanner metricRowScanner) (observability.MetricPoint, error) {
 		return observability.MetricPoint{}, err
 	}
 	point.Timestamp, err = parseTime(sampledAt)
+	if err != nil {
+		return observability.MetricPoint{}, err
+	}
+	unsigned := []struct {
+		name   string
+		value  int64
+		target *uint64
+	}{
+		{name: "memory_bytes", value: memory, target: &point.MemoryBytes},
+		{name: "memory_max_bytes", value: memoryMax, target: &point.MemoryMaxBytes},
+		{name: "memory_limit", value: memoryLimit, target: &point.MemoryLimit},
+		{name: "network_rx_bytes", value: rx, target: &point.NetworkRxBytes},
+		{name: "network_tx_bytes", value: tx, target: &point.NetworkTxBytes},
+		{name: "disk_read_bytes", value: read, target: &point.DiskReadBytes},
+		{name: "disk_write_bytes", value: written, target: &point.DiskWriteBytes},
+	}
+	for _, item := range unsigned {
+		if item.value < 0 {
+			return observability.MetricPoint{}, fmt.Errorf("invalid negative %s in resource metric", item.name)
+		}
+		*item.target = uint64(item.value)
+	}
 	point.CPUAvailable = cpuAvailable
-	point.MemoryBytes, point.MemoryMaxBytes, point.MemoryLimit = uint64(memory), uint64(memoryMax), uint64(memoryLimit)
 	point.MemoryAvailable = memoryAvailable
-	point.NetworkRxBytes, point.NetworkTxBytes, point.NetworkAvailable = uint64(rx), uint64(tx), networkAvailable
-	point.DiskReadBytes, point.DiskWriteBytes, point.DiskAvailable = uint64(read), uint64(written), diskAvailable
+	point.NetworkAvailable = networkAvailable
+	point.DiskAvailable = diskAvailable
 	point.HealthAvailable, point.Partial = healthAvailable, partial
 	point.StorageClassification = observability.StorageClassification(classificationValue)
 	if storage.Valid {
 		value := storage.Int64
 		point.StorageBytes = &value
 	}
-	return point, err
+	return point, nil
 }
 
 type rowsScanner interface {

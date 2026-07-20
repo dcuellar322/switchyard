@@ -1,85 +1,81 @@
 <script setup lang="ts">
-import { useQuery } from "@tanstack/vue-query";
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { RouterView } from "vue-router";
+import { useQuery } from '@tanstack/vue-query'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { RouterView } from 'vue-router'
 
-import { queryClient } from "../queryClient";
-import { useEventConnection } from "../domains/system/composables/useEventConnection";
-import { loadDaemonSettings } from "../domains/system/settingsApi";
-import AppSidebar from "./components/AppSidebar.vue";
-import AppTopbar from "./components/AppTopbar.vue";
-import CommandPalette from "./components/CommandPalette.vue";
-import OperationCenter from "./components/OperationCenter.vue";
+import { queryClient } from '../queryClient'
+import { useEventConnection } from '../domains/system/composables/useEventConnection'
+import { loadDaemonSettings } from '../domains/system/settingsApi'
+import AppSidebar from './components/AppSidebar.vue'
+import AppTopbar from './components/AppTopbar.vue'
+import CommandPalette from './components/CommandPalette.vue'
+import OperationCenter from './components/OperationCenter.vue'
 
-const paletteOpen = ref(false);
+const paletteOpen = ref(false)
 const preferences = useQuery({
-  queryKey: ["daemon-settings"],
+  queryKey: ['daemon-settings'],
   queryFn: loadDaemonSettings,
-});
+})
 watch(
   () => preferences.data.value?.settings.appearance,
   (appearance) => {
-    if (!appearance) return;
-    document.documentElement.dataset.compact =
-      appearance.density === "compact" ? "true" : "false";
-    document.documentElement.dataset.timeDisplay = appearance.timeDisplay;
-    document.documentElement.dataset.theme = appearance.theme;
+    if (!appearance) return
+    document.documentElement.dataset.compact = appearance.density === 'compact' ? 'true' : 'false'
+    document.documentElement.dataset.timeDisplay = appearance.timeDisplay
+    document.documentElement.dataset.theme = appearance.theme
   },
   { immediate: true },
-);
-const pendingProjects = new Set<string>();
-let operationsInvalid = false;
-let invalidationTimer: number | undefined;
+)
+const pendingProjects = new Set<string>()
+let operationsInvalid = false
+let invalidationTimer: number | undefined
 const terminalOperationEvents = new Set([
-  "operation.succeeded",
-  "operation.failed",
-  "operation.canceled",
-]);
+  'operation.succeeded',
+  'operation.failed',
+  'operation.canceled',
+])
 
 function flushInvalidations() {
-  invalidationTimer = undefined;
-  if (operationsInvalid)
-    void queryClient.invalidateQueries({ queryKey: ["operations"] });
-  operationsInvalid = false;
+  invalidationTimer = undefined
+  if (operationsInvalid) void queryClient.invalidateQueries({ queryKey: ['operations'] })
+  operationsInvalid = false
   if (pendingProjects.size)
-    void queryClient.invalidateQueries({ queryKey: ["dashboard-snapshots"] });
+    void queryClient.invalidateQueries({ queryKey: ['dashboard-snapshots'] })
   for (const projectId of pendingProjects) {
     void queryClient.invalidateQueries({
-      queryKey: ["project-runtime", projectId],
-    });
+      queryKey: ['project-runtime', projectId],
+    })
     void queryClient.invalidateQueries({
-      queryKey: ["project-health", projectId],
-    });
+      queryKey: ['project-health', projectId],
+    })
   }
-  pendingProjects.clear();
+  pendingProjects.clear()
 }
 
 const events = useEventConnection((event) => {
-  if (event.operationId || event.type?.startsWith("operation."))
-    operationsInvalid = true;
+  if (event.operationId || event.type?.startsWith('operation.')) operationsInvalid = true
   if (
     event.projectId &&
-    (event.type === "runtime.observed" ||
-      terminalOperationEvents.has(event.type ?? ""))
+    (event.type === 'runtime.observed' || terminalOperationEvents.has(event.type ?? ''))
   ) {
-    pendingProjects.add(event.projectId);
+    pendingProjects.add(event.projectId)
   }
   if (invalidationTimer === undefined)
-    invalidationTimer = window.setTimeout(flushInvalidations, 2_000);
-});
+    invalidationTimer = window.setTimeout(flushInvalidations, 2_000)
+})
 
 function onGlobalKeydown(event: KeyboardEvent) {
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-    event.preventDefault();
-    paletteOpen.value = true;
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault()
+    paletteOpen.value = true
   }
 }
 
-onMounted(() => document.addEventListener("keydown", onGlobalKeydown));
+onMounted(() => document.addEventListener('keydown', onGlobalKeydown))
 onBeforeUnmount(() => {
-  document.removeEventListener("keydown", onGlobalKeydown);
-  if (invalidationTimer !== undefined) window.clearTimeout(invalidationTimer);
-});
+  document.removeEventListener('keydown', onGlobalKeydown)
+  if (invalidationTimer !== undefined) window.clearTimeout(invalidationTimer)
+})
 </script>
 
 <template>

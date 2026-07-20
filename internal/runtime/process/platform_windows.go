@@ -35,7 +35,7 @@ func configureProcessGroup(command *exec.Cmd) {
 	command.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windows.CREATE_NEW_PROCESS_GROUP}
 }
 
-func newProcessOwnership(command *exec.Cmd) (processOwnership, error) {
+func newProcessOwnership(command *exec.Cmd, pid int32) (processOwnership, error) {
 	job, err := windows.CreateJobObject(nil, nil)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func newProcessOwnership(command *exec.Cmd) (processOwnership, error) {
 		_ = windows.CloseHandle(job)
 		return nil, err
 	}
-	return &windowsOwnership{job: job, group: int32(command.Process.Pid)}, nil
+	return &windowsOwnership{job: job, group: pid}, nil
 }
 
 func (o *windowsOwnership) Group() int32 { return o.group }

@@ -42,7 +42,10 @@ import type {
 import { mutationHeaders } from '../session/bootstrap'
 
 export class ProjectAPIError extends Error {
-  constructor(message: string, readonly code = '') {
+  constructor(
+    message: string,
+    readonly code = '',
+  ) {
     super(message)
     this.name = 'ProjectAPIError'
   }
@@ -64,12 +67,19 @@ export async function loadProject(projectId: string): Promise<Project> {
   return result.data
 }
 
-export async function scanRepository(path: string, allowOutsideRoots = false): Promise<ManifestProposal> {
+export async function scanRepository(
+  path: string,
+  allowOutsideRoots = false,
+): Promise<ManifestProposal> {
   const result = await createManifestProposal({
     body: { path, allowOutsideRoots },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new ProjectAPIError(result.error?.detail || 'The repository scan could not create a proposal.', result.error?.code)
+  if (result.error || !result.data)
+    throw new ProjectAPIError(
+      result.error?.detail || 'The repository scan could not create a proposal.',
+      result.error?.code,
+    )
   return result.data
 }
 
@@ -93,51 +103,71 @@ export async function approveProposal(proposalId: string): Promise<AcceptedManif
 
 export async function loadAIProviders(): Promise<Array<AiProviderDescriptor>> {
   const result = await listAiProposalProviders()
-  if (result.error || !result.data) throw new Error('Assisted-onboarding providers could not be loaded.')
+  if (result.error || !result.data)
+    throw new Error('Assisted-onboarding providers could not be loaded.')
   return result.data
 }
 
-export async function previewAIEvidence(proposalId: string, limits: AiGenerationLimits): Promise<AiEvidencePreview> {
+export async function previewAIEvidence(
+  proposalId: string,
+  limits: AiGenerationLimits,
+): Promise<AiEvidencePreview> {
   const result = await previewAiManifestEvidence({
-    path: { proposalId }, body: limits,
+    path: { proposalId },
+    body: limits,
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new Error('The provider evidence preview could not be prepared.')
+  if (result.error || !result.data)
+    throw new Error('The provider evidence preview could not be prepared.')
   return result.data
 }
 
-export async function startAIEnhancement(proposalId: string, provider: string, limits: AiGenerationLimits): Promise<Operation> {
+export async function startAIEnhancement(
+  proposalId: string,
+  provider: string,
+  limits: AiGenerationLimits,
+): Promise<Operation> {
   const result = await createAiManifestEnhancement({
-    path: { proposalId }, body: { provider, limits },
+    path: { proposalId },
+    body: { provider, limits },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new Error('The assisted-onboarding operation could not be queued.')
+  if (result.error || !result.data)
+    throw new Error('The assisted-onboarding operation could not be queued.')
   return result.data
 }
 
 export async function loadOperation(operationId: string): Promise<Operation> {
   const result = await getOperation({ path: { operationId } })
-  if (result.error || !result.data) throw new Error('The assisted-onboarding operation became unavailable.')
+  if (result.error || !result.data)
+    throw new Error('The assisted-onboarding operation became unavailable.')
   return result.data
 }
 
 export async function stopOperation(operationId: string): Promise<Operation> {
   const result = await cancelOperation({
-    path: { operationId }, headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
+    path: { operationId },
+    headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
-  if (result.error || !result.data) throw new Error('The cancellation request could not be recorded.')
+  if (result.error || !result.data)
+    throw new Error('The cancellation request could not be recorded.')
   return result.data
 }
 
-export async function loadAIEnhancement(proposalId: string, operationId: string): Promise<AiManifestEnhancement> {
+export async function loadAIEnhancement(
+  proposalId: string,
+  operationId: string,
+): Promise<AiManifestEnhancement> {
   const result = await getAiManifestEnhancement({ path: { proposalId, operationId } })
-  if (result.error || !result.data) throw new Error('The assisted-onboarding receipt could not be loaded.')
+  if (result.error || !result.data)
+    throw new Error('The assisted-onboarding receipt could not be loaded.')
   return result.data
 }
 
 export async function loadManifestProposal(proposalId: string): Promise<ManifestProposal> {
   const result = await getManifestProposal({ path: { proposalId } })
-  if (result.error || !result.data) throw new Error('The generated manifest proposal could not be loaded.')
+  if (result.error || !result.data)
+    throw new Error('The generated manifest proposal could not be loaded.')
   return result.data
 }
 
@@ -153,7 +183,10 @@ export async function loadProjectHealth(projectId: string): Promise<ProjectHealt
   return result.data
 }
 
-export async function loadProjectLogs(projectId: string, tail = 200): Promise<Array<RuntimeLogEntry>> {
+export async function loadProjectLogs(
+  projectId: string,
+  tail = 200,
+): Promise<Array<RuntimeLogEntry>> {
   const result = await getProjectLogs({ path: { projectId }, query: { tail } })
   if (result.error || !result.data) throw new Error('Persisted logs are unavailable.')
   return result.data
@@ -183,20 +216,33 @@ export async function loadProjectActions(projectId: string): Promise<ProjectActi
   return result.data
 }
 
-export async function runProjectAction(projectId: string, actionId: string, confirmRisk = false): Promise<Operation> {
+export async function runProjectAction(
+  projectId: string,
+  actionId: string,
+  confirmRisk = false,
+): Promise<Operation> {
   const result = await createActionOperation({
-    path: { projectId, actionId }, body: { confirmRisk, allowOutsideRoot: false },
+    path: { projectId, actionId },
+    body: { confirmRisk, allowOutsideRoot: false },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) {
-    throw new ProjectAPIError(result.error?.detail || 'The project action could not be queued.', result.error?.code)
+    throw new ProjectAPIError(
+      result.error?.detail || 'The project action could not be queued.',
+      result.error?.code,
+    )
   }
   return result.data
 }
 
-export async function runRuntimeAction(projectId: string, action: RuntimeAction, profiles: string[] = []): Promise<Operation> {
+export async function runRuntimeAction(
+  projectId: string,
+  action: RuntimeAction,
+  profiles: string[] = [],
+): Promise<Operation> {
   const result = await createProjectOperation({
-    path: { projectId }, body: { action, removeVolumes: false, ...(profiles.length > 0 ? { profiles } : {}) },
+    path: { projectId },
+    body: { action, removeVolumes: false, ...(profiles.length > 0 ? { profiles } : {}) },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) throw new Error(`The ${action} operation could not be queued.`)

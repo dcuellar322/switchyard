@@ -88,7 +88,35 @@ type workspaceProgress struct {
 }
 
 func (p workspaceProgress) ProjectProgress(ctx context.Context, result workspaceDomain.ProjectResult) error {
-	return p.progress.Step(ctx, "workspace."+result.ProjectID, string(result.Status), result.Message)
+	state, err := workspaceOperationStepState(result.Status)
+	if err != nil {
+		return err
+	}
+	return p.progress.Step(ctx, "workspace."+result.ProjectID, state, result.Message)
+}
+
+func workspaceOperationStepState(status workspaceDomain.ProjectStatus) (string, error) {
+	switch status {
+	case workspaceDomain.ProjectQueued,
+		workspaceDomain.ProjectStarting,
+		workspaceDomain.ProjectCheckingHealth,
+		workspaceDomain.ProjectStopping,
+		workspaceDomain.ProjectRollingBack:
+		return "running", nil
+	case workspaceDomain.ProjectRunning,
+		workspaceDomain.ProjectStopped,
+		workspaceDomain.ProjectRolledBack:
+		return "succeeded", nil
+	case workspaceDomain.ProjectBlocked,
+		workspaceDomain.ProjectStartFailed,
+		workspaceDomain.ProjectStopFailed,
+		workspaceDomain.ProjectRollbackFailed:
+		return "failed", nil
+	case workspaceDomain.ProjectCancelled:
+		return "cancelled", nil
+	default:
+		return "", fmt.Errorf("unsupported workspace project status %q", status)
+	}
 }
 
 type workspaceLauncher interface {

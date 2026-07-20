@@ -133,6 +133,28 @@ func TestLogStoreRetentionRemovesClosedSegmentsPastAge(t *testing.T) {
 	}
 }
 
+func TestLogStoreRecoveryCannotDeleteThroughStagedSymlink(t *testing.T) {
+	t.Parallel()
+	_, store, root := newTestLogStore(t, LogStoreConfig{})
+	target := filepath.Join(t.TempDir(), "outside.txt")
+	if err := os.WriteFile(target, []byte("preserve"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "orphan.deleting")
+	if err := os.Symlink(target, link); err != nil {
+		t.Skipf("symlink fixture is unavailable: %v", err)
+	}
+	if err := store.recoverStagedDeletions(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(target); err != nil {
+		t.Fatalf("outside target was affected: %v", err)
+	}
+	if _, err := os.Lstat(link); !os.IsNotExist(err) {
+		t.Fatalf("staged symlink still exists: %v", err)
+	}
+}
+
 func newTestLogStore(t *testing.T, config LogStoreConfig) (*Database, *LogStore, string) {
 	t.Helper()
 	root := t.TempDir()

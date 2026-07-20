@@ -47,7 +47,9 @@ export function useDaemonSettings() {
     },
   })
 
-  const dirty = computed(() => Boolean(draft.value) && JSON.stringify(draft.value) !== baseline.value)
+  const dirty = computed(
+    () => Boolean(draft.value) && JSON.stringify(draft.value) !== baseline.value,
+  )
 
   function reset() {
     if (query.data.value) {

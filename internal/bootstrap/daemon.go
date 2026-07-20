@@ -520,11 +520,14 @@ type requiredHealthWaiter interface {
 }
 
 func validateLoopbackAddress(address string) error {
-	host, _, err := net.SplitHostPort(address)
+	host, port, err := net.SplitHostPort(address)
 	if err != nil {
 		return fmt.Errorf("parse daemon address: %w", err)
 	}
-	if host == "localhost" {
+	if port == "" {
+		return errors.New("daemon address requires a port")
+	}
+	if strings.EqualFold(host, "localhost") {
 		return nil
 	}
 	ip := net.ParseIP(host)

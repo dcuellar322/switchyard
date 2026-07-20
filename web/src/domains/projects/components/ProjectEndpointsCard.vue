@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ExternalLink } from "@lucide/vue";
+import { ExternalLink } from '@lucide/vue'
 
-import type { ActionDefinition } from "../../../api/generated/types.gen";
+import type { ActionDefinition } from '../../../api/generated/types.gen'
 
 defineProps<{
-  endpoints: Array<ActionDefinition>;
-  actionPending: boolean;
-}>();
+  endpoints: Array<ActionDefinition>
+  actionPending: boolean
+}>()
 const emit = defineEmits<{
-  runAction: [action: ActionDefinition];
-}>();
+  runAction: [action: ActionDefinition]
+}>()
 
 function endpointLabel(action: ActionDefinition) {
-  return action.target?.replace(/^https?:\/\//, "") ?? action.name;
+  return action.target?.replace(/^https?:\/\//, '') ?? action.name
 }
 </script>
 

@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 
+	"switchyard.dev/switchyard/internal/foundation/secretfile"
 	teamApplication "switchyard.dev/switchyard/internal/team/application"
 )
 
@@ -23,6 +24,9 @@ type signingKeyFile struct {
 }
 
 func readSigningKey(path string) (signingKeyFile, ed25519.PrivateKey, error) {
+	if err := secretfile.Validate(path); err != nil {
+		return signingKeyFile{}, nil, fmt.Errorf("validate signing private key: %w", err)
+	}
 	encoded, err := readBoundedFile(path, 8<<10)
 	if err != nil {
 		return signingKeyFile{}, nil, err

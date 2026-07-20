@@ -18,8 +18,10 @@ import (
 type connectionReader func(context.Context, string) ([]gnet.ConnectionStat, error)
 type processNameReader func(context.Context, int32) string
 
-// OSListeners reads local TCP and UDP bindings through native OS APIs exposed
-// by gopsutil. It does not depend on lsof, ss, netstat, or PowerShell output.
+// OSListeners reads local TCP and UDP bindings through gopsutil's portable API.
+// The adapter is intentionally queried only on port-focused screens because
+// some platforms implement the snapshot with a comparatively expensive system
+// process scan.
 type OSListeners struct {
 	connections connectionReader
 	processName processNameReader

@@ -9,8 +9,8 @@ import (
 
 type unsupportedOwnership struct{ group int32 }
 
-func newProcessOwnership(command *exec.Cmd) (processOwnership, error) {
-	return unsupportedOwnership{group: int32(command.Process.Pid)}, nil
+func newProcessOwnership(_ *exec.Cmd, pid int32) (processOwnership, error) {
+	return unsupportedOwnership{group: pid}, nil
 }
 
 func (o unsupportedOwnership) Group() int32            { return o.group }

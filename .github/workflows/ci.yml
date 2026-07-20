@@ -70,7 +70,7 @@ jobs:
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
-      - run: go test ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
+      - run: go test ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
       - run: go build ./cmd/switchyard
 
   frontend:

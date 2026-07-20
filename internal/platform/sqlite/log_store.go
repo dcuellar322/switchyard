@@ -108,13 +108,22 @@ func (s *LogStore) recoverStagedDeletions(ctx context.Context) error {
 	if err := rows.Close(); err != nil {
 		return err
 	}
+	root, err := os.OpenRoot(s.config.Directory)
+	if err != nil {
+		return fmt.Errorf("open confined log root: %w", err)
+	}
+	defer func() { _ = root.Close() }()
 	return filepath.Walk(s.config.Directory, func(path string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil || info.IsDir() || filepath.Ext(path) != ".deleting" {
 			return walkErr
 		}
 		original := path[:len(path)-len(".deleting")]
 		if _, exists := referenced[original]; !exists {
-			return os.Remove(path)
+			relative, err := filepath.Rel(s.config.Directory, path)
+			if err != nil {
+				return err
+			}
+			return root.Remove(relative)
 		}
 		return nil
 	})

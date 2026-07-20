@@ -29,8 +29,9 @@ type Driver interface {
 
 // Service exposes runtime use cases independent of HTTP, CLI, Docker, and persistence.
 type Service struct {
-	projects ProjectSource
-	drivers  map[domain.Kind]Driver
+	projects     ProjectSource
+	drivers      map[domain.Kind]Driver
+	observations *observationCache
 }
 
 // NewService constructs runtime use cases from explicit project and driver boundaries.
@@ -39,16 +40,20 @@ func NewService(projects ProjectSource, drivers ...Driver) *Service {
 	for _, driver := range drivers {
 		byKind[driver.Kind()] = driver
 	}
-	return &Service{projects: projects, drivers: byKind}
+	return &Service{projects: projects, drivers: byKind, observations: newObservationCache()}
 }
 
-// Inspect returns a live observation without persisting derived state as authority.
+// Inspect returns a short-lived, coalesced observation without persisting derived
+// state as authority. Coalescing prevents independent UI panels and schedulers
+// from stampeding the same Docker Engine while keeping lifecycle state current.
 func (s *Service) Inspect(ctx context.Context, projectID string) (domain.Observation, error) {
-	project, driver, err := s.resolve(ctx, projectID)
-	if err != nil {
-		return domain.Observation{}, err
-	}
-	return driver.Inspect(ctx, project)
+	return s.observations.load(ctx, projectID, func() (domain.Observation, error) {
+		project, driver, err := s.resolve(ctx, projectID)
+		if err != nil {
+			return domain.Observation{}, err
+		}
+		return driver.Inspect(ctx, project)
+	})
 }
 
 // Plan returns a side-effect-free lifecycle preview.
@@ -76,7 +81,10 @@ func (s *Service) Execute(ctx context.Context, plan domain.Plan, sink domain.Pro
 	if !ok {
 		return fmt.Errorf("%w: %s", domain.ErrUnsupportedDriver, plan.Driver)
 	}
-	return driver.Execute(ctx, plan, sink)
+	s.observations.invalidate(plan.ProjectID)
+	err := driver.Execute(ctx, plan, sink)
+	s.observations.invalidate(plan.ProjectID)
+	return err
 }
 
 // Logs collects a bounded snapshot while preserving the streaming driver contract.

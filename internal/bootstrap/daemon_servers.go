@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"switchyard.dev/switchyard/internal/foundation/secretfile"
 	"switchyard.dev/switchyard/internal/platform/localipc"
 	"switchyard.dev/switchyard/internal/transport/httpapi"
 )
@@ -23,6 +24,9 @@ type localServers struct {
 }
 
 func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHandler, remoteHandler http.Handler) (*localServers, error) {
+	if err := validateLoopbackAddress(config.HTTPAddr); err != nil {
+		return nil, fmt.Errorf("validate browser API address: %w", err)
+	}
 	browserListener, err := net.Listen("tcp", config.HTTPAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen on loopback API: %w", err)
@@ -45,6 +49,12 @@ func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHand
 		group.listeners = append(group.listeners, ipcListener)
 	}
 	if config.RoutingAddr != "" {
+		if err := validateLoopbackAddress(config.RoutingAddr); err != nil {
+			for _, listener := range group.listeners {
+				_ = listener.Close()
+			}
+			return nil, fmt.Errorf("validate local route address: %w", err)
+		}
 		if routeHandler == nil {
 			_ = browserListener.Close()
 			if ipcListener != nil {
@@ -84,6 +94,9 @@ func newLocalServers(config Config, dependencies httpapi.Dependencies, routeHand
 }
 
 func newRemoteListener(config Config) (net.Listener, error) {
+	if err := secretfile.Validate(config.RemoteTLSKey); err != nil {
+		return nil, fmt.Errorf("validate remote server private key: %w", err)
+	}
 	certificate, err := tls.LoadX509KeyPair(config.RemoteTLSCertificate, config.RemoteTLSKey)
 	if err != nil {
 		return nil, fmt.Errorf("load remote server identity: %w", err)

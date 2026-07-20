@@ -3,7 +3,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/vu
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
-import type { ResourceMetricPoint, ResourceOverview, ResourceProjectSnapshot, StorageInventory } from '../../src/api/generated/types.gen'
+import type {
+  ResourceMetricPoint,
+  ResourceOverview,
+  ResourceProjectSnapshot,
+  StorageInventory,
+} from '../../src/api/generated/types.gen'
 
 const api = vi.hoisted(() => ({
   loadCleanupPreview: vi.fn(),
@@ -20,7 +25,11 @@ afterEach(cleanup)
 
 const observedAt = new Date().toISOString()
 
-function metric(projectId: string, serviceId = '', overrides: Partial<ResourceMetricPoint> = {}): ResourceMetricPoint {
+function metric(
+  projectId: string,
+  serviceId = '',
+  overrides: Partial<ResourceMetricPoint> = {},
+): ResourceMetricPoint {
   return {
     timestamp: observedAt,
     projectId,
@@ -29,11 +38,11 @@ function metric(projectId: string, serviceId = '', overrides: Partial<ResourceMe
     sampleCount: 1,
     cpuPercent: 4,
     cpuMaxPercent: 4,
-	cpuAvailable: true,
+    cpuAvailable: true,
     memoryBytes: 67_108_864,
     memoryMaxBytes: 67_108_864,
     memoryLimit: 268_435_456,
-	memoryAvailable: true,
+    memoryAvailable: true,
     networkRxBytes: 0,
     networkTxBytes: 0,
     networkAvailable: false,
@@ -69,8 +78,24 @@ function overview(projects: Array<ResourceProjectSnapshot>): ResourceOverview {
     observedAt,
     projects,
     storage: { bytes: 12_288, reclaimableBytes: 4_096, classification: 'shared', resourceCount: 2 },
-    footprint: { databaseBytes: 8_192, databaseWalBytes: 0, databaseShmBytes: 0, logBytes: 4_096, logSegments: 1, metricRows: 12, classification: 'exclusive' },
-    retention: { sampleIntervalSeconds: 10, rawSeconds: 3_600, minuteSeconds: 86_400, quarterHourSeconds: 2_592_000, maximumHistoryPoints: 1_000, logSeconds: 604_800, logBytes: 536_870_912 },
+    footprint: {
+      databaseBytes: 8_192,
+      databaseWalBytes: 0,
+      databaseShmBytes: 0,
+      logBytes: 4_096,
+      logSegments: 1,
+      metricRows: 12,
+      classification: 'exclusive',
+    },
+    retention: {
+      sampleIntervalSeconds: 10,
+      rawSeconds: 3_600,
+      minuteSeconds: 86_400,
+      quarterHourSeconds: 2_592_000,
+      maximumHistoryPoints: 1_000,
+      logSeconds: 604_800,
+      logBytes: 536_870_912,
+    },
     warnings: [],
   }
 }
@@ -80,14 +105,32 @@ const storage: StorageInventory = {
   observedAt,
   summary: { bytes: 12_288, reclaimableBytes: 4_096, classification: 'shared', resourceCount: 1 },
   projects: [],
-  resources: [{ kind: 'volume', id: 'beta-data', name: 'beta-data', projectIds: ['beta'], bytes: 12_288, reclaimable: true, classification: 'exclusive', reason: 'Canonical project label.' }],
+  resources: [
+    {
+      kind: 'volume',
+      id: 'beta-data',
+      name: 'beta-data',
+      projectIds: ['beta'],
+      bytes: 12_288,
+      reclaimable: true,
+      classification: 'exclusive',
+      reason: 'Canonical project label.',
+    },
+  ],
   warnings: [],
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
   api.loadStorageInventory.mockResolvedValue(storage)
-  api.loadMetricHistory.mockImplementation(async (projectId: string, serviceId: string) => ({ projectId, serviceId, resolutionSeconds: 0, from: observedAt, to: observedAt, points: [metric(projectId, serviceId)] }))
+  api.loadMetricHistory.mockImplementation(async (projectId: string, serviceId: string) => ({
+    projectId,
+    serviceId,
+    resolutionSeconds: 0,
+    from: observedAt,
+    to: observedAt,
+    points: [metric(projectId, serviceId)],
+  }))
 })
 
 async function renderView(path = '/resources') {
@@ -104,7 +147,14 @@ async function renderView(path = '/resources') {
     global: {
       plugins: [
         router,
-        [VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } }) }],
+        [
+          VueQueryPlugin,
+          {
+            queryClient: new QueryClient({
+              defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+            }),
+          },
+        ],
       ],
     },
   })
@@ -125,14 +175,21 @@ test('shows loading, daemon failure, and trusted-project empty states', async ()
   api.loadResourceOverview.mockResolvedValueOnce(overview([]))
   await renderView()
   expect(await screen.findByText('No trusted projects')).toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Open project onboarding' })).toHaveAttribute('href', '/projects')
+  expect(screen.getByRole('link', { name: 'Open project onboarding' })).toHaveAttribute(
+    'href',
+    '/projects',
+  )
 })
 
 test('preserves project context across consumers, history, storage, and the URL', async () => {
-  api.loadResourceOverview.mockResolvedValue(overview([project('alpha', 'Alpha App'), project('beta', 'Beta App', true)]))
+  api.loadResourceOverview.mockResolvedValue(
+    overview([project('alpha', 'Alpha App'), project('beta', 'Beta App', true)]),
+  )
   const { router } = await renderView('/resources?project=beta')
 
-  expect(await screen.findByRole('heading', { name: 'Project and service consumption' })).toBeInTheDocument()
+  expect(
+    await screen.findByRole('heading', { name: 'Project and service consumption' }),
+  ).toBeInTheDocument()
   await waitFor(() => expect(api.loadMetricHistory).toHaveBeenCalledWith('beta', '', '1h'))
   const projectSelects = screen.getAllByLabelText('Project') as Array<HTMLSelectElement>
   expect(projectSelects).toHaveLength(2)
@@ -143,17 +200,30 @@ test('preserves project context across consumers, history, storage, and the URL'
   await fireEvent.click(screen.getByRole('button', { name: /Alpha App/ }))
   await waitFor(() => expect(router.currentRoute.value.query.project).toBe('alpha'))
   await waitFor(() => expect(api.loadMetricHistory).toHaveBeenCalledWith('alpha', '', '1h'))
-  expect((screen.getAllByLabelText('Project') as Array<HTMLSelectElement>).every((select) => select.value === 'alpha')).toBe(true)
+  expect(
+    (screen.getAllByLabelText('Project') as Array<HTMLSelectElement>).every(
+      (select) => select.value === 'alpha',
+    ),
+  ).toBe(true)
   expect(screen.queryByText('beta-data')).not.toBeInTheDocument()
 })
 
 test('keeps partial observations usable while storage refresh fails independently', async () => {
-  api.loadResourceOverview.mockResolvedValue({ ...overview([project('alpha', 'Alpha App', true)]), warnings: ['One process exited during collection.'] })
+  api.loadResourceOverview.mockResolvedValue({
+    ...overview([project('alpha', 'Alpha App', true)]),
+    warnings: ['One process exited during collection.'],
+  })
   api.loadStorageInventory.mockRejectedValueOnce(new Error('docker disconnected'))
   await renderView()
 
-  expect(await screen.findByText(/Partial observation: One process exited/)).toHaveAttribute('role', 'status')
+  expect(await screen.findByText(/Partial observation: One process exited/)).toHaveAttribute(
+    'role',
+    'status',
+  )
   expect(screen.getAllByText('Partial').length).toBeGreaterThan(0)
-  expect(await screen.findByText('Storage inventory could not be read.')).toHaveAttribute('role', 'alert')
+  expect(await screen.findByText('Storage inventory could not be read.')).toHaveAttribute(
+    'role',
+    'alert',
+  )
   expect(screen.getByRole('heading', { name: 'Time-series evidence' })).toBeInTheDocument()
 })

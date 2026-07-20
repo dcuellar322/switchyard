@@ -73,6 +73,29 @@ func TestArchiveWriterCreatesPrivateExactBundleAndRefusesOverwrite(t *testing.T)
 	}
 }
 
+func TestCommitExclusiveNeverReplacesExistingDestination(t *testing.T) {
+	t.Parallel()
+	directory := t.TempDir()
+	source := filepath.Join(directory, "source")
+	destination := filepath.Join(directory, "destination")
+	if err := os.WriteFile(source, []byte("new"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(destination, []byte("existing"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := commitExclusive(source, destination); err == nil {
+		t.Fatal("exclusive commit replaced an existing destination")
+	}
+	contents, err := os.ReadFile(destination)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(contents) != "existing" {
+		t.Fatalf("destination contents = %q", contents)
+	}
+}
+
 func TestConfigurationRoundTripReplacesOnlySanitizedSnapshot(t *testing.T) {
 	t.Parallel()
 

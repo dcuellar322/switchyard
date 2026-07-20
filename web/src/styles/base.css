@@ -19,13 +19,13 @@
     ui-sans-serif,
     -apple-system,
     BlinkMacSystemFont,
-    "Segoe UI",
+    'Segoe UI',
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 
-html[data-theme="high-contrast"] {
+html[data-theme='high-contrast'] {
   --bg: #000;
   --panel: #080b0f;
   --panel-2: #101722;
@@ -42,7 +42,7 @@ html[data-theme="high-contrast"] {
   --cyan: #8cecff;
 }
 
-html[data-compact="true"] body {
+html[data-compact='true'] body {
   font-size: 13px;
 }
 
@@ -60,17 +60,8 @@ body,
 body {
   min-width: 320px;
   background:
-    radial-gradient(
-      circle at 85% -10%,
-      rgba(120, 166, 255, 0.11),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at -10% 100%,
-      rgba(158, 123, 255, 0.08),
-      transparent 30%
-    ),
-    var(--bg);
+    radial-gradient(circle at 85% -10%, rgba(120, 166, 255, 0.11), transparent 30%),
+    radial-gradient(circle at -10% 100%, rgba(158, 123, 255, 0.08), transparent 30%), var(--bg);
   color: var(--text);
   font-size: 14px;
 }

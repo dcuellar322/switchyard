@@ -4,12 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"testing"
 	"time"
 
 	"github.com/moby/moby/api/types/container"
 	"switchyard.dev/switchyard/internal/runtime/domain"
 )
+
+func TestBoundedProcessCountSaturatesWithoutWrapping(t *testing.T) {
+	t.Parallel()
+	if got := boundedProcessCount(math.MaxUint64); got != math.MaxInt {
+		t.Fatalf("boundedProcessCount(MaxUint64) = %d, want %d", got, math.MaxInt)
+	}
+	if got := boundedProcessCount(4); got != 4 {
+		t.Fatalf("boundedProcessCount(4) = %d", got)
+	}
+}
 
 func TestMetricCalculationsUseCPUAndAllNetworks(t *testing.T) {
 	t.Parallel()

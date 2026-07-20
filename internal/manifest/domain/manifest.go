@@ -16,7 +16,7 @@ const (
 	SchemaVersion = "switchyard.dev/v1"
 	// LegacySchemaVersion identifies manifests written by alpha and beta builds.
 	LegacySchemaVersion = "switchyard.dev/v1alpha1"
-	// KindProject is the only Phase 3 document kind.
+	// KindProject identifies the portable project manifest document.
 	KindProject = "Project"
 )
 

@@ -22,7 +22,10 @@ class FakeWebSocket {
   }
 
   emit(type: string, data?: unknown) {
-    const event = type === 'message' ? new MessageEvent('message', { data: JSON.stringify(data) }) : new Event(type)
+    const event =
+      type === 'message'
+        ? new MessageEvent('message', { data: JSON.stringify(data) })
+        : new Event(type)
     for (const listener of this.listeners.get(type) ?? []) listener(event)
   }
 
@@ -41,7 +44,9 @@ test('reconnects from the last sequence and ignores replay overlap', async () =>
   const received: Array<number> = []
   const component = defineComponent({
     setup() {
-      const stream = useProjectLogStream(ref('project-1'), (entry: RuntimeLogEntry) => received.push(entry.sequence))
+      const stream = useProjectLogStream(ref('project-1'), (entry: RuntimeLogEntry) =>
+        received.push(entry.sequence),
+      )
       return { state: stream.state }
     },
     template: '<span>{{ state }}</span>',
@@ -67,5 +72,17 @@ test('reconnects from the last sequence and ignores replay overlap', async () =>
 })
 
 function logEntry(sequence: number): RuntimeLogEntry {
-  return { sequence, timestamp: '2026-07-16T12:00:00Z', projectId: 'project-1', serviceId: 'api', runId: 'run-1', source: 'process', stream: 'stdout', level: 'info', message: `line ${sequence}`, redacted: false, attributes: {} }
+  return {
+    sequence,
+    timestamp: '2026-07-16T12:00:00Z',
+    projectId: 'project-1',
+    serviceId: 'api',
+    runId: 'run-1',
+    source: 'process',
+    stream: 'stdout',
+    level: 'info',
+    message: `line ${sequence}`,
+    redacted: false,
+    attributes: {},
+  }
 }

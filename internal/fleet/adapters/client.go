@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"switchyard.dev/switchyard/internal/fleet/domain"
+	"switchyard.dev/switchyard/internal/foundation/secretfile"
 )
 
 const maximumRemoteResponse = 1 << 20
@@ -115,6 +116,9 @@ func (c *HTTPSPeerClient) client(machine domain.Machine) (*http.Client, string, 
 	roots := x509.NewCertPool()
 	if !roots.AppendCertsFromPEM(caDocument) {
 		return nil, "", errors.New("remote CA certificate is invalid")
+	}
+	if err := secretfile.Validate(machine.Credentials.ClientKey); err != nil {
+		return nil, "", fmt.Errorf("validate remote client private key: %w", err)
 	}
 	certificate, err := tls.LoadX509KeyPair(machine.Credentials.ClientCertificate, machine.Credentials.ClientKey)
 	if err != nil {

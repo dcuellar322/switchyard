@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/moby/moby/api/types/container"
@@ -72,8 +73,15 @@ func sampleContainer(ctx context.Context, engine engineClient, project domain.Pr
 		CPUPercent: cpuPercent(stats), CPUAvailable: cpuStatsAvailable(stats), MemoryBytes: stats.MemoryStats.Usage,
 		MemoryLimit: stats.MemoryStats.Limit, MemoryAvailable: true, NetworkRxBytes: rx, NetworkTxBytes: tx, NetworkAvailable: stats.Networks != nil,
 		DiskReadBytes: read, DiskWriteBytes: written, DiskAvailable: diskAvailable,
-		ProcessCount: max(1, int(stats.PidsStats.Current)), RestartCount: restartCount, Partial: partial,
+		ProcessCount: max(1, boundedProcessCount(stats.PidsStats.Current)), RestartCount: restartCount, Partial: partial,
 	})
+}
+
+func boundedProcessCount(value uint64) int {
+	if value > uint64(math.MaxInt) {
+		return math.MaxInt
+	}
+	return int(value)
 }
 
 func cpuStatsAvailable(stats container.StatsResponse) bool {

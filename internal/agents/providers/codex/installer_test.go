@@ -54,3 +54,19 @@ func TestInstallRejectsUnmanagedServerCollision(t *testing.T) {
 		t.Fatal("Install() expected collision error")
 	}
 }
+
+func TestInstallRejectsProjectParentSymlinkOutsideRoot(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	outside := t.TempDir()
+	if err := os.Symlink(outside, filepath.Join(root, ".codex")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	request := providers.InstallRequest{Scope: providers.ScopeProject, Root: root, Home: t.TempDir(), Executable: "/usr/local/bin/switchyard", DataDir: "/tmp/switchyard-data", Profile: agents.ProfileObserve, AgentID: "codex"}
+	if _, err := Install(request); err == nil {
+		t.Fatal("project installer followed a parent symlink outside the repository")
+	}
+	if _, err := os.Stat(filepath.Join(outside, "config.toml")); !os.IsNotExist(err) {
+		t.Fatalf("outside configuration was written: %v", err)
+	}
+}

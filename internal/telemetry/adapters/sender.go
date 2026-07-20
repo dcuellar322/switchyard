@@ -24,7 +24,13 @@ func NewHTTPSender() *HTTPSender {
 		Proxy: http.ProxyFromEnvironment, TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS13},
 		ForceAttemptHTTP2: true, MaxIdleConns: 2, IdleConnTimeout: 30 * time.Second,
 	}
-	return &HTTPSender{client: &http.Client{Transport: transport, Timeout: 10 * time.Second}}
+	return &HTTPSender{client: &http.Client{
+		Transport: transport,
+		Timeout:   10 * time.Second,
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return errors.New("anonymous telemetry redirects are disabled")
+		},
+	}}
 }
 
 // Send posts one bounded payload and accepts only a successful HTTP response.

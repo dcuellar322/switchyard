@@ -2,7 +2,12 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected'
 
-type SwitchyardEvent = { type?: string; projectId?: string; operationId?: string; sequence?: number }
+type SwitchyardEvent = {
+  type?: string
+  projectId?: string
+  operationId?: string
+  sequence?: number
+}
 
 export function useEventConnection(onEvent?: (event: SwitchyardEvent) => void) {
   const state = ref<ConnectionState>('connecting')
@@ -18,11 +23,14 @@ export function useEventConnection(onEvent?: (event: SwitchyardEvent) => void) {
       return
     }
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    socket = new WebSocket(`${protocol}//${window.location.host}/ws/v1/events?after=${lastSequence}`)
+    socket = new WebSocket(
+      `${protocol}//${window.location.host}/ws/v1/events?after=${lastSequence}`,
+    )
     socket.addEventListener('message', (message) => {
       try {
         const event = JSON.parse(String(message.data)) as SwitchyardEvent
-        if (typeof event.sequence === 'number') lastSequence = Math.max(lastSequence, event.sequence)
+        if (typeof event.sequence === 'number')
+          lastSequence = Math.max(lastSequence, event.sequence)
         onEvent?.(event)
       } catch {
         socket?.close(1002, 'invalid event envelope')

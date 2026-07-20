@@ -123,18 +123,14 @@ func (r *Resolver) composeExec(plan application.LaunchPlan, manifest manifestDom
 	if manifest.Runtime.Compose.Context != "" {
 		arguments = append(arguments, "--context", manifest.Runtime.Compose.Context)
 	}
-	arguments = append(arguments, "compose", "--project-directory", plan.WorkingDirectory)
-	for _, file := range manifest.Runtime.Compose.Files {
-		path := file
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(plan.WorkingDirectory, path)
-		}
-		path = filepath.Clean(path)
-		relative, err := filepath.Rel(plan.WorkingDirectory, path)
-		if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) || filepath.IsAbs(relative) {
-			return application.LaunchPlan{}, errors.New("compose file leaves the trusted terminal root")
-		}
-		arguments = append(arguments, "--file", path)
+	resolvedRoot, composeFiles, err := resolveComposeFiles(plan.WorkingDirectory, manifest.Runtime.Compose.Files)
+	if err != nil {
+		return application.LaunchPlan{}, err
+	}
+	plan.WorkingDirectory = resolvedRoot
+	arguments = append(arguments, "compose", "--project-directory", resolvedRoot)
+	for _, file := range composeFiles {
+		arguments = append(arguments, "--file", file)
 	}
 	if projectName == "" {
 		projectName = manifest.Runtime.Compose.ProjectName
@@ -148,6 +144,42 @@ func (r *Resolver) composeExec(plan application.LaunchPlan, manifest manifestDom
 	plan.ServiceID = serviceID
 	plan.DisplayName = serviceID + " · " + label
 	return plan, nil
+}
+
+func resolveComposeFiles(root string, files []string) (string, []string, error) {
+	resolvedRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return "", nil, fmt.Errorf("resolve trusted terminal root: %w", err)
+	}
+	resolvedRoot, err = filepath.Abs(resolvedRoot)
+	if err != nil {
+		return "", nil, fmt.Errorf("resolve trusted terminal root: %w", err)
+	}
+	resolvedFiles := make([]string, 0, len(files))
+	for _, file := range files {
+		candidate := file
+		if !filepath.IsAbs(candidate) {
+			candidate = filepath.Join(resolvedRoot, candidate)
+		}
+		resolved, err := filepath.EvalSymlinks(filepath.Clean(candidate))
+		if err != nil {
+			return "", nil, fmt.Errorf("resolve Compose file: %w", err)
+		}
+		resolved, err = filepath.Abs(resolved)
+		if err != nil {
+			return "", nil, fmt.Errorf("resolve Compose file: %w", err)
+		}
+		relative, err := filepath.Rel(resolvedRoot, resolved)
+		if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) || filepath.IsAbs(relative) {
+			return "", nil, errors.New("compose file leaves the trusted terminal root")
+		}
+		info, err := os.Stat(resolved)
+		if err != nil || !info.Mode().IsRegular() {
+			return "", nil, errors.New("compose file must be a regular file")
+		}
+		resolvedFiles = append(resolvedFiles, resolved)
+	}
+	return resolvedRoot, resolvedFiles, nil
 }
 
 func (r *Resolver) interactiveAction(ctx context.Context, plan application.LaunchPlan, actionID string) (application.LaunchPlan, error) {

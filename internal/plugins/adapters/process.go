@@ -3,6 +3,7 @@ package adapters
 import (
 	"bytes"
 	"context"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"io"
@@ -14,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"switchyard.dev/switchyard/internal/platform/processgroup"
 	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
 	"switchyard.dev/switchyard/internal/plugins/domain"
 	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
@@ -37,10 +39,13 @@ func NewProcessRunner(hostVersion string, redactor TextRedactor) *ProcessRunner 
 func (r *ProcessRunner) Call(ctx context.Context, invocation pluginsApplication.Invocation) ([]domain.LogEntry, error) {
 	callCtx, cancel := boundedCallContext(ctx)
 	defer cancel()
+	if err := verifyReviewedPackage(invocation.Plugin); err != nil {
+		return nil, fmt.Errorf("verify reviewed plugin %s: %w", invocation.Plugin.ID, err)
+	}
 	command := exec.CommandContext(callCtx, invocation.Plugin.Executable, invocation.Plugin.Arguments...)
 	command.Dir = filepath.Dir(invocation.Plugin.ManifestPath)
 	command.Env = minimalEnvironment()
-	configurePluginProcess(command)
+	processgroup.Configure(command)
 	stdin, err := command.StdinPipe()
 	if err != nil {
 		return nil, err
@@ -54,6 +59,13 @@ func (r *ProcessRunner) Call(ctx context.Context, invocation pluginsApplication.
 	if err := command.Start(); err != nil {
 		return nil, fmt.Errorf("start plugin %s: %w", invocation.Plugin.ID, err)
 	}
+	ownership, err := processgroup.Own(command)
+	if err != nil {
+		_ = command.Process.Kill()
+		_ = command.Wait()
+		return nil, fmt.Errorf("contain plugin %s: %w", invocation.Plugin.ID, err)
+	}
+	defer func() { _ = ownership.Close() }()
 	client := pluginsdk.NewClient(stdout, stdin)
 	var initialized pluginsdk.InitializeResult
 	initErr := client.Call("initialize", pluginsdk.InitializeParams{ProtocolVersion: pluginsdk.ProtocolVersion, HostVersion: r.hostVersion, GrantedScopes: invocation.Scopes}, &initialized)
@@ -65,7 +77,7 @@ func (r *ProcessRunner) Call(ctx context.Context, invocation pluginsApplication.
 		callErr = client.Call(invocation.Method, invocation.Params, invocation.Result)
 	}
 	_ = stdin.Close()
-	waitErr := waitPlugin(command)
+	waitErr := waitPlugin(command, ownership)
 	logs := r.logs(invocation.Plugin.ID, stderr.String())
 	if callErr != nil {
 		return logs, fmt.Errorf("plugin %s %s: %w", invocation.Plugin.ID, invocation.Method, callErr)
@@ -74,6 +86,31 @@ func (r *ProcessRunner) Call(ctx context.Context, invocation pluginsApplication.
 		return logs, fmt.Errorf("plugin %s exited unsuccessfully: %w", invocation.Plugin.ID, waitErr)
 	}
 	return logs, nil
+}
+
+func verifyReviewedPackage(plugin domain.Plugin) error {
+	if plugin.Fingerprint == "" || plugin.ManifestPath == "" || plugin.Executable == "" {
+		return errors.New("reviewed plugin identity is incomplete")
+	}
+	info, err := os.Lstat(plugin.Executable)
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0o111 == 0 || info.Mode().Perm()&0o022 != 0 {
+		return errors.New("reviewed plugin executable is no longer a protected executable file")
+	}
+	manifest, err := readBoundedFile(plugin.ManifestPath, 64<<10)
+	if err != nil {
+		return err
+	}
+	fingerprint, err := executableFingerprint(manifest, plugin.Executable)
+	if err != nil {
+		return err
+	}
+	if subtle.ConstantTimeCompare([]byte(fingerprint), []byte(plugin.Fingerprint)) != 1 {
+		return errors.New("plugin package fingerprint changed after review")
+	}
+	return nil
 }
 
 func validateIdentity(invocation pluginsApplication.Invocation, initialized pluginsdk.InitializeResult) error {
@@ -110,22 +147,26 @@ func validateIdentity(invocation pluginsApplication.Invocation, initialized plug
 
 func boundedCallContext(ctx context.Context) (context.Context, context.CancelFunc) {
 	if _, exists := ctx.Deadline(); exists {
-		return context.WithCancel(ctx)
+		//nolint:gosec // G118: the caller receives cancel and defers it for the complete plugin call.
+		bounded, cancel := context.WithCancel(ctx)
+		return bounded, cancel
 	}
-	return context.WithTimeout(ctx, 15*time.Second)
+	//nolint:gosec // G118: the caller receives cancel and defers it for the complete plugin call.
+	bounded, cancel := context.WithTimeout(ctx, 15*time.Second)
+	return bounded, cancel
 }
 
-func waitPlugin(command *exec.Cmd) error {
+func waitPlugin(command *exec.Cmd, ownership *processgroup.Ownership) error {
 	const gracefulExitTimeout = 3 * time.Second
 
 	done := make(chan error, 1)
 	go func() { done <- command.Wait() }()
 	select {
 	case err := <-done:
-		terminatePluginProcess(command)
+		_ = ownership.Terminate()
 		return err
 	case <-time.After(gracefulExitTimeout):
-		terminatePluginProcess(command)
+		_ = ownership.Terminate()
 		return <-done
 	}
 }

@@ -1,56 +1,47 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from "@tanstack/vue-query";
-import { computed, onBeforeUnmount, watch } from "vue";
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import { computed, onBeforeUnmount, watch } from 'vue'
 
-import { isTerminalOperation, stateLabel } from "../../lib/format";
-import {
-  loadOperations,
-  requestOperationCancellation,
-} from "../../domains/operations/api";
+import { isTerminalOperation, stateLabel } from '../../lib/format'
+import { loadOperations, requestOperationCancellation } from '../../domains/operations/api'
 import {
   mergeTrackedOperations,
   trackOperation,
   useOperationStore,
-} from "../../domains/operations/store";
+} from '../../domains/operations/store'
 
-const store = useOperationStore();
+const store = useOperationStore()
 const query = useQuery({
-  queryKey: ["operations"],
+  queryKey: ['operations'],
   queryFn: loadOperations,
   refetchInterval: 1_500,
-});
+})
 watch(
   () => query.data.value,
   (operations) => operations && mergeTrackedOperations(operations),
   { immediate: true },
-);
+)
 const cancellation = useMutation({
   mutationFn: requestOperationCancellation,
   onSuccess: trackOperation,
-});
-const recent = computed(() => store.operations.value.slice(0, 20));
-const toast = computed(() => store.notice.value);
-let dismissalTimer: number | undefined;
+})
+const recent = computed(() => store.operations.value.slice(0, 20))
+const toast = computed(() => store.notice.value)
+let dismissalTimer: number | undefined
 watch(
-  () =>
-    toast.value
-      ? `${toast.value.id}:${toast.value.state}:${toast.value.updatedAt}`
-      : "",
+  () => (toast.value ? `${toast.value.id}:${toast.value.state}:${toast.value.updatedAt}` : ''),
   () => {
-    if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer);
-    dismissalTimer = undefined;
-    const current = toast.value;
-    if (!current || !isTerminalOperation(current.state)) return;
-    dismissalTimer = window.setTimeout(
-      () => store.dismissNotice(current.id),
-      5_000,
-    );
+    if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer)
+    dismissalTimer = undefined
+    const current = toast.value
+    if (!current || !isTerminalOperation(current.state)) return
+    dismissalTimer = window.setTimeout(() => store.dismissNotice(current.id), 5_000)
   },
   { immediate: true },
-);
+)
 onBeforeUnmount(() => {
-  if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer);
-});
+  if (dismissalTimer !== undefined) window.clearTimeout(dismissalTimer)
+})
 </script>
 
 <template>
@@ -67,29 +58,19 @@ onBeforeUnmount(() => {
       aria-hidden="true"
     ></span>
     <span
-      ><strong>{{ toast.kind.replace("runtime.", "") }}</strong
+      ><strong>{{ toast.kind.replace('runtime.', '') }}</strong
       ><small>{{ stateLabel(toast.state) }}</small></span
     >
     <button type="button" aria-label="Open operation details">→</button>
   </div>
-  <div
-    v-if="store.drawerOpen.value"
-    class="drawer-backdrop"
-    @mousedown.self="store.close()"
-  >
+  <div v-if="store.drawerOpen.value" class="drawer-backdrop" @mousedown.self="store.close()">
     <aside class="operation-drawer" aria-labelledby="operation-drawer-title">
       <header>
         <div>
           <p>Durable work</p>
           <h2 id="operation-drawer-title">Operations</h2>
         </div>
-        <button
-          type="button"
-          aria-label="Close operations"
-          @click="store.close()"
-        >
-          ×
-        </button>
+        <button type="button" aria-label="Close operations" @click="store.close()">×</button>
       </header>
       <div v-if="query.isError.value" class="drawer-error" role="alert">
         Operations are unavailable.
@@ -108,9 +89,7 @@ onBeforeUnmount(() => {
           <div>
             <strong>{{ operation.kind }}</strong
             ><code>{{ operation.id }}</code
-            ><small v-if="operation.errorMessage">{{
-              operation.errorMessage
-            }}</small>
+            ><small v-if="operation.errorMessage">{{ operation.errorMessage }}</small>
           </div>
           <div class="operation-state">
             <span>{{ stateLabel(operation.state) }}</span

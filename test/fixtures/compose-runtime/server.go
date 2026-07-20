@@ -28,9 +28,11 @@ func main() {
 }
 
 func run() error {
+	//nolint:gosec // G301: this non-secret directory is shared with the fixture's Docker volume.
 	if err := os.MkdirAll("/state", 0o755); err != nil {
 		return err
 	}
+	//nolint:gosec // G306: the readiness marker contains only a timestamp and is intentionally container-readable.
 	if err := os.WriteFile(filepath.Join("/state", "ready"), []byte(time.Now().UTC().Format(time.RFC3339Nano)), 0o644); err != nil {
 		return err
 	}

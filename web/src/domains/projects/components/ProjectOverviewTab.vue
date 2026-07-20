@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { RouterLink } from 'vue-router'
 
 import type {
   ActionDefinition,
@@ -8,40 +8,39 @@ import type {
   RuntimeLogEntry,
   RuntimeMetricSample,
   RuntimeObservation,
-} from "../../../api/generated/types.gen";
-import { formatBytes, stateLabel } from "../../../lib/format";
-import ProjectEndpointsCard from "./ProjectEndpointsCard.vue";
-import ProjectLogPreview from "./ProjectLogPreview.vue";
+} from '../../../api/generated/types.gen'
+import { formatBytes, stateLabel } from '../../../lib/format'
+import ProjectEndpointsCard from './ProjectEndpointsCard.vue'
+import ProjectLogPreview from './ProjectLogPreview.vue'
 
 const props = defineProps<{
-  projectId: string;
-  runtime?: RuntimeObservation;
-  runtimePending: boolean;
-  metrics: Array<RuntimeMetricSample>;
-  recentLogs: Array<RuntimeLogEntry>;
-  logConnection: string;
-  cpu: number;
-  cpuAvailable: boolean;
-  memory: number;
-  memoryAvailable: boolean;
-  memoryLimit: number;
-  git?: GitState;
-  changes: number;
-  healthState: string;
-  requiredHealth: Array<HealthResult>;
-  endpoints: Array<ActionDefinition>;
-  quickActions: Array<ActionDefinition>;
-  actionPending: boolean;
-}>();
+  projectId: string
+  runtime?: RuntimeObservation
+  runtimePending: boolean
+  metrics: Array<RuntimeMetricSample>
+  recentLogs: Array<RuntimeLogEntry>
+  logConnection: string
+  cpu: number
+  cpuAvailable: boolean
+  memory: number
+  memoryAvailable: boolean
+  memoryLimit: number
+  git?: GitState
+  changes: number
+  healthState: string
+  requiredHealth: Array<HealthResult>
+  endpoints: Array<ActionDefinition>
+  quickActions: Array<ActionDefinition>
+  actionPending: boolean
+}>()
 const emit = defineEmits<{
-  selectTab: [tab: "logs" | "git"];
-  runAction: [action: ActionDefinition];
-}>();
+  selectTab: [tab: 'logs' | 'git']
+  runAction: [action: ActionDefinition]
+}>()
 
 function serviceMetric(serviceId: string) {
-  return props.metrics.find((item) => item.serviceId === serviceId);
+  return props.metrics.find((item) => item.serviceId === serviceId)
 }
-
 </script>
 
 <template>
@@ -53,28 +52,18 @@ function serviceMetric(serviceId: string) {
             <p>Runtime</p>
             <h2>Services</h2>
           </div>
-          <span
-            >{{ runtime?.driver ?? "—" }} ·
-            {{ runtime?.origin ?? "unobserved" }}</span
-          >
+          <span>{{ runtime?.driver ?? '—' }} · {{ runtime?.origin ?? 'unobserved' }}</span>
         </header>
         <div v-if="runtimePending" class="panel-state">Observing runtime…</div>
         <div v-else-if="runtime?.services.length" class="service-table">
           <div class="service-row service-row--head">
-            <span>Service</span><span>Status</span><span>Health</span
-            ><span>Port</span><span>CPU</span><span>Memory</span>
+            <span>Service</span><span>Status</span><span>Health</span><span>Port</span
+            ><span>CPU</span><span>Memory</span>
           </div>
-          <div
-            v-for="service in runtime.services"
-            :key="service.id"
-            class="service-row"
-          >
+          <div v-for="service in runtime.services" :key="service.id" class="service-row">
             <strong>{{ service.id }}</strong>
             <span
-              ><i
-                class="dot"
-                :class="{ online: service.state === 'running' }"
-              ></i
+              ><i class="dot" :class="{ online: service.state === 'running' }"></i
               >{{ stateLabel(service.state) }}</span
             >
             <span>{{ service.health }}</span>
@@ -82,23 +71,21 @@ function serviceMetric(serviceId: string) {
               service.ports
                 .map((port) => port.hostPort)
                 .filter(Boolean)
-                .join(", ") || "—"
+                .join(', ') || '—'
             }}</span>
             <span>{{
               serviceMetric(service.id)?.cpuAvailable
                 ? `${serviceMetric(service.id)!.cpuPercent.toFixed(1)}%`
-                : "—"
+                : '—'
             }}</span>
             <span>{{
               serviceMetric(service.id)?.memoryAvailable
                 ? formatBytes(serviceMetric(service.id)!.memoryBytes)
-                : "—"
+                : '—'
             }}</span>
           </div>
         </div>
-        <p v-else class="panel-state">
-          No runtime services are currently observed.
-        </p>
+        <p v-else class="panel-state">No runtime services are currently observed.</p>
       </article>
 
       <ProjectEndpointsCard
@@ -126,16 +113,12 @@ function serviceMetric(serviceId: string) {
         <dl>
           <div>
             <dt>CPU</dt>
-            <dd>{{ cpuAvailable ? `${cpu.toFixed(1)}%` : "—" }}</dd>
-            <span
-              ><i
-                :style="{ width: `${cpuAvailable ? Math.min(cpu, 100) : 0}%` }"
-              ></i
-            ></span>
+            <dd>{{ cpuAvailable ? `${cpu.toFixed(1)}%` : '—' }}</dd>
+            <span><i :style="{ width: `${cpuAvailable ? Math.min(cpu, 100) : 0}%` }"></i></span>
           </div>
           <div>
             <dt>Memory</dt>
-            <dd>{{ memoryAvailable ? formatBytes(memory) : "—" }}</dd>
+            <dd>{{ memoryAvailable ? formatBytes(memory) : '—' }}</dd>
             <span
               ><i
                 :style="{
@@ -160,24 +143,22 @@ function serviceMetric(serviceId: string) {
         <dl class="compact-facts">
           <div>
             <dt>Branch</dt>
-            <dd>{{ git?.branch ?? (git?.detached ? "detached" : "—") }}</dd>
+            <dd>{{ git?.branch ?? (git?.detached ? 'detached' : '—') }}</dd>
           </div>
           <div>
             <dt>Working tree</dt>
             <dd :class="{ warn: changes }">
-              {{ changes ? `${changes} changes` : "Clean" }}
+              {{ changes ? `${changes} changes` : 'Clean' }}
             </dd>
           </div>
           <div>
             <dt>Upstream</dt>
             <dd>
-              {{ git ? `${git.ahead} ahead · ${git.behind} behind` : "—" }}
+              {{ git ? `${git.ahead} ahead · ${git.behind} behind` : '—' }}
             </dd>
           </div>
         </dl>
-        <button type="button" @click="emit('selectTab', 'git')">
-          Inspect repository →
-        </button>
+        <button type="button" @click="emit('selectTab', 'git')">Inspect repository →</button>
       </article>
 
       <article class="panel">
@@ -196,9 +177,7 @@ function serviceMetric(serviceId: string) {
               ><small>{{ check.message }}</small></span
             >
           </li>
-          <li v-if="!requiredHealth.length">
-            No required health checks declared.
-          </li>
+          <li v-if="!requiredHealth.length">No required health checks declared.</li>
         </ul>
       </article>
 

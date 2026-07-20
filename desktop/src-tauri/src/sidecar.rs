@@ -41,16 +41,7 @@ impl<R: Runtime> Sidecar<R> {
     pub async fn ui_url(&self, route: &str) -> Result<String, SidecarError> {
         let envelope: Envelope<UIAddress> = self.run(&["ui", "--path", route]).await?;
         validate_envelope(&envelope, "ui")?;
-        let parsed = url::Url::parse(&envelope.data.url)
-            .map_err(|_| SidecarError("sidecar returned an invalid application URL".into()))?;
-        let loopback = parsed
-            .host_str()
-            .is_some_and(|host| host == "127.0.0.1" || host == "localhost" || host == "::1");
-        if parsed.scheme() != "http" || !loopback {
-            return Err(SidecarError(
-                "sidecar refused to return an authenticated loopback URL".into(),
-            ));
-        }
+        validate_ui_url(&envelope.data.url)?;
         Ok(envelope.data.url)
     }
 
@@ -115,6 +106,31 @@ impl<R: Runtime> Sidecar<R> {
     }
 }
 
+fn validate_ui_url(value: &str) -> Result<url::Url, SidecarError> {
+    let parsed = url::Url::parse(value)
+        .map_err(|_| SidecarError("sidecar returned an invalid application URL".into()))?;
+    let loopback = parsed
+        .host_str()
+        .is_some_and(|host| host == "127.0.0.1" || host == "localhost" || host == "::1");
+    let bootstrap = parsed
+        .query_pairs()
+        .find_map(|(key, value)| (key == "bootstrap").then_some(value))
+        .is_some_and(|value| !value.is_empty());
+    if parsed.scheme() != "http"
+        || !loopback
+        || parsed.port().is_none()
+        || !parsed.username().is_empty()
+        || parsed.password().is_some()
+        || parsed.fragment().is_some()
+        || !bootstrap
+    {
+        return Err(SidecarError(
+            "sidecar refused to return an authenticated loopback URL".into(),
+        ));
+    }
+    Ok(parsed)
+}
+
 fn validate_envelope<T>(
     envelope: &Envelope<T>,
     expected_command: &str,
@@ -148,5 +164,13 @@ mod tests {
         assert!(validate_identifier("../project").is_err());
         assert!(validate_identifier("a;open").is_err());
         assert!(validate_identifier(&"a".repeat(129)).is_err());
+    }
+
+    #[test]
+    fn validates_authenticated_loopback_url_shape() {
+        assert!(validate_ui_url("http://127.0.0.1:49152/?bootstrap=one-time").is_ok());
+        assert!(validate_ui_url("http://127.0.0.1/?bootstrap=one-time").is_err());
+        assert!(validate_ui_url("http://attacker@127.0.0.1:49152/?bootstrap=one-time").is_err());
+        assert!(validate_ui_url("http://127.0.0.1:49152/").is_err());
     }
 }

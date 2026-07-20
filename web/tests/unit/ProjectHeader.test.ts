@@ -1,71 +1,71 @@
-import { cleanup, fireEvent, render } from "@testing-library/vue";
-import { afterEach, expect, test } from "vitest";
+import { cleanup, fireEvent, render } from '@testing-library/vue'
+import { afterEach, expect, test } from 'vitest'
 
-import type { Project } from "../../src/api/generated/types.gen";
-import ProjectHeader from "../../src/domains/projects/components/ProjectHeader.vue";
+import type { Project } from '../../src/api/generated/types.gen'
+import ProjectHeader from '../../src/domains/projects/components/ProjectHeader.vue'
 
-afterEach(cleanup);
+afterEach(cleanup)
 
 const project: Project = {
-  id: "alpha",
-  slug: "alpha",
-  displayName: "Alpha App",
-  trustState: "trusted",
-  primaryLocation: "/dev/alpha",
+  id: 'alpha',
+  slug: 'alpha',
+  displayName: 'Alpha App',
+  trustState: 'trusted',
+  primaryLocation: '/dev/alpha',
   tags: [],
   manifestRevision: 1,
-  createdAt: "2026-07-15T12:00:00Z",
-  updatedAt: "2026-07-15T12:00:00Z",
-};
+  createdAt: '2026-07-15T12:00:00Z',
+  updatedAt: '2026-07-15T12:00:00Z',
+}
 
 function renderHeader() {
   return render(ProjectHeader, {
     props: {
       project,
-      state: "stopped",
-      stateTone: "neutral",
+      state: 'stopped',
+      stateTone: 'neutral',
       active: false,
       actionPending: false,
       lifecyclePending: false,
-      operationError: "",
+      operationError: '',
       partial: false,
       dockerUnavailable: false,
       availableProfiles: [],
     },
-    global: { stubs: { RouterLink: { template: "<a><slot /></a>" } } },
-  });
+    global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } },
+  })
 }
 
-test("opens the integrated terminal without queuing an external action", async () => {
-  const view = renderHeader();
+test('opens the integrated terminal without queuing an external action', async () => {
+  const view = renderHeader()
 
-  await fireEvent.click(view.getByRole("button", { name: "Terminal" }));
+  await fireEvent.click(view.getByRole('button', { name: 'Terminal' }))
 
-  expect(view.emitted("terminal")).toHaveLength(1);
-  expect(view.emitted("action")).toBeUndefined();
-});
+  expect(view.emitted('terminal')).toHaveLength(1)
+  expect(view.emitted('action')).toBeUndefined()
+})
 
-test("offers trusted Compose profiles when starting a stopped project", async () => {
+test('offers trusted Compose profiles when starting a stopped project', async () => {
   const view = render(ProjectHeader, {
     props: {
       project,
-      state: "stopped",
-      stateTone: "neutral",
+      state: 'stopped',
+      stateTone: 'neutral',
       active: false,
       actionPending: false,
       lifecyclePending: false,
-      operationError: "",
+      operationError: '',
       partial: false,
       dockerUnavailable: false,
-      availableProfiles: ["marketing"],
+      availableProfiles: ['marketing'],
     },
-    global: { stubs: { RouterLink: { template: "<a><slot /></a>" } } },
-  });
+    global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } },
+  })
 
-  await fireEvent.click(view.getByRole("button", { name: "Start" }));
-  expect(view.getByRole("dialog", { name: "Start Alpha App services" })).toBeInTheDocument();
-  await fireEvent.click(view.getByRole("checkbox", { name: "Marketing" }));
-  await fireEvent.click(view.getByRole("button", { name: "Start services" }));
+  await fireEvent.click(view.getByRole('button', { name: 'Start' }))
+  expect(view.getByRole('dialog', { name: 'Start Alpha App services' })).toBeInTheDocument()
+  await fireEvent.click(view.getByRole('checkbox', { name: 'Marketing' }))
+  await fireEvent.click(view.getByRole('button', { name: 'Start services' }))
 
-  expect(view.emitted("lifecycle")).toEqual([["start", ["marketing"]]]);
-});
+  expect(view.emitted('lifecycle')).toEqual([['start', ['marketing']]])
+})

@@ -16,7 +16,12 @@ import AgentSessionsPanel from '../../src/domains/terminal/components/AgentSessi
 import TerminalPanel from '../../src/domains/terminal/components/TerminalPanel.vue'
 
 function plugins() {
-  return [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }] as [typeof VueQueryPlugin, { queryClient: QueryClient }]]
+  return [
+    [
+      VueQueryPlugin,
+      { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) },
+    ] as [typeof VueQueryPlugin, { queryClient: QueryClient }],
+  ]
 }
 
 beforeEach(() => {
@@ -30,8 +35,23 @@ beforeEach(() => {
 test('terminal launcher exposes typed targets and honest detach persistence', async () => {
   render(TerminalPanel, {
     props: {
-      projectId: 'alpha', services: ['api', 'database'], environments: [], externalAvailable: true,
-      actions: [{ id: 'console', name: 'Console', type: 'command', command: ['bin/console'], workingDirectory: '.', shell: false, captureOutput: false, risk: 'interactive', timeoutSeconds: 0 }],
+      projectId: 'alpha',
+      services: ['api', 'database'],
+      environments: [],
+      externalAvailable: true,
+      actions: [
+        {
+          id: 'console',
+          name: 'Console',
+          type: 'command',
+          command: ['bin/console'],
+          workingDirectory: '.',
+          shell: false,
+          captureOutput: false,
+          risk: 'interactive',
+          timeoutSeconds: 0,
+        },
+      ],
     },
     global: { plugins: plugins() },
   })
@@ -52,10 +72,18 @@ test('agent sessions disclose the observable boundary and launch a selected prov
     global: { plugins: plugins() },
   })
   expect(await screen.findByRole('heading', { name: 'Coding agents' })).toBeInTheDocument()
-  expect(screen.getByText(/neither requests nor claims access to hidden reasoning/)).toBeInTheDocument()
+  expect(
+    screen.getByText(/neither requests nor claims access to hidden reasoning/),
+  ).toBeInTheDocument()
   await fireEvent.update(screen.getByLabelText('Provider'), 'claude')
   await fireEvent.click(screen.getByRole('button', { name: 'Start agent' }))
-  await waitFor(() => expect(terminalAPI.startAgentSession).toHaveBeenCalledWith({
-    projectId: 'alpha', provider: 'claude', environmentId: undefined, columns: 120, rows: 36,
-  }))
+  await waitFor(() =>
+    expect(terminalAPI.startAgentSession).toHaveBeenCalledWith({
+      projectId: 'alpha',
+      provider: 'claude',
+      environmentId: undefined,
+      columns: 120,
+      rows: 36,
+    }),
+  )
 })

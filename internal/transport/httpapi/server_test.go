@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -59,6 +60,29 @@ func TestGetSystemReturnsGeneratedContract(t *testing.T) {
 	}
 }
 
+func TestGetSystemReplacesInvalidCorrelationHeader(t *testing.T) {
+	t.Parallel()
+
+	handler := NewIPC(Dependencies{
+		System:   systemStub{},
+		Sessions: session.NewManager(),
+		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/system", nil)
+	invalidID := "header injection\r\n" + strings.Repeat("x", 128)
+	request.Header.Set(correlationHeader, invalidID)
+	response := httptest.NewRecorder()
+
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	correlationID := response.Header().Get(correlationHeader)
+	if correlationID == invalidID || !correlationIDPattern.MatchString(correlationID) {
+		t.Fatalf("correlation header = %q", correlationID)
+	}
+}
+
 func TestGetHostReturnsPartialGeneratedContract(t *testing.T) {
 	t.Parallel()
 	at := time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)
@@ -84,6 +108,27 @@ func TestGetHostReturnsPartialGeneratedContract(t *testing.T) {
 	}
 	if observation.CpuPercent != 12.5 || !observation.Docker.Connected || observation.Docker.StorageBytes == nil || *observation.Docker.StorageBytes != 42 {
 		t.Fatalf("observation = %#v", observation)
+	}
+}
+
+func TestGetHostSaturatesCountersOutsideTheAPIIntegerRange(t *testing.T) {
+	t.Parallel()
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Host: hostStub{observation: application.HostObservation{
+			MemoryUsedBytes: math.MaxUint64, MemoryTotalBytes: math.MaxUint64,
+		}}, Sessions: session.NewManager(), Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/v1/host", nil))
+	var observation generated.HostObservation
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	if err := json.NewDecoder(response.Body).Decode(&observation); err != nil {
+		t.Fatal(err)
+	}
+	if observation.MemoryUsedBytes != math.MaxInt64 || observation.MemoryTotalBytes != math.MaxInt64 {
+		t.Fatalf("bounded observation = %#v", observation)
 	}
 }
 
@@ -271,6 +316,9 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	if unauthorized.Code != http.StatusUnauthorized {
 		t.Fatalf("unauthorized status = %d", unauthorized.Code)
 	}
+	if got := unauthorized.Header().Get("Cache-Control"); got != "no-store" {
+		t.Fatalf("API Cache-Control = %q, want no-store", got)
+	}
 	body := strings.NewReader(`{"bootstrapToken":"` + bootstrap.Token + `"}`)
 	exchangeRequest := httptest.NewRequest(http.MethodPost, "/api/v1/auth/sessions", body)
 	exchangeRequest.Header.Set("Content-Type", "application/json")
@@ -291,6 +339,8 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	}
 
 	missingCSRF := httptest.NewRequest(http.MethodPost, "/api/v1/operations/missing/cancel", nil)
+	missingCSRF.Host = "127.0.0.1:19616"
+	missingCSRF.Header.Set("Origin", "http://127.0.0.1:19616")
 	missingCSRF.AddCookie(cookies[0])
 	missingCSRF.Header.Set(idempotencyHeader, "cancel-key")
 	missingCSRFResponse := httptest.NewRecorder()
@@ -312,6 +362,8 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	}
 
 	missingIdempotency := httptest.NewRequest(http.MethodPost, "/api/v1/operations/missing/cancel", nil)
+	missingIdempotency.Host = "127.0.0.1:19616"
+	missingIdempotency.Header.Set("Origin", "http://127.0.0.1:19616")
 	missingIdempotency.AddCookie(cookies[0])
 	missingIdempotency.Header.Set(csrfHeader, browserSession.CsrfToken)
 	missingIdempotencyResponse := httptest.NewRecorder()
@@ -321,6 +373,8 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	}
 
 	valid := httptest.NewRequest(http.MethodPost, "/api/v1/operations/missing/cancel", nil)
+	valid.Host = "127.0.0.1:19616"
+	valid.Header.Set("Origin", "http://127.0.0.1:19616")
 	valid.AddCookie(cookies[0])
 	valid.Header.Set(csrfHeader, browserSession.CsrfToken)
 	valid.Header.Set(idempotencyHeader, "cancel-key")
@@ -328,5 +382,34 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	browser.ServeHTTP(validResponse, valid)
 	if validResponse.Code != http.StatusNotFound {
 		t.Fatalf("authorized mutation status = %d, body = %s", validResponse.Code, validResponse.Body.String())
+	}
+}
+
+func TestBrowserMutationRejectsCrossOriginRequestWithValidCredentials(t *testing.T) {
+	t.Parallel()
+
+	sessions := session.NewManager()
+	bootstrap, err := sessions.IssueBootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	active, err := sessions.Exchange(bootstrap.Token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	browser := NewBrowser(Dependencies{
+		System: systemStub{}, Operations: operationStub{}, Sessions: sessions,
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/operations/missing/cancel", nil)
+	request.Host = "127.0.0.1:19616"
+	request.Header.Set("Origin", "http://attacker.invalid")
+	request.Header.Set(csrfHeader, active.CSRFToken)
+	request.Header.Set(idempotencyHeader, "cancel-key")
+	request.AddCookie(&http.Cookie{Name: sessionCookieName, Value: active.ID})
+	response := httptest.NewRecorder()
+	browser.ServeHTTP(response, request)
+	if response.Code != http.StatusForbidden || !strings.Contains(response.Body.String(), "ORIGIN_INVALID") {
+		t.Fatalf("cross-origin mutation status=%d body=%s", response.Code, response.Body.String())
 	}
 }

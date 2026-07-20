@@ -113,7 +113,9 @@ func (s *Service) Create(ctx context.Context, request domain.CreateRequest, owne
 	}
 	_ = s.audit(ctx, session.ID, "started", owner, map[string]any{"pid": process.PID()})
 	s.wg.Add(2)
+	//nolint:gosec // G118: session workers intentionally use the service lifetime, not the create request.
 	go s.pump(managed)
+	//nolint:gosec // G118: session workers intentionally use the service lifetime, not the create request.
 	go s.wait(managed)
 	return managed.snapshot(), nil
 }

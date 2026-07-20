@@ -1,6 +1,6 @@
 # Switchyard UI mockup notes
 
-The adjacent `switchyard-ui-mockup.html` is an interactive visual reference for the production Vue interface.
+The adjacent `switchyard-interactive-mockup.html` is the canonical interactive visual reference for the production Vue interface.
 
 It contains three implemented views:
 

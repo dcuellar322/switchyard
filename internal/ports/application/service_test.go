@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -11,6 +12,13 @@ import (
 type sourceStub struct{ facts []domain.Fact }
 
 func (s sourceStub) Facts(context.Context) ([]domain.Fact, error) { return s.facts, nil }
+
+type countingSource struct{ calls atomic.Int32 }
+
+func (s *countingSource) Facts(context.Context) ([]domain.Fact, error) {
+	s.calls.Add(1)
+	return []domain.Fact{{ID: "listener", Kind: domain.KindBinding, Port: 9000, Protocol: "tcp"}}, nil
+}
 
 type reservationStub struct{}
 
@@ -42,6 +50,27 @@ func TestRegistryClassifiesStoppedReservationAgainstLiveProject(t *testing.T) {
 	}
 	if registry.Conflicts[0].Type != domain.ConflictDeclaredBound && registry.Conflicts[1].Type != domain.ConflictDeclaredBound {
 		t.Fatalf("missing declared/bound conflict: %#v", registry.Conflicts)
+	}
+}
+
+func TestRegistryCachesExpensiveListenerSnapshotButSuggestionRefreshesIt(t *testing.T) {
+	t.Parallel()
+	listeners := &countingSource{}
+	service := NewService(sourceStub{}, sourceStub{}, listeners, reservationStub{})
+	if _, err := service.Registry(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.Registry(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if got := listeners.calls.Load(); got != 1 {
+		t.Fatalf("cached listener scans = %d, want 1", got)
+	}
+	if _, err := service.Suggest(context.Background(), 9000, 9001, "tcp", "", nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := listeners.calls.Load(); got != 2 {
+		t.Fatalf("listener scans after suggestion = %d, want 2", got)
 	}
 }
 

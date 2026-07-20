@@ -3,6 +3,7 @@ package httpapi
 import (
 	"log/slog"
 	"net/http"
+	"regexp"
 	"time"
 
 	"switchyard.dev/switchyard/internal/foundation/correlation"
@@ -10,11 +11,13 @@ import (
 
 const correlationHeader = "X-Correlation-ID"
 
+var correlationIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$`)
+
 func withCorrelation(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		startedAt := time.Now()
 		id := r.Header.Get(correlationHeader)
-		if id == "" {
+		if !correlationIDPattern.MatchString(id) {
 			generated, err := correlation.NewID()
 			if err != nil {
 				writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error", "A correlation identifier could not be created.")
