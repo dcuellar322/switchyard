@@ -14,7 +14,7 @@ GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.6.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.2
 PLATFORM_PACKAGES := ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check fmt-go-check fmt-web-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
 
 bootstrap: frontend-install generate
 
@@ -98,8 +98,12 @@ fmt:
 	GOCACHE=$(GOCACHE) $(GO) fmt ./...
 	$(PNPM) --dir web format
 
-fmt-check:
+fmt-check: fmt-go-check fmt-web-check
+
+fmt-go-check:
 	test -z "$$(gofmt -l $$(find cmd internal migrations tools web sdk examples test -name '*.go' -type f))"
+
+fmt-web-check:
 	$(PNPM) --dir web format:check
 
 archcheck:

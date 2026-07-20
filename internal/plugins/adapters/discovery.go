@@ -132,11 +132,8 @@ func resolveExecutable(directory, value string) (string, error) {
 	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
 		return "", errors.New("executable must be a regular file, not a symlink")
 	}
-	if info.Mode().Perm()&0o111 == 0 {
-		return "", errors.New("plugin file is not executable")
-	}
-	if info.Mode().Perm()&0o022 != 0 {
-		return "", errors.New("plugin executable cannot be group- or world-writable")
+	if err := validateExecutablePermissions(info.Mode()); err != nil {
+		return "", err
 	}
 	return candidate, nil
 }

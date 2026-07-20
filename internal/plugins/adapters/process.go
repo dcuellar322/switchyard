@@ -96,7 +96,10 @@ func verifyReviewedPackage(plugin domain.Plugin) error {
 	if err != nil {
 		return err
 	}
-	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0o111 == 0 || info.Mode().Perm()&0o022 != 0 {
+	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
+		return errors.New("reviewed plugin executable is no longer a protected executable file")
+	}
+	if err := validateExecutablePermissions(info.Mode()); err != nil {
 		return errors.New("reviewed plugin executable is no longer a protected executable file")
 	}
 	manifest, err := readBoundedFile(plugin.ManifestPath, 64<<10)

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -34,7 +35,7 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Stat() error = %v", err)
 	}
-	if got := info.Mode().Perm(); got != 0o600 {
+	if got := info.Mode().Perm(); runtime.GOOS != "windows" && got != 0o600 {
 		t.Fatalf("database permissions = %o, want 600", got)
 	}
 }
@@ -43,7 +44,7 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	path := filepath.Join(t.TempDir(), "switchyard.db")
-	connection, err := sql.Open("sqlite", path)
+	connection, err := sql.Open("sqlite", sqliteFileDSN(path, ""))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 	}
 	backupPath := preMigrationBackupPath(path, 3, 17)
 	for _, candidate := range []string{path, backupPath} {
-		check, err := sql.Open("sqlite", candidate)
+		check, err := sql.Open("sqlite", sqliteFileDSN(candidate, ""))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -110,7 +111,7 @@ func TestOpenRejectsDatabaseFromNewerBinary(t *testing.T) {
 		t.Fatalf("Close() error = %v", err)
 	}
 
-	connection, err := sql.Open("sqlite", path)
+	connection, err := sql.Open("sqlite", sqliteFileDSN(path, ""))
 	if err != nil {
 		t.Fatalf("sql.Open() error = %v", err)
 	}

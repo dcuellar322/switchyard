@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pressly/goose/v3"
 	// Register the pure-Go SQLite driver with database/sql.
@@ -51,11 +52,7 @@ func Open(ctx context.Context, path string) (*Database, error) {
 	if err := os.Chmod(absPath, 0o600); err != nil {
 		return nil, fmt.Errorf("restrict sqlite database permissions: %w", err)
 	}
-	dsn := (&url.URL{
-		Scheme:   "file",
-		Path:     absPath,
-		RawQuery: "_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)",
-	}).String()
+	dsn := sqliteFileDSN(absPath, "_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)")
 	connection, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite database: %w", err)
@@ -119,7 +116,7 @@ func InspectMigrations(ctx context.Context, path string) (MigrationStatus, error
 	if _, err := os.Stat(absolute); err != nil {
 		return MigrationStatus{}, fmt.Errorf("inspect database: %w", err)
 	}
-	connection, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"}).String())
+	connection, err := sql.Open("sqlite", sqliteFileDSN(absolute, "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"))
 	if err != nil {
 		return MigrationStatus{}, err
 	}
@@ -158,7 +155,7 @@ func Backup(ctx context.Context, source, destination string) error {
 	if err != nil {
 		return err
 	}
-	connection, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"}).String())
+	connection, err := sql.Open("sqlite", sqliteFileDSN(absolute, "mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"))
 	if err != nil {
 		return err
 	}
@@ -185,7 +182,7 @@ func backupConnection(ctx context.Context, connection *sql.DB, destination strin
 	if err := os.Chmod(absolute, 0o600); err != nil {
 		return err
 	}
-	backup, err := sql.Open("sqlite", (&url.URL{Scheme: "file", Path: absolute, RawQuery: "mode=ro"}).String())
+	backup, err := sql.Open("sqlite", sqliteFileDSN(absolute, "mode=ro"))
 	if err != nil {
 		return err
 	}
@@ -206,6 +203,14 @@ func integrityCheck(ctx context.Context, connection *sql.DB) error {
 
 func preMigrationBackupPath(path string, current, target int64) string {
 	return fmt.Sprintf("%s.v%d.pre-v%d.bak", path, current, target)
+}
+
+func sqliteFileDSN(path, rawQuery string) string {
+	normalized := filepath.ToSlash(path)
+	if filepath.VolumeName(path) != "" && !strings.HasPrefix(normalized, "/") {
+		normalized = "/" + normalized
+	}
+	return (&url.URL{Scheme: "file", Path: normalized, RawQuery: rawQuery}).String()
 }
 
 // SchemaVersion returns the application schema version recorded by migration.
