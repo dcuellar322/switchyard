@@ -93,7 +93,7 @@ func TestProcessRunnerRejectsPackageChangedAfterReview(t *testing.T) {
 func processFixturePlugin(t *testing.T) domain.Plugin {
 	t.Helper()
 	directory := t.TempDir()
-	executable := filepath.Join(directory, "fixture")
+	executable := filepath.Join(directory, "fixture"+filepath.Ext(os.Args[0]))
 	source, err := os.Open(os.Args[0])
 	if err != nil {
 		t.Fatal(err)

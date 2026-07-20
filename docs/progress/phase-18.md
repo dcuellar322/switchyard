@@ -167,10 +167,12 @@ The first hosted V1 pull-request run exposed Windows-only assumptions that
 cross-compilation cannot execute: plugin protection checked Unix mode bits,
 support fixtures inferred ACLs from portable file modes, golden files inherited
 CRLF checkout conversion, JSON fixtures embedded unescaped Windows paths, and
-SQLite file URLs did not normalize drive-letter paths. These boundaries now use
-platform-specific executable policy, platform-neutral fixtures, forced-LF
-goldens, and one Windows-safe SQLite DSN constructor. The Go and frontend
-formatting checks are also split between jobs with their required toolchains.
+SQLite file URLs did not normalize drive-letter paths. The plugin process test
+also stripped the `.exe` suffix from its copied helper. These boundaries now
+use platform-specific executable policy, platform-neutral fixtures, preserved
+executable suffixes, forced-LF goldens, and one Windows-safe SQLite DSN
+constructor. The Go and frontend formatting checks are also split between jobs
+with their required toolchains.
 
 Focused package tests, both formatting gates, `make platform-check`, and the
 full `make lint` gate pass locally. Hosted Windows execution and the remaining
