@@ -64,9 +64,16 @@ func (r *WorkspaceRepository) Update(ctx context.Context, item domain.Workspace,
 	if rows != 1 {
 		return workspace.ErrRevisionConflict
 	}
-	for _, table := range []string{"workspace_dependencies", "workspace_profile_projects", "workspace_recipes", "workspace_profiles", "workspace_projects"} {
-		if _, err := tx.ExecContext(ctx, `DELETE FROM `+table+` WHERE workspace_id = ?`, item.ID); err != nil {
-			return fmt.Errorf("clear %s: %w", table, err)
+	deleteStatements := []struct{ name, query string }{
+		{name: "workspace dependencies", query: `DELETE FROM workspace_dependencies WHERE workspace_id = ?`},
+		{name: "workspace profile projects", query: `DELETE FROM workspace_profile_projects WHERE workspace_id = ?`},
+		{name: "workspace recipes", query: `DELETE FROM workspace_recipes WHERE workspace_id = ?`},
+		{name: "workspace profiles", query: `DELETE FROM workspace_profiles WHERE workspace_id = ?`},
+		{name: "workspace projects", query: `DELETE FROM workspace_projects WHERE workspace_id = ?`},
+	}
+	for _, statement := range deleteStatements {
+		if _, err := tx.ExecContext(ctx, statement.query, item.ID); err != nil {
+			return fmt.Errorf("clear %s: %w", statement.name, err)
 		}
 	}
 	if err := insertWorkspaceChildren(ctx, tx, item); err != nil {

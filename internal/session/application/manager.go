@@ -2,6 +2,7 @@
 package application
 
 import (
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"sync"
@@ -20,8 +21,9 @@ var (
 )
 
 const (
-	bootstrapLifetime = time.Minute
-	sessionLifetime   = 8 * time.Hour
+	bootstrapLifetime       = time.Minute
+	sessionIdleLifetime     = 30 * time.Minute
+	sessionAbsoluteLifetime = 8 * time.Hour
 )
 
 // Bootstrap is a one-time credential delivered through privileged local IPC.
@@ -42,13 +44,18 @@ type Manager struct {
 	mu         sync.Mutex
 	now        func() time.Time
 	bootstraps map[string]time.Time
-	sessions   map[string]Session
+	sessions   map[string]managedSession
+}
+
+type managedSession struct {
+	Session
+	lastSeenAt time.Time
 }
 
 // NewManager creates an empty credential manager.
 func NewManager() *Manager {
 	return &Manager{
-		now: time.Now, bootstraps: make(map[string]time.Time), sessions: make(map[string]Session),
+		now: time.Now, bootstraps: make(map[string]time.Time), sessions: make(map[string]managedSession),
 	}
 }
 
@@ -84,8 +91,9 @@ func (m *Manager) Exchange(token string) (Session, error) {
 	if err != nil {
 		return Session{}, fmt.Errorf("create csrf token: %w", err)
 	}
-	session := Session{ID: sessionID, CSRFToken: csrfToken, ExpiresAt: m.now().UTC().Add(sessionLifetime)}
-	m.sessions[session.ID] = session
+	now := m.now().UTC()
+	session := Session{ID: sessionID, CSRFToken: csrfToken, ExpiresAt: now.Add(sessionAbsoluteLifetime)}
+	m.sessions[session.ID] = managedSession{Session: session, lastSeenAt: now}
 	return session, nil
 }
 
@@ -94,11 +102,13 @@ func (m *Manager) ValidateSession(id string) (Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.reapLocked()
-	session, ok := m.sessions[id]
+	managed, ok := m.sessions[id]
 	if !ok {
 		return Session{}, ErrInvalidSession
 	}
-	return session, nil
+	managed.lastSeenAt = m.now().UTC()
+	m.sessions[id] = managed
+	return managed.Session, nil
 }
 
 // ValidateMutation checks both session and CSRF credentials.
@@ -107,7 +117,7 @@ func (m *Manager) ValidateMutation(id, csrfToken string) (Session, error) {
 	if err != nil {
 		return Session{}, err
 	}
-	if csrfToken == "" || csrfToken != session.CSRFToken {
+	if csrfToken == "" || subtle.ConstantTimeCompare([]byte(csrfToken), []byte(session.CSRFToken)) != 1 {
 		return Session{}, ErrInvalidCSRF
 	}
 	return session, nil
@@ -121,7 +131,7 @@ func (m *Manager) reapLocked() {
 		}
 	}
 	for id, session := range m.sessions {
-		if !session.ExpiresAt.After(now) {
+		if !session.ExpiresAt.After(now) || !session.lastSeenAt.Add(sessionIdleLifetime).After(now) {
 			delete(m.sessions, id)
 		}
 	}

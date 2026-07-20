@@ -41,7 +41,7 @@ func authenticatedRequest(method, target, body string) (*http.Request, string) {
 	request := httptest.NewRequest(method, target, strings.NewReader(body))
 	request.Header.Set(protocolHeader, domain.ProtocolVersion)
 	raw := []byte("fixture-client-certificate")
-	request.TLS = &tls.ConnectionState{PeerCertificates: []*x509.Certificate{{Raw: raw}}}
+	request.TLS = &tls.ConnectionState{PeerCertificates: []*x509.Certificate{{Raw: raw}, {Raw: []byte("fixture-intermediate-certificate")}}}
 	digest := sha256.Sum256(raw)
 	return request, hex.EncodeToString(digest[:])
 }

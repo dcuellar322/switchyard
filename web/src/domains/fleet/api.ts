@@ -29,24 +29,38 @@ export async function loadMachines(): Promise<Array<Machine>> {
 
 export async function registerMachine(request: MachineRegistrationRequest): Promise<Machine> {
   const result = await createMachine({ body: request, headers: headers() })
-  if (result.error || !result.data) throw new Error('The authenticated remote machine could not be registered.')
+  if (result.error || !result.data)
+    throw new Error('The authenticated remote machine could not be registered.')
   return result.data
 }
 
 export async function refreshMachine(machineId: string): Promise<Machine> {
   const result = await probeMachine({ path: { machineId }, headers: headers() })
-  if (result.error || !result.data) throw new Error('The remote machine identity could not be refreshed.')
+  if (result.error || !result.data)
+    throw new Error('The remote machine identity could not be refreshed.')
   return result.data
 }
 
-export async function saveMachineAccess(machineId: string, request: MachineAccessRequest): Promise<Machine> {
-  const result = await updateMachineAccess({ path: { machineId }, body: request, headers: headers() })
-  if (result.error || !result.data) throw new Error('The reviewed remote access could not be saved.')
+export async function saveMachineAccess(
+  machineId: string,
+  request: MachineAccessRequest,
+): Promise<Machine> {
+  const result = await updateMachineAccess({
+    path: { machineId },
+    body: request,
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The reviewed remote access could not be saved.')
   return result.data
 }
 
 export async function removeMachine(machineId: string): Promise<void> {
-  const result = await deleteMachine({ path: { machineId }, query: { confirmRisk: true }, headers: headers() })
+  const result = await deleteMachine({
+    path: { machineId },
+    query: { confirmRisk: true },
+    headers: headers(),
+  })
   if (result.error) throw new Error('The local remote-machine registration could not be removed.')
 }
 
@@ -56,8 +70,16 @@ export async function loadMachineSnapshot(machineId: string): Promise<FleetSnaps
   return result.data
 }
 
-export async function runMachineOperation(machineId: string, request: RemoteOperationRequest): Promise<RemoteOperationReceipt> {
-  const result = await createMachineOperation({ path: { machineId }, body: request, headers: headers() })
-  if (result.error || !result.data) throw new Error('The remote lifecycle operation was not accepted.')
+export async function runMachineOperation(
+  machineId: string,
+  request: RemoteOperationRequest,
+): Promise<RemoteOperationReceipt> {
+  const result = await createMachineOperation({
+    path: { machineId },
+    body: request,
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The remote lifecycle operation was not accepted.')
   return result.data
 }

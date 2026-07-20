@@ -9,8 +9,8 @@ import (
 
 type unixOwnership struct{ group int32 }
 
-func newProcessOwnership(command *exec.Cmd) (processOwnership, error) {
-	group, err := processGroupID(int32(command.Process.Pid))
+func newProcessOwnership(_ *exec.Cmd, pid int32) (processOwnership, error) {
+	group, err := processGroupID(pid)
 	if err != nil {
 		return nil, err
 	}
@@ -19,6 +19,8 @@ func newProcessOwnership(command *exec.Cmd) (processOwnership, error) {
 
 func (o unixOwnership) Group() int32 { return o.group }
 func (o unixOwnership) Running() bool {
+	// pid_t is signed 32-bit on supported Unix targets, so this conversion is lossless.
+	// #nosec G115 -- syscall.Kill requires the native int representation of pid_t.
 	err := syscall.Kill(-int(o.group), 0)
 	return err == nil || err == syscall.EPERM
 }
@@ -30,8 +32,12 @@ func configureProcessGroup(command *exec.Cmd) {
 }
 
 func processGroupID(pid int32) (int32, error) {
+	// #nosec G115 -- pid_t is signed 32-bit on supported Unix targets.
 	group, err := syscall.Getpgid(int(pid))
-	return int32(group), err
+	if err != nil {
+		return 0, err
+	}
+	return boundedPID(group)
 }
 
 func signalProcessGroup(group int32, force bool) error {
@@ -39,6 +45,7 @@ func signalProcessGroup(group int32, force bool) error {
 	if force {
 		signal = syscall.SIGKILL
 	}
+	// #nosec G115 -- pid_t is signed 32-bit on supported Unix targets.
 	return syscall.Kill(-int(group), signal)
 }
 

@@ -30,6 +30,12 @@ func Install(request providers.InstallRequest) ([]string, error) {
 		configPath = filepath.Join(base, ".codex", "config.toml")
 		skillPath = filepath.Join(base, ".agents", "skills", "switchyard-operate", "SKILL.md")
 	}
+	guidancePath := filepath.Join(request.Root, "AGENTS.md")
+	if request.Scope == providers.ScopeProject {
+		if err := guidance.ValidateContainedPaths(base, configPath, skillPath, guidancePath); err != nil {
+			return nil, err
+		}
+	}
 	existing, err := guidance.ReadOptionalRegularFile(configPath)
 	if err != nil {
 		return nil, err
@@ -46,7 +52,6 @@ func Install(request providers.InstallRequest) ([]string, error) {
 	}
 	paths := []string{configPath, skillPath}
 	if request.Scope == providers.ScopeProject {
-		guidancePath := filepath.Join(request.Root, "AGENTS.md")
 		if err := installProjectGuidance(guidancePath); err != nil {
 			return nil, err
 		}

@@ -66,6 +66,28 @@ func TestMetricPersistenceIsAtomicIdempotentAndBounded(t *testing.T) {
 	}
 }
 
+func TestMetricReaderRejectsCorruptNegativeUnsignedCounters(t *testing.T) {
+	t.Parallel()
+	database := newResourceMetricDatabase(t)
+	ctx := context.Background()
+	point := observability.MetricPoint{Timestamp: time.Now().UTC(), ProjectID: "project-1", MemoryBytes: 1}
+	if err := database.WriteMetricPoints(ctx, []observability.MetricPoint{point}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := database.connection.ExecContext(ctx, `PRAGMA ignore_check_constraints = ON`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := database.connection.ExecContext(ctx, `UPDATE resource_metric_samples SET memory_bytes = -1`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := database.connection.ExecContext(ctx, `PRAGMA ignore_check_constraints = OFF`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := database.LatestMetricPoints(ctx, []string{"project-1"}); err == nil {
+		t.Fatal("LatestMetricPoints() accepted a negative persisted memory counter")
+	}
+}
+
 func TestMetricRollupRetentionAndFootprintRemainIdempotent(t *testing.T) {
 	t.Parallel()
 	database := newResourceMetricDatabase(t)

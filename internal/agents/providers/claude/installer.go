@@ -29,6 +29,13 @@ func Install(request providers.InstallRequest) ([]string, error) {
 		configPath = filepath.Join(request.Home, ".claude.json")
 		skillPath = filepath.Join(request.Home, ".claude", "skills", "switchyard-operate", "SKILL.md")
 	}
+	agentsPath := filepath.Join(request.Root, "AGENTS.md")
+	claudePath := filepath.Join(request.Root, "CLAUDE.md")
+	if request.Scope == providers.ScopeProject {
+		if err := guidance.ValidateContainedPaths(request.Root, configPath, skillPath, agentsPath, claudePath); err != nil {
+			return nil, err
+		}
+	}
 	if err := installConfig(configPath, request); err != nil {
 		return nil, err
 	}
@@ -37,11 +44,9 @@ func Install(request providers.InstallRequest) ([]string, error) {
 	}
 	paths := []string{configPath, skillPath}
 	if request.Scope == providers.ScopeProject {
-		agentsPath := filepath.Join(request.Root, "AGENTS.md")
 		if err := installProjectGuidance(agentsPath); err != nil {
 			return nil, err
 		}
-		claudePath := filepath.Join(request.Root, "CLAUDE.md")
 		if err := installAgentsImport(claudePath); err != nil {
 			return nil, err
 		}

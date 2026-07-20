@@ -1,215 +1,175 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from "@tanstack/vue-query";
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from "vue";
-import { useRouter } from "vue-router";
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import {
-  loadProjects,
-  runProjectAction,
-  runRuntimeAction,
-} from "../../domains/projects/api";
-import { trackOperation } from "../../domains/operations/store";
+import { loadProjects, runProjectAction, runRuntimeAction } from '../../domains/projects/api'
+import { trackOperation } from '../../domains/operations/store'
 
-const props = defineProps<{ open: boolean }>();
-const emit = defineEmits<{ close: [] }>();
-const router = useRouter();
-const projects = useQuery({ queryKey: ["projects"], queryFn: loadProjects });
-const query = ref("");
-const selected = ref(0);
-const input = ref<HTMLInputElement>();
-const error = ref("");
-let previousFocus: HTMLElement | null = null;
+const props = defineProps<{ open: boolean }>()
+const emit = defineEmits<{ close: [] }>()
+const router = useRouter()
+const projects = useQuery({ queryKey: ['projects'], queryFn: loadProjects })
+const query = ref('')
+const selected = ref(0)
+const input = ref<HTMLInputElement>()
+const error = ref('')
+let previousFocus: HTMLElement | null = null
 
 type PaletteItem = {
-  id: string;
-  label: string;
-  hint: string;
-  run: () => Promise<void>;
-};
+  id: string
+  label: string
+  hint: string
+  run: () => Promise<void>
+}
 
 const operation = useMutation({
-  mutationFn: async (item: {
-    projectId: string;
-    action: "start" | "terminal";
-  }) =>
-    item.action === "start"
-      ? runRuntimeAction(item.projectId, "start")
-      : runProjectAction(item.projectId, "terminal"),
+  mutationFn: async (item: { projectId: string; action: 'start' | 'terminal' }) =>
+    item.action === 'start'
+      ? runRuntimeAction(item.projectId, 'start')
+      : runProjectAction(item.projectId, 'terminal'),
   onSuccess: trackOperation,
-});
+})
 
 async function navigate(path: string) {
-  await router.push(path);
+  await router.push(path)
 }
 
 const items = computed<Array<PaletteItem>>(() => [
   {
-    id: "dashboard",
-    label: "⌂ Open dashboard",
-    hint: "navigate",
-    run: () => navigate("/"),
+    id: 'dashboard',
+    label: '⌂ Open dashboard',
+    hint: 'navigate',
+    run: () => navigate('/'),
   },
   {
-    id: "ports",
-    label: "⇄ Find next available port",
-    hint: "ports:next",
-    run: () => navigate("/ports"),
+    id: 'ports',
+    label: '⇄ Find next available port',
+    hint: 'ports:next',
+    run: () => navigate('/ports'),
   },
   {
-    id: "logs",
-    label: "▤ Show all error logs",
-    hint: "logs:error",
-    run: () => navigate("/logs?level=error"),
+    id: 'logs',
+    label: '▤ Show all error logs',
+    hint: 'logs:error',
+    run: () => navigate('/logs?level=error'),
   },
   {
-    id: "discovery",
-    label: "◇ Scan a repository",
-    hint: "project:add",
-    run: () => navigate("/discovery"),
+    id: 'discovery',
+    label: '◇ Scan a repository',
+    hint: 'project:add',
+    run: () => navigate('/discovery'),
   },
   ...(projects.data.value ?? []).flatMap((project) => [
     {
       id: `open-${project.id}`,
       label: `Open ${project.displayName}`,
-      hint: "project:open",
+      hint: 'project:open',
       run: () => navigate(`/projects/${project.id}`),
     },
     {
       id: `start-${project.id}`,
       label: `▶ Start ${project.displayName}`,
-      hint: "project:start",
+      hint: 'project:start',
       run: async () => {
-        await operation.mutateAsync({ projectId: project.id, action: "start" });
+        await operation.mutateAsync({ projectId: project.id, action: 'start' })
       },
     },
     {
       id: `terminal-${project.id}`,
       label: `⌘ Open ${project.displayName} terminal`,
-      hint: "terminal:open",
+      hint: 'terminal:open',
       run: async () => {
         await operation.mutateAsync({
           projectId: project.id,
-          action: "terminal",
-        });
+          action: 'terminal',
+        })
       },
     },
   ]),
-]);
+])
 const filtered = computed(() => {
-  const value = query.value.trim().toLowerCase();
+  const value = query.value.trim().toLowerCase()
   return (
     value
-      ? items.value.filter((item) =>
-          `${item.label} ${item.hint}`.toLowerCase().includes(value),
-        )
+      ? items.value.filter((item) => `${item.label} ${item.hint}`.toLowerCase().includes(value))
       : items.value
-  ).slice(0, 12);
-});
+  ).slice(0, 12)
+})
 const activeOptionId = computed(() =>
   filtered.value[selected.value]
     ? `palette-option-${filtered.value[selected.value]!.id}`
     : undefined,
-);
+)
 
 watch(
   () => props.open,
   async (open) => {
     if (!open) {
-      previousFocus?.focus();
-      previousFocus = null;
-      return;
+      previousFocus?.focus()
+      previousFocus = null
+      return
     }
-    previousFocus =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    query.value = "";
-    selected.value = 0;
-    error.value = "";
-    await nextTick();
-    input.value?.focus();
+    previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    query.value = ''
+    selected.value = 0
+    error.value = ''
+    await nextTick()
+    input.value?.focus()
   },
-);
+)
 watch(filtered, () => {
-  selected.value = Math.min(
-    selected.value,
-    Math.max(0, filtered.value.length - 1),
-  );
-});
+  selected.value = Math.min(selected.value, Math.max(0, filtered.value.length - 1))
+})
 
 async function choose(item: PaletteItem | undefined) {
-  if (!item) return;
-  error.value = "";
+  if (!item) return
+  error.value = ''
   try {
-    await item.run();
-    emit("close");
+    await item.run()
+    emit('close')
   } catch (cause) {
-    error.value =
-      cause instanceof Error
-        ? cause.message
-        : "The command could not be completed.";
+    error.value = cause instanceof Error ? cause.message : 'The command could not be completed.'
   }
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (!props.open) return;
-  if (event.key === "Escape") emit("close");
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    selected.value = (selected.value + 1) % Math.max(filtered.value.length, 1);
+  if (!props.open) return
+  if (event.key === 'Escape') emit('close')
+  if (event.key === 'ArrowDown') {
+    event.preventDefault()
+    selected.value = (selected.value + 1) % Math.max(filtered.value.length, 1)
   }
-  if (event.key === "ArrowUp") {
-    event.preventDefault();
+  if (event.key === 'ArrowUp') {
+    event.preventDefault()
     selected.value =
-      (selected.value - 1 + Math.max(filtered.value.length, 1)) %
-      Math.max(filtered.value.length, 1);
+      (selected.value - 1 + Math.max(filtered.value.length, 1)) % Math.max(filtered.value.length, 1)
   }
-  if (event.key === "Enter") {
-    event.preventDefault();
-    void choose(filtered.value[selected.value]);
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    void choose(filtered.value[selected.value])
   }
-  if (event.key === "Tab") {
-    const focusable = [
-      ...document.querySelectorAll<HTMLElement>(
-        ".palette input, .palette button",
-      ),
-    ];
-    const first = focusable[0];
-    const last = focusable.at(-1);
+  if (event.key === 'Tab') {
+    const focusable = [...document.querySelectorAll<HTMLElement>('.palette input, .palette button')]
+    const first = focusable[0]
+    const last = focusable.at(-1)
     if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
+      event.preventDefault()
+      last?.focus()
     } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
+      event.preventDefault()
+      first?.focus()
     }
   }
 }
 
-onMounted(() => document.addEventListener("keydown", onKeydown));
-onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
+onMounted(() => document.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
-  <div
-    v-if="open"
-    class="palette-backdrop"
-    role="presentation"
-    @mousedown.self="$emit('close')"
-  >
-    <section
-      class="palette"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="palette-title"
-    >
+  <div v-if="open" class="palette-backdrop" role="presentation" @mousedown.self="$emit('close')">
+    <section class="palette" role="dialog" aria-modal="true" aria-labelledby="palette-title">
       <h2 id="palette-title" class="sr-only">Command palette</h2>
       <div class="palette-input">
         <span aria-hidden="true">⌕</span

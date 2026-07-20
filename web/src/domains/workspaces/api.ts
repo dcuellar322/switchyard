@@ -37,8 +37,15 @@ export async function saveWorkspace(definition: WorkspaceDefinition): Promise<Wo
   return result.data
 }
 
-export async function replaceWorkspace(workspaceId: string, definition: WorkspaceUpdate): Promise<Workspace> {
-  const result = await updateWorkspace({ path: { workspaceId }, body: definition, headers: headers() })
+export async function replaceWorkspace(
+  workspaceId: string,
+  definition: WorkspaceUpdate,
+): Promise<Workspace> {
+  const result = await updateWorkspace({
+    path: { workspaceId },
+    body: definition,
+    headers: headers(),
+  })
   if (result.error || !result.data) throw new Error('The workspace could not be updated.')
   return result.data
 }
@@ -52,7 +59,11 @@ export async function runWorkspace(
   workspaceId: string,
   request: WorkspaceOperationRequest,
 ): Promise<Operation> {
-  const result = await createWorkspaceOperation({ path: { workspaceId }, body: request, headers: headers() })
+  const result = await createWorkspaceOperation({
+    path: { workspaceId },
+    body: request,
+    headers: headers(),
+  })
   if (result.error || !result.data) throw new Error('The workspace operation could not be queued.')
   return result.data
 }

@@ -25,11 +25,11 @@ function metric(overrides: Partial<ResourceMetricPoint> = {}): ResourceMetricPoi
     sampleCount: 1,
     cpuPercent: 12.5,
     cpuMaxPercent: 12.5,
-	cpuAvailable: true,
+    cpuAvailable: true,
     memoryBytes: 134_217_728,
     memoryMaxBytes: 134_217_728,
     memoryLimit: 536_870_912,
-	memoryAvailable: true,
+    memoryAvailable: true,
     networkRxBytes: 2_048,
     networkTxBytes: 1_024,
     networkAvailable: true,
@@ -64,11 +64,49 @@ const inventory: StorageInventory = {
   connected: true,
   observedAt,
   summary: { bytes: 30_720, reclaimableBytes: 20_480, classification: 'shared', resourceCount: 3 },
-  projects: [{ projectId: 'alpha', summary: { bytes: 10_240, reclaimableBytes: 10_240, classification: 'exclusive', resourceCount: 1 }, unknownSizes: 0, sharedResources: 1 }],
+  projects: [
+    {
+      projectId: 'alpha',
+      summary: {
+        bytes: 10_240,
+        reclaimableBytes: 10_240,
+        classification: 'exclusive',
+        resourceCount: 1,
+      },
+      unknownSizes: 0,
+      sharedResources: 1,
+    },
+  ],
   resources: [
-    { kind: 'volume', id: 'alpha-data', name: 'alpha-data', projectIds: ['alpha'], bytes: 10_240, reclaimable: true, classification: 'exclusive', reason: 'Canonical Compose project label.' },
-    { kind: 'image', id: 'sha256:shared', name: 'shared:latest', projectIds: ['alpha', 'beta'], bytes: 20_480, reclaimable: false, classification: 'shared', reason: 'Referenced by more than one project.' },
-    { kind: 'build_cache', id: 'cache-unknown', name: '', projectIds: [], reclaimable: true, classification: 'unknown', reason: 'Docker does not provide project ownership.' },
+    {
+      kind: 'volume',
+      id: 'alpha-data',
+      name: 'alpha-data',
+      projectIds: ['alpha'],
+      bytes: 10_240,
+      reclaimable: true,
+      classification: 'exclusive',
+      reason: 'Canonical Compose project label.',
+    },
+    {
+      kind: 'image',
+      id: 'sha256:shared',
+      name: 'shared:latest',
+      projectIds: ['alpha', 'beta'],
+      bytes: 20_480,
+      reclaimable: false,
+      classification: 'shared',
+      reason: 'Referenced by more than one project.',
+    },
+    {
+      kind: 'build_cache',
+      id: 'cache-unknown',
+      name: '',
+      projectIds: [],
+      reclaimable: true,
+      classification: 'unknown',
+      reason: 'Docker does not provide project ownership.',
+    },
   ],
   warnings: [],
 }
@@ -155,7 +193,18 @@ test('renders selectable history with a chart and accessible retained samples', 
     resolutionSeconds: 60,
     from: '2026-07-16T11:00:00Z',
     to: observedAt,
-    points: [metric({ timestamp: '2026-07-16T11:59:00Z' }), metric({ timestamp: observedAt, cpuPercent: 25, cpuMaxPercent: 30, memoryBytes: 268_435_456, memoryMaxBytes: 300_000_000, sampleCount: 6, partial: true })],
+    points: [
+      metric({ timestamp: '2026-07-16T11:59:00Z' }),
+      metric({
+        timestamp: observedAt,
+        cpuPercent: 25,
+        cpuMaxPercent: 30,
+        memoryBytes: 268_435_456,
+        memoryMaxBytes: 300_000_000,
+        sampleCount: 6,
+        partial: true,
+      }),
+    ],
   }
   const view = render(ResourceHistoryPanel, {
     props: {
@@ -187,10 +236,22 @@ test('renders selectable history with a chart and accessible retained samples', 
 })
 
 test('renders unavailable resource evidence as gaps rather than zero consumption', async () => {
-  const unavailable = metric({ cpuPercent: 0, cpuAvailable: false, memoryBytes: 0, memoryAvailable: false, partial: true })
+  const unavailable = metric({
+    cpuPercent: 0,
+    cpuAvailable: false,
+    memoryBytes: 0,
+    memoryAvailable: false,
+    partial: true,
+  })
   render(ResourceConsumersTable, {
     props: {
-      projects: [{ ...projects[0]!, metric: unavailable, services: [{ serviceId: 'api', metric: { ...unavailable, serviceId: 'api' } }] }],
+      projects: [
+        {
+          ...projects[0]!,
+          metric: unavailable,
+          services: [{ serviceId: 'api', metric: { ...unavailable, serviceId: 'api' } }],
+        },
+      ],
       selectedProject: 'alpha',
       selectedService: '',
     },
@@ -204,7 +265,14 @@ test('renders unavailable resource evidence as gaps rather than zero consumption
       projectId: 'alpha',
       serviceId: '',
       range: '1h',
-      history: { projectId: 'alpha', serviceId: '', resolutionSeconds: 0, from: observedAt, to: observedAt, points: [unavailable] },
+      history: {
+        projectId: 'alpha',
+        serviceId: '',
+        resolutionSeconds: 0,
+        from: observedAt,
+        to: observedAt,
+        points: [unavailable],
+      },
       pending: false,
       error: false,
     },

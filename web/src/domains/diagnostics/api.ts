@@ -38,20 +38,40 @@ export async function loadLatestDiagnosis(projectId: string): Promise<Diagnosis 
 }
 
 export async function diagnoseProject(projectId: string, provider?: string): Promise<Diagnosis> {
-  const result = await createProjectDiagnosis({ path: { projectId }, body: provider ? { provider } : {}, headers: headers() })
+  const result = await createProjectDiagnosis({
+    path: { projectId },
+    body: provider ? { provider } : {},
+    headers: headers(),
+  })
   if (result.error || !result.data) throw new Error('The diagnostic bundle could not be completed.')
   return result.data
 }
 
-export async function reviewHypothesis(diagnosisId: string, hypothesisId: string, verdict: 'accurate' | 'false_positive') {
-  const result = await createDiagnosticFeedback({ path: { diagnosisId }, body: { hypothesisId, verdict }, headers: headers() })
-  if (result.error || !result.data) throw new Error('Local diagnostic feedback could not be recorded.')
+export async function reviewHypothesis(
+  diagnosisId: string,
+  hypothesisId: string,
+  verdict: 'accurate' | 'false_positive',
+) {
+  const result = await createDiagnosticFeedback({
+    path: { diagnosisId },
+    body: { hypothesisId, verdict },
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('Local diagnostic feedback could not be recorded.')
   return result.data
 }
 
-export async function runSuggestedAction(diagnosisId: string, actionId: string): Promise<Operation> {
-  const result = await createDiagnosticActionOperation({ path: { diagnosisId, actionId }, headers: headers() as { 'Idempotency-Key': string } })
-  if (result.error || !result.data) throw new Error('The approved diagnostic action could not be queued.')
+export async function runSuggestedAction(
+  diagnosisId: string,
+  actionId: string,
+): Promise<Operation> {
+  const result = await createDiagnosticActionOperation({
+    path: { diagnosisId, actionId },
+    headers: headers() as { 'Idempotency-Key': string },
+  })
+  if (result.error || !result.data)
+    throw new Error('The approved diagnostic action could not be queued.')
   return result.data
 }
 
@@ -61,14 +81,24 @@ export async function loadRecipes(projectId: string): Promise<Array<AutomationRe
   return result.data
 }
 
-export async function saveRecipe(request: CreateAutomationRecipeRequest): Promise<AutomationRecipe> {
+export async function saveRecipe(
+  request: CreateAutomationRecipeRequest,
+): Promise<AutomationRecipe> {
   const result = await createAutomationRecipe({ body: request, headers: headers() })
-  if (result.error || !result.data) throw new Error('The disabled automation recipe could not be saved.')
+  if (result.error || !result.data)
+    throw new Error('The disabled automation recipe could not be saved.')
   return result.data
 }
 
-export async function setRecipeEnabled(recipeId: string, enabled: boolean): Promise<AutomationRecipe> {
-  const result = await updateAutomationRecipe({ path: { recipeId }, body: { enabled }, headers: headers() })
+export async function setRecipeEnabled(
+  recipeId: string,
+  enabled: boolean,
+): Promise<AutomationRecipe> {
+  const result = await updateAutomationRecipe({
+    path: { recipeId },
+    body: { enabled },
+    headers: headers(),
+  })
   if (result.error || !result.data) throw new Error('The automation state could not be updated.')
   return result.data
 }
@@ -80,13 +110,21 @@ export async function evaluateRecipes(projectId: string): Promise<Array<string>>
 }
 
 export async function loadNotifications(projectId: string): Promise<Array<DiagnosticNotification>> {
-  const result = await listDiagnosticNotifications({ query: { projectId, includeAcknowledged: false, limit: 100 } })
+  const result = await listDiagnosticNotifications({
+    query: { projectId, includeAcknowledged: false, limit: 100 },
+  })
   if (result.error || !result.data) throw new Error('Diagnostic notifications are unavailable.')
   return result.data
 }
 
-export async function acknowledgeNotification(notificationId: string): Promise<DiagnosticNotification> {
-  const result = await acknowledgeDiagnosticNotification({ path: { notificationId }, headers: headers() })
-  if (result.error || !result.data) throw new Error('The diagnostic notification could not be acknowledged.')
+export async function acknowledgeNotification(
+  notificationId: string,
+): Promise<DiagnosticNotification> {
+  const result = await acknowledgeDiagnosticNotification({
+    path: { notificationId },
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The diagnostic notification could not be acknowledged.')
   return result.data
 }

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -20,8 +21,18 @@ func TestInternalLogSourceReturnsOnlyAllowlistedRedactedFields(t *testing.T) {
 
 	dataDir := t.TempDir()
 	path := filepath.Join(dataDir, "internal.ndjson")
-	line := `{"time":"2026-07-16T12:00:00Z","level":"ERROR","msg":"token=secret-value","component":"runtime","error":"` + dataDir + `/failure","untrusted":"must-not-appear"}` + "\n"
-	if err := os.WriteFile(path, []byte(line), 0o600); err != nil {
+	line, err := json.Marshal(map[string]string{
+		"time":      "2026-07-16T12:00:00Z",
+		"level":     "ERROR",
+		"msg":       "token=secret-value",
+		"component": "runtime",
+		"error":     filepath.Join(dataDir, "failure"),
+		"untrusted": "must-not-appear",
+	})
+	if err != nil {
+		t.Fatalf("encode internal log fixture: %v", err)
+	}
+	if err := os.WriteFile(path, append(line, '\n'), 0o600); err != nil {
 		t.Fatalf("write internal log: %v", err)
 	}
 	source, err := NewInternalLogSource(dataDir, func(value string) (string, bool) {
@@ -57,7 +68,7 @@ func TestArchiveWriterCreatesPrivateExactBundleAndRefusesOverwrite(t *testing.T)
 	if err != nil {
 		t.Fatalf("stat bundle: %v", err)
 	}
-	if info.Mode().Perm() != 0o600 {
+	if runtime.GOOS != "windows" && info.Mode().Perm() != 0o600 {
 		t.Fatalf("bundle mode = %v", info.Mode().Perm())
 	}
 	archive, err := zip.OpenReader(path)
@@ -70,6 +81,29 @@ func TestArchiveWriterCreatesPrivateExactBundleAndRefusesOverwrite(t *testing.T)
 	}
 	if _, err := (ArchiveWriter{}).Write(path, preview); err == nil {
 		t.Fatal("Write() overwrote an existing bundle")
+	}
+}
+
+func TestCommitExclusiveNeverReplacesExistingDestination(t *testing.T) {
+	t.Parallel()
+	directory := t.TempDir()
+	source := filepath.Join(directory, "source")
+	destination := filepath.Join(directory, "destination")
+	if err := os.WriteFile(source, []byte("new"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(destination, []byte("existing"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := commitExclusive(source, destination); err == nil {
+		t.Fatal("exclusive commit replaced an existing destination")
+	}
+	contents, err := os.ReadFile(destination)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(contents) != "existing" {
+		t.Fatalf("destination contents = %q", contents)
 	}
 }
 
@@ -96,7 +130,7 @@ func TestConfigurationRoundTripReplacesOnlySanitizedSnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("stat configuration: %v", err)
 	}
-	if info.Mode().Perm() != 0o600 {
+	if runtime.GOOS != "windows" && info.Mode().Perm() != 0o600 {
 		t.Fatalf("configuration mode = %v", info.Mode().Perm())
 	}
 }

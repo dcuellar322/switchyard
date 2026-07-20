@@ -30,6 +30,62 @@ Use the configured Switchyard MCP server for project lifecycle, health, logs, po
 ` + endMarker
 }
 
+// ValidateContainedPaths rejects project-scoped installer destinations whose
+// existing parent chain resolves outside the reviewed repository root.
+func ValidateContainedPaths(root string, paths ...string) error {
+	absoluteRoot, err := filepath.Abs(root)
+	if err != nil {
+		return err
+	}
+	resolvedRoot, err := filepath.EvalSymlinks(absoluteRoot)
+	if err != nil {
+		return fmt.Errorf("resolve installation root: %w", err)
+	}
+	resolvedRoot, err = filepath.Abs(resolvedRoot)
+	if err != nil {
+		return err
+	}
+	for _, path := range paths {
+		absolute, err := filepath.Abs(path)
+		if err != nil {
+			return err
+		}
+		if !contained(absoluteRoot, absolute) {
+			return fmt.Errorf("installer destination leaves project root: %s", path)
+		}
+		ancestor := filepath.Dir(absolute)
+		for {
+			if _, err := os.Lstat(ancestor); err == nil {
+				break
+			} else if !os.IsNotExist(err) {
+				return err
+			}
+			parent := filepath.Dir(ancestor)
+			if parent == ancestor {
+				return fmt.Errorf("installer destination has no existing ancestor: %s", path)
+			}
+			ancestor = parent
+		}
+		resolvedAncestor, err := filepath.EvalSymlinks(ancestor)
+		if err != nil {
+			return err
+		}
+		resolvedAncestor, err = filepath.Abs(resolvedAncestor)
+		if err != nil {
+			return err
+		}
+		if !contained(resolvedRoot, resolvedAncestor) {
+			return fmt.Errorf("installer destination resolves outside project root: %s", path)
+		}
+	}
+	return nil
+}
+
+func contained(root, candidate string) bool {
+	relative, err := filepath.Rel(root, candidate)
+	return err == nil && relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)) && !filepath.IsAbs(relative)
+}
+
 // UpsertProjectBlock idempotently adds or replaces Switchyard's marked guidance.
 func UpsertProjectBlock(existing string) (string, error) {
 	begin := strings.Index(existing, beginMarker)
@@ -58,6 +114,7 @@ func WriteFileAtomic(path string, data []byte, mode os.FileMode) error {
 	} else if !os.IsNotExist(err) {
 		return err
 	}
+	//nolint:gosec // G301: generated repository guidance uses ordinary project-readable parent directories.
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}

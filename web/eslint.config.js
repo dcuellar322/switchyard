@@ -4,7 +4,15 @@ import vue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['coverage/**', 'dist/**', 'playwright-report/**', 'src/api/generated/**', 'test-results/**'] },
+  {
+    ignores: [
+      'coverage/**',
+      'dist/**',
+      'playwright-report/**',
+      'src/api/generated/**',
+      'test-results/**',
+    ],
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   ...vue.configs['flat/recommended'],

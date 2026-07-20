@@ -12,43 +12,39 @@ import {
   ScrollText,
   Settings,
   Users,
-} from "@lucide/vue";
-import { useQuery } from "@tanstack/vue-query";
-import { RouterLink } from "vue-router";
+} from '@lucide/vue'
+import { useQuery } from '@tanstack/vue-query'
+import { RouterLink } from 'vue-router'
 
-import { loadPortRegistry } from "../../domains/ports/api";
-import { loadProjects } from "../../domains/projects/api";
-import { useHostObservation } from "../../domains/system/composables/useHostObservation";
+import { loadProjects } from '../../domains/projects/api'
+import { useHostObservation } from '../../domains/system/composables/useHostObservation'
+import { useSystemInfo } from '../../domains/system/composables/useSystemInfo'
 
-defineProps<{ connection: "connecting" | "connected" | "disconnected" }>();
+defineProps<{ connection: 'connecting' | 'connected' | 'disconnected' }>()
 const projects = useQuery({
-  queryKey: ["projects"],
+  queryKey: ['projects'],
   queryFn: loadProjects,
   refetchInterval: 15_000,
-});
-const ports = useQuery({
-  queryKey: ["ports"],
-  queryFn: loadPortRegistry,
-  refetchInterval: 10_000,
-});
-const host = useHostObservation();
+})
+const host = useHostObservation()
+const system = useSystemInfo()
 
 const navigation = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/projects", label: "Projects", icon: FolderKanban, count: "projects" },
-  { to: "/ports", label: "Ports", icon: ArrowLeftRight, count: "ports" },
-  { to: "/resources", label: "Resources", icon: Gauge },
-  { to: "/logs", label: "Logs", icon: ScrollText },
-  { to: "/discovery", label: "Discovery", icon: FolderSearch },
-];
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/projects', label: 'Projects', icon: FolderKanban, count: 'projects' },
+  { to: '/ports', label: 'Ports', icon: ArrowLeftRight },
+  { to: '/resources', label: 'Resources', icon: Gauge },
+  { to: '/logs', label: 'Logs', icon: ScrollText },
+  { to: '/discovery', label: 'Discovery', icon: FolderSearch },
+]
 const tools = [
-  { to: "/workspaces", label: "Workspaces", icon: Boxes },
-  { to: "/fleet", label: "Machines", icon: MonitorCog },
-  { to: "/team", label: "Team", icon: Users },
-  { to: "/agents", label: "Agents", icon: Bot },
-  { to: "/plugins", label: "Plugins", icon: Plug },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
+  { to: '/workspaces', label: 'Workspaces', icon: Boxes },
+  { to: '/fleet', label: 'Machines', icon: MonitorCog },
+  { to: '/team', label: 'Team', icon: Users },
+  { to: '/agents', label: 'Agents', icon: Bot },
+  { to: '/plugins', label: 'Plugins', icon: Plug },
+  { to: '/settings', label: 'Settings', icon: Settings },
+]
 </script>
 
 <template>
@@ -56,8 +52,7 @@ const tools = [
     <RouterLink class="brand" to="/" aria-label="Switchyard dashboard">
       <img class="brand-mark" src="/switchyard-icon.svg" alt="" />
       <span class="brand-copy"
-        ><strong>Switchyard</strong
-        ><small>Local development control</small></span
+        ><strong>Switchyard</strong><small>Local development control</small></span
       >
     </RouterLink>
     <p class="nav-label">Command center</p>
@@ -72,10 +67,7 @@ const tools = [
         <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
         <span class="nav-copy">{{ item.label }}</span>
         <span v-if="item.count === 'projects'" class="count">{{
-          projects.data.value?.length ?? "—"
-        }}</span>
-        <span v-else-if="item.count === 'ports'" class="count">{{
-          ports.data.value?.conflicts.length ?? "—"
+          projects.data.value?.length ?? '—'
         }}</span>
       </RouterLink>
     </nav>
@@ -101,17 +93,13 @@ const tools = [
             aria-hidden="true"
           ></span
           ><strong>Daemon {{ connection }}</strong
-          ><span>v0.1</span>
+          ><span>{{ system.data.value?.version ?? '—' }}</span>
         </div>
         <p>
           Docker
-          {{
-            host.data.value?.docker.connected ? "connected" : "unavailable"
-          }}
+          {{ host.data.value?.docker.connected ? 'connected' : 'unavailable' }}
           · {{ projects.data.value?.length ?? 0 }}
-          {{
-            projects.data.value?.length === 1 ? "project" : "projects"
-          }}
+          {{ projects.data.value?.length === 1 ? 'project' : 'projects' }}
           indexed
         </p>
       </div>
@@ -188,11 +176,7 @@ const tools = [
 }
 .nav-item.router-link-exact-active {
   color: var(--text);
-  background: linear-gradient(
-    90deg,
-    rgba(120, 166, 255, 0.18),
-    rgba(120, 166, 255, 0.055)
-  );
+  background: linear-gradient(90deg, rgba(120, 166, 255, 0.18), rgba(120, 166, 255, 0.055));
   box-shadow: inset 2px 0 var(--accent);
 }
 .nav-icon {

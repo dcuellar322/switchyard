@@ -18,7 +18,12 @@ var (
 )
 
 func analyzeFrontend(root string) ([]violation, error) {
-	generatedTypes, err := os.ReadFile(filepath.Join(root, "api", "generated", "types.gen.ts"))
+	rootDirectory, err := os.OpenRoot(root)
+	if err != nil {
+		return nil, fmt.Errorf("open frontend root: %w", err)
+	}
+	defer func() { _ = rootDirectory.Close() }()
+	generatedTypes, err := rootDirectory.ReadFile("api/generated/types.gen.ts")
 	if err != nil {
 		return nil, fmt.Errorf("read generated frontend types: %w", err)
 	}
@@ -43,7 +48,7 @@ func analyzeFrontend(root string) ([]violation, error) {
 		if extension != ".ts" && extension != ".vue" {
 			return nil
 		}
-		contents, readErr := os.ReadFile(path)
+		contents, readErr := rootDirectory.ReadFile(filepath.ToSlash(relative))
 		if readErr != nil {
 			return readErr
 		}

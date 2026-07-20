@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +20,7 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 		t.Fatal(err)
 	}
 	databasePath := filepath.Join(dataDir, "switchyard.db")
-	database, err := sql.Open("sqlite", databasePath)
+	database, err := sql.Open("sqlite", sqliteTestDSN(databasePath))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +55,7 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 	if info, err := os.Stat(backup); err != nil || info.Size() == 0 {
 		t.Fatalf("backup info=%v error=%v", info, err)
 	}
-	backupDatabase, err := sql.Open("sqlite", backup)
+	backupDatabase, err := sql.Open("sqlite", sqliteTestDSN(backup))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,4 +71,12 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 	if revision != 4 || document != `{"fixture":"settings-survive-backup"}` || auditCount != 1 {
 		t.Fatalf("backup settings revision=%d document=%q audits=%d", revision, document, auditCount)
 	}
+}
+
+func sqliteTestDSN(path string) string {
+	normalized := filepath.ToSlash(path)
+	if filepath.VolumeName(path) != "" && !strings.HasPrefix(normalized, "/") {
+		normalized = "/" + normalized
+	}
+	return (&url.URL{Scheme: "file", Path: normalized}).String()
 }

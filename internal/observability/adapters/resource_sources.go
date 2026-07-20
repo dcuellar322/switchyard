@@ -2,9 +2,13 @@ package adapters
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"math"
 
 	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
 	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
+	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
 	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
 	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
 	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
@@ -35,13 +39,13 @@ func (s *ResourceCatalogSource) ListResourceProjects(ctx context.Context) ([]obs
 			return nil, effectiveErr
 		}
 		manifest := effective.Manifest
+		budget, budgetErr := resourceBudget(manifest.ResourcePolicy.Warnings)
+		if budgetErr != nil {
+			return nil, fmt.Errorf("project %s resource policy: %w", project.ID, budgetErr)
+		}
 		descriptor := observabilityDomain.ProjectDescriptor{
 			ID: project.ID, Name: project.DisplayName, Driver: manifest.Runtime.Driver,
-			Budget: observabilityDomain.ResourceBudget{
-				CPUPercent:   float64(manifest.ResourcePolicy.Warnings.CPUPercent),
-				MemoryBytes:  uint64(manifest.ResourcePolicy.Warnings.MemoryMiB) << 20,
-				StorageBytes: int64(manifest.ResourcePolicy.Warnings.StorageGiB) << 30,
-			},
+			Budget: budget,
 		}
 		if manifest.Runtime.Compose != nil {
 			descriptor.ComposeProjectName = manifest.Runtime.Compose.ProjectName
@@ -49,6 +53,20 @@ func (s *ResourceCatalogSource) ListResourceProjects(ctx context.Context) ([]obs
 		result = append(result, descriptor)
 	}
 	return result, nil
+}
+
+func resourceBudget(warnings manifestDomain.ResourceWarnings) (observabilityDomain.ResourceBudget, error) {
+	if warnings.MemoryMiB < 0 || uint64(warnings.MemoryMiB) > math.MaxUint64>>20 {
+		return observabilityDomain.ResourceBudget{}, errors.New("memory warning is outside the supported range")
+	}
+	if warnings.StorageGiB < 0 || uint64(warnings.StorageGiB) > uint64(math.MaxInt64>>30) {
+		return observabilityDomain.ResourceBudget{}, errors.New("storage warning is outside the supported range")
+	}
+	return observabilityDomain.ResourceBudget{
+		CPUPercent:   float64(warnings.CPUPercent),
+		MemoryBytes:  uint64(warnings.MemoryMiB) << 20,
+		StorageBytes: int64(warnings.StorageGiB) << 30,
+	}, nil
 }
 
 type runtimeMetrics interface {

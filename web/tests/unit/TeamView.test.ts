@@ -33,18 +33,35 @@ beforeEach(() => {
     telemetryAllowed: false,
     requireSignedConfiguration: true,
   })
-  api.loadCuratedPlugins.mockResolvedValue([{
-    id: 'reviewed-plugin', name: 'Reviewed plugin', version: '1.0.0', summary: 'Signed metadata.',
-    publisher: publisher.id, downloadUrl: 'https://plugins.example.test/plugin.tar.gz',
-    sha256: 'b'.repeat(64), platforms: ['linux/amd64'], capabilities: ['project.inspect'],
-  }])
+  api.loadCuratedPlugins.mockResolvedValue([
+    {
+      id: 'reviewed-plugin',
+      name: 'Reviewed plugin',
+      version: '1.0.0',
+      summary: 'Signed metadata.',
+      publisher: publisher.id,
+      downloadUrl: 'https://plugins.example.test/plugin.tar.gz',
+      sha256: 'b'.repeat(64),
+      platforms: ['linux/amd64'],
+      capabilities: ['project.inspect'],
+    },
+  ])
   api.trustPublisher.mockResolvedValue(publisher)
 })
 
 function renderView() {
   return render(TeamView, {
     global: {
-      plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } }) }]],
+      plugins: [
+        [
+          VueQueryPlugin,
+          {
+            queryClient: new QueryClient({
+              defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+            }),
+          },
+        ],
+      ],
     },
   })
 }
@@ -66,20 +83,30 @@ test('shows restrictive signed policy and keeps publisher trust behind review', 
 test('explains that encrypted sync excludes sensitive local state', async () => {
   renderView()
   expect(await screen.findByRole('heading', { name: 'Encrypted sync' })).toBeInTheDocument()
-  expect(screen.getByText(/Fleet credentials, projects, paths, logs, operations, and secrets are never included/)).toBeInTheDocument()
+  expect(
+    screen.getByText(
+      /Fleet credentials, projects, paths, logs, operations, and secrets are never included/,
+    ),
+  ).toBeInTheDocument()
 })
 
 test('explains the local configuration scope when no team data is installed', async () => {
   api.loadTeamPublishers.mockResolvedValue([])
   api.loadTeamBundles.mockResolvedValue([])
   api.loadEffectivePolicy.mockResolvedValue({
-    sourceBundleIds: [], allowedRemoteCapabilities: [], allowedRemoteActions: [],
-    allowedPluginPublishers: [], telemetryAllowed: false, requireSignedConfiguration: true,
+    sourceBundleIds: [],
+    allowedRemoteCapabilities: [],
+    allowedRemoteActions: [],
+    allowedPluginPublishers: [],
+    telemetryAllowed: false,
+    requireSignedConfiguration: true,
   })
   api.loadCuratedPlugins.mockResolvedValue([])
 
   renderView()
 
-  expect(await screen.findByRole('heading', { name: 'No shared team configuration is installed' })).toBeInTheDocument()
+  expect(
+    await screen.findByRole('heading', { name: 'No shared team configuration is installed' }),
+  ).toBeInTheDocument()
   expect(screen.getByText(/not a live member directory/)).toBeInTheDocument()
 })

@@ -6,12 +6,37 @@ const settings = defineModel<DaemonSettings>({ required: true })
 
 <template>
   <article class="settings-panel">
-    <div class="settings-panel__head"><div><p>Local integrations</p><h2>Tools and permissions</h2></div><span>Live</span></div>
-    <div class="settings-fields settings-fields--single">
-      <label>Preferred terminal<select v-model="settings.tools.terminal"><option value="integrated">Integrated terminal</option><option value="system">System terminal</option></select></label>
-      <label>Preferred editor<select v-model="settings.tools.editor"><option value="vscode">Visual Studio Code</option><option value="none">No external editor</option></select></label>
-      <label>Default agent profile<select v-model="settings.permissions.defaultAgentProfile"><option value="observe">Observe — bounded reads</option><option value="develop">Develop — ordinary mutations</option><option value="maintain">Maintain — rebuild and discovery</option><option value="admin">Admin — destructive and trust decisions</option></select></label>
+    <div class="settings-panel__head">
+      <div>
+        <p>Local integrations</p>
+        <h2>Tools and permissions</h2>
+      </div>
+      <span>Live</span>
     </div>
-    <p class="settings-help">The default applies to new MCP sessions. An explicit <code>--profile</code> flag always wins.</p>
+    <div class="settings-fields settings-fields--single">
+      <label
+        >Preferred terminal<select v-model="settings.tools.terminal">
+          <option value="integrated">Integrated terminal</option>
+          <option value="system">System terminal</option>
+        </select></label
+      >
+      <label
+        >Preferred editor<select v-model="settings.tools.editor">
+          <option value="vscode">Visual Studio Code</option>
+          <option value="none">No external editor</option>
+        </select></label
+      >
+      <label
+        >Default agent profile<select v-model="settings.permissions.defaultAgentProfile">
+          <option value="observe">Observe — bounded reads</option>
+          <option value="develop">Develop — ordinary mutations</option>
+          <option value="maintain">Maintain — rebuild and discovery</option>
+          <option value="admin">Admin — destructive and trust decisions</option>
+        </select></label
+      >
+    </div>
+    <p class="settings-help">
+      The default applies to new MCP sessions. An explicit <code>--profile</code> flag always wins.
+    </p>
   </article>
 </template>

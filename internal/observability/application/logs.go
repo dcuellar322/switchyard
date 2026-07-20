@@ -100,6 +100,7 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 			if _, exists := workers[projectID]; exists {
 				continue
 			}
+			//nolint:gosec // G118: the worker owns cancel until removal or the parent Run context exits.
 			workerCtx, cancel := context.WithCancel(ctx)
 			workers[projectID] = worker{cancel: cancel}
 			wait.Add(1)

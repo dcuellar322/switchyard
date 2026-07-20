@@ -1,9 +1,16 @@
 import { getDaemonSettings, updateDaemonSettings } from '../../api/generated/sdk.gen'
-import type { DaemonSettings, DaemonSettingsStatus, ProblemDetails } from '../../api/generated/types.gen'
+import type {
+  DaemonSettings,
+  DaemonSettingsStatus,
+  ProblemDetails,
+} from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
 export class SettingsAPIError extends Error {
-  constructor(message: string, readonly code = '') {
+  constructor(
+    message: string,
+    readonly code = '',
+  ) {
     super(message)
     this.name = 'SettingsAPIError'
   }

@@ -97,6 +97,7 @@ func newTeamKeyGenerateCommand(options *rootOptions) *cobra.Command {
 			return err
 		}
 		key := signingKeyFile{SchemaVersion: signingKeySchema, PublisherID: teamApplication.PublisherID(publicKey), PublicKey: base64.StdEncoding.EncodeToString(publicKey), PrivateKey: base64.StdEncoding.EncodeToString(privateKey)}
+		//nolint:gosec // G117: this explicit key-generation command writes the private key to a new owner-only file.
 		encoded, err := json.MarshalIndent(key, "", "  ")
 		if err != nil {
 			return err

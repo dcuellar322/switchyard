@@ -78,6 +78,7 @@ func (s *Service) refreshWatches(
 		} else if ok {
 			existing.cancel()
 		}
+		//nolint:gosec // G118: the watch owns cancel until replacement, removal, or service shutdown.
 		watchCtx, cancel := context.WithCancel(ctx)
 		active[id] = activeWatch{manifestHash: project.ManifestHash, cancel: cancel}
 		go func(project domain.ProjectRuntime, driver Driver) {

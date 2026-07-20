@@ -30,7 +30,7 @@ jobs:
       - run: make generate-go
       - run: git diff --exit-code -- internal/manifest/schema/project.schema.json internal/platform/sqlite/generated internal/transport/contract/generated
       - run: make repository-check
-      - run: make fmt-check
+      - run: make fmt-go-check
       - run: go vet ./...
       - run: make archcheck
       - run: go test ./...
@@ -70,7 +70,7 @@ jobs:
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
-      - run: go test ./internal/platform/localipc ./internal/runtime/process ./internal/terminal/adapters ./internal/actions/adapters ./internal/ports/adapters
+      - run: go test ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
       - run: go build ./cmd/switchyard
 
   frontend:
@@ -86,6 +86,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --dir web generate
       - run: git diff --exit-code -- web/src/api/generated
+      - run: make fmt-web-check
       - run: pnpm --dir web lint
       - run: pnpm --dir web typecheck
       - run: pnpm --dir web test

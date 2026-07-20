@@ -40,8 +40,12 @@ export async function loadTeamBundles(): Promise<Array<TeamBundle>> {
 }
 
 export async function installBundle(bundle: TeamBundle): Promise<TeamBundle> {
-  const result = await installTeamBundle({ body: { bundle, confirmRisk: true }, headers: headers() })
-  if (result.error || !result.data) throw new Error('The signed bundle could not be verified and installed.')
+  const result = await installTeamBundle({
+    body: { bundle, confirmRisk: true },
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The signed bundle could not be verified and installed.')
   return result.data
 }
 

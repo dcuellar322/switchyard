@@ -4936,6 +4936,13 @@ Implementation evidence for Switchyard product phase 3.
   mixed-runtime, monorepo, external-process, worktree, adversarial README, and
   secret-redaction scenarios.
 
+## Architecture decisions
+
+Phase 3 applies ADR-0001 domain boundaries, ADR-0004 generated transport
+contracts, ADR-0005 transactional persistence, and ADR-0008 manifest precedence
+and provenance. Discovery remains deterministic application behavior and does
+not execute repository code.
+
 ## Security behavior
 
 - `.env` and machine-specific environment files are never opened by discovery.
@@ -5010,6 +5017,12 @@ Implementation evidence for Switchyard product phase 4.
   idempotently, and empty unresolved fields render as `none`.
 - Added generated project/remove/trust and operation-list endpoints without
   importing persistence or runtime adapters into Cobra commands.
+
+## Architecture decisions
+
+Phase 4 applies ADR-0003's single-binary subcommand model and ADR-0004's
+generated API contracts. Cobra commands remain thin transport adapters over
+application services and generated clients.
 
 ## Exit criteria
 
@@ -6765,11 +6778,12 @@ Implementation evidence for Switchyard product phase 18.
 ## Architecture decisions
 
 No accepted dependency direction changed. This phase completes the native
-adapter boundaries in ADR-0002, local IPC in ADR-0003, durable migration rules
-in ADR-0004, runtime ownership in ADR-0006, terminal isolation in ADR-0009,
-credential indirection in ADR-0010, and signed desktop distribution in ADR-0013.
-The stable identifiers are compatibility promises over those accepted
-boundaries rather than a new architectural dependency.
+adapter and platform-order boundaries in ADR-0002 and ADR-0015, durable
+migration rules in ADR-0005, runtime and terminal process ownership in ADR-0007,
+the thin signed desktop shell in ADR-0009, local IPC and browser security in
+ADR-0013, and optional authenticated federation in ADR-0016. The stable
+identifiers are compatibility promises over those accepted boundaries rather
+than a new architectural dependency.
 
 ## Exit criteria
 
@@ -6817,6 +6831,94 @@ production release was fabricated during local verification.
 - Native macOS adapter tests pass, and the Linux and Windows adapter packages
   cross-compile from this checkout. The corrected Windows behavior remains
   required on the hosted Windows runner.
+
+## 2026-07-20 V1 hardening evidence
+
+The V1 security pass closed the findings identified in local browser, process,
+filesystem, transport, certificate, persistence, and static-analysis review:
+
+- Browser sessions now have idle and absolute expiry, browser mutations require
+  same-origin requests and constant-time CSRF validation, dynamic API responses
+  are non-cacheable, correlation identifiers are bounded and validated, and
+  non-loopback browser listeners fail closed.
+- Plugin and agent executables are resolved through symlinks, confined to their
+  approved roots, checked for regular executable files, fingerprinted again
+  immediately before launch, and supervised as whole process trees on Unix and
+  Windows. Terminal Compose file paths use the same confinement rules.
+- Private keys are accepted only from regular owner-private files. Telemetry
+  does not follow redirects, fleet TLS validation handles the complete peer
+  chain, support bundles publish without overwriting existing files, and agent
+  installer outputs cannot escape through symlinks.
+- Unsigned-to-signed conversions and persisted counters are range checked or
+  saturated. Log deletion uses a rooted filesystem handle, workspace SQL uses
+  explicit statements, and GolangCI/gosec reports zero findings under the
+  repository's documented boundary-specific exclusions.
+
+The production-readiness and maintainability pass also addressed behavior found
+under real UI load:
+
+- Runtime observations use a one-second, per-project singleflight snapshot with
+  clone isolation and lifecycle invalidation. Port registry observations use a
+  ten-second coalesced snapshot while safety-sensitive port suggestions always
+  refresh. The global sidebar no longer triggers expensive host-wide listener
+  scans, and project port data loads only on the Ports tab.
+- Workspace project states are translated exhaustively into the operation
+  kernel's durable step states. This fixes a constraint failure discovered by
+  the browser start/stop flow and is covered by regression tests.
+- Nine oversized Vue views and panels were split into domain-specific
+  composables/components, dead UI code and duplicate mockups were removed, and
+  architecture checks now enforce the 250-line non-style Vue target. Prettier is
+  pinned and enforced alongside ESLint and the generated API type boundary.
+- Playwright uses one worker, strict ports, and isolated non-reused servers, so
+  a developer's unrelated local application cannot silently satisfy a test
+  server probe.
+
+Fresh verification from this checkout passed:
+
+- `make lint`, `make test`, and `make test-race`; the frontend suite contains 49
+  tests across 23 files and meets all configured coverage thresholds.
+- `make test-e2e` with five browser workflows, including terminal persistence,
+  a native process lifecycle, workspace lifecycle, and a real Docker Compose
+  build/start/observe/stop/teardown flow.
+- `make test-visual` with 14 Chromium visual and responsive-state checks.
+- `make generate-check`, `make migrate-check`, `make platform-check`,
+  `make test-plugin-sdk`, production web and Go builds, and the MCP Inspector
+  tools/resources/prompts smoke test.
+- `govulncheck` found no reachable or imported Go vulnerabilities; the one
+  advisory in a required module is not called. `pnpm audit --audit-level high`
+  found no known JavaScript vulnerabilities. A local RustSec scan of all 533
+  locked desktop crates found no vulnerability advisories. It reported 17
+  informational maintenance/unsoundness warnings in Tauri transitive crates;
+  the affected `glib::VariantStrIter` API is not used by Switchyard and the
+  patched `glib` series is not compatible with the latest Tauri Linux GTK3
+  graph. The security workflow scans the nested desktop lockfile so upstream
+  fixes cannot pass unnoticed.
+- Rust formatting, strict Clippy, all 11 Rust tests, and native macOS debug app
+  and DMG packaging passed. The documentation site passed generation, type and
+  content checks, lint, 19 tests, production build, and validation of 141 pages.
+
+This local evidence does not substitute for the required hosted native Linux
+and Windows jobs or release-environment signing, notarization, updater signing,
+attestation, and artifact publication. The local desktop bundles are unsigned
+debug artifacts; reviewed release credentials remain confined to the protected
+release environment.
+
+## 2026-07-20 pull-request CI follow-up
+
+The first hosted V1 pull-request run exposed Windows-only assumptions that
+cross-compilation cannot execute: plugin protection checked Unix mode bits,
+support fixtures inferred ACLs from portable file modes, golden files inherited
+CRLF checkout conversion, JSON fixtures embedded unescaped Windows paths, and
+SQLite file URLs did not normalize drive-letter paths. The plugin process test
+also stripped the `.exe` suffix from its copied helper. These boundaries now
+use platform-specific executable policy, platform-neutral fixtures, preserved
+executable suffixes, forced-LF goldens, and one Windows-safe SQLite DSN
+constructor. The Go and frontend formatting checks are also split between jobs
+with their required toolchains.
+
+Focused package tests, both formatting gates, `make platform-check`, and the
+full `make lint` gate pass locally. Hosted Windows execution and the remaining
+pull-request workflows remain the merge gate.
 
 ---
 

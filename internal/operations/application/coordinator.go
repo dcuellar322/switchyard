@@ -143,12 +143,16 @@ func (c *Coordinator) Cancel(ctx context.Context, id, actorType, actorID, idempo
 }
 
 func (c *Coordinator) schedule(operation domain.Operation) {
+	//nolint:gosec // G118: cancel is retained for external cancellation and deferred by the operation goroutine.
 	operationCtx, cancel := context.WithCancel(c.ctx)
 	c.mu.Lock()
 	c.active[operation.ID] = cancel
 	c.mu.Unlock()
 	c.wg.Add(1)
-	go c.run(operationCtx, operation)
+	go func() {
+		defer cancel()
+		c.run(operationCtx, operation)
+	}()
 }
 
 func (c *Coordinator) run(ctx context.Context, operation domain.Operation) {

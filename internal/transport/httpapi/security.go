@@ -52,6 +52,12 @@ func withAccess(access accessKind, next http.Handler) http.Handler {
 
 func withBrowserHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			// Control-plane observations are both sensitive and short-lived. A
+			// browser cache can otherwise replay stale runtime state after a
+			// lifecycle mutation, and may retain project metadata on disk.
+			w.Header().Set("Cache-Control", "no-store")
+		}
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; connect-src 'self' ws://127.0.0.1:* ws://localhost:* ws://[::1]:*; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -98,6 +104,10 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			return
 		}
 		if isMutationRequest(r) {
+			if !sameOrigin(r) {
+				writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "Mutation origin rejected", "Browser mutations are same-origin only.")
+				return
+			}
 			if _, err := sessions.ValidateMutation(cookie.Value, r.Header.Get(csrfHeader)); err != nil {
 				code := "CSRF_INVALID"
 				if !errors.Is(err, session.ErrInvalidCSRF) {

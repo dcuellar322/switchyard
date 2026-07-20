@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"math"
 	"net/http"
 	"time"
 
@@ -85,8 +86,8 @@ func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
 		warnings = []string{}
 	}
 	response := generated.HostObservation{
-		CpuPercent: observation.CPUPercent, MemoryUsedBytes: int64(observation.MemoryUsedBytes),
-		MemoryTotalBytes: int64(observation.MemoryTotalBytes), ObservedAt: observation.ObservedAt, Warnings: warnings,
+		CpuPercent: observation.CPUPercent, MemoryUsedBytes: boundedAPIInt64(observation.MemoryUsedBytes),
+		MemoryTotalBytes: boundedAPIInt64(observation.MemoryTotalBytes), ObservedAt: observation.ObservedAt, Warnings: warnings,
 		Docker: generated.DockerHostObservation{
 			Connected: observation.Docker.Connected, StorageBytes: observation.Docker.StorageBytes,
 			ReclaimableBytes: observation.Docker.ReclaimableBytes,
@@ -94,6 +95,13 @@ func (h *handler) GetHost(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	writeJSON(w, http.StatusOK, response)
+}
+
+func boundedAPIInt64(value uint64) int64 {
+	if value > math.MaxInt64 {
+		return math.MaxInt64
+	}
+	return int64(value)
 }
 
 type catalogService interface {

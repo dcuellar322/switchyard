@@ -8,7 +8,11 @@ export async function loadPortRegistry(): Promise<PortRegistry> {
   return result.data
 }
 
-export async function suggestPort(rangeStart = 15_000, rangeEnd = 19_999, excluded: Array<number> = []): Promise<PortSuggestion> {
+export async function suggestPort(
+  rangeStart = 15_000,
+  rangeEnd = 19_999,
+  excluded: Array<number> = [],
+): Promise<PortSuggestion> {
   const result = await createPortSuggestion({
     body: { rangeStart, rangeEnd, excluded, protocol: 'tcp' },
     headers: mutationHeaders(`ui_${crypto.randomUUID()}`) as { 'Idempotency-Key': string },

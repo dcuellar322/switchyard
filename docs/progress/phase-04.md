@@ -29,6 +29,12 @@ lastVerified: 2026-07-17
 - Added generated project/remove/trust and operation-list endpoints without
   importing persistence or runtime adapters into Cobra commands.
 
+## Architecture decisions
+
+Phase 4 applies ADR-0003's single-binary subcommand model and ADR-0004's
+generated API contracts. Cobra commands remain thin transport adapters over
+application services and generated clients.
+
 ## Exit criteria
 
 - [x] Every query command supports the `switchyard.cli/v1` JSON envelope.

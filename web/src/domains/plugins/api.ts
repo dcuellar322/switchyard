@@ -7,7 +7,11 @@ import {
   refreshPlugins,
   trustPlugin,
 } from '../../api/generated/sdk.gen'
-import type { PluginEnableRequest, PluginLogEntry, PluginRegistration } from '../../api/generated/types.gen'
+import type {
+  PluginEnableRequest,
+  PluginLogEntry,
+  PluginRegistration,
+} from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
 function headers(): Record<string, string> {
@@ -26,15 +30,31 @@ export async function discoverPlugins(): Promise<Array<PluginRegistration>> {
   return result.data
 }
 
-export async function approvePlugin(pluginId: string, fingerprint: string): Promise<PluginRegistration> {
-  const result = await trustPlugin({ path: { pluginId }, body: { fingerprint }, headers: headers() })
-  if (result.error || !result.data) throw new Error('The exact plugin fingerprint could not be trusted.')
+export async function approvePlugin(
+  pluginId: string,
+  fingerprint: string,
+): Promise<PluginRegistration> {
+  const result = await trustPlugin({
+    path: { pluginId },
+    body: { fingerprint },
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The exact plugin fingerprint could not be trusted.')
   return result.data
 }
 
-export async function activatePlugin(pluginId: string, grantedScopes: PluginEnableRequest['grantedScopes']): Promise<PluginRegistration> {
-  const result = await enablePlugin({ path: { pluginId }, body: { grantedScopes }, headers: headers() })
-  if (result.error || !result.data) throw new Error('The plugin could not be enabled with these scopes.')
+export async function activatePlugin(
+  pluginId: string,
+  grantedScopes: PluginEnableRequest['grantedScopes'],
+): Promise<PluginRegistration> {
+  const result = await enablePlugin({
+    path: { pluginId },
+    body: { grantedScopes },
+    headers: headers(),
+  })
+  if (result.error || !result.data)
+    throw new Error('The plugin could not be enabled with these scopes.')
   return result.data
 }
 

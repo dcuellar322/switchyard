@@ -23,6 +23,7 @@ func main() {
 		fatal("encode manifest schema", err)
 	}
 	contents = append(contents, '\n')
+	//nolint:gosec // G306: the generated JSON schema is a public repository artifact.
 	if err := os.WriteFile("internal/manifest/schema/project.schema.json", contents, 0o644); err != nil {
 		fatal("write manifest schema", err)
 	}

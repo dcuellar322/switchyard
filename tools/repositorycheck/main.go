@@ -127,7 +127,7 @@ func inspectGovernance(root string) []finding {
 		"docs/adr/0007-process-ownership.md", "docs/adr/0008-manifest-precedence.md", "docs/adr/0009-thin-tauri-shell.md",
 		"docs/adr/0010-mcp-first-agents.md", "docs/adr/0011-agent-permissions.md", "docs/adr/0012-out-of-process-plugins.md",
 		"docs/adr/0013-local-transport-security.md", "docs/adr/0014-log-retention-redaction.md", "docs/adr/0015-platform-order.md",
-		"docs/adr/0016-optional-federation.md",
+		"docs/adr/0016-optional-federation.md", "docs/adr/0017-static-public-site.md",
 	}
 	required = append(required, adrPaths...)
 	for phase := 0; phase <= 19; phase++ {
@@ -155,9 +155,31 @@ func inspectGovernance(root string) []finding {
 	for phase := 0; phase <= 19; phase++ {
 		path := fmt.Sprintf("docs/progress/phase-%02d.md", phase)
 		contents, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(path)))
-		if err == nil && bytes.Contains(contents, []byte("- [ ]")) {
-			findings = append(findings, finding{path: path, reason: "phase progress contains an unchecked acceptance criterion"})
+		if err == nil {
+			findings = append(findings, inspectProgressEvidence(path, contents)...)
 		}
+	}
+	return findings
+}
+
+func inspectProgressEvidence(path string, contents []byte) []finding {
+	var findings []finding
+	for _, heading := range []string{"## Implemented", "## Architecture"} {
+		if !bytes.Contains(contents, []byte(heading)) {
+			findings = append(findings, finding{path: path, reason: fmt.Sprintf("phase evidence is missing %q", heading)})
+		}
+	}
+	if !bytes.Contains(contents, []byte("## Acceptance criteria status")) && !bytes.Contains(contents, []byte("## Exit criteria")) {
+		findings = append(findings, finding{path: path, reason: "phase evidence is missing an acceptance or exit criteria section"})
+	}
+	if !bytes.Contains(contents, []byte("## Commands run and results")) && !bytes.Contains(contents, []byte("## Verification")) {
+		findings = append(findings, finding{path: path, reason: "phase evidence is missing a command or verification section"})
+	}
+	if !bytes.Contains(contents, []byte("- [x]")) {
+		findings = append(findings, finding{path: path, reason: "phase evidence contains no completed acceptance criterion"})
+	}
+	if bytes.Contains(contents, []byte("- [ ]")) {
+		findings = append(findings, finding{path: path, reason: "phase evidence contains an unresolved acceptance criterion"})
 	}
 	return findings
 }

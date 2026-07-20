@@ -17,9 +17,15 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     proxy: {
-      '/api': `http://${daemonAddress}`,
+      '/api': {
+        target: `http://${daemonAddress}`,
+        // Preserve the browser-visible Host header so the daemon's strict
+        // Origin/Host comparison remains valid during local development.
+        changeOrigin: false,
+      },
       '/ws': {
         target: `ws://${daemonAddress}`,
+        changeOrigin: false,
         ws: true,
       },
     },
@@ -33,6 +39,12 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       include: ['src/**/*.{ts,vue}'],
       exclude: ['src/api/generated/**', 'src/main.ts'],
+      thresholds: {
+        statements: 50,
+        branches: 50,
+        functions: 40,
+        lines: 50,
+      },
     },
   },
 })

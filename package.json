@@ -16,6 +16,8 @@
     "desktop:build": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --debug",
     "desktop:release": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --config tauri.release.conf.json --ci",
     "generate": "pnpm --filter @switchyard/web generate",
+    "format": "pnpm --filter @switchyard/web format",
+    "format:check": "pnpm --filter @switchyard/web format:check",
     "lint": "pnpm --filter @switchyard/web lint",
     "typecheck": "pnpm --filter @switchyard/web typecheck",
     "test": "pnpm --filter @switchyard/web test",
@@ -32,6 +34,7 @@
     "site:validate": "pnpm --filter @switchyard/site validate"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "2.11.4"
+    "@tauri-apps/cli": "2.11.4",
+    "prettier": "3.9.5"
   }
 }

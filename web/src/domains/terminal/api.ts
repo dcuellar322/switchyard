@@ -22,7 +22,9 @@ export async function loadTerminalSessions(projectId: string): Promise<Array<Ter
   return result.data
 }
 
-export async function startTerminalSession(request: TerminalSessionCreate): Promise<TerminalSession> {
+export async function startTerminalSession(
+  request: TerminalSessionCreate,
+): Promise<TerminalSession> {
   const result = await createTerminalSession({ body: request, headers: headers() })
   if (result.error || !result.data) throw new Error('The terminal session could not be started.')
   return result.data

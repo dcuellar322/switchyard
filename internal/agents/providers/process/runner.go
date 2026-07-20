@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"switchyard.dev/switchyard/internal/platform/processgroup"
 )
 
 // Command is an argument-array subprocess request with a deliberately small environment.
@@ -43,24 +45,32 @@ func (OSRunner) Run(ctx context.Context, request Command) (Result, error) {
 	command.Dir = request.Directory
 	command.Env = append([]string(nil), request.Environment...)
 	command.Stdin = bytes.NewReader(request.Stdin)
-	configureProcessGroup(command)
+	processgroup.Configure(command)
 	stdout := &limitedBuffer{limit: request.OutputLimit}
 	stderr := &limitedBuffer{limit: request.OutputLimit}
 	command.Stdout, command.Stderr = stdout, stderr
 	if err := command.Start(); err != nil {
 		return Result{}, err
 	}
+	ownership, err := processgroup.Own(command)
+	if err != nil {
+		_ = command.Process.Kill()
+		_ = command.Wait()
+		return Result{}, fmt.Errorf("contain provider process: %w", err)
+	}
+	defer func() { _ = ownership.Close() }()
 	done := make(chan error, 1)
 	go func() { done <- command.Wait() }()
 	select {
 	case err := <-done:
+		_ = ownership.Terminate()
 		result := Result{Stdout: stdout.Bytes(), Stderr: stderr.Bytes()}
 		if stdout.exceeded || stderr.exceeded {
 			return result, fmt.Errorf("provider process output exceeded %d bytes", request.OutputLimit)
 		}
 		return result, err
 	case <-ctx.Done():
-		terminateProcessGroup(command)
+		_ = ownership.Terminate()
 		<-done
 		return Result{Stdout: stdout.Bytes(), Stderr: stderr.Bytes()}, ctx.Err()
 	}

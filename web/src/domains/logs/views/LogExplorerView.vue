@@ -1,74 +1,66 @@
 <script setup lang="ts">
-import { RefreshCw } from "@lucide/vue";
-import { useQuery } from "@tanstack/vue-query";
-import { computed, ref } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RefreshCw } from '@lucide/vue'
+import { useQuery } from '@tanstack/vue-query'
+import { computed, ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
-import { loadProjects } from "../../projects/api";
-import { loadProjectLogBatches } from "../api";
+import { loadProjects } from '../../projects/api'
+import { loadProjectLogBatches } from '../api'
 
-const route = useRoute();
-const autoRefresh = ref(true);
-const refreshInterval = ref(5_000);
+const route = useRoute()
+const autoRefresh = ref(true)
+const refreshInterval = ref(5_000)
 const projects = useQuery({
-  queryKey: ["projects"],
+  queryKey: ['projects'],
   queryFn: loadProjects,
   refetchInterval: 15_000,
-});
+})
 const logs = useQuery({
   queryKey: computed(() => [
-    "fleet-logs",
+    'fleet-logs',
     ...(projects.data.value ?? []).map((project) => project.id),
   ]),
   queryFn: () => loadProjectLogBatches(projects.data.value ?? []),
   enabled: computed(() => Boolean(projects.data.value)),
-  refetchInterval: computed(() => autoRefresh.value ? refreshInterval.value : false),
-});
-const search = ref("");
-const projectFilter = ref("all");
-const levelFilter = ref(
-  typeof route.query.level === "string" ? route.query.level : "all",
-);
-const streamFilter = ref("all");
+  refetchInterval: computed(() => (autoRefresh.value ? refreshInterval.value : false)),
+})
+const search = ref('')
+const projectFilter = ref('all')
+const levelFilter = ref(typeof route.query.level === 'string' ? route.query.level : 'all')
+const streamFilter = ref('all')
 
 const projectNames = computed(
-  () =>
-    new Map(
-      (projects.data.value ?? []).map((project) => [
-        project.id,
-        project.displayName,
-      ]),
-    ),
-);
+  () => new Map((projects.data.value ?? []).map((project) => [project.id, project.displayName])),
+)
 const levels = computed(() =>
-  [
-    ...new Set(
-      (logs.data.value?.entries ?? [])
-        .map((entry) => entry.level)
-        .filter(Boolean),
-    ),
-  ].sort(),
-);
+  [...new Set((logs.data.value?.entries ?? []).map((entry) => entry.level).filter(Boolean))].sort(),
+)
 const visible = computed(() => {
-  const query = search.value.trim().toLowerCase();
+  const query = search.value.trim().toLowerCase()
   return (logs.data.value?.entries ?? [])
     .filter((entry) => {
       const matchesSearch =
         !query ||
-        `${entry.message} ${entry.serviceId} ${projectNames.value.get(entry.projectId) ?? ""}`
+        `${entry.message} ${entry.serviceId} ${projectNames.value.get(entry.projectId) ?? ''}`
           .toLowerCase()
-          .includes(query);
+          .includes(query)
       return (
         matchesSearch &&
-        (projectFilter.value === "all" ||
-          entry.projectId === projectFilter.value) &&
-        (levelFilter.value === "all" ||
+        (projectFilter.value === 'all' || entry.projectId === projectFilter.value) &&
+        (levelFilter.value === 'all' ||
           entry.level.toLowerCase() === levelFilter.value.toLowerCase()) &&
-        (streamFilter.value === "all" || entry.stream === streamFilter.value)
-      );
+        (streamFilter.value === 'all' || entry.stream === streamFilter.value)
+      )
     })
-    .slice(0, 500);
-});
+    .slice(0, 500)
+})
+
+function clearFilters() {
+  search.value = ''
+  projectFilter.value = 'all'
+  levelFilter.value = 'all'
+  streamFilter.value = 'all'
+}
 </script>
 
 <template>
@@ -82,7 +74,7 @@ const visible = computed(() => {
       <div class="refresh-controls">
         <label class="auto-refresh">
           <input v-model="autoRefresh" type="checkbox" />
-          <span>{{ autoRefresh ? "Auto refresh" : "Auto refresh off" }}</span>
+          <span>{{ autoRefresh ? 'Auto refresh' : 'Auto refresh off' }}</span>
         </label>
         <label v-if="autoRefresh">
           <span class="sr-only">Refresh interval</span>
@@ -93,22 +85,16 @@ const visible = computed(() => {
             <option :value="60_000">Every minute</option>
           </select>
         </label>
-        <button
-          type="button"
-          :disabled="logs.isFetching.value"
-          @click="logs.refetch()"
-        >
+        <button type="button" :disabled="logs.isFetching.value" @click="logs.refetch()">
           <RefreshCw :size="15" :class="{ spinning: logs.isFetching.value }" aria-hidden="true" />
-          {{ logs.isFetching.value ? "Refreshing…" : "Refresh now" }}
+          {{ logs.isFetching.value ? 'Refreshing…' : 'Refresh now' }}
         </button>
       </div>
     </header>
     <div class="filters" role="search">
       <label
         ><span class="sr-only">Search logs</span
-        ><input
-          v-model="search"
-          placeholder="Search messages and services…" /></label
+        ><input v-model="search" placeholder="Search messages and services…" /></label
       ><label
         ><span class="sr-only">Project filter</span
         ><select v-model="projectFilter">
@@ -137,13 +123,10 @@ const visible = computed(() => {
           <option value="stdout">stdout</option>
           <option value="stderr">stderr</option>
         </select></label
-      ><span
-        >{{ visible.length }} of
-        {{ logs.data.value?.entries.length ?? 0 }} entries</span
-      >
+      ><span>{{ visible.length }} of {{ logs.data.value?.entries.length ?? 0 }} entries</span>
     </div>
     <p v-if="logs.data.value?.warnings.length" class="warning" role="status">
-      Partial history: {{ logs.data.value.warnings.join(" · ") }}
+      Partial history: {{ logs.data.value.warnings.join(' · ') }}
     </p>
     <div
       v-if="projects.isPending.value || logs.isPending.value"
@@ -169,55 +152,24 @@ const visible = computed(() => {
     <div v-else-if="!visible.length" class="state-panel">
       <strong>No matching entries</strong>
       <p>Runtime output may be empty, or the current filters exclude it.</p>
-      <button
-        type="button"
-        @click="
-          search = '';
-          projectFilter = 'all';
-          levelFilter = 'all';
-          streamFilter = 'all';
-        "
-      >
-        Clear filters
-      </button>
+      <button type="button" @click="clearFilters">Clear filters</button>
     </div>
-    <div
-      v-else
-      class="log-console"
-      role="log"
-      aria-label="Fleet log entries"
-      aria-live="off"
-    >
-      <div
-        v-for="entry in visible"
-        :key="`${entry.projectId}-${entry.sequence}`"
-        class="log-row"
-      >
-        <time :datetime="entry.timestamp">{{
-          new Date(entry.timestamp).toLocaleTimeString()
-        }}</time
+    <div v-else class="log-console" role="log" aria-label="Fleet log entries" aria-live="off">
+      <div v-for="entry in visible" :key="`${entry.projectId}-${entry.sequence}`" class="log-row">
+        <time :datetime="entry.timestamp">{{ new Date(entry.timestamp).toLocaleTimeString() }}</time
         ><RouterLink
           :to="{
             name: 'project',
             params: { projectId: entry.projectId },
             query: { tab: 'logs' },
           }"
-          >{{
-            projectNames.get(entry.projectId) ?? entry.projectId
-          }}</RouterLink
+          >{{ projectNames.get(entry.projectId) ?? entry.projectId }}</RouterLink
         ><span>{{ entry.serviceId }}</span
-        ><em :class="`level level--${entry.level.toLowerCase()}`">{{
-          entry.level
-        }}</em
-        ><code :class="{ stderr: entry.stream === 'stderr' }">{{
-          entry.message
-        }}</code>
+        ><em :class="`level level--${entry.level.toLowerCase()}`">{{ entry.level }}</em
+        ><code :class="{ stderr: entry.stream === 'stderr' }">{{ entry.message }}</code>
       </div>
     </div>
-    <p
-      v-if="logs.data.value && logs.data.value.entries.length >= 500"
-      class="limit-note"
-    >
+    <p v-if="logs.data.value && logs.data.value.entries.length >= 500" class="limit-note">
       Showing the newest 500 entries to keep the interface responsive.
     </p>
   </section>
@@ -288,8 +240,12 @@ button,
   color: var(--muted);
   white-space: nowrap;
 }
-.auto-refresh input { accent-color: var(--accent); }
-.spinning { animation: refresh-spin 0.8s linear infinite; }
+.auto-refresh input {
+  accent-color: var(--accent);
+}
+.spinning {
+  animation: refresh-spin 0.8s linear infinite;
+}
 .filters {
   display: flex;
   align-items: center;
@@ -420,7 +376,9 @@ button,
   .page-head {
     display: grid;
   }
-  .refresh-controls { flex-wrap: wrap; }
+  .refresh-controls {
+    flex-wrap: wrap;
+  }
   .filters label {
     width: 100%;
   }
@@ -428,5 +386,9 @@ button,
     grid-template-columns: 65px 85px minmax(0, 1fr);
   }
 }
-@keyframes refresh-spin { to { transform: rotate(360deg); } }
+@keyframes refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

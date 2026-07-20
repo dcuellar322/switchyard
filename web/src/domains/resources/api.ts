@@ -38,7 +38,13 @@ export async function loadMetricHistory(
   const duration = range === '1h' ? 3_600_000 : range === '24h' ? 86_400_000 : 7 * 86_400_000
   const result = await getMetricHistory({
     path: { projectId },
-    query: { service: service || undefined, from: new Date(to.getTime() - duration).toISOString(), to: to.toISOString(), resolution: 'auto', maxPoints: 1_000 },
+    query: {
+      service: service || undefined,
+      from: new Date(to.getTime() - duration).toISOString(),
+      to: to.toISOString(),
+      resolution: 'auto',
+      maxPoints: 1_000,
+    },
   })
   if (result.error || !result.data) throw new Error('Metric history is unavailable.')
   return result.data

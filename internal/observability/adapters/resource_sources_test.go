@@ -6,9 +6,23 @@ import (
 	"testing"
 	"time"
 
+	manifest "switchyard.dev/switchyard/internal/manifest/domain"
 	observability "switchyard.dev/switchyard/internal/observability/domain"
 	runtime "switchyard.dev/switchyard/internal/runtime/domain"
 )
+
+func TestResourceBudgetRejectsInvalidSignedThresholds(t *testing.T) {
+	t.Parallel()
+	for _, warnings := range []manifest.ResourceWarnings{{MemoryMiB: -1}, {StorageGiB: -1}} {
+		if _, err := resourceBudget(warnings); err == nil {
+			t.Fatalf("resourceBudget(%#v) accepted an invalid signed threshold", warnings)
+		}
+	}
+	budget, err := resourceBudget(manifest.ResourceWarnings{MemoryMiB: 512, StorageGiB: 10, CPUPercent: 80})
+	if err != nil || budget.MemoryBytes != 512<<20 || budget.StorageBytes != 10<<30 || budget.CPUPercent != 80 {
+		t.Fatalf("resourceBudget(valid) = %#v, %v", budget, err)
+	}
+}
 
 func TestResourceRuntimeSourceSkipsMetricsAndHealthForStoppedProject(t *testing.T) {
 	t.Parallel()

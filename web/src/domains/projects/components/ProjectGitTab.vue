@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import type {
-  GitState,
-  ProjectEnvironment,
-} from "../../../api/generated/types.gen";
+import type { GitState, ProjectEnvironment } from '../../../api/generated/types.gen'
 
 defineProps<{
-  git?: GitState;
-  environments: Array<ProjectEnvironment>;
-  environmentsPending: boolean;
-  environmentsError: boolean;
-  registrationPending: boolean;
-  registrationError?: string;
-}>();
-defineEmits<{ register: [] }>();
+  git?: GitState
+  environments: Array<ProjectEnvironment>
+  environmentsPending: boolean
+  environmentsError: boolean
+  registrationPending: boolean
+  registrationError?: string
+}>()
+defineEmits<{ register: [] }>()
 </script>
 
 <template>
@@ -22,19 +19,17 @@ defineEmits<{ register: [] }>();
         <p>Read-only snapshot</p>
         <h2>Repository state</h2>
       </div>
-      <span>{{
-        git?.observedAt ? new Date(git.observedAt).toLocaleTimeString() : "—"
-      }}</span>
+      <span>{{ git?.observedAt ? new Date(git.observedAt).toLocaleTimeString() : '—' }}</span>
     </header>
     <dl class="fact-grid">
       <div>
         <dt>Branch</dt>
-        <dd>{{ git?.branch ?? "detached" }}</dd>
+        <dd>{{ git?.branch ?? 'detached' }}</dd>
       </div>
       <div>
         <dt>HEAD</dt>
         <dd>
-          <code>{{ git?.head?.slice(0, 12) ?? "—" }}</code>
+          <code>{{ git?.head?.slice(0, 12) ?? '—' }}</code>
         </dd>
       </div>
       <div>
@@ -65,12 +60,8 @@ defineEmits<{ register: [] }>();
         <p>Parallel feature environments</p>
         <h2>Registered worktrees</h2>
       </div>
-      <button
-        type="button"
-        :disabled="registrationPending"
-        @click="$emit('register')"
-      >
-        {{ registrationPending ? "Registering…" : "↻ Reconcile worktrees" }}
+      <button type="button" :disabled="registrationPending" @click="$emit('register')">
+        {{ registrationPending ? 'Registering…' : '↻ Reconcile worktrees' }}
       </button>
     </header>
     <p v-if="registrationError" class="panel-state message--error" role="alert">
@@ -79,11 +70,7 @@ defineEmits<{ register: [] }>();
     <p v-else-if="environmentsPending" class="panel-state">
       Reading durable environment registrations…
     </p>
-    <p
-      v-else-if="environmentsError"
-      class="panel-state message--error"
-      role="alert"
-    >
+    <p v-else-if="environmentsError" class="panel-state message--error" role="alert">
       Worktree environments are unavailable.
     </p>
     <div v-else-if="environments.length" class="environment-list">
@@ -91,16 +78,13 @@ defineEmits<{ register: [] }>();
         <div>
           <strong>{{ environment.name }}</strong
           ><span>{{
-            environment.primary
-              ? "primary checkout"
-              : environment.branch || "detached worktree"
+            environment.primary ? 'primary checkout' : environment.branch || 'detached worktree'
           }}</span>
         </div>
         <code>{{ environment.hostname }}</code>
-        <span
-          :class="`environment-state environment-state--${environment.state}`"
-          >{{ environment.state }}</span
-        >
+        <span :class="`environment-state environment-state--${environment.state}`">{{
+          environment.state
+        }}</span>
         <small
           >{{ environment.allocation.composeProjectName }} ·
           {{ environment.allocation.portLeases.length }} exact ports</small

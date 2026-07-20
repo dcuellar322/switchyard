@@ -91,7 +91,7 @@ func (h *agentHandler) operate(w http.ResponseWriter, r *http.Request) {
 }
 
 func controllerFingerprint(w http.ResponseWriter, r *http.Request) (string, bool) {
-	if r.TLS == nil || len(r.TLS.PeerCertificates) != 1 || len(r.TLS.PeerCertificates[0].Raw) == 0 {
+	if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 || len(r.TLS.PeerCertificates[0].Raw) == 0 {
 		writeRemoteError(w, http.StatusUnauthorized, "CLIENT_IDENTITY_REQUIRED", "A verified client certificate is required.")
 		return "", false
 	}

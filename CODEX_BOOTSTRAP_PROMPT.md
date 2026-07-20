@@ -6,7 +6,7 @@ Read these files completely before making changes:
 
 1. `SWITCHYARD_IMPLEMENTATION_PLAN.md`
 2. `AGENTS.md`
-3. The interactive design reference at `design/switchyard-ui-mockup.html`
+3. The interactive design reference at `design/switchyard-interactive-mockup.html`
 
 Treat the implementation plan as the normative product and architecture specification. Begin with **Phase 0 only**. Do not implement later-phase features prematurely.
 

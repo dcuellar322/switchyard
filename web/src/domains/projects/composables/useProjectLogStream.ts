@@ -22,17 +22,23 @@ export function useProjectLogStream(
     }
     state.value = attempts === 0 ? 'connecting' : 'disconnected'
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const query = new URLSearchParams({ projectId: projectId.value, after: String(lastSequence.value) })
+    const query = new URLSearchParams({
+      projectId: projectId.value,
+      after: String(lastSequence.value),
+    })
     socket = new WebSocket(`${protocol}//${window.location.host}/ws/v1/logs?${query}`)
     socket.addEventListener('message', (message) => {
       try {
-        const event = JSON.parse(String(message.data)) as Partial<RuntimeLogEntry> & { type?: string }
+        const event = JSON.parse(String(message.data)) as Partial<RuntimeLogEntry> & {
+          type?: string
+        }
         if (event.type === 'logs.connected') {
           state.value = 'connected'
           attempts = 0
           return
         }
-        if (typeof event.sequence !== 'number' || typeof event.message !== 'string') throw new Error()
+        if (typeof event.sequence !== 'number' || typeof event.message !== 'string')
+          throw new Error()
         if (event.sequence > lastSequence.value) {
           lastSequence.value = event.sequence
           onEntry(event as RuntimeLogEntry)

@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { nextTick, ref, watch } from 'vue'
 
-import type { RuntimeLogEntry } from "../../../api/generated/types.gen";
+import type { RuntimeLogEntry } from '../../../api/generated/types.gen'
 
 const props = defineProps<{
-  recentLogs: Array<RuntimeLogEntry>;
-  logConnection: string;
-}>();
+  recentLogs: Array<RuntimeLogEntry>
+  logConnection: string
+}>()
 const emit = defineEmits<{
-  viewAll: [];
-}>();
+  viewAll: []
+}>()
 
-const logPreview = ref<HTMLElement>();
+const logPreview = ref<HTMLElement>()
 watch(
   () => props.recentLogs.at(-1)?.sequence,
   async () => {
-    await nextTick();
+    await nextTick()
     if (logPreview.value) {
-      logPreview.value.scrollTop = logPreview.value.scrollHeight;
+      logPreview.value.scrollTop = logPreview.value.scrollHeight
     }
   },
   { immediate: true },
-);
+)
 </script>
 
 <template>
@@ -46,9 +46,7 @@ watch(
       <div v-for="entry in recentLogs.slice(-14)" :key="entry.sequence">
         <time>{{ new Date(entry.timestamp).toLocaleTimeString() }}</time>
         <span>{{ entry.serviceId }}</span>
-        <code :class="{ stderr: entry.stream === 'stderr' }">{{
-          entry.message
-        }}</code>
+        <code :class="{ stderr: entry.stream === 'stderr' }">{{ entry.message }}</code>
       </div>
     </div>
     <p v-else class="panel-state">No persisted or live log entries yet.</p>

@@ -54,6 +54,13 @@ lastVerified: 2026-07-17
   mixed-runtime, monorepo, external-process, worktree, adversarial README, and
   secret-redaction scenarios.
 
+## Architecture decisions
+
+Phase 3 applies ADR-0001 domain boundaries, ADR-0004 generated transport
+contracts, ADR-0005 transactional persistence, and ADR-0008 manifest precedence
+and provenance. Discovery remains deterministic application behavior and does
+not execute repository code.
+
 ## Security behavior
 
 - `.env` and machine-specific environment files are never opened by discovery.
