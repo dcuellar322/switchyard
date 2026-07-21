@@ -79,6 +79,22 @@ func TestSettingsRejectsFilesystemRootAndCredentialValues(t *testing.T) {
 	}
 }
 
+func TestSettingsAcceptsITermPreference(t *testing.T) {
+	t.Parallel()
+	service, _ := NewService(&repositoryStub{})
+	settings := validSettings(t.TempDir())
+	settings.Tools.Terminal = "iterm"
+	if _, err := service.Initialize(context.Background(), settings); err != nil {
+		t.Fatalf("Initialize() error = %v", err)
+	}
+	service, _ = NewService(&repositoryStub{})
+	settings = validSettings(t.TempDir())
+	settings.Tools.Terminal = "unknown"
+	if _, err := service.Initialize(context.Background(), settings); !errors.Is(err, ErrInvalidSettings) {
+		t.Fatalf("Initialize() error = %v, want ErrInvalidSettings", err)
+	}
+}
+
 func TestInitializeKeepsTemporarilyUnavailablePersistedRoot(t *testing.T) {
 	t.Parallel()
 	persisted := validSettings(t.TempDir())

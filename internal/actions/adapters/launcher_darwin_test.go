@@ -23,16 +23,37 @@ func TestMacTerminalLaunchUsesExactWorkingDirectory(t *testing.T) {
 	executor := &launchExecutorStub{}
 	launcher := platformLauncher{executor: executor}
 	workingDirectory := "/tmp/project with spaces"
-	if err := launcher.OpenTerminal(context.Background(), workingDirectory, nil); err != nil {
+	if err := launcher.OpenTerminal(context.Background(), workingDirectory, nil, ""); err != nil {
 		t.Fatal(err)
 	}
 	if executor.executable != "osascript" || !strings.Contains(executor.arguments[1], "cd '/tmp/project with spaces'") {
 		t.Fatalf("launch = %q %#v", executor.executable, executor.arguments)
 	}
-	if err := launcher.OpenTerminal(context.Background(), workingDirectory, []string{"codex"}); err != nil {
+	if err := launcher.OpenTerminal(context.Background(), workingDirectory, []string{"codex"}, ""); err != nil {
 		t.Fatal(err)
 	}
 	if executor.executable != "osascript" || !strings.Contains(executor.arguments[1], "cd '/tmp/project with spaces' && exec 'codex'") {
 		t.Fatalf("agent launch = %q %#v", executor.executable, executor.arguments)
+	}
+}
+
+func TestMacITermLaunchUsesExactWorkingDirectory(t *testing.T) {
+	t.Parallel()
+	executor := &launchExecutorStub{}
+	launcher := platformLauncher{executor: executor}
+	if err := launcher.OpenTerminal(context.Background(), "/tmp/project with spaces", nil, "iterm"); err != nil {
+		t.Fatal(err)
+	}
+	script := executor.arguments[1]
+	if executor.executable != "osascript" || !strings.Contains(script, `tell application "iTerm"`) || !strings.Contains(script, `write text "cd '/tmp/project with spaces'"`) {
+		t.Fatalf("launch = %q %#v", executor.executable, executor.arguments)
+	}
+}
+
+func TestMacTerminalLaunchRejectsUnknownProvider(t *testing.T) {
+	t.Parallel()
+	launcher := platformLauncher{executor: &launchExecutorStub{}}
+	if err := launcher.OpenTerminal(context.Background(), "/tmp/project", nil, "unknown"); err == nil {
+		t.Fatal("OpenTerminal() error = nil")
 	}
 }

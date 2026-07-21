@@ -28,7 +28,7 @@ func TestLinuxLauncherUsesArgumentArrays(t *testing.T) {
 		}
 		return "", errors.New("not found")
 	}}
-	if err := launcher.OpenTerminal(context.Background(), "/tmp/project with spaces", []string{"codex", "--resume"}); err != nil {
+	if err := launcher.OpenTerminal(context.Background(), "/tmp/project with spaces", []string{"codex", "--resume"}, ""); err != nil {
 		t.Fatal(err)
 	}
 	want := []string{"--working-directory=/tmp/project with spaces", "--", "codex", "--resume"}

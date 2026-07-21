@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,15 +37,8 @@ func SelectRoot(path string) (Root, error) {
 
 // ReadFile reads one known relative file while enforcing size and containment.
 func (r Root) ReadFile(relative string) ([]byte, error) {
-	if relative == "" || filepath.IsAbs(relative) || relative == ".env" || strings.HasPrefix(relative, ".env.") && relative != ".env.example" {
-		return nil, fmt.Errorf("discovery file %q is not allowed", relative)
-	}
-	path := filepath.Join(r.Path, filepath.Clean(relative))
-	resolved, err := filepath.EvalSymlinks(path)
+	resolved, err := r.resolveFile(relative)
 	if err != nil {
-		return nil, err
-	}
-	if err := contained(r.Path, resolved); err != nil {
 		return nil, err
 	}
 	file, err := os.Open(resolved)
@@ -64,6 +58,42 @@ func (r Root) ReadFile(relative string) ([]byte, error) {
 		return nil, err
 	}
 	return contents, nil
+}
+
+// HasFile reports whether one known relative discovery file exists without
+// reading its contents. It applies the same secret and containment policy as
+// ReadFile, which lets scanners identify lockfiles without ingesting them.
+func (r Root) HasFile(relative string) (bool, error) {
+	resolved, err := r.resolveFile(relative)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	info, err := os.Stat(resolved)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return info.Mode().IsRegular(), nil
+}
+
+func (r Root) resolveFile(relative string) (string, error) {
+	if relative == "" || filepath.IsAbs(relative) || relative == ".env" || strings.HasPrefix(relative, ".env.") && relative != ".env.example" {
+		return "", fmt.Errorf("discovery file %q is not allowed", relative)
+	}
+	path := filepath.Join(r.Path, filepath.Clean(relative))
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", err
+	}
+	if err := contained(r.Path, resolved); err != nil {
+		return "", err
+	}
+	return resolved, nil
 }
 
 func contained(root, candidate string) error {

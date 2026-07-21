@@ -3,7 +3,7 @@ title: "Phase 14: Embedded terminals and agent sessions"
 description: Implementation evidence for Switchyard product phase 14.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-07-21
 ---
 
 ## Implemented
@@ -122,3 +122,14 @@ process-group termination through a real PTY.
 - Rich provider SDK orchestration is deferred by the scope guard. Codex and
   Claude Code run through their reliable user-visible PTY interfaces.
 - PTY scrollback is intentionally not durable across daemon restarts.
+
+## 2026-07-21 terminal glyph evidence
+
+- The PTY continues to launch the user's selected/default login shell, so zsh,
+  Oh My Zsh, and Powerlevel10k startup behavior remains user-owned.
+- The xterm renderer now prefers the Powerlevel10k-recommended `MesloLGS NF`
+  family and retains the existing portable monospace fallbacks. Systems without
+  that installed family continue through the CSS font stack without assuming
+  Powerlevel10k.
+- Vue unit coverage fixes the glyph-capable font order, and the real-daemon E2E
+  terminal flow plus all 14 visual regression scenarios passed.

@@ -17,7 +17,8 @@ const settings = defineModel<DaemonSettings>({ required: true })
       <label
         >Preferred terminal<select v-model="settings.tools.terminal">
           <option value="integrated">Integrated terminal</option>
-          <option value="system">System terminal</option>
+          <option value="system">System terminal (Terminal.app on macOS)</option>
+          <option value="iterm">iTerm2 (macOS only)</option>
         </select></label
       >
       <label
@@ -36,7 +37,8 @@ const settings = defineModel<DaemonSettings>({ required: true })
       >
     </div>
     <p class="settings-help">
-      The default applies to new MCP sessions. An explicit <code>--profile</code> flag always wins.
+      iTerm2 must already be installed. The agent profile default applies to new MCP sessions; an
+      explicit <code>--profile</code> flag always wins.
     </p>
   </article>
 </template>

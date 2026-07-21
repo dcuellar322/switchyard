@@ -4,11 +4,23 @@ import { ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { expect, test, vi } from 'vitest'
 
-const { runRuntimeAction } = vi.hoisted(() => ({ runRuntimeAction: vi.fn() }))
+const { runRuntimeAction, runProjectAction } = vi.hoisted(() => ({
+  runRuntimeAction: vi.fn(),
+  runProjectAction: vi.fn(),
+}))
 runRuntimeAction.mockResolvedValue({
   id: 'operation-1',
   projectId: 'alpha',
   kind: 'runtime.start',
+  state: 'queued',
+  cancellationRequested: false,
+  requestedAt: '2026-07-15T12:00:00Z',
+  updatedAt: '2026-07-15T12:00:00Z',
+})
+runProjectAction.mockResolvedValue({
+  id: 'operation-terminal',
+  projectId: 'alpha',
+  kind: 'action.run',
   state: 'queued',
   cancellationRequested: false,
   requestedAt: '2026-07-15T12:00:00Z',
@@ -107,7 +119,7 @@ vi.mock('../../src/domains/projects/api', () => ({
     provenance: {},
     sources: [{ name: 'accepted' }],
   }),
-  runProjectAction: vi.fn(),
+  runProjectAction,
   runRuntimeAction,
 }))
 
@@ -176,6 +188,8 @@ test('keeps project controls usable and honest when Docker is unavailable', asyn
   expect(screen.getByText('127.0.0.1:8080/')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled()
   expect(screen.getByRole('button', { name: 'Terminal' })).toBeEnabled()
+  await fireEvent.click(screen.getByRole('button', { name: 'Terminal' }))
+  expect(runProjectAction).toHaveBeenCalledWith('alpha', 'terminal')
   await fireEvent.click(screen.getByRole('button', { name: 'Start' }))
   expect(runRuntimeAction).toHaveBeenCalledWith('alpha', 'start', [])
 

@@ -120,7 +120,7 @@ func workspaceOperationStepState(status workspaceDomain.ProjectStatus) (string, 
 }
 
 type workspaceLauncher interface {
-	OpenTerminal(context.Context, string, []string) error
+	OpenTerminal(context.Context, string, []string, string) error
 	OpenEditor(context.Context, string, string) error
 	OpenBrowser(context.Context, string) error
 }
@@ -145,7 +145,7 @@ func (r workspaceRecipeRunner) RunWorkspaceRecipe(ctx context.Context, recipe wo
 		}
 		switch recipe.Kind {
 		case workspaceDomain.RecipeOpenTerminal:
-			return r.launcher.OpenTerminal(ctx, project.Root, recipe.Arguments)
+			return r.launcher.OpenTerminal(ctx, project.Root, recipe.Arguments, "")
 		case workspaceDomain.RecipeOpenEditor:
 			provider := strings.TrimSpace(recipe.Target)
 			if provider == "" {
@@ -158,7 +158,7 @@ func (r workspaceRecipeRunner) RunWorkspaceRecipe(ctx context.Context, recipe wo
 				return fmt.Errorf("unsupported agent provider %q", provider)
 			}
 			arguments := append([]string{provider}, recipe.Arguments...)
-			return r.launcher.OpenTerminal(ctx, project.Root, arguments)
+			return r.launcher.OpenTerminal(ctx, project.Root, arguments, "")
 		case workspaceDomain.RecipeOpenURL:
 			return errors.New("URL recipe does not use a project root")
 		}

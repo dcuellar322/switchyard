@@ -20,6 +20,9 @@ export interface TerminalPanelProps {
   externalAvailable?: boolean
 }
 
+export const terminalFontFamily =
+  '"MesloLGS NF", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+
 export function useTerminalPanel(props: TerminalPanelProps) {
   const queryClient = useQueryClient()
   const terminalHost = ref<HTMLElement>()
@@ -76,7 +79,7 @@ export function useTerminalPanel(props: TerminalPanelProps) {
     fit = new FitAddon()
     terminal = new Terminal({
       cursorBlink: true,
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+      fontFamily: terminalFontFamily,
       fontSize: 13,
       scrollback: 2_000,
       screenReaderMode: true,

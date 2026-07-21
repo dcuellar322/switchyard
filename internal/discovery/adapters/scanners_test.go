@@ -166,6 +166,153 @@ func TestComposeDiscoveryExcludesProfilesAndPrefersFrontendEndpoint(t *testing.T
 	}
 }
 
+func TestComposeDiscoverySupportsDevelopmentFilenameAndDefaultedPorts(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir()
+	compose := `services:
+  api:
+    image: example/api
+    ports:
+      - "127.0.0.1:${API_PORT:-18000}:8000"
+      - target: 5173
+        published: ${WEB_PORT-15173}
+  worker:
+    image: example/worker
+    ports:
+      - "${WORKER_PORT}:9000"
+`
+	if err := os.WriteFile(filepath.Join(path, "docker-compose.local.yml"), []byte(compose), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	root, err := application.SelectRoot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	proposal := application.BuildProposal(root, "project_compose", "proposal_compose", items)
+	if proposal.Candidate.Runtime.Compose == nil || !slices.Equal(proposal.Candidate.Runtime.Compose.Files, []string{"docker-compose.local.yml"}) {
+		t.Fatalf("compose runtime = %#v", proposal.Candidate.Runtime)
+	}
+	if len(proposal.Candidate.Ports) != 2 || proposal.Candidate.Ports[0].Host != 18000 || proposal.Candidate.Ports[1].Host != 15173 {
+		t.Fatalf("ports = %#v", proposal.Candidate.Ports)
+	}
+	var fallbackWarning, unresolvedWarning bool
+	for _, item := range items {
+		if item.Kind == "compose.project" && len(item.Warnings) > 0 {
+			fallbackWarning = true
+		}
+		if item.Kind == "compose.port.unresolved" && item.Location.StartLine == 11 && len(item.Warnings) > 0 {
+			unresolvedWarning = true
+		}
+	}
+	if !fallbackWarning || !unresolvedWarning {
+		t.Fatalf("expected fallback and unresolved-port warnings: %#v", items)
+	}
+}
+
+func TestNodeDiscoveryInfersReviewedProcessAndLockfileManager(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir()
+	packageJSON := `{"name":"site","scripts":{"dev":"astro dev","build":"astro build"}}`
+	if err := os.WriteFile(filepath.Join(path, "package.json"), []byte(packageJSON), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(path, "pnpm-lock.yaml"), []byte("lockfileVersion: '9.0'\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	root, err := application.SelectRoot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	proposal := application.BuildProposal(root, "project_node", "proposal_node", items)
+	if proposal.Candidate.Runtime.Process == nil || len(proposal.Candidate.Runtime.Process.Processes) != 1 {
+		t.Fatalf("process runtime = %#v", proposal.Candidate.Runtime)
+	}
+	if got := proposal.Candidate.Runtime.Process.Processes[0].Command; !slices.Equal(got, []string{"pnpm", "run", "dev"}) {
+		t.Fatalf("command = %v", got)
+	}
+	if len(proposal.Unresolved) != 0 || !slices.Contains(proposal.Candidate.Metadata.Tags, "pnpm") {
+		t.Fatalf("proposal = %#v", proposal)
+	}
+}
+
+func TestMixedPythonAndNodeRuntimeRemainsUnresolved(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir()
+	if err := os.WriteFile(filepath.Join(path, "package.json"), []byte(`{"name":"mixed","scripts":{"dev":"vite"}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(path, "pyproject.toml"), []byte("[project]\nname = \"mixed-worker\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	root, err := application.SelectRoot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	proposal := application.BuildProposal(root, "project_mixed", "proposal_mixed", items)
+	if proposal.Candidate.Runtime.Driver != "" || !slices.Contains(proposal.Unresolved, "/runtime/driver") {
+		t.Fatalf("ambiguous runtime was inferred: %#v", proposal.Candidate.Runtime)
+	}
+}
+
+func TestDocumentedUVicornCommandInfersProcessAndRejectsShellSyntax(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		name, command string
+		supported     bool
+	}{
+		{"shell free", "uv run uvicorn app.main:app --reload --port 8123", true},
+		{"shell operator", "uv run uvicorn app.main:app --reload; touch /tmp/not-allowed", false},
+		{"unsafe path option", "uv run uvicorn app.main:app --app-dir ../../outside", false},
+	} {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			path := t.TempDir()
+			if err := os.WriteFile(filepath.Join(path, "pyproject.toml"), []byte("[project]\nname = \"api\"\n"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(path, "uv.lock"), []byte("version = 1\n"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			readme := "# API\n\n```bash\n" + test.command + "\n```\n"
+			if err := os.WriteFile(filepath.Join(path, "README.md"), []byte(readme), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			root, err := application.SelectRoot(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			items, err := application.ScanAll(context.Background(), root, adapters.Defaults())
+			if err != nil {
+				t.Fatal(err)
+			}
+			proposal := application.BuildProposal(root, "project_python", "proposal_python", items)
+			if test.supported {
+				if proposal.Candidate.Runtime.Process == nil || len(proposal.Candidate.Ports) != 1 || proposal.Candidate.Ports[0].Host != 8123 {
+					t.Fatalf("supported proposal = %#v", proposal)
+				}
+				if len(proposal.Unresolved) != 0 {
+					t.Fatalf("unresolved = %v", proposal.Unresolved)
+				}
+			} else if proposal.Candidate.Runtime.Driver != "" || !slices.Contains(proposal.Unresolved, "/runtime/driver") {
+				t.Fatalf("unsafe README command was inferred: %#v", proposal.Candidate.Runtime)
+			}
+		})
+	}
+}
+
 func serviceIDs(services []manifest.Service) []string {
 	result := make([]string, 0, len(services))
 	for _, service := range services {

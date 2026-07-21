@@ -13,12 +13,24 @@ type platformLauncher struct{ executor launchExecutor }
 // NewLauncher creates the native macOS terminal, editor, and browser adapter.
 func NewLauncher() Launcher { return platformLauncher{executor: installedLauncher{}} }
 
-func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string) error {
+func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string, provider string) error {
 	shellCommand := "cd " + shellQuote(workingDirectory)
 	if len(command) > 0 {
 		shellCommand += " && exec " + shellJoin(command)
 	}
-	script := `tell application "Terminal" to do script "` + appleScriptQuote(shellCommand) + `"` + "\n" + `tell application "Terminal" to activate`
+	var script string
+	switch provider {
+	case "", "system":
+		script = `tell application "Terminal" to do script "` + appleScriptQuote(shellCommand) + `"` + "\n" + `tell application "Terminal" to activate`
+	case "iterm":
+		script = `tell application "iTerm"` + "\n" +
+			`activate` + "\n" +
+			`set switchyardWindow to (create window with default profile)` + "\n" +
+			`tell current session of switchyardWindow to write text "` + appleScriptQuote(shellCommand) + `"` + "\n" +
+			`end tell`
+	default:
+		return errors.New("unsupported terminal provider")
+	}
 	return l.executor.Run(ctx, "osascript", "-e", script)
 }
 

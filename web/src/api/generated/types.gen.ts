@@ -42,7 +42,7 @@ export type RetentionPreferences = {
 };
 
 export type ToolPreferences = {
-    terminal: 'integrated' | 'system';
+    terminal: 'integrated' | 'system' | 'iterm';
     editor: 'vscode' | 'none';
 };
 
