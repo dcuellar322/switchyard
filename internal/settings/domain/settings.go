@@ -136,8 +136,8 @@ func validateRetentionAndPreferences(s Settings) []error {
 	if s.Retention.MaximumMetricHistoryPoints < 100 || s.Retention.MaximumMetricHistoryPoints > 10_000 {
 		problems = append(problems, errors.New("maximum metric history points must be between 100 and 10000"))
 	}
-	if !slices.Contains([]string{"integrated", "system"}, s.Tools.Terminal) {
-		problems = append(problems, errors.New("terminal preference must be integrated or system"))
+	if !slices.Contains([]string{"integrated", "system", "iterm"}, s.Tools.Terminal) {
+		problems = append(problems, errors.New("terminal preference must be integrated, system, or iterm"))
 	}
 	if !slices.Contains([]string{"vscode", "none"}, s.Tools.Editor) {
 		problems = append(problems, errors.New("editor preference must be vscode or none"))

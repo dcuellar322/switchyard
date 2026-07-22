@@ -3,7 +3,7 @@ title: "Phase 8: Ports, Git, and actions"
 description: Implementation evidence for Switchyard product phase 8.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-07-21
 ---
 
 ## Implemented
@@ -142,14 +142,30 @@ environment values.
 
 ## 2026-07-17 terminal and endpoint evidence
 
-- Dashboard and project-header Terminal controls route to Switchyard's
-  integrated terminal instead of incorrectly queueing `terminal.open` as a
-  project action.
+- Dashboard and project-header Terminal controls use the durable terminal
+  preference: `integrated` opens Switchyard's terminal tab, while an external
+  preference queues the trusted `terminal.open` action. The terminal tab
+  remains directly accessible in either mode.
 - The explicit external-terminal control is disabled when no trusted
-  `terminal.open` action exists. On macOS, the launcher uses Terminal's
-  AppleScript API to open and focus a shell at the exact trusted working
-  directory.
+  `terminal.open` action exists. On macOS, the launcher uses the selected
+  Terminal.app or iTerm2 AppleScript API to open and focus a shell at the exact
+  trusted working directory. Other platforms reject the macOS-only iTerm2
+  provider instead of silently substituting another terminal.
 - Every trusted `browser.open` action is rendered as a named project endpoint;
   browser and terminal actions are excluded from generic quick actions.
 - Project action failures preserve the server problem detail and code instead
   of replacing them with a generic queueing message.
+
+## 2026-07-21 external-terminal preference evidence
+
+- Extended the existing durable terminal preference and generated API enum
+  with an explicit `iterm` choice while preserving `integrated` and `system`
+  values for existing settings.
+- Carried the selected provider through the trusted action definition and
+  narrow launcher interface; no UI or transport code constructs a command.
+- Added settings validation, generated-contract, provider-routing, exact
+  working-directory, unknown-provider, UI save, and preferred-button tests.
+- `make lint`, `make typecheck`, `make test`, `make test-race`,
+  `make platform-check`, `make test-e2e`, `make test-visual`,
+  `make repository-check`, and `make build` passed. Generated outputs were
+  byte-identical across consecutive generation runs.

@@ -9,7 +9,7 @@ import (
 )
 
 // ScannerVersion identifies the rules used to build deterministic proposals.
-const ScannerVersion = "deterministic/v1"
+const ScannerVersion = "deterministic/v2"
 
 // SourceRange points to exact, one-based source lines.
 type SourceRange struct {

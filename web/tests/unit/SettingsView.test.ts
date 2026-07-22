@@ -98,6 +98,7 @@ test('edits one revision and reports restart-bound settings honestly', async () 
   })
   expect(await screen.findByRole('heading', { name: 'Project roots' })).toBeInTheDocument()
   expect(screen.getByText('Revision 1')).toBeInTheDocument()
+  expect(screen.getByRole('option', { name: 'iTerm2 (macOS only)' })).toBeInTheDocument()
   const save = screen.getByRole('button', { name: 'Save settings' })
   expect(save).toBeDisabled()
   await fireEvent.update(screen.getByLabelText(/Log age/), '8')
@@ -106,4 +107,29 @@ test('edits one revision and reports restart-bound settings honestly', async () 
   await waitFor(() => expect(settingsAPI.saveDaemonSettings).toHaveBeenCalled())
   expect(await screen.findByText(/Restart the daemon to apply/)).toHaveTextContent('retention')
   expect(screen.getByText('Revision 2')).toBeInTheDocument()
+})
+
+test('saves iTerm2 as the preferred external terminal', async () => {
+  render(SettingsView, {
+    global: {
+      plugins: [
+        [
+          VueQueryPlugin,
+          {
+            queryClient: new QueryClient({
+              defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+            }),
+          },
+        ],
+      ],
+    },
+  })
+  const terminal = await screen.findByLabelText('Preferred terminal')
+  await fireEvent.update(terminal, 'iterm')
+  await fireEvent.click(screen.getByRole('button', { name: 'Save settings' }))
+  await waitFor(() =>
+    expect(settingsAPI.saveDaemonSettings).toHaveBeenCalledWith(
+      expect.objectContaining({ tools: { terminal: 'iterm', editor: 'vscode' } }),
+    ),
+  )
 })

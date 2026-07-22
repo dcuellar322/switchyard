@@ -1765,6 +1765,7 @@ func (e ToolPreferencesEditor) Valid() bool {
 // Defines values for ToolPreferencesTerminal.
 const (
 	Integrated ToolPreferencesTerminal = "integrated"
+	Iterm      ToolPreferencesTerminal = "iterm"
 	System     ToolPreferencesTerminal = "system"
 )
 
@@ -1772,6 +1773,8 @@ const (
 func (e ToolPreferencesTerminal) Valid() bool {
 	switch e {
 	case Integrated:
+		return true
+	case Iterm:
 		return true
 	case System:
 		return true

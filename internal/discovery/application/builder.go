@@ -49,6 +49,9 @@ func BuildProposal(root Root, projectID, proposalID string, items []domain.Evide
 		}
 		applyEvidence(&candidate, confidence, tags, actions, services, ports, item, data)
 	}
+	if candidate.Runtime.Driver == "" {
+		applyProcessEvidence(&candidate, confidence, services, ports, items)
+	}
 	if candidate.Runtime.Driver == "compose" {
 		tags["compose"] = true
 	}
@@ -60,11 +63,19 @@ func BuildProposal(root Root, projectID, proposalID string, items []domain.Evide
 	}
 	sort.Strings(candidate.Metadata.Tags)
 	for index, service := range candidate.Services {
-		confidence["/services/"+strconv.Itoa(index)] = bestConfidence(items, "compose.service", service.Source.ComposeService)
+		if service.Source.ComposeService != "" {
+			confidence["/services/"+strconv.Itoa(index)] = bestConfidence(items, "compose.service", service.Source.ComposeService)
+		} else {
+			confidence["/services/"+strconv.Itoa(index)] = confidence["/runtime"]
+		}
 	}
 	primaryPortID := primaryEndpointPort(candidate.Ports)
 	for index, port := range candidate.Ports {
-		confidence["/ports/"+strconv.Itoa(index)] = bestConfidence(items, "compose.port", port.Service)
+		if candidate.Runtime.Driver == "compose" {
+			confidence["/ports/"+strconv.Itoa(index)] = bestConfidence(items, "compose.port", port.Service)
+		} else {
+			confidence["/ports/"+strconv.Itoa(index)] = confidence["/runtime"]
+		}
 		candidate.Endpoints = append(candidate.Endpoints, manifest.Endpoint{
 			ID: port.ID, Name: port.ID, URL: "http://127.0.0.1:${ports." + port.ID + "}", Primary: port.ID == primaryPortID,
 		})
@@ -158,14 +169,79 @@ func applyEvidence(
 			tags["uv"] = true
 		}
 		addCommandAction(actions, "test-python", "Run Python tests", stringSlice(data["testCommand"]), item.Confidence)
+	case "python.script":
+		name := textValue(data, "name")
+		addCommandAction(actions, "python-"+slugify(name), "Run Python "+name, stringSlice(data["command"]), item.Confidence)
 	case "node.script":
 		tags["node"] = true
+		manager := textValue(data, "manager")
+		if manager != "" {
+			tags[manager] = true
+		} else {
+			manager = "npm"
+		}
 		script := textValue(data, "script")
-		addCommandAction(actions, "node-"+slugify(script), "Run npm "+script, stringSlice(data["command"]), item.Confidence)
+		addCommandAction(actions, "node-"+slugify(script), "Run "+manager+" "+script, stringSlice(data["command"]), item.Confidence)
 	case "make.target", "just.target":
 		target := textValue(data, "target")
 		addCommandAction(actions, strings.ReplaceAll(item.Kind, ".", "-")+"-"+slugify(target), "Run "+target, stringSlice(data["command"]), item.Confidence)
 	}
+}
+
+func applyProcessEvidence(candidate *manifest.Manifest, confidence map[string]float64, services map[string]manifest.Service, ports map[string]manifest.Port, items []domain.Evidence) {
+	if hasEvidenceKind(items, "python.project") && hasRunnableNodeEvidence(items) {
+		return
+	}
+	for _, selection := range []struct {
+		kind      string
+		predicate func(map[string]any) bool
+	}{
+		{"python.run", func(map[string]any) bool { return true }},
+		{"python.script", func(data map[string]any) bool { value, _ := data["preferredRun"].(bool); return value }},
+		{"node.script", func(data map[string]any) bool { return textValue(data, "script") == "dev" }},
+		{"node.script", func(data map[string]any) bool { return textValue(data, "script") == "start" }},
+	} {
+		for _, item := range items {
+			if item.Kind != selection.kind {
+				continue
+			}
+			var data map[string]any
+			if json.Unmarshal(item.Data, &data) != nil || !selection.predicate(data) {
+				continue
+			}
+			command := stringSlice(data["command"])
+			if len(command) == 0 {
+				continue
+			}
+			const processID = "app"
+			candidate.Runtime = manifest.Runtime{Driver: "process", Process: &manifest.ProcessConfig{Processes: []manifest.ProcessDefinition{{
+				ID: processID, Command: command, WorkingDirectory: ".",
+			}}}}
+			services[processID] = manifest.Service{ID: processID, DisplayName: candidate.Metadata.Name, Source: manifest.ServiceSource{Process: processID}, Dependencies: []string{}, HealthChecks: []manifest.HealthCheck{}}
+			if port := intValue(data, "port"); port > 0 {
+				ports[processID] = manifest.Port{ID: processID, Service: processID, Host: port, Target: port, Protocol: "tcp"}
+			}
+			confidence["/runtime"] = item.Confidence
+			return
+		}
+	}
+}
+
+func hasEvidenceKind(items []domain.Evidence, kind string) bool {
+	return slices.ContainsFunc(items, func(item domain.Evidence) bool { return item.Kind == kind })
+}
+
+func hasRunnableNodeEvidence(items []domain.Evidence) bool {
+	for _, item := range items {
+		if item.Kind != "node.script" {
+			continue
+		}
+		var data map[string]any
+		if json.Unmarshal(item.Data, &data) == nil && slices.Contains([]string{"dev", "start"}, textValue(data, "script")) {
+			return true
+		}
+	}
+	return false
 }
 
 func unresolvedFields(candidate manifest.Manifest) []string {

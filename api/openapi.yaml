@@ -1760,7 +1760,7 @@ components:
       additionalProperties: false
       required: [terminal, editor]
       properties:
-        terminal: { type: string, enum: [integrated, system] }
+        terminal: { type: string, enum: [integrated, system, iterm] }
         editor: { type: string, enum: [vscode, none] }
     AIPreferences:
       type: object

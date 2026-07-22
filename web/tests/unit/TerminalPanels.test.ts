@@ -14,6 +14,7 @@ vi.mock('../../src/domains/terminal/api', () => terminalAPI)
 
 import AgentSessionsPanel from '../../src/domains/terminal/components/AgentSessionsPanel.vue'
 import TerminalPanel from '../../src/domains/terminal/components/TerminalPanel.vue'
+import { terminalFontFamily } from '../../src/domains/terminal/composables/useTerminalPanel'
 
 function plugins() {
   return [
@@ -64,6 +65,12 @@ test('terminal launcher exposes typed targets and honest detach persistence', as
   expect(screen.getByLabelText('Client')).toHaveValue('psql')
   await fireEvent.update(screen.getByLabelText('Launch'), 'action')
   expect(screen.getByRole('option', { name: 'Console' })).toBeInTheDocument()
+})
+
+test('embedded terminal prefers the Powerlevel10k font with portable fallbacks', () => {
+  expect(terminalFontFamily).toBe(
+    '"MesloLGS NF", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+  )
 })
 
 test('agent sessions disclose the observable boundary and launch a selected provider', async () => {

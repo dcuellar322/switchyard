@@ -74,6 +74,14 @@ async function selectTab(tab: ProjectTab) {
   activeTab.value = tab
   await router.replace({ query: tab === 'overview' ? {} : { tab } })
 }
+
+function openPreferredTerminal() {
+  if (terminalAction.value) {
+    void runAction(terminalAction.value)
+    return
+  }
+  void selectTab('terminal')
+}
 </script>
 
 <template>
@@ -103,7 +111,7 @@ async function selectTab(tab: ProjectTab) {
         :available-profiles="runtime.data.value?.availableProfiles ?? []"
         @action="runAction"
         @lifecycle="runLifecycle"
-        @terminal="selectTab('terminal')"
+        @terminal="openPreferredTerminal"
       />
       <ProjectTabList :active="activeTab" @select="selectTab" />
 

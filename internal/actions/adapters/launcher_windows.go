@@ -12,7 +12,10 @@ type platformLauncher struct{ executor launchExecutor }
 // NewLauncher creates the Windows Terminal, VS Code, and browser adapter.
 func NewLauncher() Launcher { return platformLauncher{executor: installedLauncher{}} }
 
-func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string) error {
+func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string, provider string) error {
+	if provider != "" && provider != "system" {
+		return errors.New("unsupported terminal provider on Windows")
+	}
 	arguments := []string{"-d", workingDirectory}
 	arguments = append(arguments, command...)
 	return l.executor.Run(ctx, "wt.exe", arguments...)

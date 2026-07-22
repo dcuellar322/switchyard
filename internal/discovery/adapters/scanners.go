@@ -8,16 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"math"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"syscall"
 
 	toml "github.com/pelletier/go-toml/v2"
-	"gopkg.in/yaml.v3"
 
 	"switchyard.dev/switchyard/internal/discovery/application"
 	"switchyard.dev/switchyard/internal/discovery/domain"
@@ -55,132 +53,6 @@ func (gitScanner) Scan(_ context.Context, root application.Root) ([]domain.Evide
 	return evidence("git.repository", ".git/HEAD", 1, 1, 1, map[string]any{"defaultBranch": branch})
 }
 
-type composeScanner struct{}
-
-func (composeScanner) Name() string { return "compose" }
-func (composeScanner) Scan(_ context.Context, root application.Root) ([]domain.Evidence, error) {
-	for _, name := range []string{"compose.yaml", "compose.yml", "docker-compose.yaml", "docker-compose.yml"} {
-		contents, err := root.ReadFile(name)
-		if errors.Is(err, fs.ErrNotExist) {
-			continue
-		}
-		if err != nil {
-			return nil, err
-		}
-		return scanCompose(name, contents)
-	}
-	return nil, nil
-}
-
-type composeDocument struct {
-	Name     string `yaml:"name"`
-	Services map[string]struct {
-		Command  any      `yaml:"command"`
-		Ports    []any    `yaml:"ports"`
-		Profiles []string `yaml:"profiles"`
-	} `yaml:"services"`
-}
-
-func scanCompose(path string, contents []byte) ([]domain.Evidence, error) {
-	var document composeDocument
-	if err := yaml.Unmarshal(contents, &document); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
-	}
-	lines := strings.Split(string(contents), "\n")
-	serviceNames := make([]string, 0, len(document.Services))
-	profileSet := make(map[string]struct{})
-	for name := range document.Services {
-		serviceNames = append(serviceNames, name)
-		for _, profile := range document.Services[name].Profiles {
-			if profile != "" {
-				profileSet[profile] = struct{}{}
-			}
-		}
-	}
-	sort.Strings(serviceNames)
-	profiles := make([]string, 0, len(profileSet))
-	for profile := range profileSet {
-		profiles = append(profiles, profile)
-	}
-	sort.Strings(profiles)
-	var result []domain.Evidence
-	for _, name := range serviceNames {
-		// Compose excludes profiled services unless that profile is explicitly
-		// enabled. Discovery describes the default lifecycle, so optional
-		// services must not make an otherwise healthy project look incomplete.
-		if len(document.Services[name].Profiles) > 0 {
-			continue
-		}
-		line := findYAMLKey(lines, name)
-		items, err := evidence("compose.service", path, line, line, .98, map[string]any{"service": name})
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, items...)
-		for index, raw := range document.Services[name].Ports {
-			host, target, protocol, ok := parseComposePort(raw)
-			if !ok {
-				continue
-			}
-			portLine := findAfter(lines, line, strconv.Itoa(target))
-			items, err = evidence("compose.port", path, portLine, portLine, .96, map[string]any{
-				"service": name, "host": host, "target": target, "protocol": protocol, "index": index,
-			})
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, items...)
-		}
-	}
-	items, err := evidence("compose.project", path, 1, max(1, len(lines)), .99, map[string]any{"file": path, "projectName": document.Name, "profiles": profiles})
-	return append(result, items...), err
-}
-
-func parseComposePort(raw any) (int, int, string, bool) {
-	protocol := "tcp"
-	switch value := raw.(type) {
-	case string:
-		value = strings.Trim(value, "\"'")
-		parts := strings.Split(value, "/")
-		if len(parts) == 2 {
-			protocol = parts[1]
-		}
-		mapping := strings.Split(parts[0], ":")
-		if len(mapping) < 2 {
-			return 0, 0, protocol, false
-		}
-		host, err1 := strconv.Atoi(mapping[len(mapping)-2])
-		target, err2 := strconv.Atoi(mapping[len(mapping)-1])
-		return host, target, protocol, err1 == nil && err2 == nil
-	case map[string]any:
-		host, ok1 := number(value["published"])
-		target, ok2 := number(value["target"])
-		if candidate, ok := value["protocol"].(string); ok {
-			protocol = candidate
-		}
-		return host, target, protocol, ok1 && ok2
-	default:
-		return 0, 0, protocol, false
-	}
-}
-
-func number(value any) (int, bool) {
-	switch value := value.(type) {
-	case int:
-		return value, true
-	case uint64:
-		if value > uint64(math.MaxInt) {
-			return 0, false
-		}
-		return int(value), true
-	case string:
-		parsed, err := strconv.Atoi(value)
-		return parsed, err == nil
-	default:
-		return 0, false
-	}
-}
-
 type pythonScanner struct{}
 
 func (pythonScanner) Name() string { return "python" }
@@ -194,22 +66,48 @@ func (pythonScanner) Scan(_ context.Context, root application.Root) ([]domain.Ev
 	}
 	var document struct {
 		Project struct {
-			Name string `toml:"name"`
+			Name    string            `toml:"name"`
+			Scripts map[string]string `toml:"scripts"`
 		} `toml:"project"`
 	}
 	if err := toml.Unmarshal(contents, &document); err != nil {
 		return nil, fmt.Errorf("parse pyproject.toml: %w", err)
 	}
 	manager := "python"
-	if _, err := root.ReadFile("uv.lock"); err == nil {
+	if exists, existsErr := root.HasFile("uv.lock"); existsErr != nil {
+		return nil, existsErr
+	} else if exists {
 		manager = "uv"
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		return nil, err
 	}
 	line := findTextLine(contents, "name")
-	return evidence("python.project", "pyproject.toml", line, line, .92, map[string]any{
-		"name": document.Project.Name, "manager": manager, "testCommand": []string{"uv", "run", "pytest"},
+	result, err := evidence("python.project", "pyproject.toml", line, line, .92, map[string]any{
+		"name": document.Project.Name, "manager": manager, "testCommand": pythonCommand(manager, "pytest"),
 	})
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]string, 0, len(document.Project.Scripts))
+	for name := range document.Project.Scripts {
+		keys = append(keys, name)
+	}
+	sort.Strings(keys)
+	for _, name := range keys {
+		items, evidenceErr := evidence("python.script", "pyproject.toml", findTextLine(contents, name+" ="), findTextLine(contents, name+" ="), .9, map[string]any{
+			"name": name, "command": pythonCommand(manager, name), "preferredRun": len(keys) == 1 || slices.Contains([]string{"dev", "serve", "start"}, name),
+		})
+		if evidenceErr != nil {
+			return nil, evidenceErr
+		}
+		result = append(result, items...)
+	}
+	return result, nil
+}
+
+func pythonCommand(manager, command string) []string {
+	if manager == "uv" {
+		return []string{"uv", "run", command}
+	}
+	return []string{command}
 }
 
 type nodeScanner struct{}
@@ -230,9 +128,9 @@ func (nodeScanner) Scan(_ context.Context, root application.Root) ([]domain.Evid
 	if err := json.Unmarshal(contents, &document); err != nil {
 		return nil, fmt.Errorf("parse package.json: %w", err)
 	}
-	manager := strings.Split(document.PackageManager, "@")[0]
-	if manager == "" {
-		manager = "npm"
+	manager, warnings, err := nodePackageManager(root, document.PackageManager)
+	if err != nil {
+		return nil, err
 	}
 	var result []domain.Evidence
 	for _, script := range []string{"dev", "start", "test", "build", "lint"} {
@@ -241,14 +139,37 @@ func (nodeScanner) Scan(_ context.Context, root application.Root) ([]domain.Evid
 		}
 		line := findTextLine(contents, `"`+script+`"`)
 		items, err := evidence("node.script", "package.json", line, line, .9, map[string]any{
-			"name": document.Name, "script": script, "command": []string{manager, "run", script},
+			"name": document.Name, "manager": manager, "script": script, "command": []string{manager, "run", script},
 		})
 		if err != nil {
 			return nil, err
 		}
+		items[0].Warnings = append(items[0].Warnings, warnings...)
 		result = append(result, items...)
 	}
 	return result, nil
+}
+
+func nodePackageManager(root application.Root, declared string) (string, []string, error) {
+	if declared != "" {
+		manager := strings.SplitN(declared, "@", 2)[0]
+		if slices.Contains([]string{"npm", "pnpm", "yarn", "bun"}, manager) {
+			return manager, nil, nil
+		}
+		return "npm", []string{"unrecognized packageManager value; defaulting reviewed commands to npm"}, nil
+	}
+	for _, candidate := range []struct{ path, manager string }{
+		{"pnpm-lock.yaml", "pnpm"}, {"yarn.lock", "yarn"}, {"bun.lock", "bun"}, {"bun.lockb", "bun"}, {"package-lock.json", "npm"},
+	} {
+		exists, err := root.HasFile(candidate.path)
+		if err != nil {
+			return "", nil, err
+		}
+		if exists {
+			return candidate.manager, nil, nil
+		}
+	}
+	return "npm", nil, nil
 }
 
 var targetPattern = regexp.MustCompile(`^([A-Za-z0-9][A-Za-z0-9_.-]*):(?:\s|$)`)
@@ -306,16 +227,26 @@ func (readmeScanner) Scan(_ context.Context, root application.Root) ([]domain.Ev
 		if err != nil {
 			return nil, err
 		}
+		var result []domain.Evidence
 		for index, line := range strings.Split(string(contents), "\n") {
 			if strings.HasPrefix(line, "# ") {
 				title, redacted := redactText(strings.TrimSpace(strings.TrimPrefix(line, "# ")))
 				items, evidenceErr := evidence("readme.title", path, index+1, index+1, .7, map[string]any{"title": title})
+				if evidenceErr != nil {
+					return nil, evidenceErr
+				}
 				if redacted && len(items) > 0 {
 					items[0].Warnings = []string{"suspected credential was redacted from README title"}
 				}
-				return items, evidenceErr
+				result = append(result, items...)
+				break
 			}
 		}
+		commands, err := scanDocumentedCommands(path, contents)
+		if err != nil {
+			return nil, err
+		}
+		return append(result, commands...), nil
 	}
 	return nil, nil
 }

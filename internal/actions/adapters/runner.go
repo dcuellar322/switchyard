@@ -21,7 +21,7 @@ var ErrPrivilegeEscalation = errors.New("actions may not invoke privilege escala
 
 // Launcher exposes reviewed native desktop capabilities to the action runner.
 type Launcher interface {
-	OpenTerminal(context.Context, string, []string) error
+	OpenTerminal(context.Context, string, []string, string) error
 	OpenEditor(context.Context, string, string) error
 	OpenBrowser(context.Context, string) error
 }
@@ -43,7 +43,7 @@ func (r *Runner) Run(ctx context.Context, execution domain.Execution) error {
 	action := execution.Action
 	switch action.Type {
 	case "terminal.open":
-		return r.launcher.OpenTerminal(ctx, execution.WorkingDirectory, nil)
+		return r.launcher.OpenTerminal(ctx, execution.WorkingDirectory, nil, action.Provider)
 	case "editor.open":
 		return r.launcher.OpenEditor(ctx, execution.WorkingDirectory, action.Provider)
 	case "browser.open":
@@ -52,7 +52,7 @@ func (r *Runner) Run(ctx context.Context, execution domain.Execution) error {
 		if action.Provider != "codex" && action.Provider != "claude" {
 			return fmt.Errorf("unsupported agent provider %q", action.Provider)
 		}
-		return r.launcher.OpenTerminal(ctx, execution.WorkingDirectory, []string{action.Provider})
+		return r.launcher.OpenTerminal(ctx, execution.WorkingDirectory, []string{action.Provider}, "")
 	case "git.fetch", "git.pull", "git.push":
 		command := action.Command
 		if len(command) == 0 {

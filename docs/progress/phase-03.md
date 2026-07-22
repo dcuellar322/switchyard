@@ -3,7 +3,7 @@ title: "Phase 3: Project catalog, manifests, and deterministic discovery"
 description: Implementation evidence for Switchyard product phase 3.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-07-20
 ---
 
 ## Implemented
@@ -104,3 +104,73 @@ AI is not used in scanning or proposal aggregation. Ambiguous facts remain
 explicitly unresolved. Runtime commands are displayed but never executed by
 onboarding. Compose and native-process lifecycle execution begin in later
 phases.
+
+## 2026-07-20 local project compatibility follow-up
+
+### Implemented
+
+- Bumped deterministic proposal identification to `deterministic/v2` after
+  expanding inference behavior.
+- Added Compose host-port parsing for numeric defaults in `${NAME:-PORT}` and
+  `${NAME-PORT}` expressions, including host-IP mappings and long syntax.
+  Ports without a deterministic numeric host value remain absent from the
+  candidate and now produce exact-line warning evidence.
+- Added reviewable fallback discovery for a single conventional local/dev
+  Compose filename when no standard Compose filename exists.
+- Added package-manager detection from safe lockfile existence checks without
+  reading potentially large lockfiles. Node `dev`/`start` scripts now produce
+  a one-process runtime proposal through the package manager's argument-array
+  command.
+- Added process inference from PEP 621 scripts and from a deliberately narrow,
+  shell-free uvicorn grammar in fenced README examples. Unknown flags, path
+  options, shell operators, and malformed ports fail closed.
+- Split Compose scanning into its own adapter file so scanner responsibilities
+  remain below repository review thresholds.
+
+### Tests and verification
+
+- Added regressions for Compose variable-default ports, exact unresolved-port
+  evidence, local Compose filenames, pnpm lockfile detection, inferred Node
+  processes, documented uvicorn processes, oversized lockfiles, escaping
+  symlinks, shell operators, and unsafe README path options.
+- A temporary compiled daemon scanned the runnable project definitions under
+  `/Users/dac/dev` without executing repository code or reading `.env` files.
+  All ten runnable definitions produced valid proposals with no unresolved
+  fields: standard Compose, local Compose, Node process, documented uvicorn,
+  and explicit Switchyard-manifest shapes were all represented.
+- Non-runnable directories (documents, certificates, raw source snippets,
+  generated internals, and empty directories) remained unresolved rather than
+  receiving fabricated lifecycle commands.
+
+```text
+make lint
+PASS: gofmt, Prettier, go vet, golangci-lint, architecture checks, ESLint
+
+make test
+PASS: all Go packages; 23 Vitest files / 49 tests
+
+make test-race
+PASS: all Go packages on the final run
+NOTE: the first run saw a transient EOF in the unrelated plugin process
+fixture; its isolated race test and the complete rerun both passed.
+
+make generate-check repository-check
+PASS: manifest schema, OpenAPI Go/TypeScript, sqlc, repository policy, diff
+
+make build
+PASS: production Vue bundle and local bin/switchyard 1.0.0
+
+temporary compiled daemon compatibility matrix
+PASS: 10/10 runnable definitions valid, 0 unresolved fields
+```
+
+### Known limitations
+
+- Discovery does not recursively guess project roots. A nested stack is added
+  at its actual root (for example, the directory containing its Compose file).
+- Framework-specific browser ports are not guessed for Node processes. Their
+  managed process lifecycle, logs, and metrics work, while endpoints can be
+  added during review or through a local overlay.
+- The audited declarations include one duplicate host port across otherwise
+  independent projects. The existing Phase 8 port registry reports that
+  conflict; concurrent operation requires a reviewed local override.

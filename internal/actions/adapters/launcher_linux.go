@@ -19,7 +19,10 @@ func NewLauncher() Launcher {
 	return platformLauncher{executor: installedLauncher{}, lookPath: exec.LookPath}
 }
 
-func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string) error {
+func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory string, command []string, provider string) error {
+	if provider != "" && provider != "system" {
+		return errors.New("unsupported terminal provider on Linux")
+	}
 	lookup := l.lookPath
 	if lookup == nil {
 		lookup = exec.LookPath

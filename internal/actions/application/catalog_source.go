@@ -58,8 +58,8 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 			return domain.ProjectActions{}, err
 		}
 	}
-	if terminal == "system" {
-		addDefault(actions, domain.Definition{ID: "terminal", Name: "Open terminal", Type: "terminal.open", WorkingDirectory: ".", Risk: domain.RiskInteractive})
+	if action, available := builtInTerminalAction(terminal); available {
+		addDefault(actions, action)
 	}
 	if editor == "vscode" {
 		addDefault(actions, domain.Definition{ID: "vscode", Name: "Open VS Code", Type: "editor.open", Provider: "vscode", WorkingDirectory: ".", Risk: domain.RiskInteractive})
@@ -86,6 +86,20 @@ func (s *CatalogSource) ResolveActions(ctx context.Context, projectID string) (d
 	}
 	sortDefinitions(result, primaryEndpointActionID)
 	return domain.ProjectActions{ProjectID: project.ID, ProjectName: project.DisplayName, Root: project.PrimaryLocation, Actions: result}, nil
+}
+
+func builtInTerminalAction(preference string) (domain.Definition, bool) {
+	if preference == "integrated" {
+		return domain.Definition{}, false
+	}
+	provider := ""
+	if preference != "system" {
+		provider = preference
+	}
+	return domain.Definition{
+		ID: "terminal", Name: "Open terminal", Type: "terminal.open", Provider: provider,
+		WorkingDirectory: ".", Risk: domain.RiskInteractive,
+	}, true
 }
 
 func sortDefinitions(result []domain.Definition, primaryEndpointActionID string) {

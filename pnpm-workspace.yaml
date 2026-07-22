@@ -2,6 +2,11 @@ packages:
   - web
   - site
 
+overrides:
+  fast-uri: 3.1.4
+  js-yaml: 4.3.0
+  sharp: 0.35.3
+
 allowBuilds:
   esbuild: true
   sharp: true

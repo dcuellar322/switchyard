@@ -11,12 +11,13 @@ import (
 )
 
 type launcherStub struct {
-	cwd     string
-	command []string
+	cwd      string
+	command  []string
+	provider string
 }
 
-func (l *launcherStub) OpenTerminal(_ context.Context, cwd string, command []string) error {
-	l.cwd, l.command = cwd, command
+func (l *launcherStub) OpenTerminal(_ context.Context, cwd string, command []string, provider string) error {
+	l.cwd, l.command, l.provider = cwd, command, provider
 	return nil
 }
 func (*launcherStub) OpenEditor(context.Context, string, string) error { return nil }
@@ -29,7 +30,19 @@ func TestTerminalAndAgentLaunchUseResolvedWorkingDirectory(t *testing.T) {
 	if err := runner.Run(context.Background(), domain.Execution{WorkingDirectory: "/trusted/project", Action: domain.Definition{Type: "agent.start", Provider: "codex"}}); err != nil {
 		t.Fatal(err)
 	}
-	if launcher.cwd != "/trusted/project" || len(launcher.command) != 1 || launcher.command[0] != "codex" {
+	if launcher.cwd != "/trusted/project" || len(launcher.command) != 1 || launcher.command[0] != "codex" || launcher.provider != "" {
+		t.Fatalf("launcher = %#v", launcher)
+	}
+}
+
+func TestTerminalLaunchUsesSelectedProvider(t *testing.T) {
+	t.Parallel()
+	launcher := &launcherStub{}
+	runner := NewRunner(launcher)
+	if err := runner.Run(context.Background(), domain.Execution{WorkingDirectory: "/trusted/project", Action: domain.Definition{Type: "terminal.open", Provider: "iterm"}}); err != nil {
+		t.Fatal(err)
+	}
+	if launcher.cwd != "/trusted/project" || len(launcher.command) != 0 || launcher.provider != "iterm" {
 		t.Fatalf("launcher = %#v", launcher)
 	}
 }
