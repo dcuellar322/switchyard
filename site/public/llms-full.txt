@@ -4987,6 +4987,76 @@ explicitly unresolved. Runtime commands are displayed but never executed by
 onboarding. Compose and native-process lifecycle execution begin in later
 phases.
 
+## 2026-07-20 local project compatibility follow-up
+
+### Implemented
+
+- Bumped deterministic proposal identification to `deterministic/v2` after
+  expanding inference behavior.
+- Added Compose host-port parsing for numeric defaults in `${NAME:-PORT}` and
+  `${NAME-PORT}` expressions, including host-IP mappings and long syntax.
+  Ports without a deterministic numeric host value remain absent from the
+  candidate and now produce exact-line warning evidence.
+- Added reviewable fallback discovery for a single conventional local/dev
+  Compose filename when no standard Compose filename exists.
+- Added package-manager detection from safe lockfile existence checks without
+  reading potentially large lockfiles. Node `dev`/`start` scripts now produce
+  a one-process runtime proposal through the package manager's argument-array
+  command.
+- Added process inference from PEP 621 scripts and from a deliberately narrow,
+  shell-free uvicorn grammar in fenced README examples. Unknown flags, path
+  options, shell operators, and malformed ports fail closed.
+- Split Compose scanning into its own adapter file so scanner responsibilities
+  remain below repository review thresholds.
+
+### Tests and verification
+
+- Added regressions for Compose variable-default ports, exact unresolved-port
+  evidence, local Compose filenames, pnpm lockfile detection, inferred Node
+  processes, documented uvicorn processes, oversized lockfiles, escaping
+  symlinks, shell operators, and unsafe README path options.
+- A temporary compiled daemon scanned the runnable project definitions under
+  `/Users/dac/dev` without executing repository code or reading `.env` files.
+  All ten runnable definitions produced valid proposals with no unresolved
+  fields: standard Compose, local Compose, Node process, documented uvicorn,
+  and explicit Switchyard-manifest shapes were all represented.
+- Non-runnable directories (documents, certificates, raw source snippets,
+  generated internals, and empty directories) remained unresolved rather than
+  receiving fabricated lifecycle commands.
+
+```text
+make lint
+PASS: gofmt, Prettier, go vet, golangci-lint, architecture checks, ESLint
+
+make test
+PASS: all Go packages; 23 Vitest files / 49 tests
+
+make test-race
+PASS: all Go packages on the final run
+NOTE: the first run saw a transient EOF in the unrelated plugin process
+fixture; its isolated race test and the complete rerun both passed.
+
+make generate-check repository-check
+PASS: manifest schema, OpenAPI Go/TypeScript, sqlc, repository policy, diff
+
+make build
+PASS: production Vue bundle and local bin/switchyard 1.0.0
+
+temporary compiled daemon compatibility matrix
+PASS: 10/10 runnable definitions valid, 0 unresolved fields
+```
+
+### Known limitations
+
+- Discovery does not recursively guess project roots. A nested stack is added
+  at its actual root (for example, the directory containing its Compose file).
+- Framework-specific browser ports are not guessed for Node processes. Their
+  managed process lifecycle, logs, and metrics work, while endpoints can be
+  added during review or through a local overlay.
+- The audited declarations include one duplicate host port across otherwise
+  independent projects. The existing Phase 8 port registry reports that
+  conflict; concurrent operation requires a reviewed local override.
+
 ---
 
 # Phase 4: Complete CLI contract
@@ -5661,17 +5731,33 @@ environment values.
 
 ## 2026-07-17 terminal and endpoint evidence
 
-- Dashboard and project-header Terminal controls route to Switchyard's
-  integrated terminal instead of incorrectly queueing `terminal.open` as a
-  project action.
+- Dashboard and project-header Terminal controls use the durable terminal
+  preference: `integrated` opens Switchyard's terminal tab, while an external
+  preference queues the trusted `terminal.open` action. The terminal tab
+  remains directly accessible in either mode.
 - The explicit external-terminal control is disabled when no trusted
-  `terminal.open` action exists. On macOS, the launcher uses Terminal's
-  AppleScript API to open and focus a shell at the exact trusted working
-  directory.
+  `terminal.open` action exists. On macOS, the launcher uses the selected
+  Terminal.app or iTerm2 AppleScript API to open and focus a shell at the exact
+  trusted working directory. Other platforms reject the macOS-only iTerm2
+  provider instead of silently substituting another terminal.
 - Every trusted `browser.open` action is rendered as a named project endpoint;
   browser and terminal actions are excluded from generic quick actions.
 - Project action failures preserve the server problem detail and code instead
   of replacing them with a generic queueing message.
+
+## 2026-07-21 external-terminal preference evidence
+
+- Extended the existing durable terminal preference and generated API enum
+  with an explicit `iterm` choice while preserving `integrated` and `system`
+  values for existing settings.
+- Carried the selected provider through the trusted action definition and
+  narrow launcher interface; no UI or transport code constructs a command.
+- Added settings validation, generated-contract, provider-routing, exact
+  working-directory, unknown-provider, UI save, and preferred-button tests.
+- `make lint`, `make typecheck`, `make test`, `make test-race`,
+  `make platform-check`, `make test-e2e`, `make test-visual`,
+  `make repository-check`, and `make build` passed. Generated outputs were
+  byte-identical across consecutive generation runs.
 
 ---
 
@@ -6494,6 +6580,17 @@ process-group termination through a real PTY.
 - Rich provider SDK orchestration is deferred by the scope guard. Codex and
   Claude Code run through their reliable user-visible PTY interfaces.
 - PTY scrollback is intentionally not durable across daemon restarts.
+
+## 2026-07-21 terminal glyph evidence
+
+- The PTY continues to launch the user's selected/default login shell, so zsh,
+  Oh My Zsh, and Powerlevel10k startup behavior remains user-owned.
+- The xterm renderer now prefers the Powerlevel10k-recommended `MesloLGS NF`
+  family and retains the existing portable monospace fallbacks. Systems without
+  that installed family continue through the CSS font stack without assuming
+  Powerlevel10k.
+- Vue unit coverage fixes the glyph-capable font order, and the real-daemon E2E
+  terminal flow plus all 14 visual regression scenarios passed.
 
 ---
 
