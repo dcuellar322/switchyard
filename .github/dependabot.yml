@@ -4,6 +4,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0
     groups:
       go-minor-patch:
         update-types: [minor, patch]
@@ -11,6 +12,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0
     ignore:
       # type-fest 3 fails with TypeScript 6, while 4 and 5 removed the export
       # required by @testing-library/vue 8.1.0. No newer release is available.
@@ -27,3 +29,4 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0

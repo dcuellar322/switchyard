@@ -186,7 +186,7 @@ jobs:
       - run: pnpm --dir site releases:prepare-files release "${{ needs.metadata.outputs.channel }}"
       - uses: sigstore/cosign-installer@v4
       - run: cosign sign-blob --yes --bundle release/checksums.txt.sigstore.json release/checksums.txt
-      - uses: actions/attest@v4
+      - uses: actions/attest@v4.2.0
         with:
           subject-path: release/**/*
       - uses: softprops/action-gh-release@v3
