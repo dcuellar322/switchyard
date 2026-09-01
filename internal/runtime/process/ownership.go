@@ -13,6 +13,13 @@ type processOwnership interface {
 	Close() error
 }
 
+// processMemberSource exposes kernel-owned membership when the platform can
+// provide it directly. Windows Job Objects implement this boundary; recovered
+// runs without a live ownership handle fall back to inspector discovery.
+type processMemberSource interface {
+	MemberPIDs() ([]int32, error)
+}
+
 func boundedPID(pid int) (int32, error) {
 	if pid <= 0 || int64(pid) > math.MaxInt32 {
 		return 0, fmt.Errorf("process ID %d is outside the supported range", pid)

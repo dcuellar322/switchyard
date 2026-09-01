@@ -4656,6 +4656,12 @@ After the upgrade:
   match. Fourteen browser/project combinations are intentionally skipped by the
   existing test matrix.
 - [x] Clean generated-code reproducibility check from the committed tree.
+- [x] Windows native-process follow-up: live runs now query their Job Object for
+  exact process membership instead of repeatedly scanning every process on the
+  hosted runner. Recovered runs retain inspector-based discovery because they
+  do not own a live Job Object handle. Focused process tests, race tests,
+  Windows cross-compilation, lint, platform checks, and the full quality gate
+  pass with this stabilization.
 
 ## Compatibility note
 
