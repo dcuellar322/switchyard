@@ -4,7 +4,7 @@
   "private": true,
   "description": "A local, project-oriented development command center",
   "license": "Apache-2.0",
-  "packageManager": "pnpm@11.13.1",
+  "packageManager": "pnpm@11.22.0",
   "engines": {
     "node": ">=22.13"
   },

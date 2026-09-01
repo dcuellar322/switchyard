@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/v2.5.0/configuration-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/v2.8.0/configuration-schema.json
 package: generated
 output: internal/transport/contract/generated/api.gen.go
 generate:
@@ -7,3 +7,7 @@ generate:
   chi-server: true
 output-options:
   skip-prune: true
+  skip-response-body-getters: true
+compatibility:
+  disable-enum-value-conflict-resolution: true
+  sort-handler-registrations: true

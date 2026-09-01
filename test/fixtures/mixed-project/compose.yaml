@@ -7,7 +7,7 @@ services:
     environment:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   web:
-    image: node:24-alpine
+    image: node:24.19.0-alpine
     ports:
       - target: 5173
         published: "15174"
