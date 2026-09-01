@@ -97,9 +97,18 @@ After the upgrade:
   Vue type checking, Go unit tests, and Vue unit/coverage tests pass.
 - [x] JavaScript, Go, and Rust vulnerability scans complete with no actionable
   vulnerability in the upgraded application dependency graph.
-- [ ] Full `make quality` gate.
-- [ ] Full public-site quality, browser, and visual gates.
-- [ ] Clean generated-code reproducibility check from the committed tree.
+- [x] Full `make quality` gate: generated-code reproducibility, repository and
+  architecture checks, formatting, vet, lint, type checking, Go/Vue unit tests,
+  Go race tests, plugin and migration checks, Linux/Windows adapter compilation,
+  govulncheck, five live-daemon browser journeys, fourteen application visual
+  baselines, production builds, MCP Inspector smoke, Rust formatting/Clippy/
+  tests, and native macOS application plus DMG packaging.
+- [x] Full public-site quality gate: Astro reports zero diagnostics; 19 unit
+  tests pass; 142 pages build and validate; 38 applicable E2E tests pass across
+  Chromium, Firefox, WebKit, and mobile Chromium; and four visual baselines
+  match. Fourteen browser/project combinations are intentionally skipped by the
+  existing test matrix.
+- [x] Clean generated-code reproducibility check from the committed tree.
 
 ## Compatibility note
 
