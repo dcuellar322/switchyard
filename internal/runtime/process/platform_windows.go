@@ -3,6 +3,7 @@
 package process
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"sync"
@@ -29,6 +30,11 @@ type jobBasicAccountingInformation struct {
 	totalProcesses            uint32
 	activeProcesses           uint32
 	totalTerminatedProcesses  uint32
+}
+
+type jobBasicProcessIDListHeader struct {
+	numberOfAssignedProcesses uint32
+	numberOfProcessIDsInList  uint32
 }
 
 func configureProcessGroup(command *exec.Cmd) {
@@ -79,6 +85,63 @@ func (o *windowsOwnership) Running() bool {
 		nil,
 	)
 	return err == nil && info.activeProcesses > 0
+}
+
+func (o *windowsOwnership) MemberPIDs() ([]int32, error) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if o.closed {
+		return nil, os.ErrProcessDone
+	}
+
+	capacity := 8
+	headerSize := unsafe.Sizeof(jobBasicProcessIDListHeader{})
+	pidSize := unsafe.Sizeof(uintptr(0))
+	headerWords := (int(headerSize) + int(pidSize) - 1) / int(pidSize)
+	for {
+		buffer := make([]uintptr, headerWords+capacity)
+		header := (*jobBasicProcessIDListHeader)(unsafe.Pointer(&buffer[0]))
+		// #nosec G115 -- the buffer is bounded above to a few megabytes.
+		bufferBytes := uint32(len(buffer) * int(pidSize))
+		err := windows.QueryInformationJobObject(
+			o.job,
+			windows.JobObjectBasicProcessIdList,
+			uintptr(unsafe.Pointer(&buffer[0])),
+			bufferBytes,
+			nil,
+		)
+		incomplete := header.numberOfProcessIDsInList < header.numberOfAssignedProcesses
+		if err == windows.ERROR_MORE_DATA || (err == nil && incomplete) {
+			if capacity >= 1<<20 || header.numberOfAssignedProcesses > 1<<20 {
+				return nil, fmt.Errorf(
+					"job object membership exceeded supported capacity: %d assigned processes",
+					header.numberOfAssignedProcesses,
+				)
+			}
+			capacity *= 2
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		if header.numberOfProcessIDsInList > uint32(capacity) {
+			return nil, fmt.Errorf(
+				"job object returned %d process IDs for capacity %d",
+				header.numberOfProcessIDsInList,
+				capacity,
+			)
+		}
+		nativePIDs := buffer[headerWords : headerWords+int(header.numberOfProcessIDsInList)]
+		pids := make([]int32, 0, len(nativePIDs))
+		for _, pid := range nativePIDs {
+			if pid == 0 || pid > uintptr(^uint32(0)>>1) {
+				return nil, fmt.Errorf("job object returned unsupported process ID %d", pid)
+			}
+			// #nosec G115 -- the native PID was bounded to signed 32-bit above.
+			pids = append(pids, int32(pid))
+		}
+		return pids, nil
+	}
 }
 
 func (o *windowsOwnership) Signal(force bool) error {

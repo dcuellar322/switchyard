@@ -129,8 +129,9 @@ func (d *Driver) recordGroupMembers(ctx context.Context, managed *managedRun) {
 	managed.mu.Lock()
 	group := managed.group
 	runID := managed.run.ID
+	ownership := managed.ownership
 	managed.mu.Unlock()
-	members, err := d.inspector.GroupMembers(ctx, group)
+	members, err := d.groupMembers(ctx, ownership, group)
 	if err != nil {
 		return
 	}
@@ -144,6 +145,31 @@ func (d *Driver) recordGroupMembers(ctx context.Context, managed *managedRun) {
 			managed.mu.Unlock()
 		}
 	}
+}
+
+func (d *Driver) groupMembers(
+	ctx context.Context,
+	ownership processOwnership,
+	group int32,
+) ([]domain.ProcessIdentity, error) {
+	source, ok := ownership.(processMemberSource)
+	if !ok {
+		return d.inspector.GroupMembers(ctx, group)
+	}
+	pids, err := source.MemberPIDs()
+	if err != nil {
+		return nil, err
+	}
+	members := make([]domain.ProcessIdentity, 0, len(pids))
+	for _, pid := range pids {
+		identity, snapshotErr := d.inspector.Snapshot(ctx, pid)
+		if snapshotErr != nil {
+			continue
+		}
+		identity.ProcessGroup = group
+		members = append(members, identity)
+	}
+	return members, nil
 }
 
 func containsIdentity(values []domain.ProcessIdentity, candidate domain.ProcessIdentity) bool {

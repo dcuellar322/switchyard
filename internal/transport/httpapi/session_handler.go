@@ -37,6 +37,8 @@ func (h *handler) CreateBrowserSession(w http.ResponseWriter, r *http.Request) {
 		writeApplicationError(w, r, err)
 		return
 	}
+	// #nosec G124 -- the browser API is intentionally HTTP-only on loopback;
+	// Secure would prevent this cookie from being returned on IP-literal origins.
 	http.SetCookie(w, &http.Cookie{
 		Name: sessionCookieName, Value: session.ID, Path: "/", HttpOnly: true,
 		SameSite: http.SameSiteStrictMode, MaxAge: int(time.Until(session.ExpiresAt).Seconds()),
