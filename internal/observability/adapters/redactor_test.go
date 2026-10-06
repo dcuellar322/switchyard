@@ -16,7 +16,7 @@ func TestRedactorSanitizesEveryLogFieldBeforeSinks(t *testing.T) {
 	redactor.AddSecret("known-secret-value")
 	original := runtime.LogEntry{
 		Message:    "Authorization: Bearer abc.def token=top-secret CUSTOM-123 known-secret-value postgres://user:pass@localhost/db",
-		Attributes: map[string]string{"credential": "api_key=abc123", "safe": "visible"},
+		Attributes: map[string]string{"credential": "api_key=abc123", "safe": "visible"}, // gitleaks:allow -- synthetic redaction fixture
 	}
 	redacted := redactor.RedactLog(original)
 	for _, secret := range []string{"abc.def", "top-secret", "CUSTOM-123", "known-secret-value", "pass", "abc123"} {

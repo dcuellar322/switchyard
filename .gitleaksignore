@@ -1,0 +1,3 @@
+# Synthetic api_key=abc123 in the original redaction test, not a credential.
+# Ignore only this historical finding; keep scanning all other test content.
+a32483ae279d8c5a8b90d4939809a36736577f93:internal/observability/adapters/redactor_test.go:generic-api-key:19

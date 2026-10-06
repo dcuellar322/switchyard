@@ -3,13 +3,23 @@ packages:
   - site
 
 overrides:
-  fast-uri: 3.1.5
-  js-yaml: 4.3.1
-  sharp: 0.35.3
+  fast-uri: 3.1.8
+  js-yaml: 4.3.2
+  sharp: 0.35.4
+  http-cache-semantics: 4.3.0
+  source-map-js: 1.2.2
+  'smol-toml@<1.8.1': 1.9.0
+  'undici@7': 7.29.1
+  'undici@8': 8.11.2
 
 minimumReleaseAge: 14400
 minimumReleaseAgeIgnoreMissingTime: false
 minimumReleaseAgeStrict: true
+
+# Exact security fixes; retain the age gate for all other versions.
+minimumReleaseAgeExclude:
+  - http-cache-semantics@4.3.0 # GHSA-ch52-4w7c-c8xp
+  - source-map-js@1.2.2 # GHSA-68fv-2mgg-jv7q
 
 update:
   githubActions: true

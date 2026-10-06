@@ -4874,6 +4874,56 @@ shutdown smoke test: SIGINT and Playwright SIGTERM both removed daemon.lock
   policy, Go vet, GolangCI, architecture checks, and Vue lint/typechecking pass
   from the release checkout.
 
+## 2026-10-05 security CI repair evidence
+
+This is a focused repair of Phase 1's requirement that quality commands run
+locally and in CI. The existing application rebrand and feature changes are
+outside this repair commit. ADR-0001, ADR-0002, and ADR-0017 still apply;
+no architecture decision changed.
+
+### Implemented
+
+- Updated the pinned Astro, Vue, and sharp versions and affected transitive
+  dependencies to remove the dependency audit's high and critical findings.
+- Kept undici overrides within their existing major versions. Added exact
+  release-age exceptions only for the published cache-semantics and source-map
+  security fixes; all other packages retain the ten-day release-age policy.
+- Added a single historical Gitleaks fingerprint exception for a synthetic
+  redaction fixture and annotated the fixture's current source line. Secret
+  scanning, full-history scanning, and the audit threshold remain enabled.
+
+### Verification
+
+- Frozen pnpm installation and the CI audit threshold pass: zero high or
+  critical findings, with one moderate advisory described below.
+- Full-history Gitleaks scanning and the current redaction-source scan pass.
+  Removing the fixture annotation causes the scanner to detect it again,
+  verifying that the detection rule remains active.
+- Go formatting, vet, lint (zero issues), architecture/repository checks,
+  unit tests, race tests, empty-database migration, and vulnerability checks
+  pass in the working checkout. Linux and Windows adapter compilation passes.
+- Frontend lint, typechecking, and unit tests pass in the working checkout.
+- The CI-only master snapshot passes the site's typechecking, lint, 19 unit
+  tests, production build, and content/output validation.
+- API, manifest, SQL, and public-site generation reproduces the existing
+  generated artifacts before this progress entry is added.
+
+### Known limitations and follow-up
+
+- The remaining moderate advisory, GHSA-rj75-hqrm-r3gf, affects
+  `postcss-selector-parser` 6 through the site's code-highlighting CSS tooling.
+  Its published fix is in major version 7; this repair does not force that
+  major change underneath a dependency that still requires version 6.
+- Local browser checks initially encountered a cold daemon-build timeout and
+  Astro's automatic agent background-preview mode. Browser verification uses
+  a warm build cache and a foreground preview server; hosted CI remains the
+  authority for the complete platform, browser, and desktop matrix.
+
+### Manual verification
+
+Run the CI and Public site CI workflows on the repair commit, then verify
+that Security's JavaScript audit and full-history Secret scan jobs pass.
+
 ---
 
 # Phase 2: Operations kernel and local IPC
